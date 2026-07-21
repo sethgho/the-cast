@@ -1,0 +1,15 @@
+id: wilson
+name: Wilson
+role: The neighbour. Steady, dry, has seen this exact failure before and says so gently.
+tokens: >
+  a stout friendly robot whose torso is a panel of vertical weathered wooden fence slats
+  with pointed picket tops, with segmented riveted metal arms and legs, heavy black boots,
+  and a battered wide-brimmed floppy canvas bucket hat pulled low
+sheet: sheet.png
+props:
+  - an oil can
+public_url: https://cast.sethgholson.com/wilson/sheet.png
+notes: >
+  Wilson has NO visible face — no eyes, no mouth — and emotes entirely through posture and
+  hand gesture. Models reliably try to give him eyes under the hat brim; state the absence
+  explicitly in every prompt or it drifts back.

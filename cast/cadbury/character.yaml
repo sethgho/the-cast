@@ -1,0 +1,13 @@
+id: cadbury
+name: Cadbury
+role: The butler. Unflappable. Arrives with tea at the precise moment things collapse.
+tokens: >
+  a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with
+  slicked-back black hair and a neat pencil moustache, a white folded towel draped over one
+  forearm
+sheet: sheet.png
+props:
+  - a silver tea tray
+  - a teapot
+  - a teacup and saucer
+public_url: https://cast.sethgholson.com/cadbury/sheet.png

@@ -1,0 +1,11 @@
+id: seth
+name: Seth
+role: The operator. Optimistic, mid-deploy, perpetually one small change away from disaster.
+tokens: >
+  a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar
+  moustache, wearing a dark charcoal hooded sweatshirt, grey trousers and black-and-white
+  sneakers
+sheet: sheet.png
+props:
+  - a white mug lettered "CODE FUEL"
+public_url: https://cast.sethgholson.com/seth/sheet.png
