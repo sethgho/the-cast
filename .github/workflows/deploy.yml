@@ -1,0 +1,50 @@
+# Auto-deploy to Coolify on every push to master — GitHub Actions -> Coolify,
+# no host-side poller. Public repo, so GitHub-hosted runners are free.
+#
+# Coolify's API is exposed at https://coolify.sethgholson.com (grove cloudflared
+# tunnel) but GUARDED BY CLOUDFLARE ACCESS — only a request bearing the Access
+# service token passes the edge. This job presents that token AND the Coolify
+# API token (defense in depth).
+#
+# Repo secrets required: CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET, COOLIFY_TOKEN
+#
+# The Docker build re-validates cast/*/character.yaml against the schema, so a
+# push with a broken registry fails the deploy instead of shipping.
+name: deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-coolify
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: trigger Coolify deploy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Trigger Coolify deploy (through Cloudflare Access)
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          APP_UUID: nw0sswocksk44gowgsk08ws0
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_ACCESS_CLIENT_ID:-}" ] || [ -z "${CF_ACCESS_CLIENT_SECRET:-}" ] || [ -z "${COOLIFY_TOKEN:-}" ]; then
+            echo "::error::missing CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET / COOLIFY_TOKEN secrets"; exit 1
+          fi
+          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" -m 30 \
+            -H "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}" \
+            -H "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}" \
+            -H "Authorization: Bearer ${COOLIFY_TOKEN}" \
+            "https://coolify.sethgholson.com/api/v1/deploy?uuid=${APP_UUID}&force=false")
+          echo "Coolify deploy HTTP ${code}"; cat /tmp/resp.json 2>/dev/null || true; echo
+          if [ "${code}" != "200" ]; then
+            echo "::error::deploy failed (HTTP ${code}) — 403 = Access rejected the service token; 401 = bad Coolify token"
+            exit 1
+          fi
+          echo "deploy queued for app ${APP_UUID}"
