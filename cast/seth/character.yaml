@@ -3,9 +3,13 @@ name: Seth
 role: The operator. Optimistic, mid-deploy, perpetually one small change away from disaster.
 tokens: >
   a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar
-  moustache, wearing a dark charcoal hooded sweatshirt, grey trousers and black-and-white
-  sneakers
+  moustache, wearing a v-neck t-shirt in extremely dark spruce green — so dark it reads
+  nearly charcoal, the green only barely perceptible — with grey trousers and
+  black-and-white sneakers
 sheet: sheet.png
 props:
-  - a white mug lettered "CODE FUEL"
+  - a can of Diet Coke
 public_url: https://cast.sethgholson.com/seth/sheet.png
+notes: >
+  No hoodie — that was the old design. In the sepia-duotone house style the shirt's green
+  reads as near-black tone; the green only matters in colour renders.

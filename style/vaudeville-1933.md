@@ -59,20 +59,15 @@ prop lettering comes out garbled. That's a known cost of keeping the joke in the
 
 ## Character tokens
 
-Use these exact descriptions alongside the reference image. The refs carry the design; the
-words keep the model from inventing a different one when the ref conditioning is weak.
+**Do not copy character descriptions into this file.** The single source of truth is
+`cast/<id>/character.yaml` (`tokens`, `props`, `notes`) — also served machine-readable at
+https://cast.sethgholson.com/cast.json. Read them from there at render time; a copy here
+would drift the first time a character changes. (It did. That's why this section is now a
+pointer.)
 
-- **seth** — a lanky man with long wavy shoulder-length brown hair and a full handlebar
-  moustache, in a dark charcoal hooded sweatshirt, grey trousers and black-and-white
-  sneakers.
-- **wilson** — a stout robot whose torso is a wooden garden-fence panel of vertical
-  weathered slats, with segmented riveted metal arms and legs, heavy black boots, and a
-  battered wide-brimmed canvas bucket hat.
-- **cadbury** — a thin, impeccable butler in a black tailcoat, waistcoat and bow tie, with
-  slicked black hair and a pencil moustache, a white folded towel over one forearm.
-- **ake** — a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled
-  wooden dolly, with huge googly eyes, a drooping walrus moustache and prominent front
-  teeth, wearing a small dark cap reading SYSOP perched on top of the bowl.
+The rule that stays: tokens ride WITH the reference sheet in every prompt. The sheet
+carries silhouette and costume; the tokens stop the model inventing a different design
+when reference conditioning runs weak. Both halves, always.
 
 ## Palette
 

@@ -4,12 +4,15 @@ role: The neighbour. Steady, dry, has seen this exact failure before and says so
 tokens: >
   a stout friendly robot whose torso is a panel of vertical weathered wooden fence slats
   with pointed picket tops, with segmented riveted metal arms and legs, heavy black boots,
-  and a battered wide-brimmed floppy canvas bucket hat pulled low
+  and a battered wide-brimmed floppy canvas bucket hat pulled low — beneath the brim only
+  a pair of warm HUMAN eyes are visible in deep shadow; no nose, no mouth, no other
+  facial features, ever
 sheet: sheet.png
 props:
-  - an oil can
+  - a miniature rack of tiny humming servers, carried lantern-style by a chain
 public_url: https://cast.sethgholson.com/wilson/sheet.png
 notes: >
-  Wilson has NO visible face — no eyes, no mouth — and emotes entirely through posture and
-  hand gesture. Models reliably try to give him eyes under the hat brim; state the absence
-  explicitly in every prompt or it drifts back.
+  The eyes are human and kind — never glowing robot lenses, never mechanical. Everything
+  below the eyes stays hidden (shadow, brim, fence top). Models drift two ways here:
+  giving him a full face, or making the eyes robotic. State both exclusions in every
+  prompt. The server-rack-on-a-chain replaced the oil can.

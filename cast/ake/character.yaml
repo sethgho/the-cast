@@ -4,16 +4,16 @@ role: The sysop. Over-caffeinated, alarmed by everything, usually right.
 tokens: >
   a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden
   dolly, with huge googly eyes, a drooping walrus moustache and prominent front teeth,
-  wearing a small dark cap reading "SYSOP" perched on top of the bowl
+  wearing a small dark cap reading "FEW" perched on top of the bowl
 sheet: sheet.png
 props:
-  - a small dark cap lettered "SYSOP"
+  - a small dark cap lettered "FEW"
   - the wheeled wooden dolly the bowl rides on
 accent: >
   The only warm colour in an otherwise sepia-duotone world — a muted ochre orange. Do not
   spread this to other characters; that single spot of colour is the strip's signature.
 public_url: https://cast.sethgholson.com/ake/sheet.png
 notes: >
-  The walrus moustache and buck teeth are his defining features and are the FIRST thing a
-  text-only prompt loses — the 2026-07-21 eval produced a plain goldfish without them.
-  Always render Ake with reference conditioning.
+  The cap reads "FEW" — as in "few understand." It used to say SYSOP; that's retired.
+  The walrus moustache and buck teeth are his defining features and the FIRST thing a
+  text-only prompt loses. Always render Ake with reference conditioning.
