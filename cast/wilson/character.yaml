@@ -2,17 +2,20 @@ id: wilson
 name: Wilson
 role: The neighbour. Steady, dry, has seen this exact failure before and says so gently.
 tokens: >
-  a stout friendly robot whose torso is a panel of vertical weathered wooden fence slats
-  with pointed picket tops, with segmented riveted metal arms and legs, heavy black boots,
-  and a battered wide-brimmed floppy canvas bucket hat pulled low — beneath the brim only
-  a pair of warm HUMAN eyes are visible in deep shadow; no nose, no mouth, no other
-  facial features, ever
+  a living picket fence: one wide wooden fence panel of vertical slats with pointed tops
+  IS his entire body, with two segmented riveted metal arms attached at its side edges,
+  two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom
+  rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points
+  — in the deep flat shadow between hat brim and pickets float two simple friendly
+  cartoon eyes, white ovals with round dark pupils
 sheet: sheet.png
 props:
   - a miniature rack of tiny humming servers, carried lantern-style by a chain
 public_url: https://cast.sethgholson.com/wilson/sheet.png
 notes: >
-  The eyes are human and kind — never glowing robot lenses, never mechanical. Everything
-  below the eyes stays hidden (shadow, brim, fence top). Models drift two ways here:
-  giving him a full face, or making the eyes robotic. State both exclusions in every
-  prompt. The server-rack-on-a-chain replaced the oil can.
+  NEVER describe Wilson with the word "robot" — it primes a humanoid armature (torso,
+  pelvis, long legs) that survived two direct correction passes on 2026-07-21; the
+  fence-first framing above is what finally rendered correctly. He has no head, neck,
+  torso or waist: the panel is the body, cross-rails on its reverse in back views. Eyes
+  are simple cartoon ovals in flat shadow, front and 3/4-front views; the sliver of eye
+  peeking in the side view is accepted canon. Never realistic eyes, never robotic ones.

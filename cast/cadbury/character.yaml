@@ -1,18 +1,20 @@
 id: cadbury
 name: Cadbury
 role: The butler-turned-bookkeeper. Unflappable. Balances the ledger as things collapse.
-tokens: >
-  a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with
-  slicked-back black hair and a neat pencil moustache, a white folded towel draped over
-  one forearm — his right eye is a brass clockwork monocle: a mechanical camera-iris lens
-  in an ornate rim, its fine chain running down to his waistcoat pocket
+tokens: 'a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with slicked-back
+  black hair and a neat pencil moustache, a white folded towel draped over one forearm — his right
+  eye is a brass clockwork monocle: a mechanical camera-iris lens in an ornate rim, its fine chain
+  running down to his waistcoat pocket
+
+  '
 sheet: sheet.png
 props:
-  - a leather-bound double-entry ledger
-  - a fountain pen
-  - a brass mechanical adding machine spooling paper tape
+- a leather-bound double-entry ledger
+- a fountain pen
+- a brass mechanical adding machine spooling paper tape
 public_url: https://cast.sethgholson.com/cadbury/sheet.png
-notes: >
-  The monocle eye is PART OF HIM, not eyewear he holds — always the same eye (his right),
-  always chained to the waistcoat. Accountant props replaced the tea service; the towel
-  stays, he's still a butler.
+notes: 'The monocle eye is PART OF HIM, not eyewear he holds — always his RIGHT eye, always chained
+  to the waistcoat pocket, present in every view and expression where that side shows. v4 canon (2026-07-21):
+  true pencil moustache (slimmer than v2), and a faint warm brass tint on the monocle and adding machine
+  — accepted as a metal accent, do not spread it further. Accountant props replaced the tea service;
+  the towel stays, he''s still a butler.'

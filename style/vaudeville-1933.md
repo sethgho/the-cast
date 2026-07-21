@@ -21,13 +21,19 @@ symmetrical poses generic "1930s cartoon" prompting produces. That's the useful 
 ```
 A single panel from a 1933 newspaper comic strip, drawn in Fleischer-era rubber hose
 cartoon style but posed with rotoscoped naturalism: believable weight, balance and
-follow-through, as if traced from live vaudeville stage footage. Heavy confident india
-ink linework with a flexible brush line, dense cross-hatching for shadow, and coarse
-halftone dot shading. Printed in warm sepia duotone on aged newsprint — muted grey-brown
-paper tone, soft foxing and age spots, slightly uneven ink density. Theatrical stage
-lighting with strong directional key light and deep cast shadows. Vintage engraving
-sensibility, ornate period detail, high contrast.
+follow-through, as if traced from live vaudeville stage footage. Big simple rounded
+cartoon forms with confident smooth ink outlines of even weight, large areas left open
+with minimal interior rendering, shaded only with soft halftone dots. Printed in warm
+sepia duotone on aged newsprint — muted grey-brown paper tone, soft foxing and age
+spots, slightly uneven ink density. Theatrical stage lighting with simple deep cast
+shadows. High contrast, period charm.
 ```
+
+**History, so nobody reintroduces it:** this block originally asked for "dense
+cross-hatching" and "vintage engraving sensibility." Those two phrases pulled Wilson and
+Cadbury into detailed engraving-realism while Seth stayed cartoonish (2026-07-21 style
+pass). "Shaded only with soft halftone dots" is the positive-phrasing replacement — it
+excludes crosshatch without using a negation that FLUX-family models would ignore.
 
 ## EXCLUSION_BLOCK (append to every panel prompt)
 
