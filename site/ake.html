@@ -3,50 +3,48 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#26211a">
 <title>Ake &mdash; Gholson's Follies</title>
 <meta name="description" content="AKE &mdash; the sysop. One of the company of Gholson's Follies.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rye&family=Limelight&family=Special+Elite&family=Sorts+Mill+Goudy:ital@0;1&display=swap" rel="stylesheet">
-<style>
-body { margin:0; background:#26211a; }
-a { color:#8a5a1f; text-decoration-color:#b3a37e; } a:hover { color:#c47a2e; }
-</style>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<div style="min-height:100vh; padding:40px 20px 80px; display:flex; justify-content:center;">
-  <div style="width:100%; max-width:1100px; background:#e6d9ba; box-shadow:0 24px 70px rgba(0,0,0,.55); padding:30px 48px 44px;">
-    <header style="display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid #b3a37e; padding-bottom:10px;">
-      <a href="/" style="font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.18em; color:#2a241b; text-decoration:none;">&larr; GHOLSON'S FOLLIES</a>
-      <div style="font-family:'Special Elite',monospace; font-size:12px; letter-spacing:.3em; color:#8f8066;">THE COMPANY &middot; BILL No. 4</div>
+<div class="page">
+  <div class="sheet sheet--bill">
+    <header class="bill-header">
+      <a class="bill-back" href="/">&larr; GHOLSON'S FOLLIES</a>
+      <div class="bill-no">THE COMPANY &middot; BILL No. 4</div>
     </header>
-    <div style="text-align:center; border-bottom:4px double #2a241b; padding:26px 0 22px;">
-      <div style="font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.4em; color:#5b4a33;">APPEARING NIGHTLY</div>
-      <h1 style="font-family:'Rye',serif; font-size:clamp(56px,9vw,96px); margin:8px 0 0; color:#c47a2e; font-weight:400; text-shadow:1px 1px 0 #2a241b;">AKE</h1>
-      <div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:19px; color:#5b4a33; margin-top:6px;">the sysop</div>
+    <div class="bill-name-block">
+      <div class="bill-kicker">APPEARING NIGHTLY</div>
+      <h1 class="bill-name bill-name--accent">AKE</h1>
+      <div class="bill-tag">the sysop</div>
     </div>
-    <div style="display:grid; grid-template-columns:320px 1fr; gap:36px; margin-top:30px;">
-      <div style="display:flex; flex-direction:column; gap:20px;">
-        <div style="border:2px solid #c47a2e; padding:6px; background:#ede2c4; box-shadow:4px 4px 0 rgba(196,122,46,.3);">
-          <div style="width:100%; height:360px;"><img src="/ake/portrait.png" alt="Ake the goldfish sysop in his wheeled fishbowl, FEW cap on the bowl" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
+    <div class="bill-grid">
+      <div class="bill-left">
+        <div class="portrait-frame portrait-frame--accent">
+          <div class="portrait-box"><img src="/ake/portrait.png" alt="Ake the goldfish sysop in his wheeled fishbowl, FEW cap on the bowl"></div>
         </div>
-        <div style="border:2px solid #2a241b; background:#ede2c4; padding:16px 18px;">
-          <div style="font-family:'Limelight',serif; font-size:17px; letter-spacing:.12em; color:#2a241b; border-bottom:1px solid #b3a37e; padding-bottom:6px;">CARRIES ON STAGE</div>
-          <ul style="margin:10px 0 0; padding-left:18px; font-family:'Sorts Mill Goudy',serif; font-size:16px; color:#3a3128; line-height:1.6;">
+        <div class="carries">
+          <div class="carries-title">CARRIES ON STAGE</div>
+          <ul>
             <li>a small dark cap lettered &ldquo;FEW&rdquo;</li>
             <li>the wheeled wooden dolly the bowl rides on</li>
           </ul>
         </div>
       </div>
-      <div style="font-family:'Sorts Mill Goudy',serif; font-size:19px; line-height:1.7; color:#3a3128;">
-        <p style="margin:0;">The sysop. A plump goldfish in a spherical glass bowl, mounted on a wheeled wooden dolly &mdash; googly-eyed, walrus-moustached, buck-toothed, over-caffeinated, alarmed by everything, and usually right. The cap reads FEW, as in <em>few understand</em>.</p>
-        <p style="margin:18px 0 0;">Ake is the only warm colour in an otherwise sepia world: a muted ochre orange, and the strip's visual signature. Everyone else stays in the grey-brown. Do not ask him about the waterline.</p>
-        <div style="margin-top:26px; border-top:1px solid #c47a2e; border-bottom:1px solid #c47a2e; padding:14px 6px; text-align:center; font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:20px; color:#5b4a33;">&ldquo;THE DISK IS AT NINETY-ONE PERCENT. NOBODY IS TAKING THIS SERIOUSLY.&rdquo;</div>
+      <div class="bill-bio">
+        <p>The sysop. A plump goldfish in a spherical glass bowl, mounted on a wheeled wooden dolly &mdash; googly-eyed, walrus-moustached, buck-toothed, over-caffeinated, alarmed by everything, and usually right. The cap reads FEW, as in <em>few understand</em>.</p>
+        <p>Ake is the only warm colour in an otherwise sepia world: a muted ochre orange, and the strip's visual signature. Everyone else stays in the grey-brown. Do not ask him about the waterline.</p>
+        <div class="bill-quote bill-quote--accent">&ldquo;THE DISK IS AT NINETY-ONE PERCENT. NOBODY IS TAKING THIS SERIOUSLY.&rdquo;</div>
       </div>
     </div>
-    <footer style="margin-top:36px; border-top:3px double #2a241b; padding-top:16px; display:flex; justify-content:space-between; font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.12em;">
-      <a href="/cadbury.html" style="color:#2a241b; text-decoration:none;">&larr; CADBURY</a>
-      <a href="/" style="color:#8f8066; text-decoration:none;">BACK TO THE BILL</a>
-      <a href="/seth.html" style="color:#2a241b; text-decoration:none;">SETH &rarr;</a>
+    <footer class="bill-nav">
+      <a href="/cadbury.html">&larr; CADBURY</a>
+      <a class="bill-nav-home" href="/">BACK TO THE BILL</a>
+      <a href="/seth.html">SETH &rarr;</a>
     </footer>
   </div>
 </div>

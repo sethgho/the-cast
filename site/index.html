@@ -3,88 +3,82 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#26211a">
 <title>Gholson's Follies</title>
 <meta name="description" content="Gholson's Follies — one human and his troupe of AI agents, printed as an internet comic strip. Starring Seth Gholson, est. 1983.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rye&family=Limelight&family=Special+Elite&family=Sorts+Mill+Goudy:ital@0;1&display=swap" rel="stylesheet">
-<style>
-body { margin:0; background:#26211a; }
-a { color:#8a5a1f; text-decoration-color:#b3a37e; } a:hover { color:#c47a2e; }
-</style>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<div style="min-height:100vh; padding:40px 20px 80px; display:flex; justify-content:center;">
-  <div style="width:100%; max-width:1280px; background:#e6d9ba; box-shadow:0 24px 70px rgba(0,0,0,.55); padding:36px 48px 44px;">
-    <!-- masthead -->
-    <header style="text-align:center; border-bottom:4px double #2a241b; padding-bottom:18px;">
-      <div style="display:flex; justify-content:space-between; font-family:'Special Elite',monospace; font-size:12px; color:#5b4a33; letter-spacing:.1em;">
+<div class="page">
+  <div class="sheet">
+    <header class="masthead">
+      <div class="dateline">
         <span>VOL. I &middot; No. 1</span><span>SETHGHOLSON.COM</span><span>PRICE: FREE</span>
       </div>
-      <h1 style="font-family:'Rye',serif; font-size:clamp(44px,6.5vw,78px); margin:12px 0 2px; color:#2a241b; font-weight:400;">GHOLSON'S FOLLIES</h1>
-      <div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:17px; color:#5b4a33;">starring Seth Gholson &middot; est. 1983</div>
-      <nav style="display:flex; justify-content:center; gap:36px; margin-top:14px; border-top:1px solid #b3a37e; padding-top:10px;">
-        <a href="#funnies" style="font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.22em; color:#2a241b; text-decoration:none;">THE FUNNIES</a>
-        <a href="#company" style="font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.22em; color:#2a241b; text-decoration:none;">THE COMPANY</a>
-        <a href="#about" style="font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.22em; color:#2a241b; text-decoration:none;">ABOUT</a>
+      <h1 class="title">GHOLSON'S FOLLIES</h1>
+      <div class="tagline">starring Seth Gholson &middot; est. 1983</div>
+      <nav class="mast-nav">
+        <a href="#funnies">THE FUNNIES</a>
+        <a href="#company">THE COMPANY</a>
+        <a href="#about">ABOUT</a>
       </nav>
     </header>
-    <!-- hero banner -->
-    <div style="margin-top:24px; border:2px solid #2a241b; padding:6px; background:#ede2c4; box-shadow:4px 4px 0 rgba(42,36,27,.2);">
-      <div style="height:320px;">
-        <img src="/hero.png" alt="The full company taking a bow at the footlights — Cadbury, Seth, Wilson and Ake" style="width:100%; height:100%; object-fit:cover; object-position:50% 68%; display:block;">
+    <div class="hero-frame">
+      <div class="hero-box">
+        <img src="/hero.png" alt="The full company taking a bow at the footlights — Cadbury, Seth, Wilson and Ake">
       </div>
     </div>
-    <!-- lead grid -->
-    <div style="display:grid; grid-template-columns:2.2fr 1fr; gap:32px; margin-top:28px;">
+    <div class="lead">
       <section id="funnies">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid #2a241b; padding-bottom:6px;">
-          <div style="font-family:'Limelight',serif; font-size:23px; color:#2a241b; letter-spacing:.08em;">TODAY'S STRIP</div>
-          <div style="font-family:'Special Elite',monospace; font-size:12px; color:#5b4a33;">No. 1 &middot; the latest</div>
+        <div class="strip-head">
+          <div class="dept">TODAY'S STRIP</div>
+          <div class="strip-no">No. 1 &middot; the latest</div>
         </div>
-        <div style="margin-top:16px; border:2px solid #2a241b; padding:6px; background:#ede2c4;">
-          <img src="/showcase-latest.png" alt="Latest comic strip" style="width:100%; display:block;">
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:16px;">
-          <div style="border:1px dashed #8f8066; padding:16px 10px; text-align:center; font-family:'Special Elite',monospace; font-size:13px; color:#8f8066;">No. 2 &mdash; coming soon</div>
-          <div style="border:1px dashed #8f8066; padding:16px 10px; text-align:center; font-family:'Special Elite',monospace; font-size:13px; color:#8f8066;">No. 3 &mdash; coming soon</div>
-          <div style="border:1px dashed #8f8066; padding:16px 10px; text-align:center; font-family:'Special Elite',monospace; font-size:13px; color:#8f8066;">the archive &rarr;</div>
-        </div>
-        <div style="margin-top:28px; border:2px solid #2a241b; background:#2a241b; color:#e6d9ba; padding:18px 22px; text-align:center;">
-          <div style="font-family:'Special Elite',monospace; font-size:12px; letter-spacing:.32em; color:#c47a2e;">COMING ATTRACTION</div>
-          <div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:18px; margin-top:6px;">The moving pictures &mdash; an AI-animated cartoon feed, now in rehearsal.</div>
+        <a class="strip-frame" href="/showcase-latest.png">
+          <img src="/showcase-latest.png" alt="Latest comic strip">
+        </a>
+        <div class="tiles">
+          <div class="tile">No. 2 &mdash; coming soon</div>
+          <div class="tile">No. 3 &mdash; coming soon</div>
+          <div class="tile">the archive &rarr;</div>
         </div>
       </section>
-      <!-- company sidebar -->
-      <aside id="company" style="border-left:1px solid #b3a37e; padding-left:26px; display:flex; flex-direction:column; gap:20px;">
-        <div style="font-family:'Limelight',serif; font-size:23px; color:#2a241b; letter-spacing:.08em; border-bottom:2px solid #2a241b; padding-bottom:6px;">THE COMPANY</div>
-        <a href="/seth.html" style="display:flex; gap:14px; align-items:center; text-decoration:none;">
-          <div style="width:78px; height:78px; flex:none; border:2px solid #2a241b; border-radius:50%; background:#d8c9a4; overflow:hidden;"><img src="/seth/thumb.png" alt="Seth" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-          <div><div style="font-family:'Limelight',serif; font-size:19px; color:#2a241b;">SETH</div><div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:14px; color:#5b4a33;">the operator</div></div>
-        </a>
-        <a href="/wilson.html" style="display:flex; gap:14px; align-items:center; text-decoration:none;">
-          <div style="width:78px; height:78px; flex:none; border:2px solid #2a241b; border-radius:50%; background:#d8c9a4; overflow:hidden;"><img src="/wilson/thumb.png" alt="Wilson" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-          <div><div style="font-family:'Limelight',serif; font-size:19px; color:#2a241b;">WILSON</div><div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:14px; color:#5b4a33;">the neighbour</div></div>
-        </a>
-        <a href="/cadbury.html" style="display:flex; gap:14px; align-items:center; text-decoration:none;">
-          <div style="width:78px; height:78px; flex:none; border:2px solid #2a241b; border-radius:50%; background:#d8c9a4; overflow:hidden;"><img src="/cadbury/thumb.png" alt="Cadbury" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-          <div><div style="font-family:'Limelight',serif; font-size:19px; color:#2a241b;">CADBURY</div><div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:14px; color:#5b4a33;">the bookkeeper</div></div>
-        </a>
-        <a href="/ake.html" style="display:flex; gap:14px; align-items:center; text-decoration:none;">
-          <div style="width:78px; height:78px; flex:none; border:2px solid #c47a2e; border-radius:50%; background:#d8c9a4; overflow:hidden;"><img src="/ake/thumb.png" alt="Ake" style="width:100%; height:100%; object-fit:cover; display:block;"></div>
-          <div><div style="font-family:'Limelight',serif; font-size:19px; color:#c47a2e;">AKE</div><div style="font-family:'Sorts Mill Goudy',serif; font-style:italic; font-size:14px; color:#5b4a33;">the sysop</div></div>
-        </a>
-        <div style="font-family:'Special Elite',monospace; font-size:12px; color:#8f8066; text-align:center; border-top:1px solid #b3a37e; padding-top:12px;">click a player for their bill</div>
+      <aside id="company" class="company">
+        <div class="dept">THE COMPANY</div>
+        <div class="players">
+          <a class="player" href="/seth.html">
+            <div class="player-pic"><img src="/seth/thumb.png" alt="Seth"></div>
+            <div><div class="player-name">SETH</div><div class="player-role">the operator</div></div>
+          </a>
+          <a class="player" href="/wilson.html">
+            <div class="player-pic"><img src="/wilson/thumb.png" alt="Wilson"></div>
+            <div><div class="player-name">WILSON</div><div class="player-role">the neighbour</div></div>
+          </a>
+          <a class="player" href="/cadbury.html">
+            <div class="player-pic"><img src="/cadbury/thumb.png" alt="Cadbury"></div>
+            <div><div class="player-name">CADBURY</div><div class="player-role">the bookkeeper</div></div>
+          </a>
+          <a class="player player--accent" href="/ake.html">
+            <div class="player-pic"><img src="/ake/thumb.png" alt="Ake"></div>
+            <div><div class="player-name">AKE</div><div class="player-role">the sysop</div></div>
+          </a>
+        </div>
+        <div class="company-hint">click a player for their bill</div>
       </aside>
     </div>
-    <!-- about -->
-    <section id="about" style="margin-top:36px; border-top:3px double #2a241b; padding-top:22px; display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:start;">
-      <div style="font-family:'Limelight',serif; font-size:23px; color:#2a241b; letter-spacing:.08em; white-space:nowrap;">WHAT IS THIS?</div>
-      <div style="font-family:'Sorts Mill Goudy',serif; font-size:18px; line-height:1.65; color:#3a3128; max-width:70ch;">
+    <div class="bulletin">
+      <div class="bulletin-kicker">COMING ATTRACTION</div>
+      <div class="bulletin-line">The moving pictures &mdash; an AI-animated cartoon feed, now in rehearsal.</div>
+    </div>
+    <section id="about" class="about">
+      <div class="dept">WHAT IS THIS?</div>
+      <div class="about-text">
         A personal media company of sorts &mdash; one human and his troupe of AI agents, printed as an internet comic strip in warm sepia on aged newsprint. New strips post here first; an AI-animated cartoon feed is in rehearsal. Everything is drawn in the house style: 1933 rubber-hose cartooning, posed with rotoscoped weight, as if traced from live vaudeville footage.
       </div>
     </section>
-    <!-- footer -->
-    <footer style="margin-top:36px; border-top:1px solid #b3a37e; padding-top:14px; display:flex; justify-content:space-between; font-family:'Special Elite',monospace; font-size:12px; color:#8f8066;">
+    <footer class="foot">
       <span>starring Seth Gholson &middot; est. 1983</span>
       <span>registry: <a href="/cast.json">cast.json</a> &middot; source: <a href="https://github.com/sethgho/the-cast">sethgho/the-cast</a></span>
     </footer>

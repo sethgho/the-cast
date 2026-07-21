@@ -105,7 +105,7 @@ def main() -> int:
         shutil.copy2(hero, PUB / "hero.png")
 
     pages = 0
-    for page in SITE.glob("*.html"):
+    for page in list(SITE.glob("*.html")) + list(SITE.glob("*.css")):
         shutil.copy2(page, PUB / page.name)
         pages += 1
 

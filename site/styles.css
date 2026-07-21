@@ -1,0 +1,187 @@
+/* Gholson's Follies — shared styles.
+   Desktop is the reference design; below 740px the hierarchy reflows into a
+   single-column playbill (company becomes a 2x2 card grid, hero shows the
+   full uncropped scene, bill pages stack portrait-first). */
+
+:root {
+  --ink: #2a241b;
+  --paper: #e6d9ba;
+  --paper2: #ede2c4;
+  --tan: #b3a37e;
+  --brown: #5b4a33;
+  --faded: #8f8066;
+  --orange: #c47a2e;
+  --text: #3a3128;
+}
+
+body { margin: 0; background: #26211a; }
+a { color: #8a5a1f; text-decoration-color: var(--tan); }
+a:hover { color: var(--orange); }
+
+.page { min-height: 100vh; padding: 40px 20px 80px; display: flex; justify-content: center; }
+.sheet { width: 100%; max-width: 1280px; background: var(--paper);
+         box-shadow: 0 24px 70px rgba(0,0,0,.55); padding: 36px 48px 44px; }
+.sheet--bill { max-width: 1100px; padding-top: 30px; }
+
+/* masthead */
+.masthead { text-align: center; border-bottom: 4px double var(--ink); padding-bottom: 18px; }
+.dateline { display: flex; justify-content: space-between; gap: 8px;
+            font-family: 'Special Elite', monospace; font-size: 12px; color: var(--brown);
+            letter-spacing: .1em; }
+.title { font-family: 'Rye', serif; font-size: clamp(44px, 6.5vw, 78px); margin: 12px 0 2px;
+         color: var(--ink); font-weight: 400; }
+.tagline { font-family: 'Sorts Mill Goudy', serif; font-style: italic; font-size: 17px;
+           color: var(--brown); }
+.mast-nav { display: flex; justify-content: center; gap: 36px; margin-top: 14px;
+            border-top: 1px solid var(--tan); padding-top: 10px; }
+.mast-nav a { font-family: 'Special Elite', monospace; font-size: 13px; letter-spacing: .22em;
+              color: var(--ink); text-decoration: none; }
+
+/* hero */
+.hero-frame { margin-top: 24px; border: 2px solid var(--ink); padding: 6px;
+              background: var(--paper2); box-shadow: 4px 4px 0 rgba(42,36,27,.2); }
+.hero-box { height: 320px; }
+.hero-box img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 68%;
+                display: block; }
+
+/* lead grid: strip | company */
+.lead { display: grid; grid-template-columns: 2.2fr 1fr; gap: 32px; margin-top: 28px; }
+.strip-head { display: flex; justify-content: space-between; align-items: baseline;
+              border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
+.dept { font-family: 'Limelight', serif; font-size: 23px; color: var(--ink);
+        letter-spacing: .08em; }
+.strip-no { font-family: 'Special Elite', monospace; font-size: 12px; color: var(--brown); }
+.strip-frame { display: block; margin-top: 16px; border: 2px solid var(--ink); padding: 6px;
+               background: var(--paper2); }
+.strip-frame img { width: 100%; display: block; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px; }
+.tile { border: 1px dashed var(--faded); padding: 16px 10px; text-align: center;
+        font-family: 'Special Elite', monospace; font-size: 13px; color: var(--faded); }
+
+/* company */
+.company { border-left: 1px solid var(--tan); padding-left: 26px; }
+.company .dept { display: block; border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
+.players { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
+.player { display: flex; gap: 14px; align-items: center; text-decoration: none; }
+.player-pic { width: 78px; height: 78px; flex: none; border: 2px solid var(--ink);
+              border-radius: 50%; background: #d8c9a4; overflow: hidden; }
+.player-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.player--accent .player-pic { border-color: var(--orange); }
+.player-name { font-family: 'Limelight', serif; font-size: 19px; color: var(--ink); }
+.player--accent .player-name { color: var(--orange); }
+.player-role { font-family: 'Sorts Mill Goudy', serif; font-style: italic; font-size: 14px;
+               color: var(--brown); }
+.company-hint { font-family: 'Special Elite', monospace; font-size: 12px; color: var(--faded);
+                text-align: center; border-top: 1px solid var(--tan); padding-top: 12px;
+                margin-top: 20px; }
+
+/* full-width coming-attraction marquee */
+.bulletin { margin-top: 32px; border: 2px solid var(--ink); background: var(--ink);
+            color: var(--paper); padding: 18px 22px; text-align: center; }
+.bulletin-kicker { font-family: 'Special Elite', monospace; font-size: 12px;
+                   letter-spacing: .32em; color: var(--orange); }
+.bulletin-line { font-family: 'Sorts Mill Goudy', serif; font-style: italic; font-size: 18px;
+                 margin-top: 6px; }
+
+/* about */
+.about { margin-top: 36px; border-top: 3px double var(--ink); padding-top: 22px;
+         display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: start; }
+.about .dept { white-space: nowrap; }
+.about-text { font-family: 'Sorts Mill Goudy', serif; font-size: 18px; line-height: 1.65;
+              color: var(--text); max-width: 70ch; }
+
+/* landing footer */
+.foot { margin-top: 36px; border-top: 1px solid var(--tan); padding-top: 14px;
+        display: flex; justify-content: space-between; gap: 8px;
+        font-family: 'Special Elite', monospace; font-size: 12px; color: var(--faded); }
+
+/* ---- bill pages ---- */
+.bill-header { display: flex; justify-content: space-between; align-items: baseline;
+               gap: 6px 18px; flex-wrap: wrap; border-bottom: 1px solid var(--tan);
+               padding-bottom: 10px; }
+.bill-back { font-family: 'Special Elite', monospace; font-size: 13px; letter-spacing: .18em;
+             color: var(--ink); text-decoration: none; }
+.bill-no { font-family: 'Special Elite', monospace; font-size: 12px; letter-spacing: .3em;
+           color: var(--faded); }
+.bill-name-block { text-align: center; border-bottom: 4px double var(--ink);
+                   padding: 26px 0 22px; }
+.bill-kicker { font-family: 'Special Elite', monospace; font-size: 13px; letter-spacing: .4em;
+               color: var(--brown); }
+.bill-name { font-family: 'Rye', serif; font-size: clamp(56px, 9vw, 96px); margin: 8px 0 0;
+             color: var(--ink); font-weight: 400; }
+.bill-name--accent { color: var(--orange); text-shadow: 1px 1px 0 var(--ink); }
+.bill-tag { font-family: 'Sorts Mill Goudy', serif; font-style: italic; font-size: 19px;
+            color: var(--brown); margin-top: 6px; }
+.bill-grid { display: grid; grid-template-columns: 320px 1fr; gap: 36px; margin-top: 30px; }
+.bill-left { display: flex; flex-direction: column; gap: 20px; }
+.portrait-frame { border: 2px solid var(--ink); padding: 6px; background: var(--paper2);
+                  box-shadow: 4px 4px 0 rgba(42,36,27,.2); }
+.portrait-frame--accent { border-color: var(--orange); box-shadow: 4px 4px 0 rgba(196,122,46,.3); }
+.portrait-box { width: 100%; height: 360px; }
+.portrait-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.carries { border: 2px solid var(--ink); background: var(--paper2); padding: 16px 18px; }
+.carries-title { font-family: 'Limelight', serif; font-size: 17px; letter-spacing: .12em;
+                 color: var(--ink); border-bottom: 1px solid var(--tan); padding-bottom: 6px; }
+.carries ul { margin: 10px 0 0; padding-left: 18px; font-family: 'Sorts Mill Goudy', serif;
+              font-size: 16px; color: var(--text); line-height: 1.6; }
+.bill-bio { font-family: 'Sorts Mill Goudy', serif; font-size: 19px; line-height: 1.7;
+            color: var(--text); }
+.bill-bio p { margin: 0; }
+.bill-bio p + p { margin-top: 18px; }
+.bill-quote { margin-top: 26px; border-top: 1px solid var(--tan);
+              border-bottom: 1px solid var(--tan); padding: 14px 6px; text-align: center;
+              font-family: 'Sorts Mill Goudy', serif; font-style: italic; font-size: 20px;
+              color: var(--brown); }
+.bill-quote--accent { border-color: var(--orange); }
+.bill-nav { margin-top: 36px; border-top: 3px double var(--ink); padding-top: 16px;
+            display: flex; justify-content: space-between; gap: 10px;
+            font-family: 'Special Elite', monospace; font-size: 13px; letter-spacing: .12em; }
+.bill-nav a { color: var(--ink); text-decoration: none; }
+.bill-nav .bill-nav-home { color: var(--faded); }
+
+/* ---- mid widths: keep two columns, relax them ---- */
+@media (max-width: 1000px) {
+  .sheet { padding: 30px 32px 38px; }
+  .lead { grid-template-columns: 1.6fr 1fr; gap: 24px; }
+  .bill-grid { grid-template-columns: 260px 1fr; gap: 26px; }
+}
+
+/* ---- phones: reflow the hierarchy, don't shrink it ---- */
+@media (max-width: 740px) {
+  .page { padding: 16px 10px 48px; }
+  .sheet { padding: 18px 16px 28px; }
+
+  .dateline { font-size: 10px; letter-spacing: .04em; }
+  .mast-nav { gap: 16px; }
+  .mast-nav a { font-size: 11px; letter-spacing: .14em; }
+
+  /* hero: show the whole curtain call, no crop */
+  .hero-frame { margin-top: 18px; }
+  .hero-box { height: auto; }
+  .hero-box img { height: auto; object-fit: fill; }
+
+  .lead { grid-template-columns: 1fr; gap: 30px; margin-top: 22px; }
+  .tiles { grid-template-columns: 1fr; gap: 10px; }
+  .tile { padding: 12px 10px; }
+
+  /* company: vertical sidebar becomes a 2x2 playbill */
+  .company { border-left: none; padding-left: 0; }
+  .players { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 12px; }
+  .player { flex-direction: column; text-align: center; gap: 10px; }
+  .player-pic { width: 92px; height: 92px; }
+  .bulletin { margin-top: 26px; }
+
+  .about { grid-template-columns: 1fr; gap: 12px; margin-top: 28px; }
+  .about .dept { white-space: normal; }
+  .about-text { font-size: 17px; }
+
+  .foot { flex-direction: column; align-items: center; text-align: center; }
+
+  /* bill pages: stack portrait-first, art at its true 8:9 */
+  .bill-name-block { padding: 20px 0 18px; }
+  .bill-grid { grid-template-columns: 1fr; gap: 24px; margin-top: 24px; }
+  .portrait-box { height: auto; aspect-ratio: 8 / 9; }
+  .bill-bio { font-size: 17px; }
+  .bill-quote { font-size: 18px; }
+  .bill-nav { font-size: 11px; }
+}
