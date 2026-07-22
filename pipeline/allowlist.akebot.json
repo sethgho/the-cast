@@ -1,0 +1,24 @@
+{
+  "host": "akebot",
+  "agent": "ake",
+  "comment": "akebot is the work agent: nearly everything here is day-job material, so worktree/task names get aliased to generic labels at harvest (Decision 5). The activity is mined; the identifiers never leave the machine.",
+  "allow": [
+    "-home-akebot--superset-worktrees-*",
+    "-home-akebot-ethos",
+    "-home-akebot-contract-testing",
+    "-home-akebot-mission-control"
+  ],
+  "deny": [
+    "-home-akebot",
+    "-home-akebot-clawd",
+    "-home-akebot-ccdb",
+    "-home-akebot-akeclaw",
+    "-tmp",
+    "MEMORY.md"
+  ],
+  "aliases": [
+    {"pattern": "-home-akebot--superset-worktrees-*", "label": "work-task"},
+    {"pattern": "-home-akebot-ethos", "label": "dayjob"},
+    {"pattern": "-home-akebot-contract-testing", "label": "dayjob"}
+  ]
+}

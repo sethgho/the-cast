@@ -52,6 +52,15 @@ def allowed(name, cfg):
     return any(fnmatch.fnmatch(name, p) for p in cfg["allow"])
 
 
+def alias(name, cfg):
+    """Redact organizational identity at harvest (Decision 5): map project dir
+    names to generic labels before they enter the ledger."""
+    for rule in cfg.get("aliases", []):
+        if fnmatch.fnmatch(name, rule["pattern"]):
+            return rule["label"]
+    return name
+
+
 def text_of(content):
     """Concatenated text blocks of a message content field (str or block array)."""
     if isinstance(content, str):
@@ -191,7 +200,7 @@ def main():
                 continue
             m = scan_session(f, day_start, day_end)
             if m:
-                m["project"] = proj.name
+                m["project"] = alias(proj.name, cfg)
                 m["session"] = f.stem
                 sessions.append(m)
 

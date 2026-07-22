@@ -1,0 +1,26 @@
+{
+  "host": "mac",
+  "agent": "mac",
+  "comment": "Seth's Mac. Day-job project names are organizational identifiers; aliases redact them at harvest (Decision 5) while still mining the activity. Superset worktree names can carry work task slugs, so they are all aliased to one generic label rather than pattern-guessing which are work.",
+  "allow": [
+    "-Users-sethgho-dev-*",
+    "-Users-sethgho--superset-worktrees-*",
+    "-Users-sethgho-ethos*",
+    "-Users-sethgho-src-tries-*",
+    "-Users-sethgho-Downloads-ESP32-*"
+  ],
+  "deny": [
+    "-Users-sethgho",
+    "-Users-sethgho--buzz",
+    "-Users-sethgho--claude",
+    "-Users-sethgho--config*",
+    "-private-*",
+    "-Applications-*"
+  ],
+  "aliases": [
+    {"pattern": "-Users-sethgho-ethos*", "label": "dayjob"},
+    {"pattern": "-Users-sethgho-dev-ethos-*", "label": "dayjob"},
+    {"pattern": "-Users-sethgho-src-tries-*ethos*", "label": "dayjob"},
+    {"pattern": "-Users-sethgho--superset-worktrees-*", "label": "superset-task"}
+  ]
+}
