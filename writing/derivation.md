@@ -198,15 +198,25 @@ archive.
 
 ---
 
-## Open questions (decide before building)
+## Decisions (Seth, 2026-07-22)
 
-1. **Does Seth approve each strip before publish, or does the gate stand alone?**
-   Recommendation: human-in-the-loop for the first ~20 strips, to calibrate the gate
-   against his taste. Then loosen.
-2. **How much real detail is too much?** A strip about a real outage is funny; one that
-   reads as a complaint about a named vendor is a liability.
-3. **Do agents get to be wrong about themselves?** The cast are versions of *us*. Wilson
-   being smug about DNS is fair game; the question is whether the strip can portray an
-   agent failing in ways the real agent would dispute.
-4. **Continuity:** do strips reference each other, or is each standalone? Gag-a-day says
-   standalone; the vaudeville frame tempts running bits.
+1. **Human in the loop, to start.** Seth approves every strip before publish until the
+   tone and humor are dialed in. The gate does not stand alone yet — it *proposes*, he
+   disposes. Revisit after the calibration window (~20 strips); the gate earns autonomy by
+   demonstrably matching his taste, not by elapsed time.
+   → Stage 5 ends in a **review queue**, not a publish. Stage 6 fires only on approval.
+   → **Log every rejection and why.** His no's are the training signal for tuning the
+   gate's thresholds — a rejected strip is more informative than an approved one.
+2. **Privacy: allowlist, redact at source.** Confirmed. Projects opt *in* to being mined;
+   nothing is mined by default. Redaction happens on the machine the log came from, before
+   transport.
+3. **Agents can be wrong about themselves.** Confirmed — the cast may fail in ways the
+   real agent would dispute. Self-deprecation is fully in bounds; see bible §2.
+
+## Still open
+
+- **Continuity:** do strips reference each other, or is each standalone? Gag-a-day
+  orthodoxy says standalone (any strip is someone's first). The vaudeville frame tempts
+  running bits. Undecided — defaulting to standalone until Seth calls it.
+- **How much real detail is too much?** A strip about a real outage is funny; one that
+  reads as a complaint about a named vendor is a liability. Needs a line drawn.

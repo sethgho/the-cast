@@ -185,6 +185,18 @@ he's the one causing the disaster (comic) or reacting to it (straight).
 **Rule:** name the straight man and the comic before writing the balloons. Two comics in
 one strip is noise; two straight men is a status meeting.
 
+### The cast may be wrong about themselves
+
+Standing creative license (Seth, 2026-07-22): **a character may fail in ways the real
+agent would dispute.** Wilson can be smug about DNS and wrong; Cadbury's ledger can be
+beside the point; Ake can be alarmed about nothing. The cast are caricatures of us, and
+caricature requires the freedom to exaggerate a flaw past what its owner would concede.
+
+This matters mechanically, not just tonally: the engines in the table above are all
+*flaws*, and a flaw you're not allowed to overstate isn't an engine. The limit is aim —
+per §3, Mean points at systems and situations, and at **us**. Never at people outside the
+cast.
+
 ---
 
 ## 3. Humor mechanics — the techniques
