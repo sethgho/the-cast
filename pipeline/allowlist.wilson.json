@@ -1,0 +1,15 @@
+{
+  "host": "wilson",
+  "agent": "wilson",
+  "comment": "Opt-IN allowlist (Decision 2). A project dir is mined only if it matches an allow pattern and no deny pattern. Patterns match the encoded dir names under ~/.claude/projects.",
+  "allow": [
+    "-home-wilson-dev-*",
+    "-home-wilson--superset-worktrees-*"
+  ],
+  "deny": [
+    "-home-wilson",
+    "-home-wilson-clawd",
+    "-home-wilson-ccdb",
+    "-home-wilson-orca-*"
+  ]
+}
