@@ -189,6 +189,44 @@ autodeploys.
 
 ---
 
+---
+
+## Stage 7 — Engine mining (deferred; the recurring-gag play)
+
+**Not built during calibration.** This is the medium/long-term arc, and it only works once
+there's a corpus: **target ~50 published strips before the first mining pass.**
+
+The premise: Schulz's twelve devices were credited retrospectively — they accreted from
+strips that worked. So we don't invent running bits; we **discover which ones we already
+have.**
+
+Inputs, all of which the earlier stages produce for free if we retain them:
+
+- Published strips + their structured scripts (technique, dimensions, engine, Connector)
+- **Seth's approve/reject decisions and reasons** (Decision 1's rejection log)
+- Whatever audience signal exists by then
+
+What the pass looks for:
+
+1. **Recurring shapes** — Connectors, techniques, or premise types that keep reappearing
+   in *approved* strips. A shape that survives the gate repeatedly is a latent engine.
+2. **Character gravity** — which character keeps owning the punchline for a given premise
+   type. That's a routing rule discovering itself.
+3. **Callback candidates** — a specific prop, phrase or failure the archive has used ≥3
+   times. Per the rule of three, the third appearance is where a thing stops being a
+   coincidence and starts being a bit.
+4. **Dead engines** — seed engines from `bible.md` §2 that never actually generated an
+   approved strip. Retire them; they were guesses.
+
+Output: a proposed amendment to the bible's engine table — **promotions from the archive,
+retirements of guesses** — for Seth to approve. Only then do strips start referencing each
+other.
+
+**Guard:** the football rule still applies to any promoted engine. If mining surfaces a
+bit that only works by resolving, it's a one-off, not an engine.
+
+---
+
 ## Cadence
 
 Daily harvest, **not** daily publication. The pipeline runs every night; it publishes only
@@ -213,10 +251,20 @@ archive.
 3. **Agents can be wrong about themselves.** Confirmed — the cast may fail in ways the
    real agent would dispute. Self-deprecation is fully in bounds; see bible §2.
 
+4. **Standalone now; recurring gags derived later.** Every strip stands alone through the
+   calibration period. Recurring bits are a **medium/long-term play, mined from the
+   archive rather than designed** — we need a corpus of things that landed before we can
+   see which shapes recur. See Stage 7.
+5. **The brand line.** No Ethos, its vendors, clients or internal systems — generalize the
+   incident, keep the shape, drop the identifiers. Zeitgeist-scale brands (Anthropic
+   pricing, Fable releases, the discourse of the week) are fair game. Full rule and the
+   reasoning in `bible.md` §3.
+   → Stage 1 **redacts organizational identity at harvest**, alongside secrets. By the
+   time a premise reaches scoring, "which vendor" is already gone.
+   → Stage 5 gets a hard **brand-line check**; a zeitgeist reference must be a
+   *public* matter, not a private one involving a public company.
+
 ## Still open
 
-- **Continuity:** do strips reference each other, or is each standalone? Gag-a-day
-  orthodoxy says standalone (any strip is someone's first). The vaudeville frame tempts
-  running bits. Undecided — defaulting to standalone until Seth calls it.
-- **How much real detail is too much?** A strip about a real outage is funny; one that
-  reads as a complaint about a named vendor is a liability. Needs a line drawn.
+- Nothing blocking. Revisit the calibration window (Decision 1) after ~20 strips and the
+  engine-mining threshold (Stage 7) after ~50.

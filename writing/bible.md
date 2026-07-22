@@ -175,6 +175,16 @@ We need our own dozen. Current standing engines (extend deliberately, not casual
 must never kick the football. Seth's small change must never be small. The moment we let
 a character learn the lesson, we've spent the engine for one strip's payoff.
 
+**How the dozen grows — mine it, don't invent it.** Schulz credited twelve devices, but
+he credited them *retrospectively*; they accreted from strips that worked. So: **strips
+are standalone now, and recurring gags are derived later from the archive** (Seth,
+2026-07-22). We are not smart enough to design a running bit before we know what lands.
+The five engines above are the seed set — enough to route today's material — and the real
+dozen gets discovered by asking, after ~50 published strips, *which shapes kept coming
+back and which ones the audience recognized on sight.* An engine promoted from the
+archive has already proven it generates; one invented in a planning doc has proven
+nothing. See `derivation.md` Stage 7.
+
 ### The vaudeville double act
 
 Our frame is a troupe, so use the straight-man/comic split explicitly: in any given strip,
@@ -229,6 +239,29 @@ developer nod before they laugh. Our second dimension is usually Bizarre (a gold
 your sysop) or Clever. We are rarely Naughty; Mean is available but should be aimed at
 *systems and situations*, never at real people outside the cast.
 
+### Naming names — the brand line
+
+Seth's rule (2026-07-22), and it splits cleanly by scale:
+
+**Never name:** Ethos, anything Ethos-specific, or any of its vendors, clients or
+internal systems. **Generalize it.** The day-job incident is welcome as *material* — the
+outage, the migration, the 2am page — but it appears stripped of anything that identifies
+whose outage it was. This is the difference between a joke about work and a complaint
+about an employer, and only one of those is publishable.
+
+**Fair game:** large-scale zeitgeist brands and the industry conversation around them —
+Anthropic pricing changes, a Fable release, the discourse of the week. These are public
+weather, everyone in the audience is already talking about them, and naming them *is*
+the Recognizable dimension doing its job.
+
+The test is **"could this specific detail embarrass a named party who didn't sign up for
+this?"** A trillion-dollar model vendor shipping a controversial price change did sign up
+for the commentary. Ethos's vendor did not.
+
+Practical consequence for Stage 1 harvest: **the incident record keeps the shape and
+drops the identifiers.** "A vendor's API changed under us without notice" is the joke;
+which vendor is not.
+
 ### Domain material without locking outsiders out
 
 Our subject is genuinely niche (deploys, DNS, OOM kills). The workable pattern: **the
@@ -281,7 +314,9 @@ A candidate strip ships only if **all** of these pass:
 8. **Engine** — it runs on a standing character engine, and the engine does not resolve.
 9. **Word budget** — see `derivation.md`; the strip is under the balloon caps.
 10. **Picture** — the panel is funny to look at, not just to read.
-11. **Certainty** — nobody involved is saying "I think it's funny?" An uncertain gag is a
+11. **Brand line** — no Ethos, its vendors, clients or internal systems, named or
+    identifiable. Zeitgeist-scale brands are fine (§3).
+12. **Certainty** — nobody involved is saying "I think it's funny?" An uncertain gag is a
     no.
 
 ---
