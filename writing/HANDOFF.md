@@ -58,11 +58,24 @@ Before writing code, note two things:
 - **akebot is not directly SSH-able from wilson.** Jump: `ssh sethgho@100.64.185.78` then
   `ssh akebot`. akebot has passwordless sudo. Cadbury is not online yet; the incident
   schema already carries an `agent` field for him.
-- **Art generation gotcha:** a multi-reference Comfy call that fetches the full ~8MB
-  character sheets (4 × 8MB) times out the MCP transport — "transport dropped mid-call",
-  result lost but still billed. Each character now has a ~140KB `/<id>/ref.jpg` on the
-  live site for exactly this. Nano Banana also draws its own panel border despite the
-  exclusion block; crop inside it.
+- **Art generation — use the async graph path, never `partner_generate`, for anything
+  reference-conditioned.** (Corrected 2026-07-22; an earlier version of this note blamed
+  payload size, which was wrong.) `partner_generate` with image inputs uses *direct
+  dispatch*: one synchronous HTTP call held open for the whole generation, and
+  `cloud.comfy.org` is behind Cloudflare's ~100 s ceiling. Long generations get the
+  connection cut **while the job keeps running and still bills**, and direct-dispatch
+  results persist in neither `/api/jobs` nor the asset library — so the spend is
+  unrecoverable. Duration is the whole story: single-character portraits run 37–54 s and
+  survive; a 4-panel 2K comic ran 64 s of GPU time (~90–120 s wall) and dropped 4/4,
+  burning ~120 credits. The async path returns a `prompt_id` in under a second and
+  persists the result, so drops cost nothing:
+  `upload_file → LoadImage → ImageBatch → GeminiImage2Node (gemini-3-pro-image-preview)
+  → SaveImage → submit_workflow → poll → get_output`.
+  Check true cost/duration for free via `/api/jobs`
+  (`execution_start_time`/`execution_end_time`). Small `/<id>/ref.jpg` files (~140 KB) exist
+  on the live site and are still worth using as refs — just for speed, not because size
+  was the bug. Nano Banana also draws its own panel border despite the exclusion block;
+  crop inside it.
 - **Workflow model policy:** the built-in `deep-research` workflow set no per-agent model,
   so 104 agents inherited the session model and burned 3M tokens / hit the session limit
   twice. A tuned copy lives at `~/.claude/workflows/deep-research.js` (verify+search on
