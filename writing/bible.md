@@ -135,6 +135,61 @@ comic — it's a tweet with extra steps.
 
 ## 2. Characters — the engine, not the props
 
+### What the cast actually maps to (Seth, 2026-07-22)
+
+**This is load-bearing and was missing from v1 of this document.** The characters are not
+free-floating personalities — each is a real agent in Seth's setup, and the relationships
+between them are the strip's deepest source of material.
+
+- **Wilson** — Seth's *personal* agent. Cowboy coding, side projects, homelab and general
+  IT/ops across the mini cluster. **This is where Seth learns lessons.** The lab.
+- **Ake** — Seth's *work* agent (his day job). Its config is deliberately less robust than
+  the Mac's, and Seth is slowly migrating the two to mirror each other. **This is where
+  those lessons get applied.** Production.
+- **Cadbury** — the bookkeeper. **Not set up yet.** Keep him out of strips specifically
+  about agentic *coding* practice; he has no standing there until he exists.
+- **Seth** — the only human, and the one who carries a lesson from the lab to production.
+
+**The thematic engine this unlocks:** *Wilson is where it's figured out; Ake is where it
+ships.* A strip in which Wilson teaches, Seth carries, and Ake receives is not a
+contrivance — it is a documentary of how the man actually works. The proven version of
+this: Wilson pours his own config into Ake's fishbowl, which is literally the migration
+Seth described. Reach for this axis before inventing new relationships.
+
+### Proven comic devices
+
+Devices that have produced a strip that landed. Extend this list only with things that
+actually worked — same discipline as the engine table.
+
+- **The water = the config.** Ake is a goldfish in a bowl; an agent's config is the water
+  it swims in. The junior move is tapping the glass and arguing with the fish; the senior
+  move is changing the water. Legible to non-technical readers, and it belongs to us
+  because it falls out of the cast design. Proven 2026-07-22.
+
+### The point of view — the ladder
+
+Seth's macro-take, and the spine the strip's worldview returns to:
+
+> 0 — Claude is Google · 1 — Claude is your IDE · 2 — Claude is your intern ·
+> 3 — Claude is you, in a loop · 4 — Claude is your org
+
+Most people sit two rungs below what their subscription already reaches. **Level 2 is the
+bar**, and the thing that makes L2 real is a distinction worth getting right: *curating
+output is not mentoring.* **You don't fix an intern's pull requests forty times — you
+onboard them.** Correcting output forever is the junior behaviour; changing what the agent
+is working from is the senior one. That single reframe is the strip's central argument.
+
+**The ladder is a spine, not a publication schedule** (decided 2026-07-22). Do NOT write a
+five-part didactic series marching up the rungs — that inverts §0 and makes gags into
+props for a thesis, and it strands the cast at L0 where the human has no agents to act
+with. Fill rungs **opportunistically, whenever the material for one gets funny.** Lead
+with the strongest strip available, never with the tidiest starting point.
+
+*Premise bank (unbuilt, from this session):* the **L0 idle-troupe** gag — the whole company
+assembled and ready, tools in hand, watching Seth peck a question into a little search box.
+Waste played as absurdity rather than as lecture; nobody says "you're wasting your
+subscription."
+
 ### Personalities do ~75% of the writing `[S2]`
 
 Watterson: once the personalities are well-defined, you can put the characters in any

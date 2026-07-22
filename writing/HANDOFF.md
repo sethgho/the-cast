@@ -20,6 +20,29 @@ project). Everything below is current as of commit `96f0280`.
 **Not built:** any of the pipeline. `derivation.md` is a spec, not code. Nothing in
 Stages 0–7 exists yet.
 
+## READ THIS FIRST — bible.md §2 changed materially on 2026-07-22
+
+A live scripting session with Seth produced context that was **missing from v1 of the
+bible** and changes how you route characters. Pull master before doing anything.
+
+- **The cast maps to real agents**, and the mapping is the material: **Wilson = personal
+  agent (the lab, where lessons are learned); Ake = work agent (production, where they get
+  applied); Cadbury = not set up yet**, so keep him out of agentic-coding strips. Seth is
+  the one who carries a lesson from lab to production.
+- **The ladder is Seth's macro point of view** (Claude as Google → IDE → intern → you in a
+  loop → your org), and it is a **spine, not a publication schedule** — do not write a
+  didactic series up the rungs.
+- **The central reframe:** curating output is not mentoring. *You don't fix an intern's
+  pull requests forty times, you onboard them.*
+- **A proven comic device exists:** the water in Ake's bowl = the agent's config.
+- **There are two output modes now**, not one — see "Output modes" in `derivation.md`. The
+  companion mode (2×2 square, runs with a post, optimised for attention rather than
+  argument) is new and shipped once.
+
+One strip has been produced end to end and published with a thread. It was **not** derived
+through this pipeline — it was hand-scripted — so treat it as a tone reference, not as
+evidence the pipeline works. Whether it becomes archive canon is undecided.
+
 ## What the next agent should pick up
 
 Seth's stated sequence: *define the target, then gather the right data.* The target is
@@ -58,11 +81,24 @@ Before writing code, note two things:
 - **akebot is not directly SSH-able from wilson.** Jump: `ssh sethgho@100.64.185.78` then
   `ssh akebot`. akebot has passwordless sudo. Cadbury is not online yet; the incident
   schema already carries an `agent` field for him.
-- **Art generation gotcha:** a multi-reference Comfy call that fetches the full ~8MB
-  character sheets (4 × 8MB) times out the MCP transport — "transport dropped mid-call",
-  result lost but still billed. Each character now has a ~140KB `/<id>/ref.jpg` on the
-  live site for exactly this. Nano Banana also draws its own panel border despite the
-  exclusion block; crop inside it.
+- **Art generation — use the async graph path, never `partner_generate`, for anything
+  reference-conditioned.** (Corrected 2026-07-22; an earlier version of this note blamed
+  payload size, which was wrong.) `partner_generate` with image inputs uses *direct
+  dispatch*: one synchronous HTTP call held open for the whole generation, and
+  `cloud.comfy.org` is behind Cloudflare's ~100 s ceiling. Long generations get the
+  connection cut **while the job keeps running and still bills**, and direct-dispatch
+  results persist in neither `/api/jobs` nor the asset library — so the spend is
+  unrecoverable. Duration is the whole story: single-character portraits run 37–54 s and
+  survive; a 4-panel 2K comic ran 64 s of GPU time (~90–120 s wall) and dropped 4/4,
+  burning ~120 credits. The async path returns a `prompt_id` in under a second and
+  persists the result, so drops cost nothing:
+  `upload_file → LoadImage → ImageBatch → GeminiImage2Node (gemini-3-pro-image-preview)
+  → SaveImage → submit_workflow → poll → get_output`.
+  Check true cost/duration for free via `/api/jobs`
+  (`execution_start_time`/`execution_end_time`). Small `/<id>/ref.jpg` files (~140 KB) exist
+  on the live site and are still worth using as refs — just for speed, not because size
+  was the bug. Nano Banana also draws its own panel border despite the exclusion block;
+  crop inside it.
 - **Workflow model policy:** the built-in `deep-research` workflow set no per-agent model,
   so 104 agents inherited the session model and burned 3M tokens / hit the session limit
   twice. A tuned copy lives at `~/.claude/workflows/deep-research.js` (verify+search on

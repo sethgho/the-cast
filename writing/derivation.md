@@ -213,6 +213,34 @@ ones as hard code and the judgment ones as an adversarial LLM panel:
 
 ---
 
+## Output modes — the spec assumed one, there are two (2026-07-22)
+
+Stages 1–5 are identical for both. Only the format and the gate emphasis differ.
+
+**A. The strip (default).** 4 panels, 1×4, published to the site. Must stand entirely on
+its own — the reader gets no accompanying text. Full 12-gate checklist applies.
+
+**B. The companion.** A strip made to run *with* a post, where the text carries the thesis
+and **the strip's job is to earn attention and be liked, not to make the argument.** This
+mode is real and proven — the first one shipped 2026-07-22 alongside a thread about
+agentic coding. Differences that matter:
+
+- **2×2 square, not 1×4.** A four-panel row is unreadable at tweet size; the square fits
+  the card and the panels stay legible. Verified.
+- **The gate relaxes on "does it make the point" and tightens on "is it funny."** In this
+  mode a strip that restates the thesis is *worse* — the reader already has the argument
+  in text. Redundancy reads as a lecture.
+- **Tonal pairing is the real craft decision.** A humble strip under a sharp post works
+  (the picture disarms, the text provokes). Two sharp registers together read as smug, and
+  the strip gets scrolled past. Decide which of the two is carrying the humility.
+- Word budgets and the Connector gate still apply unchanged.
+
+**Production note:** for a one-off companion, generating the balloons *in* the image
+monolithically is acceptable and works — Nano Banana Pro rendered four balloons of correct
+lettering in one pass. For the site pipeline, balloons stay composited by
+`compose-strip.py`. Also: the model draws its own outer panel border regardless of
+instruction; crop inside it, or keep it, since it reads as a clipped newspaper square.
+
 ## Stage 6 — Render & publish
 
 Hand the approved script to the existing art pipeline (`comfy-cloud-workflows`,
