@@ -20,6 +20,29 @@ project). Everything below is current as of commit `96f0280`.
 **Not built:** any of the pipeline. `derivation.md` is a spec, not code. Nothing in
 Stages 0–7 exists yet.
 
+## READ THIS FIRST — bible.md §2 changed materially on 2026-07-22
+
+A live scripting session with Seth produced context that was **missing from v1 of the
+bible** and changes how you route characters. Pull master before doing anything.
+
+- **The cast maps to real agents**, and the mapping is the material: **Wilson = personal
+  agent (the lab, where lessons are learned); Ake = work agent (production, where they get
+  applied); Cadbury = not set up yet**, so keep him out of agentic-coding strips. Seth is
+  the one who carries a lesson from lab to production.
+- **The ladder is Seth's macro point of view** (Claude as Google → IDE → intern → you in a
+  loop → your org), and it is a **spine, not a publication schedule** — do not write a
+  didactic series up the rungs.
+- **The central reframe:** curating output is not mentoring. *You don't fix an intern's
+  pull requests forty times, you onboard them.*
+- **A proven comic device exists:** the water in Ake's bowl = the agent's config.
+- **There are two output modes now**, not one — see "Output modes" in `derivation.md`. The
+  companion mode (2×2 square, runs with a post, optimised for attention rather than
+  argument) is new and shipped once.
+
+One strip has been produced end to end and published with a thread. It was **not** derived
+through this pipeline — it was hand-scripted — so treat it as a tone reference, not as
+evidence the pipeline works. Whether it becomes archive canon is undecided.
+
 ## What the next agent should pick up
 
 Seth's stated sequence: *define the target, then gather the right data.* The target is
