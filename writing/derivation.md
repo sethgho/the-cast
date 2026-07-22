@@ -1,12 +1,19 @@
 # Session Logs → Strip: the derivation spec
 
-How a day of real Claude Code session data becomes one gated strip. `bible.md` defines
-what a good strip *is*; this defines the pipeline that produces one.
+How real Claude Code session data becomes one gated strip. `bible.md` defines what a
+good strip *is*; this defines the pipeline that produces one.
+
+**What we're mining (Seth, 2026-07-22):** not incidents. The subject is **the condition
+of being an agent-assisted software developer** — the recurring, recognizable truths of
+this way of working, observed across many sessions and days. A specific event earns a
+strip only when it is genuinely extraordinary. This is the Dilbert register, not the
+sitcom register: the audience laughs because *their* week looks like this, not because
+our Tuesday did.
 
 **Design stance:** the pipeline's job is **not** to be funny. Its job is to (a) surface
-the day's genuinely strip-worthy incidents, (b) route them through fixed characters, and
-(c) **reject relentlessly**. Per the bible's discard gate, publishing nothing is an
-acceptable daily outcome. A pipeline that always ships is broken.
+genuinely strip-worthy observations about this life, (b) route them through fixed
+characters, and (c) **reject relentlessly**. Per the bible's discard gate, publishing
+nothing is an acceptable outcome. A pipeline that always ships is broken.
 
 ---
 
@@ -42,66 +49,95 @@ credentials. Harvest must:
 
 ---
 
-## Stage 1 — Incident extraction (deterministic, cheap)
+## Stage 1 — Observation mining (two veins)
 
-Reduce ~230 MB/day to a few dozen structured **incidents**. This stage is scripts, not a
-model — per the `scheduled-workflows` principle that scripts collect and the LLM analyses.
+Reduce ~230 MB/day to material an LLM can reason about. Per the `scheduled-workflows`
+principle, **scripts collect, the LLM analyses** — but what the scripts collect changed
+with the reframe: the primary output is no longer a list of events, it's a **ledger of
+aggregate signals** from which higher-level observations get drawn.
 
-**Mine for signals that correlate with comedy** — which, per Adams, means starting from
-annoyance and recognizability:
+### Vein A — the condition (primary)
 
-- **Reversals** — a confident assertion followed by its contradiction. (`"that should
-  fix it"` → same error again). The single richest vein; this *is* the Connector pattern.
-- **Repetition** — the same error ≥3 times in a session. Rule-of-three material, free.
-- **Escalation** — a task whose scope grew: 1-file intent → 40-file diff.
-- **The long silence** — a >20-minute gap between tool call and next action.
-- **Blast radius** — a small change that broke something unrelated (the "one small change"
-  engine, verbatim).
-- **Wrong-thing-fixed** — time spent on X when the cause was Y (this session's Superset
-  "power blip" that was actually a second org appearing: textbook).
-- **Human sentiment spikes** — profanity, all-caps, `"why is this"`, `"wtf"`.
-- **Cost/limit events** — OOM kills, session limits, runaway spend.
+**1a. Deterministic ledger (scripts, free).** Nightly, per machine, over the allowlisted
++ redacted logs, compute a small metrics ledger — counts and ratios, no transcript text:
 
-**Output — one record per incident:**
+- Sessions, hours-of-day active, human-turns vs agent-turns, words typed by the human vs
+  words produced by the agents
+- Retry loops (same command ≥3×), tool-failure rates, permission prompts answered
+- Confidence phrases (`"that should fix it"`, `"you're absolutely right"`) per day
+- Waiting: total gap time between agent-finished and human-responded
+- Scope drift: intent size (first user message) vs diff size, distribution not anecdote
+- Cost/limit events, compactions, session restarts
+- Rolling 7/30-day deltas on all of the above — trends, not snapshots
+
+The ledger is tiny (KB, not MB) and is the **only thing that crosses machines** besides
+Vein B records.
+
+**1b. Observation drafting (LLM, on the ledger only).** **Model policy: any stage that
+summarizes or reads session-derived text uses the smallest available model** (Haiku-class,
+explicitly pinned — never inherited from the session, per the deep-research 3M-token
+lesson in HANDOFF.md). Frontier models are reserved for Stage 4 joke construction and the
+Stage 5 judge panel, where the craft actually lives. Here, a small model reads the
+aggregated ledgers + trend deltas and proposes **observations about the condition** — expectation/
+reality gaps at the level of the *life*, not the day. The register to aim for:
+
+- "He types two sentences a day and reviews ten thousand words of confidence."
+- "Three agents, three machines, and the human's job is now saying 'yes' to prompts."
+- "The more help he has, the later he's up."
+
+Each observation must still carry a Dean pair — what this way of working *promised* vs
+what it *is* — because that's the Connector-bearing gap Stage 4 needs.
+
+### Vein B — the extraordinary event (secondary, high bar)
+
+The old incident extractor survives, with the threshold moved way up: a specific event
+gets a record **only if it's an outlier** (the 28 GB OOM kill, a 3M-token workflow, a
+session limit hit twice in a day). Signals: reversals, blast radius, wrong-thing-fixed,
+cost blowups — but expect **<1 qualifying event per week**, not dozens per day. Ordinary
+mishaps feed the ledger as counts; they do not get their own strip.
+
+**Output — one record per observation (both veins):**
 
 ```json
 {
-  "id": "2026-07-22-akebot-oom",
-  "date": "2026-07-22",
-  "host": "akebot",
-  "agent": "wilson",
-  "project": "the-cast",
-  "signal": "wrong-thing-fixed",
-  "one_line": "Diagnosed vanished workspaces as a power blip; was actually a 28GB OOM kill",
-  "the_expectation": "A reboot took the daemon down",
-  "the_reality": "One agent ate 28 of 31 GB and the kernel shot it",
-  "human_reaction": "asked if superset died again",
-  "duration_min": 45,
-  "severity": "medium",
+  "id": "2026-07-22-approval-economy",
+  "date_range": "2026-07-16..2026-07-22",
+  "kind": "condition",
+  "agents_involved": ["wilson", "akebot", "mac"],
+  "observation": "The human's main output this week was consent",
+  "evidence": {"permission_prompts": 214, "human_words": 3100, "agent_words": 41000},
+  "the_expectation": "Agents free the developer to do the real work",
+  "the_reality": "The real work is now approving other people's work",
   "recognizability": "high"
 }
 ```
 
-`the_expectation` / `the_reality` are the important fields — they're a pre-dug
-**Target Assumption / Reinterpretation** pair, which is exactly what Dean's model needs.
+`kind` is `"condition"` or `"event"`; event records keep the old per-incident fields
+(`host`, `signal`, `duration_min`, `severity`). `the_expectation` / `the_reality` remain
+the load-bearing fields — a pre-dug **Target Assumption / Reinterpretation** pair, which
+is exactly what Dean's model needs. `evidence` holds the ledger numbers that back the
+claim; an observation with no numbers behind it is a guess, not an observation.
 
 ---
 
 ## Stage 2 — Premise scoring (gate #1)
 
-Score each incident *before* any writing. Cheap model, structured output.
+Score each observation *before* any writing. Smallest available model (same policy as
+Stage 1b), structured output.
 
 | Criterion | Why |
 |---|---|
-| **Recognizable** | Adams' near-mandatory dimension. Would a dev who wasn't there nod? |
-| **Reversal strength** | Is there a real gap between expectation and reality? |
+| **Recognizable** | Adams' near-mandatory dimension. Would any dev living the agent-assisted life nod — not just someone who was there? |
+| **Reversal strength** | Is there a real gap between what this way of working promises and what it is? |
 | **Legibility** | Can the *emotion* land without domain knowledge? (bible §3) |
 | **Engine fit** | Does it run on a standing character engine? |
 | **Freshness** | Have we published this shape in the last 30 strips? |
+| **Mission fit** | Does the strip leave Seth reading as a frontier engineer reporting back, not a victim of his tools? (bible, "The mission") |
 
-**Gate:** drop anything without a genuine expectation/reality gap. An incident where
-things simply worked, or simply broke with no irony, is not a premise. Expect **most days
-to yield 0–3 survivors from a few dozen incidents.**
+**Gate:** drop anything without a genuine expectation/reality gap. A metric that's merely
+interesting, or an event that simply broke with no irony, is not a premise. Condition
+observations accrue over days — expect **a handful of viable premises per week**, with
+Vein B events rarer still.
 
 ---
 

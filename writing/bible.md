@@ -8,6 +8,24 @@ the bottom and cited inline as `[S1]`…`[S6]`.
 This document is the **target**: what a good strip must be. `derivation.md` is the
 **process**: how a day of session logs becomes one.
 
+## The mission (Seth, 2026-07-22)
+
+The strip communicates **Seth's journey as a software developer in the age of the AI
+explosion and agentic development** — with humor, because that's how he leans. The
+branding goal: position Seth as a **cutting-edge AI engineer learning lessons on the
+frontier of these new practices.**
+
+Consequences for the writing:
+
+- The material is **observations about this new way of working** (see `derivation.md`
+  Vein A), told from *inside* it. Self-deprecation is in bounds (Decision 3), but the
+  cumulative portrait must be someone **ahead of the curve reporting back** — the
+  explorer laughing at the terrain, not a victim of his tools. A strip where Seth just
+  looks incompetent serves the gag but not the mission; a strip where he's the first to
+  hit a wall everyone else will hit next month serves both.
+- **Recognizable** (§3) gets a time dimension: the best premises are things the audience
+  is *about* to recognize — frontier lessons, arriving slightly early.
+
 ---
 
 ## 0. The prime directive
