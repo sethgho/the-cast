@@ -1,0 +1,291 @@
+# The Follies Writing Bible
+
+House rules for writing *Gholson's Follies*. Every rule here traces to a cited primary
+source — cartoonists' own accounts, or measurement of their strips. Claims survived
+3-vote adversarial verification (2026-07-22 research pass); the sources are listed at
+the bottom and cited inline as `[S1]`…`[S6]`.
+
+This document is the **target**: what a good strip must be. `derivation.md` is the
+**process**: how a day of session logs becomes one.
+
+---
+
+## 0. The prime directive
+
+**One gag per strip. Everything else is subordinate to landing it.**
+
+Bushmiller's credo was "gag it down," and in *Nancy* characterization, atmosphere,
+emotional depth, social comment, plot, internal consistency and common sense are *all*
+surrendered to provoking the reader's "gag reflex" daily `[S1]`. We are not Bushmiller —
+we care about our characters more than he did — but the priority order is his: **if the
+gag and something else conflict, the gag wins.**
+
+Corollary, and this is the gate that kills most drafts: **a gag's success depends on its
+internal mechanics, not on the sophistication of its premise** `[S1]`. "The gag knows no
+I.Q." A clever premise with a broken mechanism is not a strip. A dumb premise with a
+clean mechanism is.
+
+---
+
+## 1. Structure — the 4-panel form
+
+### The joke skeleton (Greg Dean) `[S5]`
+
+A joke is exactly **two sections** — setup and punchline — joined by five mechanisms:
+
+| Mechanism | Job |
+|---|---|
+| **1st Story** | What the reader *thinks* is happening, built by the setup |
+| **Target Assumption** | The expected interpretation the setup installs |
+| **Connector** | **One thing carrying at least two interpretations** |
+| **Reinterpretation** | The second reading, revealed at the punchline |
+| **2nd Story** | What was *actually* happening all along |
+
+**HARD GATE — the Connector.** Every strip must contain one identifiable element with a
+double reading `[S6]`. If you cannot name the Connector in one sentence, there is no joke
+— there is an anecdote. This is the single most useful mechanical test we have.
+
+The setup's only job is **misdirection** into the Target Assumption; the punchline's job
+is to express the unexpected interpretation `[S6]`. So the reveal lands in the **final
+panel** — not earlier, not in narration.
+
+### Panel budget
+
+Four panels, mapping onto Dean's two sections:
+
+- **Panel 1 — Setup.** Install the Target Assumption. Establish who/where in one beat.
+- **Panel 2 — Build.** Complicate. This is where the Connector gets planted in plain sight.
+- **Panel 3 — Beat/turn.** The pivot, or a silent beat. Cheapest place to buy timing.
+- **Panel 4 — Punchline.** Reinterpretation. Last balloon, last words.
+
+### Measured placement rules (from 17,897 Peanuts strips)
+
+These are not opinions; they're counts `[S4]`:
+
+- Text appears in **panel 1 → 98%** of the time and **panel 4 → 96%**, with a dip in
+  panels 2–3 — a **U-shaped** text distribution. Verbal setup opens, verbal gag closes,
+  relative quiet in the middle.
+- Across the full 1950–2000 run, the **final panel carries dialogue/caption 92.5%** of the
+  time (>93% from 1956 on). **Peanuts punchlines are overwhelmingly verbal and land in the
+  last panel.**
+
+**Rule:** default to a verbal punchline in panel 4. Silent final panels are a deliberate
+exception (<10% of output), not a habit.
+
+**Rule:** the quiet middle is real. Panel 3 is the cheapest silent beat in the form — use
+it rather than crowding all four panels with dialogue.
+
+### Schulzian Symmetry `[S4]`
+
+The load-bearing structural pattern of *Peanuts*: uniform panel formula, consistent
+caption placement, and — most importantly — **narrative cohesion between the opening
+setup panel and the closing gag panel.** Panel 1 and panel 4 must mirror or answer each
+other.
+
+**GATE:** state in one sentence how panel 4 answers panel 1. If panel 4 would work
+equally well after some *other* panel 1, the strip is not built — it's assembled.
+
+### Rule of three `[S1]`
+
+Documented in a 3-panel Nancy: the same balloon repeats in frames 1, 2, 3, with a
+**half-beat pause before the third repetition**. Introduce → establish as catch-phrase →
+pay off on the third beat. "Comedy always comes in threes." In our 4-panel form the
+natural fit is panels 1, 2, 4 with panel 3 as the pause.
+
+### Staging — the fixed camera `[S3]`
+
+Schulz drew characters **from the same view all the way through a strip**, so nothing in
+the drawing interrupted the flow of what the characters said or did. He told Groth that
+Ketcham-style varied camera angles "would simply never work" in *Peanuts* because they'd
+make a fantasy strip too realistic.
+
+**Rule:** hold one camera per strip by default. Our house style block already fixes
+lighting and rendering; the camera should be equally boring. Varying the angle panel-to-
+panel is a tell that the writing isn't carrying the beat.
+
+### But it still has to be a *picture*
+
+Schulz's counterweight: "cartooning is still drawing funny pictures," and a strip whose
+humor isn't carried by funny pictures belongs in another medium `[S3]`. He also warned
+that purely visual premises exhaust faster than verbal ones.
+
+**Rule:** the punchline is usually verbal (92.5%), but the *panel* must still be funny to
+look at. If the strip would work unchanged as four lines of chat transcript, it is not a
+comic — it's a tweet with extra steps.
+
+---
+
+## 2. Characters — the engine, not the props
+
+### Personalities do ~75% of the writing `[S2]`
+
+Watterson: once the personalities are well-defined, you can put the characters in any
+situation and predict their responses — leaving only the joke-polishing. Ambiguous or
+stock-stereotype characters fail because "the plastic comes through."
+
+**This is our main material-generation asset.** We do not hunt for jokes; we put a fixed
+cast into today's real situation and read off what they'd each do.
+
+⚠️ **Refuted in research, so stated explicitly:** the claim that ensemble characters
+*should* be reducible to a one-or-two-word fixed trait was **killed** by verification.
+Watterson's point is the opposite — one-word archetypes are exactly the "plastic." Our
+characters need *well-defined personalities with predictable responses*, which is a much
+richer thing than a label. Write to the personality, not to the tag.
+
+### Characters must not be gag-delivery props `[S2]`
+
+Watterson picks the 4-panel form precisely because it enables character and storyline
+development — "like writing a novel in daily installments" — and rates strips highest
+when characters are more than "props to relate a gag." His named failure case is *B.C.*,
+whose interchangeable characters put the humor "in words, not in the characters."
+
+**GATE — the swap test:** if you can swap which character says the punchline without the
+joke changing, the strip is failing this rule. Rewrite until only one of them could have
+said it.
+
+### The repertory company / joke routing `[S3]`
+
+Schulz ran his cast as a **repertory company** and used it as a routing system: corny,
+dumb or slapstick material *becomes* funny when assigned to Snoopy, precisely because
+Snoopy doesn't realize it's corny. This range meant almost any idea could become a strip,
+and Schulz considered that change of pace "very important."
+
+**This is directly actionable for us.** A premise that's too dry for Seth may be perfect
+routed through Ake, whose alarm makes flat material funny. Routing is a *rescue
+mechanism* for a weak premise — try re-casting before discarding.
+
+### Fixed want/flaw engines `[S4]`
+
+Schulz credited the strip's popularity to **twelve deliberately maintained recurring gag
+devices** — the kite-eating tree, Lucy's psychiatry booth, the football Charlie Brown
+never kicks, the baseball games he always loses, the Great Pumpkin, the red-haired girl,
+Linus's blanket. Fixed engines, run for fifty years.
+
+We need our own dozen. Current standing engines (extend deliberately, not casually):
+
+| Engine | Runs on |
+|---|---|
+| Seth ships "one small change" | It is never small. He never learns. |
+| Wilson has seen this exact failure before | And says so, gently, after it happens. |
+| Cadbury balances the books as the room burns | The ledger is always correct. Nothing else is. |
+| Ake reads the dashboard as apocalypse | He is over-caffeinated, alarmed, and usually right. |
+| The disk is at ninety-one percent | Nobody is taking this seriously. |
+
+**The football rule:** an engine is only an engine if it *never resolves*. Charlie Brown
+must never kick the football. Seth's small change must never be small. The moment we let
+a character learn the lesson, we've spent the engine for one strip's payoff.
+
+### The vaudeville double act
+
+Our frame is a troupe, so use the straight-man/comic split explicitly: in any given strip,
+someone is playing it straight and someone is the comic. **Wilson and Cadbury are natural
+straight men; Ake is a natural comic; Seth moves between the two** depending on whether
+he's the one causing the disaster (comic) or reacting to it (straight).
+
+**Rule:** name the straight man and the comic before writing the balloons. Two comics in
+one strip is noise; two straight men is a status meeting.
+
+---
+
+## 3. Humor mechanics — the techniques
+
+### The six reliable gag techniques `[S1]`
+
+Bushmiller's working taxonomy, which "rarely failed him":
+
+1. Visual puns
+2. Word puns
+3. Slapstick
+4. Misunderstanding
+5. Incongruity
+6. Simple inversion
+
+**Rule:** name which one you're using. A draft that fits none of the six is usually not a
+gag yet.
+
+### The Six Dimensions of Humor (Adams) `[S7]`
+
+Naughty · Clever · Cute · Bizarre · Mean · **Recognizable**
+
+Adams states a joke must combine **at least two** of the six to register as humor; more
+dimensions give better results.
+
+**HARD GATE:** score each candidate on all six; **reject anything scoring fewer than two.**
+
+For our strip, **Recognizable is close to mandatory** — it's the dimension that makes a
+developer nod before they laugh. Our second dimension is usually Bizarre (a goldfish is
+your sysop) or Clever. We are rarely Naughty; Mean is available but should be aimed at
+*systems and situations*, never at real people outside the cast.
+
+### Domain material without locking outsiders out
+
+Our subject is genuinely niche (deploys, DNS, OOM kills). The workable pattern: **the
+emotion must be legible to everyone; the detail is the texture.** A reader who has never
+seen a Grafana dashboard should still understand "the small confident guy was wrong
+again." If the *joke itself* requires knowing what a cgroup is, we've written for a
+narrower room than we want — unless the recognition *is* the gag and we're deliberately
+serving the niche that day.
+
+---
+
+## 4. Process rules
+
+- **Separate the writing session from the drawing session** so each gets full attention
+  `[S2]`. For us: script and gate the strip completely before any art generation runs.
+  Never let the renderer start while the joke is still soft.
+- **The persistence rule** `[S2]`: after a fruitless first hour of idea generation,
+  Watterson forced a second hour, which often produced several good ideas. Encoded for us:
+  **do not accept the first candidate batch as final.** Generate, discard, generate again.
+- **Write from character, not toward a punchline.** Put the fixed personalities into the
+  real situation; the gag falls out. Reverse-engineering a strip from a punchline you
+  liked produces prop-characters.
+- **The discard gate is real** `[S3]`: Schulz spent nearly a whole afternoon trying to get
+  a gag out of one visual premise, produced one idea, and **threw it away because he
+  couldn't decide whether it was funny enough.** He also noted new variations on a
+  recurring theme sometimes arrive *ten years* apart. **An uncertain gag is a no.** We
+  publish nothing rather than something that "might" land — the archive is forever and the
+  bar compounds.
+- **Everything is a decision.** *How to Read Nancy* dissects one randomly-chosen 3-panel
+  strip into **43 discrete craft decisions** `[S8]`, and the authors' headline finding was
+  that Bushmiller was **completely intentional about every last aspect** of his work —
+  articulate, self-reflexive, and at times overtly theoretical `[S9]`. The minimalist
+  surface of a gag strip is the *product* of deliberate rules, not naive simplicity. That
+  is the standard: nothing in our strips is accidental, including what we leave out.
+
+---
+
+## 5. The quality gates (checklist form)
+
+A candidate strip ships only if **all** of these pass:
+
+1. **Connector** — I can name the one element with two interpretations, in one sentence.
+2. **Reveal position** — the reinterpretation lands in panel 4, in the last balloon.
+3. **Symmetry** — I can state how panel 4 answers panel 1.
+4. **Swap test** — the punchline could only belong to this character.
+5. **Straight/comic** — I named who plays straight and who plays comic.
+6. **Technique** — the gag is one of the six named techniques.
+7. **Dimensions** — scores ≥2 of Adams' six; Recognizable is one of them unless there's a
+   deliberate reason.
+8. **Engine** — it runs on a standing character engine, and the engine does not resolve.
+9. **Word budget** — see `derivation.md`; the strip is under the balloon caps.
+10. **Picture** — the panel is funny to look at, not just to read.
+11. **Certainty** — nobody involved is saying "I think it's funny?" An uncertain gag is a
+    no.
+
+---
+
+## Sources
+
+- `[S1]` Newgarden & Karasik, *How to Read Nancy* essay — <https://www.cartoonstudies.org/wp-content/uploads/2014/06/nancy.pdf>
+- `[S2]` Watterson interview — <https://bob.bigw.org/ch/interview.html>
+- `[S3]` Schulz, *The Comics Journal* #200 interview (Groth) — <https://www.tcj.com/charles-schulz-at-3-oclock-in-the-morning-an-excerpt-from-the-comics-journal-200-interview/>
+- `[S4]` Wigard, Arnold & Tilton, "Understanding Peanuts and Schulzian Symmetry," *Journal of Cultural Analytics* 8(3), 2023 — <https://culturalanalytics.org/article/87560>
+- `[S5]` `[S6]` Greg Dean, joke-structure glossary (his own school) — <https://stand-upcomedy.com/glossary/joke-structure/>
+- `[S7]` Scott Adams, "Humor Writing Tutorial," Dilbert Blog 2015-03-26 (live site dead; via Wayback) — <https://web.archive.org/web/20190704021316/https://blog.dilbert.com/2015/03/26/humor-writing-tutorial/>
+- `[S8]` `[S9]` Newgarden & Karasik on *How to Read Nancy* — <https://www.tcj.com/reading-how-to-read-nancy/>
+
+**Research provenance:** 22 sources fetched, 107 claims extracted, 25 verified under
+3-vote adversarial review, 21 confirmed, 1 refuted (the archetype claim, noted in §2), 3
+unverified. Unverified/unused: Adams' "write from annoyance" and his premise/cast design
+analysis could not be confirmed before the run hit limits — treat as unsourced if
+reintroduced.
