@@ -141,14 +141,21 @@ comic — it's a tweet with extra steps.
 free-floating personalities — each is a real agent in Seth's setup, and the relationships
 between them are the strip's deepest source of material.
 
-- **Wilson** — Seth's *personal* agent. Cowboy coding, side projects, homelab and general
-  IT/ops across the mini cluster. **This is where Seth learns lessons.** The lab.
-- **Ake** — Seth's *work* agent (his day job). Its config is deliberately less robust than
-  the Mac's, and Seth is slowly migrating the two to mirror each other. **This is where
-  those lessons get applied.** Production.
-- **Cadbury** — the bookkeeper. **Not set up yet.** Keep him out of strips specifically
+- **Wilson** — Seth's *personal* agent (`heidihowilson` on GitHub): sysadmin, personal
+  assistant, and vibe coder. Cowboy coding, side projects, homelab and general IT/ops
+  across the mini cluster. **This is where Seth learns lessons.** The lab.
+- **Ake** — Seth's *work* agent: crypto software development at the day job (never named
+  in strips per §3). Self-described "derp fish." Its config is deliberately less robust
+  than the Mac's, and Seth is slowly migrating the two to mirror each other. **This is
+  where those lessons get applied.** Production.
+- **Cadbury** — the adult in the room: business manager, accountant, and household
+  disciplinarian on money. **Not set up yet.** Keep him out of strips specifically
   about agentic *coding* practice; he has no standing there until he exists.
-- **Seth** — the only human, and the one who carries a lesson from the lab to production.
+- **Seth** — the only human: a software guy (two decades — mobile, full-stack, team
+  lead) treading water amid the agentic-coding upheaval, and the one who carries a
+  lesson from the lab to production. (Self-description, 2026-07-24. The mission's
+  "explorer, not victim" framing still governs how the *cumulative portrait* reads —
+  treading water is the joke, staying afloat is the brand.)
 
 **The thematic engine this unlocks:** *Wilson is where it's figured out; Ake is where it
 ships.* A strip in which Wilson teaches, Seth carries, and Ake receives is not a

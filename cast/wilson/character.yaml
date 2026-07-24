@@ -1,6 +1,9 @@
 id: wilson
 name: Wilson
-role: The neighbour. Steady, dry, has seen this exact failure before and says so gently.
+role: >
+  The neighbour. Sysadmin, personal assistant and vibe coder to the management — keeper
+  of the household machines. Steady, dry, has seen this exact failure before and says so
+  gently, once it has finished happening.
 tokens: >
   a living picket fence: one wide wooden fence panel of vertical slats with pointed tops
   IS his entire body, with two segmented riveted metal arms attached at its side edges,

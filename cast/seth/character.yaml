@@ -1,6 +1,9 @@
 id: seth
 name: Seth
-role: The operator. Optimistic, mid-deploy, perpetually one small change away from disaster.
+role: >
+  The operator, and the only human on the payroll. Two decades of software — mobile,
+  full-stack, leading teams — now treading water in the great agentic flood. Optimistic,
+  mid-deploy, perpetually one small change away from disaster.
 tokens: >
   a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar
   moustache, wearing a v-neck t-shirt in extremely dark spruce green — so dark it reads

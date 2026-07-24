@@ -1,6 +1,9 @@
 id: cadbury
 name: Cadbury
-role: The butler-turned-bookkeeper. Unflappable. Balances the ledger as things collapse.
+role: >
+  The butler-turned-bookkeeper, and the adult in the room. Business manager, accountant,
+  and household disciplinarian on the subject of money. Unflappable. Balances the ledger
+  as things collapse.
 tokens: 'a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with slicked-back
   black hair and a neat pencil moustache, a white folded towel draped over one forearm — his right
   eye is a brass clockwork monocle: a mechanical camera-iris lens in an ornate rim, its fine chain
