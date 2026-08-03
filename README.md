@@ -23,6 +23,7 @@ registry at [`/cast.json`](https://cast.sethgholson.com/cast.json).
 cast/<id>/
   character.yaml   # identity: name, role, prompt tokens, props, accent, notes
   sheet.png        # canonical turnaround sheet
+  headshot.png     # canonical square avatar — 1024x1024, purpose-rendered
 style/vaudeville-1933.md    # the locked house style — shared by every renderer
 schema/character.schema.json
 scripts/build-site.py       # registry -> public/ (validates first; bad YAML fails the build)
@@ -35,6 +36,11 @@ showcase/                   # strips worth showing off
   verbatim into prompts. The sheet carries silhouette and costume; the tokens stop a model
   inventing a different design when conditioning runs weak. Both halves are required —
   dropping either one measurably breaks identity (we tested).
+- **Avatars** use `headshot.png` — a rendered square portrait, never a crop of the sheet.
+  Cropping the sheet is what we did first and it cut off chins and caught stray arms. Each
+  headshot is generated from the sheet as reference plus the character's `tokens`, centred
+  with even margin and bleeding to all four edges, so a consumer can mask it to a circle or
+  a square without losing the face.
 - **Scripts and agents** read `cast.json` — stable URLs, no YAML parsing, CORS enabled.
 - **Sites** hotlink `https://cast.sethgholson.com/<id>/sheet.png` behind Cloudflare caching.
 
@@ -43,7 +49,7 @@ skill) lives in a separate private repo; this one stays clean: identity and asse
 
 ## Adding or changing a cast member
 
-1. Edit or add `cast/<id>/character.yaml` (schema-validated) and `sheet.png`.
+1. Edit or add `cast/<id>/character.yaml` (schema-validated), `sheet.png` and `headshot.png`.
 2. `python3 scripts/build-site.py` — fails loudly on schema or missing-sheet errors.
 3. Commit, push. Deploy picks it up; the site and `cast.json` regenerate from the registry.
 

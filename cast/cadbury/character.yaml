@@ -11,11 +11,13 @@ tokens: 'a thin, impeccably composed butler in a black tailcoat, waistcoat and b
 
   '
 sheet: sheet.png
+headshot: headshot.png
 props:
 - a leather-bound double-entry ledger
 - a fountain pen
 - a brass mechanical adding machine spooling paper tape
 public_url: https://cast.sethgholson.com/cadbury/sheet.png
+headshot_url: https://cast.sethgholson.com/cadbury/headshot.png
 notes: 'The monocle eye is PART OF HIM, not eyewear he holds — always his RIGHT eye, always chained
   to the waistcoat pocket, present in every view and expression where that side shows. v4 canon (2026-07-21):
   true pencil moustache (slimmer than v2), and a faint warm brass tint on the monocle and adding machine

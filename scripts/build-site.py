@@ -50,6 +50,13 @@ def load_cast():
             errors.append(f"cast/{cid}: id '{c.get('id')}' does not match directory")
         if not (ROOT / "cast" / cid / c.get("sheet", "sheet.png")).exists():
             errors.append(f"cast/{cid}: sheet '{c.get('sheet')}' missing")
+        head = ROOT / "cast" / cid / c.get("headshot", "headshot.png")
+        if not head.exists():
+            errors.append(f"cast/{cid}: headshot '{c.get('headshot')}' missing")
+        else:
+            hw, hh = Image.open(head).size
+            if hw != hh:
+                errors.append(f"cast/{cid}: headshot must be square, got {hw}x{hh}")
         cast.append(c)
     return cast, errors
 
@@ -75,6 +82,9 @@ def main() -> int:
         src = ROOT / "cast" / cid / c["sheet"]
         shutil.copy2(src, PUB / cid / "sheet.png")
         w, h = Image.open(src).size
+        head_src = ROOT / "cast" / cid / c["headshot"]
+        shutil.copy2(head_src, PUB / cid / "headshot.png")
+        hw, hh = Image.open(head_src).size
         entry = {
             "id": cid,
             "name": c["name"],
@@ -85,6 +95,8 @@ def main() -> int:
             "notes": (c.get("notes") or "").strip() or None,
             "sheet_url": f"{BASE_URL}/{cid}/sheet.png",
             "sheet_size": [w, h],
+            "headshot_url": f"{BASE_URL}/{cid}/headshot.png",
+            "headshot_size": [hw, hh],
         }
         art = SITE / "art" / cid
         if art.is_dir():
@@ -92,8 +104,6 @@ def main() -> int:
                 shutil.copy2(f, PUB / cid / f.name)
             if (art / "portrait.png").exists():
                 entry["portrait_url"] = f"{BASE_URL}/{cid}/portrait.png"
-            if (art / "thumb.png").exists():
-                entry["thumb_url"] = f"{BASE_URL}/{cid}/thumb.png"
         registry.append(entry)
 
     strip = ROOT / "showcase" / "comfy-setup-strip.png"

@@ -12,9 +12,11 @@ tokens: >
   — in the deep flat shadow between hat brim and pickets float two simple friendly
   cartoon eyes, white ovals with round dark pupils
 sheet: sheet.png
+headshot: headshot.png
 props:
   - a miniature rack of tiny humming servers, carried lantern-style by a chain
 public_url: https://cast.sethgholson.com/wilson/sheet.png
+headshot_url: https://cast.sethgholson.com/wilson/headshot.png
 notes: >
   NEVER describe Wilson with the word "robot" — it primes a humanoid armature (torso,
   pelvis, long legs) that survived two direct correction passes on 2026-07-21; the

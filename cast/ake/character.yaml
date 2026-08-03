@@ -9,6 +9,7 @@ tokens: 'a plump goldfish inside a spherical glass fishbowl mounted on a small w
 
   '
 sheet: sheet.png
+headshot: headshot.png
 props:
 - a small dark cap lettered "FEW"
 - the wheeled wooden dolly the bowl rides on
@@ -17,6 +18,7 @@ accent: 'The only warm colour in an otherwise sepia-duotone world — a muted oc
 
   '
 public_url: https://cast.sethgholson.com/ake/sheet.png
+headshot_url: https://cast.sethgholson.com/ake/headshot.png
 notes: 'The cap reads "FEW" — as in "few understand." It used to say SYSOP; that''s retired. The walrus
   moustache and buck teeth are his defining features and the FIRST thing a text-only prompt loses.
   Always render Ake with reference conditioning. Sheet reframed 2026-07-21 to the house furniture

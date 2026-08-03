@@ -4,7 +4,7 @@
   "title": "Cast member",
   "description": "A character in the vaudeville cast. The cast — not the comic — is the unit of value: comics, videos, site headers, avatars and stickers are all renderers that consume these.",
   "type": "object",
-  "required": ["id", "name", "tokens", "sheet"],
+  "required": ["id", "name", "tokens", "sheet", "headshot"],
   "additionalProperties": false,
   "properties": {
     "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "Must match the cast/<id>/ directory name." },
@@ -15,6 +15,10 @@
       "description": "The verbatim description injected into every render prompt. This is the words half of identity; the sheet is the pictures half. Both are needed — the sheet carries silhouette and costume, the tokens stop the model inventing a different design when reference conditioning is weak."
     },
     "sheet": { "type": "string", "description": "Canonical turnaround sheet filename, relative to cast/<id>/." },
+    "headshot": {
+      "type": "string",
+      "description": "Canonical square avatar headshot filename, relative to cast/<id>/. Purpose-rendered — never a crop of the sheet. 1024x1024, subject centred with even margin, art bleeding to all four edges so consumers can crop to a circle or a square without losing the face."
+    },
     "props": {
       "type": "array",
       "items": { "type": "string" },
@@ -25,6 +29,7 @@
       "type": "string",
       "description": "Public HTTPS URL of the sheet once published to sethgholson.com/cast/. This is load-bearing, not cosmetic: partner_generate's medias[].value REQUIRES a publicly-fetchable URL, so publishing collapses the upload_file + hand-built-graph dance into a single call."
     },
+    "headshot_url": { "type": "string", "description": "Public HTTPS URL of the headshot once published. Same load-bearing role as public_url — avatars get consumed by external services that need a fetchable URL." },
     "notes": { "type": "string" }
   }
 }
