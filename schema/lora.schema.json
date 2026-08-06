@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cast.sethgholson.com/schema/lora.schema.json",
+  "title": "Cast LoRA card",
+  "description": "The CARD for a LoRA, not the weights. The hub serves the card; GitHub Releases serve the weights.\n\nWhy the split: .safetensors files run 50-400 MB. In git they bloat every clone forever and land in the Docker image the site ships from, for bytes nginx should never have been asked to serve. So the weights are uploaded as release assets on this repo by scripts/publish-lora.sh, which computes sha256 and bytes at upload time and writes them here. Those two fields are the ONE place in this registry where a hash is not recomputed at build — the file is not in the tree to hash. The script is the only supported way to write them.\n\nSource is cast/<id>/lora.yaml; published inside /<id>/assets.json under 'lora'.",
+  "type": "object",
+  "required": ["id", "kind", "base_model", "download_url", "sha256", "bytes", "trigger", "recommended_strength", "trained_at"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "e.g. 'wilson-character-v1'. Versioned, because cartoon LoRAs peak early and then go plastic — you keep the checkpoint that was best, not the last one." },
+    "kind": { "type": "string", "enum": ["character", "style"], "description": "Stack one style LoRA with per-character LoRAs. Multi-character-in-one-LoRA mostly fails — 26,000 steps and still bleeding — unless captions carry bounding boxes." },
+    "base_model": { "type": "string", "description": "What it was trained against, exactly. A LoRA is worthless without it. e.g. 'sdxl-1.0', 'minimax-h3'." },
+    "download_url": { "type": "string", "format": "uri", "description": "GitHub Release asset URL. Not served by this site." },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$", "description": "Written by scripts/publish-lora.sh at upload time. Verify after download." },
+    "bytes": { "type": "integer", "minimum": 1, "description": "Written by scripts/publish-lora.sh at upload time." },
+    "trigger": { "type": "string", "description": "The token that summons it. Everything the captions omitted got baked into this word." },
+    "recommended_strength": { "type": "number", "minimum": 0, "maximum": 2, "description": "Measured starting weight. Style LoRAs sit around 0.5-0.6, character LoRAs 0.25-0.9 when stacked." },
+    "strength_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "[min, max] that stayed on-model in testing." },
+    "trained_on": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*$" },
+      "description": "Asset ids of the training images, resolvable in /assets/index.json. This is the reproducibility link: the derived weights left the repo, the inputs did not. A style LoRA's list MUST include character-free style plates, or it memorises the leads and every character drifts toward them."
+    },
+    "trained_at": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "trainer": { "type": "string", "description": "e.g. 'kohya sd-scripts', 'ostris/ai-toolkit'." },
+    "training_config": {
+      "type": "object",
+      "description": "Enough to retrain it. Cartoon settings that worked: 20-40 images, dim 16-32 with alpha=dim, LR 1e-4, 1500-2500 steps, AdamW8bit, save every 250 and pick.",
+      "additionalProperties": true,
+      "properties": {
+        "dim": { "type": "integer" },
+        "alpha": { "type": "integer" },
+        "learning_rate": { "type": "number" },
+        "steps": { "type": "integer" },
+        "optimizer": { "type": "string" },
+        "resolution": { "type": "integer" }
+      }
+    },
+    "release_tag": { "type": "string", "description": "The GitHub Release the weights hang off." },
+    "notes": { "type": "string" }
+  }
+}

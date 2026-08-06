@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cast.sethgholson.com/schema/voice.schema.json",
+  "title": "Cast voice profile",
+  "description": "Everything needed to make a character SOUND right — in prose and in audio. Source is cast/<id>/voice.yaml; published at /<id>/voice.json.\n\nTwo consumers, two halves. An agent writing dialogue reads 'writing_voice'. A render pipeline reads 'speech', because MiniMax H3 is a JOINT video+audio model driven by a single prompt: the audio direction has to ride in the same prompt as the visuals. External TTS dubbed on afterward is authored blind to the mouth movement H3 already rendered and can never lip-sync — that was tested to destruction (2026-08-05).",
+  "type": "object",
+  "required": ["id", "writing_voice", "speech", "negatives"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "Must match the cast/<id>/ directory name." },
+    "voice_url": { "type": "string", "description": "Set by the build. Public URL of this document." },
+    "writing_voice": {
+      "type": "object",
+      "description": "How the character talks in prose. For agents writing dialogue. Mined from writing/bible.md and writing/derivation.md — it must not contradict them.",
+      "required": ["summary", "diction", "rhythm", "tics", "never_says"],
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string", "description": "One paragraph a writer can hold in their head." },
+        "register": { "type": "string", "description": "Where they sit on the straight-man/comic axis, and when they move. bible.md §2: name the straight man and the comic before writing balloons." },
+        "diction": { "type": "array", "items": { "type": "string" }, "description": "Word choice rules. Concrete, checkable." },
+        "rhythm": { "type": "string", "description": "Sentence length, cadence, where the beats fall." },
+        "tics": { "type": "array", "items": { "type": "string" }, "description": "Verbal habits. Use sparingly — a tic run into the ground is a catch-phrase, and per the football rule a catch-phrase must never resolve." },
+        "never_says": { "type": "array", "items": { "type": "string" }, "description": "Hard negatives. The fastest way to write a character off-model is to give them someone else's line." },
+        "sample_lines": { "type": "array", "items": { "type": "string" }, "description": "Lines that pass the swap test — only this character could have said them (bible.md §2)." },
+        "word_budget": { "type": "string", "description": "House caps from derivation.md Stage 4, restated where the writer will look." }
+      }
+    },
+    "speech": {
+      "type": "object",
+      "description": "How the character SOUNDS. The h3_voice_clause is the deliverable; the descriptive fields exist so a human can re-derive it for a different model.",
+      "required": ["pitch", "accent", "pace", "h3_voice_clause"],
+      "additionalProperties": false,
+      "properties": {
+        "pitch": { "type": "string" },
+        "accent": { "type": "string" },
+        "pace": { "type": "string" },
+        "timbre": { "type": "string" },
+        "h3_voice_clause": {
+          "type": "string",
+          "description": "Ready to paste into a MiniMax H3 prompt, in the same prompt as the visuals. Three things carry it, all measured: ask for a CHARACTER voice not a realistic one; ask for DISTANCE not proximity ('close to the microphone' is the exact phrase that produces a real guy shouting into a mic); and band-limit the recording. Always keep the on-screen-text negatives — they are separate from the vocal controls, and dropping them to enable speech brings the lettering bug straight back."
+        },
+        "casting_note": { "type": "string", "description": "Known limits. Voice ACTING quality is unsolved as of 2026-08-06 — sync is great, the performances are not. Voice cloning is a separate pinned project; this file is the container it will fill." }
+      }
+    },
+    "samples": {
+      "type": "array",
+      "description": "Reference audio, as full asset records. Populated by the build from assets.yaml entries with kind 'voice-sample' — declare the WAV once, in the asset manifest, and it appears here. May be empty.",
+      "items": { "$ref": "https://cast.sethgholson.com/schema/asset.schema.json" }
+    },
+    "negatives": {
+      "type": "object",
+      "description": "The clauses that keep a clip quiet. H3's audio head is unsupervised if the prompt describes only visuals, and it defaults to garbled human vocalisations — genuinely unsettling, and the single most surprising thing about the model.",
+      "required": ["silent"],
+      "additionalProperties": false,
+      "properties": {
+        "silent": { "type": "string", "description": "The exact clause for a clip that must carry no voice. The full list is required; one or two of these terms is not enough." },
+        "no_on_screen_text": { "type": "string", "description": "Separate control from the vocal one. Keep it in every prompt, including prompts that DO want speech." }
+      }
+    },
+    "notes": { "type": "string" }
+  }
+}

@@ -1,6 +1,9 @@
 FROM python:3.12-slim AS build
 WORKDIR /app
-RUN pip install --no-cache-dir pyyaml pillow jsonschema
+# Pinned. The build is a validation gate, so its validator is load-bearing: an
+# unpinned jsonschema that changes draft handling turns "the registry is wrong"
+# into "the deploy is broken" with no commit to blame it on.
+RUN pip install --no-cache-dir 'pyyaml~=6.0' 'pillow~=10.2' 'jsonschema~=4.10'
 COPY . .
 RUN python scripts/build-site.py
 
