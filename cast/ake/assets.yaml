@@ -1,0 +1,59 @@
+# Ake's assets. Published at https://cast.sethgholson.com/ake/assets.json
+#
+# Only what a human knows goes here. build-site.py measures size, dimensions and
+# sha256 from the bytes on disk and validates the composed record against
+# schema/asset.schema.json; a bad entry fails the build.
+#
+# CAPTIONS DESCRIBE POSE, FRAMING AND BACKGROUND ONLY — never the style. What you
+# caption stays editable; what you omit gets baked into the trigger token, and the
+# house style is exactly what we want baked in.
+#
+# Provenance: every render is ONE nano-banana-pro edit from one of three base
+# plates, never independent generation — independent generation re-stages the shot
+# (RMSE 85.3 vs 39.3 for a chained edit).
+
+assets:
+- file: assets/poses/standing-neutral.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - neutral
+  - transparent
+  caption: Ake hovering calmly at rest in his bowl on its wheeled dolly, fins relaxed, front view, full
+    body
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+- file: assets/training/gray-neutral.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - neutral
+  - plain-background
+  caption: Ake hovering calmly at rest in his bowl on its wheeled dolly, fins relaxed, front view, full
+    body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+- file: assets/training/stage-neutral.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - neutral
+  - staged
+  caption: Ake hovering calmly in his bowl on its wheeled dolly, front view, full body, on a stage under
+    a spotlight with a curtain behind
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the staged chain
+- file: assets/expressions/neutral.png
+  kind: expression
+  tags:
+  - close-up
+  - front
+  - neutral
+  - plain-background
+  caption: Close on Ake's face through the curved glass, eyes forward and alert, cap on the bowl above,
+    front view
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the close-up chain
