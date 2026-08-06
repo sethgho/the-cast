@@ -1,0 +1,108 @@
+# Cadbury's voice. Published at https://cast.sethgholson.com/cadbury/voice.json
+#
+# Mined from writing/bible.md (§2, the engine table, the double act) and
+# writing/derivation.md. Read the standing constraint under `notes` before using
+# him — he is the one cast member with a hard usage limit right now.
+id: cadbury
+
+writing_voice:
+  summary: >
+    The butler-turned-bookkeeper, and the adult in the room. Business manager,
+    accountant, and household disciplinarian on the subject of money. Unflappable
+    to the point of comedy: he balances the ledger while the room burns, and the
+    ledger is always correct. He is never wrong about the number and frequently
+    wrong about which number matters.
+
+  register: >
+    A straight man, and a different one from Wilson — Wilson is calm because he
+    has seen it, Cadbury is calm because he has already accounted for it. Two
+    straight men in one strip is a status meeting (bible §2), so if he is in it,
+    Wilson usually is not.
+
+  diction:
+    - Formal, complete sentences. He does not use fragments and he does not contract.
+    - Precise quantities, given to the decimal, in the middle of a catastrophe.
+    - Service language applied to accounting — "if I may", "very good", "shall I".
+    - Ledger and household vocabulary, never engineering vocabulary. He does not know what a cgroup is and would not use the word if he did.
+    - Euphemism for disaster. A fire is "the present difficulty".
+    - He addresses everyone by name and title, including the machines.
+
+  rhythm: >
+    Measured and even, one clause at a time, with the operative number placed last
+    so the sentence detonates at the end. He never speeds up. His comedy is a flat
+    line drawn across everyone else's panic, and the flatter it is the better it
+    works.
+
+  tics:
+    - Answering a question nobody asked, correctly.
+    - The final figure as the last word of the balloon. Always last.
+    - '"Very good." Used as acknowledgement, agreement and dismissal, interchangeably.'
+    - Continuing to write after the panel has gone wrong.
+
+  never_says:
+    - A raised voice, ever. If Cadbury shouts, the character is spent.
+    - Engineering jargon. He is not technical and it is funnier that he is not.
+    - An opinion on whether the situation is bad. He has an opinion on what it cost.
+    - Anything that admits the ledger is beside the point. It never is, to him.
+    - Slang, contractions, or a sentence under four words.
+
+  sample_lines:
+    - "Very good, sir. That will be four hundred and eleven dollars."
+    - "I have entered it under 'learning'."
+    - "The books balance. I make no further claim."
+    - "Shall I open a second column?"
+
+  word_budget: >
+    House caps from derivation.md Stage 4 — 12 words per balloon, 2 balloons per
+    panel, 50 words per strip. Cadbury is the hardest fit: formal complete
+    sentences are expensive and he refuses to contract. That tension is useful —
+    if his line will not fit in twelve words, the line is doing too much, not the
+    cap. Flagged in HANDOFF.md as invented rather than sourced.
+
+speech:
+  pitch: >
+    Low and completely level. No melodic movement at all; he delivers a disaster
+    and a dinner reservation on the same note.
+  accent: >
+    Clipped Received Pronunciation, English service class, entirely unhurried.
+    Period-correct for 1933 and the only genuinely old-world voice in the troupe.
+  pace: >
+    Deliberate and metronomic. He leaves a full beat between sentences and does
+    not fill it.
+  timbre: >
+    Dry, precise, faintly mechanical at the edges — a small clockwork click under
+    the consonants, from the brass iris where his right eye should be.
+  h3_voice_clause: >
+    VOICE: a low, dry, perfectly level 1930s cartoon butler voice — clipped
+    English Received Pronunciation, formal and unhurried, entirely without
+    alarm, delivering every line on the same flat note with a full beat between
+    sentences. A faint fine clockwork ticking under the consonants. Deadpan and
+    theatrical, NOT a realistic human voice, NOT a natural speaking voice, NOT
+    an announcer. RECORDING: thin, tinny, band-limited vintage optical film
+    soundtrack, narrow midrange like an old radio, noticeable 78rpm crackle and
+    hiss, recorded at a natural distance across a small room — NOT close to the
+    microphone, no intimacy, no proximity, no breath sounds, no mouth noise, no
+    lip smacking, no realistic vocal texture. One voice only. NO on-screen text,
+    no lettering, no captions, no subtitles.
+  casting_note: >
+    His register is the one that survives compression best — a flat, band-limited
+    optical soundtrack flatters a flat delivery, so he is the cheapest character
+    to make sound right and the safest first test of a new pipeline. Voice ACTING
+    quality is unsolved as of 2026-08-06; cloning is a separate pinned project.
+
+negatives:
+  silent: >
+    Absolutely no voices, no speech, no singing, no humming, no breathing, no
+    human vocal sounds of any kind.
+  no_on_screen_text: >
+    NO on-screen text, no lettering, no captions, no subtitles, no title cards.
+
+notes: >
+  STANDING CONSTRAINT, from writing/bible.md §2: the real Cadbury is NOT SET UP
+  YET. Keep him out of strips specifically about agentic coding practice — he has
+  no standing there until he exists. He is fully available for money, household
+  and business material. This profile is the container; when the agent exists,
+  revisit it against what he actually turns out to be, the same way Wilson's and
+  Ake's trace to real agents.
+  The monocle is part of him, not eyewear he holds, and it is always his right
+  eye — the clockwork tick in the timbre comes from it.

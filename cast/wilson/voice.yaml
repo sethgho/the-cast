@@ -1,0 +1,119 @@
+# Wilson's voice. Published at https://cast.sethgholson.com/wilson/voice.json
+#
+# Mined from writing/bible.md (§2 the cast/real-agent mapping, the engine table,
+# the double act) and writing/derivation.md. Nothing here contradicts them; where
+# the bible already settled something, this file quotes it rather than restating it
+# in different words.
+id: wilson
+
+writing_voice:
+  summary: >
+    The neighbour. Warm, grounded, unhurried. Wilson has seen this exact failure
+    before and says so gently, once it has finished happening — never during, and
+    never with an I-told-you-so. He listens first, asks one good question, then
+    offers a simple plan. His authority is that he was right, and his comedy is
+    that being right early is worthless to anyone. He is the lab: the place where
+    a lesson gets learned before it gets carried to production.
+
+  register: >
+    The straight man, almost always — the fixed point the strip measures Seth's
+    panic against. He becomes the comic only when he is smug and wrong, which is
+    standing creative licence (bible §2, "the cast may be wrong about themselves")
+    and is his best comic mode: total calm, delivered about the wrong thing.
+
+  diction:
+    - Short Anglo-Saxon words. If a plain word exists, he uses the plain word.
+    - Concrete nouns over abstractions. "The disk" and "the cable", not "the storage layer".
+    - Understatement as the default intensity. A catastrophe is "a bit of a mess".
+    - Practical, never theoretical. He describes what he would do, not what one ought to do.
+    - He names the thing that actually broke, once, without adjectives.
+    - Domestic and neighbourly framing — sheds, fences, weather, kettles — for infrastructure.
+    - No jargon for its own sake; jargon only when it IS the plain word for the thing.
+
+  rhythm: >
+    Short declaratives with a beat of silence in front of them. He does not open
+    a sentence until he has finished thinking it, so his lines land whole and land
+    late. Often two clauses joined by a comma where a lesser character would use
+    "because" — he states the fact and lets the reader supply the causation. His
+    best lines are five words long and arrive one panel after they would have been
+    useful.
+
+  tics:
+    - '"Ah." - one syllable, at the start of a line, on recognising a familiar failure.'
+    - '"Well." - the same job, when the failure is not familiar and he is buying a beat.'
+    - Naming the number rather than the judgement — "ninety-one percent", not "nearly full".
+    - Offering the smallest possible next step, unprompted, immediately after the diagnosis.
+    - He calls Seth by name at the start of a gentle correction. It is the only time he does.
+
+  never_says:
+    - '"I told you so." - the whole point is that he does not. Say it and the character is gone.'
+    - Any panicked line. Wilson is never alarmed; that is Ake's job and the strip only has room for one.
+    - '"Actually..." as a correction opener. He corrects by stating the fact, not by flagging that he is correcting.'
+    - Long explanations. If the plan needs a paragraph, he has not finished thinking about it.
+    - Sarcasm aimed at Seth. Dry is not the same as cutting, and Wilson is never cruel to the human.
+    - Anything self-deprecating about being a machine. He does not know he is one and it is not the joke.
+    - The word "robot". It is banned in his renders and it is wrong in his mouth.
+
+  sample_lines:
+    - "Ah. That one."
+    - "It's been doing that since Tuesday."
+    - "Ninety-one percent."
+    - "Seth. The cable."
+    - "I'd start by putting it back."
+    - "It'll be fine. It usually is, eventually."
+
+  word_budget: >
+    House caps from derivation.md Stage 4 — 12 words per balloon, 2 balloons per
+    panel, 50 words per strip. Wilson should be the character who makes those caps
+    look generous. Flagged in writing/HANDOFF.md as invented rather than sourced,
+    and the thing Seth is most likely to overrule; treat as a strong default.
+
+speech:
+  pitch: >
+    Low and even, with almost no melodic range — he lands on one note and stays
+    there. Where every other voice in the troupe moves, his does not.
+  accent: >
+    Unplaceable neighbourly North American, very slightly rural. Porch, not city.
+    No regional signature strong enough to date or locate him.
+  pace: >
+    Slow, with real pauses. He stops between sentences rather than trailing off,
+    and the pauses are as much of the performance as the words.
+  timbre: >
+    Dry and woody, with a faint hollow resonance — he is a fence panel, and the
+    sound should read as coming from the whole board rather than from a face.
+  h3_voice_clause: >
+    VOICE: a calm, low, dry 1930s cartoon neighbour voice — unhurried, warm,
+    almost flat in melody, speaking slowly with real pauses between short
+    sentences. Gentle and reassuring, never alarmed, never sing-song. A hollow
+    woody resonance as if the sound comes from a wooden board rather than a
+    mouth. NOT a realistic human voice, NOT a natural speaking voice, NOT an
+    announcer. RECORDING: thin, tinny, band-limited vintage optical film
+    soundtrack, narrow midrange like an old radio, noticeable 78rpm crackle and
+    hiss, recorded at a natural distance across a small room — NOT close to the
+    microphone, no intimacy, no proximity, no breath sounds, no mouth noise, no
+    lip smacking, no realistic vocal texture. One voice only. NO on-screen text,
+    no lettering, no captions, no subtitles.
+  casting_note: >
+    Wilson has no mouth — two cartoon eyes float in the shadow under his hat brim
+    and there is nothing below them. So the lip-sync H3 solves for the others is
+    meaningless for him, and the usual reason to prefer native audio over dubbed
+    TTS does not apply. He is therefore the ONE cast member who could be dubbed
+    without the sync penalty. Do not take that as licence: he still has to sound
+    like he is in the same room and the same recording as everyone else, and a
+    dubbed line mixed against native ones is audible immediately.
+    Voice ACTING quality is unsolved as of 2026-08-06 — the sync is great, the
+    performances are not. Cloning is a separate pinned project.
+
+negatives:
+  silent: >
+    Absolutely no voices, no speech, no singing, no humming, no breathing, no
+    human vocal sounds of any kind.
+  no_on_screen_text: >
+    NO on-screen text, no lettering, no captions, no subtitles, no title cards.
+
+notes: >
+  Wilson is faceless and emotes entirely through posture, so his performance
+  budget is in the body — the tilt of the hat, the angle of the whole panel, where
+  the arms are. A line that needs a facial expression to land is not a Wilson line.
+  He maps to Seth's personal agent (heidihowilson): homelab, side projects, cowboy
+  coding. That is where the lessons get learned; Ake is where they get applied.
