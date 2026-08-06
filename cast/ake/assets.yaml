@@ -57,3 +57,195 @@ assets:
     front view
   created: '2026-08-06'
   source: nano-banana-pro from sheet.png + tokens; base plate of the close-up chain
+- file: assets/poses/rolling.png
+  kind: pose
+  tags:
+  - dolly
+  - front
+  - full-body
+  - rolling
+  - transparent
+  caption: Ake's dolly rolling forward, wheels turning and water sloshing back, fins swept back, front
+    view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/poses/gesturing.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - gesturing
+  - pointing
+  - transparent
+  caption: Ake jabbing one fin out to the side pointing urgently off-frame, pressed to the glass, front
+    view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/poses/fins-crossed.png
+  kind: pose
+  tags:
+  - fins-crossed
+  - front
+  - full-body
+  - transparent
+  - waiting
+  caption: Ake hanging level with both pectoral fins folded across his front, front view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/poses/alarmed.png
+  kind: pose
+  tags:
+  - alarmed
+  - front
+  - full-body
+  - surprised
+  - transparent
+  caption: Ake shot back against the far wall of the bowl with both fins splayed and the water sloshing,
+    front view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/poses/delighted.png
+  kind: pose
+  tags:
+  - delighted
+  - front
+  - full-body
+  - transparent
+  caption: Ake risen to the top of the bowl with both fins thrown up and bubbles rising, front view, full
+    body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/poses/dejected.png
+  kind: pose
+  tags:
+  - dejected
+  - front
+  - full-body
+  - sunk
+  - transparent
+  caption: Ake sunk to the bottom of the bowl with fins drooping and tail slack, front view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/poses/tipping-cap.png
+  kind: pose
+  tags:
+  - cap
+  - front
+  - full-body
+  - prop
+  - salute
+  - transparent
+  caption: Ake reaching a fin out of the bowl to tip the brim of his cap in a salute, front view, full
+    body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/pose/standing-neutral
+- file: assets/training/gray-rolling.png
+  kind: training-set
+  tags:
+  - dolly
+  - front
+  - full-body
+  - plain-background
+  - rolling
+  caption: Ake's dolly rolling forward, wheels turning and water sloshing, front view, full body, on a
+    plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-gesturing.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - gesturing
+  - plain-background
+  - pointing
+  caption: Ake jabbing one fin out pointing off-frame, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-fins-crossed.png
+  kind: training-set
+  tags:
+  - fins-crossed
+  - front
+  - full-body
+  - plain-background
+  - waiting
+  caption: Ake with both fins folded across his front, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-alarmed.png
+  kind: training-set
+  tags:
+  - alarmed
+  - front
+  - full-body
+  - plain-background
+  - surprised
+  caption: Ake shot back against the far wall of the bowl, fins splayed, front view, full body, on a plain
+    flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-delighted.png
+  kind: training-set
+  tags:
+  - delighted
+  - front
+  - full-body
+  - plain-background
+  caption: Ake at the top of the bowl with fins thrown up, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-dejected.png
+  kind: training-set
+  tags:
+  - dejected
+  - front
+  - full-body
+  - plain-background
+  - sunk
+  caption: Ake sunk to the bottom of the bowl, fins drooping, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-tipping-cap.png
+  kind: training-set
+  tags:
+  - cap
+  - front
+  - full-body
+  - plain-background
+  - prop
+  - salute
+  caption: Ake tipping the brim of his cap in a salute, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-3q-left.png
+  kind: training-set
+  tags:
+  - full-body
+  - neutral
+  - plain-background
+  - three-quarter-left
+  caption: Ake turned 45 degrees inside the bowl in three-quarter view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-side-left.png
+  kind: training-set
+  tags:
+  - full-body
+  - neutral
+  - plain-background
+  - side
+  caption: Ake turned to swim in full side profile inside the bowl, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/training/gray-back.png
+  kind: training-set
+  tags:
+  - back
+  - full-body
+  - neutral
+  - plain-background
+  caption: Ake turned to face away inside the bowl, tail toward the viewer and no face visible, full body,
+    on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/gray-neutral
