@@ -249,3 +249,111 @@ assets:
     on a plain flat background
   created: '2026-08-06'
   source: nano-banana-pro chained edit from ake/training-set/gray-neutral
+- file: assets/expressions/alarmed.png
+  kind: expression
+  tags:
+  - alarmed
+  - close-up
+  - front
+  - plain-background
+  - surprised
+  caption: Close on Ake's face through the glass, eyes bulging with pinprick pupils and mouth gaping,
+    front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/expression/neutral
+- file: assets/expressions/delighted.png
+  kind: expression
+  tags:
+  - close-up
+  - delighted
+  - front
+  - happy
+  - plain-background
+  caption: Close on Ake's face through the glass, eyes creased into arcs and beaming with teeth showing,
+    front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/expression/neutral
+- file: assets/expressions/weary.png
+  kind: expression
+  tags:
+  - close-up
+  - front
+  - plain-background
+  - tired
+  - weary
+  caption: Close on Ake's face through the glass, eyes half-lidded and moustache drooping further, front
+    view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/expression/neutral
+- file: assets/expressions/skeptical.png
+  kind: expression
+  tags:
+  - close-up
+  - dry
+  - front
+  - plain-background
+  - skeptical
+  caption: Close on Ake's face through the glass, eyes swivelled hard to one side and mouth pulled aside,
+    front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/expression/neutral
+- file: assets/expressions/shouting.png
+  kind: expression
+  tags:
+  - close-up
+  - front
+  - plain-background
+  - shouting
+  - talking
+  caption: Close on Ake pressed to the glass mid-yell, mouth stretched wide and bubbles streaming up,
+    front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/expression/neutral
+- file: assets/training/stage-rolling.png
+  kind: training-set
+  tags:
+  - dolly
+  - front
+  - full-body
+  - rolling
+  - staged
+  caption: Ake's dolly rolling across the boards, wheels turning and water sloshing, front view, full
+    body, on a stage under a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/stage-neutral
+- file: assets/training/stage-alarmed.png
+  kind: training-set
+  tags:
+  - alarmed
+  - front
+  - full-body
+  - staged
+  - surprised
+  caption: Ake shot back against the far wall of the bowl with fins splayed and the dolly rocking, front
+    view, full body, on a stage under a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/stage-neutral
+- file: assets/training/stage-pointing.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - gesturing
+  - pointing
+  - staged
+  caption: Ake jabbing one fin out pointing off-stage, pressed to the glass, front view, full body, on
+    a stage under a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/stage-neutral
+- file: assets/training/stage-dejected.png
+  kind: training-set
+  tags:
+  - dejected
+  - front
+  - full-body
+  - staged
+  - sunk
+  caption: Ake sunk to the bottom of the bowl with fins drooping, front view, full body, on a stage under
+    a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from ake/training-set/stage-neutral

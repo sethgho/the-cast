@@ -149,9 +149,19 @@ assets:
     created: 2026-08-06
     source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
     notes: >
-      The turn came back much shallower than asked for — the body reads close to
-      frontal. Kept as pose variety rather than re-rolled; do not treat it as a
-      true three-quarter reference. sheet.png remains the multi-view canon.
+      NOT a true three-quarter view, after two attempts. The second used the
+      phrasing that fixed this for Seth, Cadbury and Ake — describe the result
+      and give a failure test ("the far shoulder is further from the viewer than
+      the near shoulder ... if the shoulders are still square, the turn has not
+      been made"). It moved the panel only marginally.
+
+      The reason looks structural rather than fixable by wording: that phrasing
+      works by naming anatomy the model can foreshorten against, and Wilson has
+      none of it — no shoulders, no nose, no chest, just a flat slab. His
+      side view DID come out right, because edge-on is a silhouette change
+      rather than a foreshortening one. Treat gray-side-left as his angle
+      reference and sheet.png as the multi-view canon; do not spend more on
+      re-rolling this one without a different approach.
 
   - file: assets/training/gray-side-left.png
     kind: training-set
