@@ -22,8 +22,19 @@ assets:
   - standing
   - transparent
   caption: Seth standing at rest, arms at his sides, front view, full body
-  created: '2026-08-06'
-  source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+  created: '2026-08-07'
+  source: nano-banana-pro from portrait.png + headshot.png + tokens + an explicit caricature
+    proportion clause; base plate of the mid-grey chain
+  notes: 'Regenerated 2026-08-07 to fix style drift, and the whole pose library re-chained
+    off this plate. The original base was conditioned on sheet.png, and a turnaround is drawn
+    in the model-sheet idiom — near seven heads tall with a small face — while headshot.png
+    and portrait.png are caricature at about five and a half heads. Every pose inherited the
+    sheet''s build and the chain carried it through all eight. Two changes fixed it: condition
+    on portrait + headshot instead of the sheet, and state the proportions explicitly (large
+    rounded head about one fifth of standing height, chunky limbs, "he is not a realistically
+    proportioned man"). The reference swap alone recovered most of it; the proportion clause
+    was the clear winner on review. DO NOT condition full-body poses on sheet.png — the sheet
+    is still correct as identity reference, but it is the wrong style reference for a figure.'
 - file: assets/poses/walking.png
   kind: pose
   tags:
@@ -32,7 +43,7 @@ assets:
   - transparent
   - walking
   caption: Seth mid-stride walking, one sneaker forward and one lifted behind, front view, full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/poses/gesturing.png
   kind: pose
@@ -43,7 +54,7 @@ assets:
   - pointing
   - transparent
   caption: Seth leaning forward and pointing off to one side, other hand on hip, front view, full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/poses/arms-crossed.png
   kind: pose
@@ -54,7 +65,7 @@ assets:
   - standing
   - transparent
   caption: Seth standing with both arms folded across his chest, weight on one leg, front view, full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/poses/surprised.png
   kind: pose
@@ -65,7 +76,7 @@ assets:
   - surprised
   - transparent
   caption: Seth recoiling backward with both arms flung up and hands open, front view, full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/poses/delighted.png
   kind: pose
@@ -76,7 +87,7 @@ assets:
   - transparent
   caption: Seth with both arms thrown up and open, one sneaker off the ground mid-bounce, front view,
     full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/poses/dejected.png
   kind: pose
@@ -87,7 +98,7 @@ assets:
   - slumped
   - transparent
   caption: Seth slumped with shoulders down, head hanging and arms slack, front view, full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/poses/prop-coke.png
   kind: pose
@@ -99,7 +110,7 @@ assets:
   - standing
   - transparent
   caption: Seth holding a soda can raised at chest height, other hand on hip, front view, full body
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/pose/standing-neutral
 - file: assets/training/gray-neutral.png
   kind: training-set
