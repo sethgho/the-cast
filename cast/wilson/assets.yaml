@@ -1,0 +1,309 @@
+# Wilson's assets. Published at https://cast.sethgholson.com/wilson/assets.json
+#
+# Only what a human knows goes in this file. build-site.py measures size,
+# dimensions and sha256 from the bytes on disk and composes the published record
+# against schema/asset.schema.json; a bad entry fails the build.
+#
+# CAPTIONS DESCRIBE POSE, FRAMING AND BACKGROUND ONLY — never the style. The rule
+# inverts normal captioning intuition: what you caption stays editable, what you
+# omit gets baked into the trigger token. The house style is exactly the thing we
+# want baked in, so it is never named here. The background IS named, because a
+# background that cannot be changed is a useless LoRA.
+#
+# Provenance: every character render descends from one of three base plates by a
+# single nano-banana-pro edit, never independent generation. Independent
+# generation re-stages the shot (RMSE 85.3 against a base vs 39.3 for a chained
+# edit); measured on this set, the edits came back at 16.7-38.5.
+
+assets:
+
+  # ---- Pose library: transparent cutouts for compositing -------------------
+  # Rendered on flat mid-grey #808080 — never green, because diffusion bleeds
+  # backdrop colour and there is no despill node in this stack — then matted
+  # with BiRefNet. All eight share one base plate's camera and figure scale, so
+  # they drop into a layout interchangeably.
+
+  - file: assets/poses/standing-neutral.png
+    kind: pose
+    tags: [standing, neutral, front, full-body, transparent]
+    caption: Wilson standing at rest, both arms at his sides, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+
+  - file: assets/poses/walking.png
+    kind: pose
+    tags: [walking, front, full-body, transparent]
+    caption: Wilson mid-stride walking, one boot forward and one lifted behind, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  - file: assets/poses/gesturing.png
+    kind: pose
+    tags: [gesturing, pointing, front, full-body, transparent]
+    caption: Wilson pointing off to one side with one arm raised and extended, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  - file: assets/poses/arms-crossed.png
+    kind: pose
+    tags: [standing, arms-crossed, front, full-body, transparent]
+    caption: Wilson standing with both arms folded across his body, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  - file: assets/poses/surprised.png
+    kind: pose
+    tags: [surprised, recoiling, front, full-body, transparent]
+    caption: Wilson recoiling backward with both arms flung up and out and hands open, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  - file: assets/poses/delighted.png
+    kind: pose
+    tags: [delighted, front, full-body, transparent]
+    caption: Wilson bouncing with both arms raised in an open shrug and one boot off the ground, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  - file: assets/poses/dejected.png
+    kind: pose
+    tags: [dejected, slumped, front, full-body, transparent]
+    caption: Wilson slumped forward with both arms hanging slack and his hat down over his eyes, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  - file: assets/poses/prop-servers.png
+    kind: pose
+    tags: [standing, prop, servers, front, full-body, transparent]
+    caption: Wilson carrying a miniature server rack on a chain out to one side at waist height, front view, full body
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/pose/standing-neutral
+
+  # ---- Training set: opaque stills for LoRA training ------------------------
+  # Opaque on purpose. Trainers composite an alpha channel unpredictably, so the
+  # pose library's transparency would be a liability here — these are the same
+  # renders before the matte, plus angle turns and in-world staged shots.
+  # Both backgrounds are represented so the LoRA learns the character, not a
+  # backdrop.
+
+  - file: assets/training/gray-neutral.png
+    kind: training-set
+    tags: [standing, neutral, front, full-body, plain-background]
+    caption: Wilson standing at rest, both arms at his sides, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+
+  - file: assets/training/gray-walking.png
+    kind: training-set
+    tags: [walking, front, full-body, plain-background]
+    caption: Wilson mid-stride walking, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-gesturing.png
+    kind: training-set
+    tags: [gesturing, pointing, front, full-body, plain-background]
+    caption: Wilson pointing off to one side with one arm raised, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-arms-crossed.png
+    kind: training-set
+    tags: [standing, arms-crossed, front, full-body, plain-background]
+    caption: Wilson standing with both arms folded, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-surprised.png
+    kind: training-set
+    tags: [surprised, recoiling, front, full-body, plain-background]
+    caption: Wilson recoiling with both arms flung up and out, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-delighted.png
+    kind: training-set
+    tags: [delighted, front, full-body, plain-background]
+    caption: Wilson bouncing with both arms raised in an open shrug, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-dejected.png
+    kind: training-set
+    tags: [dejected, slumped, front, full-body, plain-background]
+    caption: Wilson slumped forward with his hat down over his eyes, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-prop-servers.png
+    kind: training-set
+    tags: [standing, prop, servers, front, full-body, plain-background]
+    caption: Wilson carrying a miniature server rack on a chain out to one side, front view, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-3q-left.png
+    kind: training-set
+    tags: [standing, neutral, three-quarter-left, full-body, plain-background]
+    caption: Wilson standing at rest turned partly to his left, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+    notes: >
+      NOT a true three-quarter view, after two attempts. The second used the
+      phrasing that fixed this for Seth, Cadbury and Ake — describe the result
+      and give a failure test ("the far shoulder is further from the viewer than
+      the near shoulder ... if the shoulders are still square, the turn has not
+      been made"). It moved the panel only marginally.
+
+      The reason looks structural rather than fixable by wording: that phrasing
+      works by naming anatomy the model can foreshorten against, and Wilson has
+      none of it — no shoulders, no nose, no chest, just a flat slab. His
+      side view DID come out right, because edge-on is a silhouette change
+      rather than a foreshortening one. Treat gray-side-left as his angle
+      reference and sheet.png as the multi-view canon; do not spend more on
+      re-rolling this one without a different approach.
+
+  - file: assets/training/gray-side-left.png
+    kind: training-set
+    tags: [standing, neutral, side, full-body, plain-background]
+    caption: Wilson standing at rest turned to his left so the fence panel is seen near edge-on, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/gray-back.png
+    kind: training-set
+    tags: [standing, neutral, back, full-body, plain-background]
+    caption: Wilson standing at rest seen from behind, cross-rails showing on the reverse of the panel and no eyes visible, full body, on a plain flat background
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/gray-neutral
+
+  - file: assets/training/stage-neutral.png
+    kind: training-set
+    tags: [standing, neutral, front, full-body, staged]
+    caption: Wilson standing at rest, arms at his sides, front view, full body, on a stage under a spotlight with a curtain behind
+    created: 2026-08-06
+    source: nano-banana-pro from sheet.png + tokens; base plate of the staged chain
+
+  - file: assets/training/stage-seated.png
+    kind: training-set
+    tags: [seated, crate, front, full-body, staged]
+    caption: Wilson seated on a wooden crate with his legs hanging over the front, front view, full body, on a stage under a spotlight
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/stage-neutral
+
+  - file: assets/training/stage-walking.png
+    kind: training-set
+    tags: [walking, front, full-body, staged]
+    caption: Wilson mid-stride walking across the boards, front view, full body, on a stage under a spotlight
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/stage-neutral
+
+  - file: assets/training/stage-presenting.png
+    kind: training-set
+    tags: [gesturing, presenting, front, full-body, staged]
+    caption: Wilson sweeping one arm open in a wide presenting gesture, front view, full body, on a stage under a spotlight
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/stage-neutral
+
+  - file: assets/training/stage-prop-servers.png
+    kind: training-set
+    tags: [standing, prop, servers, front, full-body, staged]
+    caption: Wilson carrying a miniature server rack on a chain out to one side, front view, full body, on a stage under a spotlight
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/training-set/stage-neutral
+
+  # ---- Expression close-ups ------------------------------------------------
+  # Wilson has no mouth. Everything he does with a face happens in two cartoon
+  # eyes floating in the band of shadow under the hat brim, plus the angle of the
+  # hat itself. These crop to that band. A separate base plate from the full-body
+  # chains, because re-cropping inside an edit is a re-frame and the edit prompt
+  # forbids exactly that.
+
+  - file: assets/expressions/neutral.png
+    kind: expression
+    tags: [neutral, front, close-up, plain-background]
+    caption: Close on Wilson's hat and eyes, eyes level and open, hat sitting square, front view
+    created: 2026-08-06
+    source: nano-banana-pro from sheet.png + tokens; base plate of the close-up chain
+
+  - file: assets/expressions/alarmed.png
+    kind: expression
+    tags: [alarmed, surprised, front, close-up, plain-background]
+    caption: Close on Wilson's hat and eyes, eyes wide with small pupils, hat lifted and tipped back, front view
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/expression/neutral
+
+  - file: assets/expressions/amused.png
+    kind: expression
+    tags: [amused, happy, front, close-up, plain-background]
+    caption: Close on Wilson's hat and eyes, eyes curved into upward arcs, hat tipped back, front view
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/expression/neutral
+
+  - file: assets/expressions/weary.png
+    kind: expression
+    tags: [weary, tired, front, close-up, plain-background]
+    caption: Close on Wilson's hat and eyes, eyes half-lidded and low, hat settled forward, front view
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/expression/neutral
+
+  - file: assets/expressions/skeptical.png
+    kind: expression
+    tags: [skeptical, dry, front, close-up, plain-background]
+    caption: Close on Wilson's hat and eyes, eyes looking off to one side with one narrower, hat tilted, front view
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/expression/neutral
+
+  - file: assets/expressions/attentive.png
+    kind: expression
+    tags: [attentive, listening, front, close-up, plain-background]
+    caption: Close on Wilson's hat and eyes, eyes turned to one side and leaning in to listen, front view
+    created: 2026-08-06
+    source: nano-banana-pro chained edit from wilson/expression/neutral
+
+  # ---- Style plates: deliberately character-free ---------------------------
+  # These exist so the style LoRA has something to learn the ink, halftone and
+  # paper from that is NOT a cast member. Leave them out and the style LoRA
+  # memorises the leads, and then every character drifts toward whoever was in
+  # the dataset most. Generated independently rather than chained: they have no
+  # shared subject to hold still, and a style dataset wants varied composition.
+
+  - file: assets/plates/empty-stage.png
+    kind: style-plate
+    tags: [stage, curtain, footlights, character-free, wide]
+    caption: An empty vaudeville stage, bare boards, curtain drawn back at both sides, footlights along the front edge, nobody present
+    created: 2026-08-06
+    source: nano-banana-pro, text only, no character reference
+
+  - file: assets/plates/backstage-wings.png
+    kind: style-plate
+    tags: [backstage, ropes, ladder, character-free, interior]
+    caption: The wings backstage, coiled ropes on a pin rail, sandbags, a step ladder and stacked scenery flats under one bare bulb, nobody present
+    created: 2026-08-06
+    source: nano-banana-pro, text only, no character reference
+
+  - file: assets/plates/footlights.png
+    kind: style-plate
+    tags: [stage, footlights, character-free, close-up]
+    caption: A low close view along a row of tin footlight reflectors and the worn stage boards behind them, nobody present
+    created: 2026-08-06
+    source: nano-banana-pro, text only, no character reference
+
+  - file: assets/plates/prop-table.png
+    kind: style-plate
+    tags: [props, still-life, character-free, close-up]
+    caption: A still life of props on a side table — a miniature server rack, an open ledger and pen, a mug, and an adding machine spooling tape, nobody present
+    created: 2026-08-06
+    source: nano-banana-pro, text only, no character reference
+
+  - file: assets/plates/garden-fence.png
+    kind: style-plate
+    tags: [exterior, fence, garden, character-free, wide]
+    caption: A suburban back garden at dusk, an ordinary picket fence and closed gate across the middle distance, a street lamp beyond, nobody present
+    created: 2026-08-06
+    source: nano-banana-pro, text only, no character reference
+    notes: >
+      The fence here is deliberately an ordinary inanimate fence — no hat, no
+      eyes, no arms. It is the control plate: it teaches the style LoRA what a
+      picket fence looks like when it is NOT Wilson, which is the distinction
+      most at risk of collapsing for this particular character.

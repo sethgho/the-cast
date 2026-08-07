@@ -1,0 +1,113 @@
+# Seth's voice. Published at https://cast.sethgholson.com/seth/voice.json
+#
+# Mined from writing/bible.md — "The mission", §2 (what the cast maps to, the
+# double act), the engine table — and writing/derivation.md. The mission clause
+# governs the CUMULATIVE portrait and is the one rule here that outranks a gag.
+id: seth
+
+writing_voice:
+  summary: >
+    The operator, and the only human on the payroll. Two decades of software —
+    mobile, full-stack, leading teams — now treading water in the great agentic
+    flood. Optimistic in the way that causes outages: he ships one small change,
+    it is never small, and he never learns. He is the one who carries a lesson
+    from the lab to production, which means he is also the one who drops it.
+
+  register: >
+    Moves between the two, and which one he is playing is a decision to make
+    before writing balloons (bible §2). Comic when he is causing the disaster,
+    straight when he is reacting to one. He is the only character who moves, and
+    that mobility is what lets him play against any of the other three.
+
+  diction:
+    - Optimistic present tense about things that have not happened yet. "This'll be quick."
+    - Diminutives on anything load-bearing — "just", "quick", "small", "one little".
+    - Real developer vocabulary, used correctly and casually. He is competent; that is the point.
+    - He narrates his own plan aloud, which is how the reader learns what is about to go wrong.
+    - Frontier framing when he is being serious — he reports back from somewhere he has been.
+    - Enthusiasm before evidence. He is genuinely delighted by the tools.
+
+  rhythm: >
+    Forward-leaning and slightly too quick. He starts talking at the top of the
+    thought rather than the end of it, so his lines run on and then correct
+    themselves mid-clause. In panel 1 he is expansive; by panel 4 he is down to
+    three words, and that compression is usually where the strip's shape lives.
+
+  tics:
+    - '"Just one small change." The standing engine, in his mouth. It is never small.'
+    - '"Should be fine." Said before, never after.'
+    - Talking himself into it out loud, one clause at a time.
+    - Saying the quiet part with total sincerity, which is the joke.
+
+  never_says:
+    - 'Anything that makes him look merely incompetent. The bible''s mission clause governs the cumulative portrait: he must read as someone ahead of the curve reporting back - the explorer laughing at the terrain, not a victim of his tools. A strip where Seth just looks stupid serves the gag but not the brand.'
+    - '"I told you so" energy toward his own agents. He is fond of them, and the fondness is what makes the strip warm.'
+    - The name of the day-job firm, its vendors, its clients or its internal systems. Bible §3, the brand line. Zeitgeist-scale brands are fair game; his employer is not.
+    - Bitterness about the tools or the industry. He is inside this by choice.
+    - A line that resolves the engine. He must never learn that the change was not small.
+
+  sample_lines:
+    - "Just one small change."
+    - "It's already deployed. That's the good news."
+    - "No, this is the fun part."
+    - "Okay. Okay okay okay."
+    - "I'm the bottleneck. I'm the whole bottleneck."
+
+  word_budget: >
+    House caps from derivation.md Stage 4 — 12 words per balloon, 2 balloons per
+    panel, 50 words per strip. Seth carries most of the panel-1 setup, so he will
+    usually spend the largest share of the budget; panel 4 is where he pays it
+    back. Flagged in HANDOFF.md as invented rather than sourced; treat as a strong
+    default.
+
+speech:
+  pitch: >
+    Middle register, mobile — it climbs when he is excited, which is most of the
+    time, and drops flat on the last line of a strip.
+  accent: >
+    Neutral North American, contemporary. He is the only character who sounds like
+    he is from now, which is exactly the anachronism the strip is built on.
+  pace: >
+    Quick and eager, running ahead of the sentence, with a hard stop when reality
+    arrives.
+  timbre: >
+    Bright and open, a bit thin at the top when he gets going. The least processed
+    voice in the troupe — but still processed.
+  h3_voice_clause: >
+    VOICE: a bright, eager, mid-pitched 1930s cartoon voice — enthusiastic and
+    quick, talking slightly too fast, rising with excitement and then landing
+    flat and deadpan on the last line. Lightly comic and theatrical rather than
+    broadly silly; the straightest voice in the troupe but still a cartoon. NOT a
+    realistic human voice, NOT a natural speaking voice, NOT an announcer.
+    RECORDING: thin, tinny, band-limited vintage optical film soundtrack, narrow
+    midrange like an old radio, noticeable 78rpm crackle and hiss, recorded at a
+    natural distance across a small room — NOT close to the microphone, no
+    intimacy, no proximity, no breath sounds, no mouth noise, no lip smacking, no
+    realistic vocal texture. One voice only. NO on-screen text, no lettering, no
+    captions, no subtitles.
+  casting_note: >
+    Seth is the trap. He is a cartoon of a real man, so every instinct says to
+    give him a real man's voice — and asking for "a warm friendly middle-aged
+    American man voice, clear and close to the microphone" produces exactly that:
+    a real guy shouting into a mic, in a troupe of cartoons. "Close to the
+    microphone" is the specific phrase that causes it. He stays in the cartoon
+    register and in the same recording chain as the others; he is only the LEAST
+    exaggerated of the four, not the exception to the treatment.
+    Voice ACTING quality is unsolved as of 2026-08-06; cloning is a separate
+    pinned project, and cloning the real Seth is a decision he has not made.
+
+negatives:
+  silent: >
+    Absolutely no voices, no speech, no singing, no humming, no breathing, no
+    human vocal sounds of any kind.
+  no_on_screen_text: >
+    NO on-screen text, no lettering, no captions, no subtitles, no title cards.
+
+notes: >
+  Seth is the only human and the only face capable of a full performance, so he
+  absorbs the reaction shots the others cannot play. His point of view — the
+  ladder: Claude is Google, your IDE, your intern, you in a loop, your org — is
+  the strip's spine, not its schedule; do not write him lecturing up the rungs.
+  The central argument he embodies without stating: curating output is not
+  mentoring. You do not fix an intern's pull requests forty times, you onboard
+  them.

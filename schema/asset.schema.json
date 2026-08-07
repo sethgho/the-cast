@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cast.sethgholson.com/schema/asset.schema.json",
+  "title": "Cast asset",
+  "description": "One asset in the hub. EVERY asset uses this shape whatever its kind — a turnaround sheet, a transparent pose cutout, a voice sample and a LoRA card are all this record. A consumer that can read one asset can read all of them.\n\nAuthors write only the manifest half in cast/<id>/assets.yaml: file, kind, tags, caption, created. scripts/build-site.py computes id, character, url, mime, bytes, sha256, width, height and duration_s from the file on disk and validates the composed record against this schema. Hand-written sizes and hashes are how a registry starts lying; there is no way to write them here.",
+  "type": "object",
+  "required": ["id", "character", "kind", "url", "mime", "bytes", "sha256", "created"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable identifier, '<character>/<kind>/<slug>'. The slug is the file stem, which must be lowercase kebab-case and unique within a character and kind. e.g. 'wilson/pose/arms-crossed'."
+    },
+    "character": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "The cast id this asset belongs to. Character-free style plates still carry one — the character whose set they were rendered alongside — so every asset has an owner."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "turnaround",
+        "headshot",
+        "portrait",
+        "sheet",
+        "pose",
+        "keyframe",
+        "expression",
+        "style-plate",
+        "training-set",
+        "voice-sample",
+        "lora"
+      ],
+      "description": "What the asset is FOR, which is how consumers filter. 'turnaround' is the canonical multi-view sheet used as reference conditioning; 'headshot' is the purpose-rendered square avatar; 'portrait' is the bill-page art; 'sheet' is any other reference sheet; 'pose' is a transparent-background cutout from the pose library; 'keyframe' is a staged still for video interpolation; 'expression' is a face close-up; 'style-plate' is deliberately character-free art for the style LoRA; 'training-set' is a still whose only job is to train a LoRA; 'voice-sample' is reference audio; 'lora' is the weights card (weights live on a GitHub Release, not in git).\n\nDEVIATION, stated so nobody thinks it was an accident: 'headshot' and 'portrait' are additions to the kind list in the original brief. The repo already ships both as canon with published URLs and cast.json fields, and calling a square avatar a 'sheet' would have made the enum lie."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Public HTTPS URL. Load-bearing, not cosmetic — partner_generate's medias[].value REQUIRES a publicly-fetchable URL, so a published asset collapses the upload_file dance into one call. Filenames are stable across regeneration; consumers never chase URLs."
+    },
+    "mime": { "type": "string", "description": "Computed from the file extension against an explicit map. An unknown extension fails the build rather than guessing." },
+    "bytes": { "type": "integer", "minimum": 0, "description": "Computed at build time." },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$", "description": "Computed at build time over the file's bytes. Consumers can cache on this." },
+    "width": { "type": ["integer", "null"], "minimum": 1, "description": "Pixels. null for audio." },
+    "height": { "type": ["integer", "null"], "minimum": 1, "description": "Pixels. null for audio." },
+    "duration_s": { "type": ["number", "null"], "minimum": 0, "description": "Seconds. null for stills." },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "description": "Free filter vocabulary, kebab-case. Conventions in use: camera angle ('front', '3q-left', 'side', 'back'), framing ('full-body', 'waist-up', 'close-up'), background ('transparent', 'mid-gray', 'staged'), and pose names. Tag pose and framing; do NOT tag the style — see 'caption'."
+    },
+    "caption": {
+      "type": "string",
+      "description": "One line describing POSE AND FRAMING ONLY. This is the LoRA training caption and the rule inverts normal captioning intuition: captioned things stay editable, omitted things get baked into the trigger token. Caption the style and the style becomes something a prompt can argue with, which is the opposite of what a style LoRA is for."
+    },
+    "created": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "description": "Date the asset was generated, YYYY-MM-DD." },
+    "source": {
+      "type": "string",
+      "description": "How it was made, when that matters for reproducing it — e.g. 'nano-banana-pro, chained edit from wilson/keyframe/base'. Poses generated independently instead of as a chain of edits re-stage the shot (RMSE 85.3 vs 39.3); recording the chain is how that stays checkable."
+    },
+    "notes": { "type": "string" }
+  }
+}

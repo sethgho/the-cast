@@ -1,0 +1,363 @@
+# Cadbury's assets. Published at https://cast.sethgholson.com/cadbury/assets.json
+#
+# Only what a human knows goes here. build-site.py measures size, dimensions and
+# sha256 from the bytes on disk and validates the composed record against
+# schema/asset.schema.json; a bad entry fails the build.
+#
+# CAPTIONS DESCRIBE POSE, FRAMING AND BACKGROUND ONLY — never the style. What you
+# caption stays editable; what you omit gets baked into the trigger token, and the
+# house style is exactly what we want baked in.
+#
+# Provenance: every render is ONE nano-banana-pro edit from one of three base
+# plates, never independent generation — independent generation re-stages the shot
+# (RMSE 85.3 vs 39.3 for a chained edit).
+
+assets:
+- file: assets/poses/standing-neutral.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - neutral
+  - standing
+  - transparent
+  caption: Cadbury standing in a formal upright butler's pose, towel over one forearm, front view, full
+    body
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+- file: assets/poses/walking.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - transparent
+  - walking
+  caption: Cadbury walking with brisk composure, one shoe forward and one lifted behind, front view, full
+    body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/poses/gesturing.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - gesturing
+  - indicating
+  - transparent
+  caption: Cadbury extending one hand palm-up in a discreet directing gesture, head bowed slightly, front
+    view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/poses/arms-crossed.png
+  kind: pose
+  tags:
+  - arms-crossed
+  - front
+  - full-body
+  - standing
+  - transparent
+  caption: Cadbury standing with both arms folded across his chest, front view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/poses/surprised.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - surprised
+  - transparent
+  caption: Cadbury startled, one hand lifted to his chest in a small restrained gesture, front view, full
+    body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/poses/delighted.png
+  kind: pose
+  tags:
+  - bowing
+  - delighted
+  - front
+  - full-body
+  - transparent
+  caption: Cadbury making a small precise bow with one hand over his heart, front view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/poses/dejected.png
+  kind: pose
+  tags:
+  - dejected
+  - front
+  - full-body
+  - resigned
+  - transparent
+  caption: Cadbury resigned, shoulders dropped and head bowed away, one hand hanging limp, front view,
+    full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/poses/prop-ledger.png
+  kind: pose
+  tags:
+  - front
+  - full-body
+  - ledger
+  - prop
+  - standing
+  - transparent
+  caption: Cadbury writing in an open leather ledger balanced on one forearm, fountain pen in hand, front
+    view, full body
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/pose/standing-neutral
+- file: assets/training/gray-neutral.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - neutral
+  - plain-background
+  - standing
+  caption: Cadbury standing in a formal upright pose, towel over one forearm, front view, full body, on
+    a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+- file: assets/training/gray-walking.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - plain-background
+  - walking
+  caption: Cadbury walking with brisk composure, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-gesturing.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - gesturing
+  - indicating
+  - plain-background
+  caption: Cadbury extending one hand palm-up in a directing gesture, front view, full body, on a plain
+    flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-arms-crossed.png
+  kind: training-set
+  tags:
+  - arms-crossed
+  - front
+  - full-body
+  - plain-background
+  - standing
+  caption: Cadbury standing with both arms folded, front view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-surprised.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - plain-background
+  - surprised
+  caption: Cadbury startled with one hand lifted to his chest, front view, full body, on a plain flat
+    background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-delighted.png
+  kind: training-set
+  tags:
+  - bowing
+  - delighted
+  - front
+  - full-body
+  - plain-background
+  caption: Cadbury making a small precise bow, hand over his heart, front view, full body, on a plain
+    flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-dejected.png
+  kind: training-set
+  tags:
+  - dejected
+  - front
+  - full-body
+  - plain-background
+  - resigned
+  caption: Cadbury resigned, shoulders dropped and head bowed, front view, full body, on a plain flat
+    background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-prop-ledger.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - ledger
+  - plain-background
+  - prop
+  - standing
+  caption: Cadbury writing in an open ledger with a fountain pen, front view, full body, on a plain flat
+    background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-3q-left.png
+  kind: training-set
+  tags:
+  - full-body
+  - neutral
+  - plain-background
+  - standing
+  - three-quarter-left
+  caption: Cadbury standing turned 45 degrees in three-quarter view, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-side-left.png
+  kind: training-set
+  tags:
+  - full-body
+  - neutral
+  - plain-background
+  - side
+  - standing
+  caption: Cadbury standing in full profile, full body, on a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/gray-back.png
+  kind: training-set
+  tags:
+  - back
+  - full-body
+  - neutral
+  - plain-background
+  - standing
+  caption: Cadbury standing seen from behind, tailcoat tails hanging and no face visible, full body, on
+    a plain flat background
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/gray-neutral
+- file: assets/training/stage-neutral.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - neutral
+  - staged
+  - standing
+  caption: Cadbury standing in a formal upright pose, front view, full body, on a stage under a spotlight
+    with a curtain behind
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the staged chain
+- file: assets/training/stage-adding-machine.png
+  kind: training-set
+  tags:
+  - adding-machine
+  - front
+  - full-body
+  - prop
+  - staged
+  - standing
+  caption: Cadbury working a brass adding machine on a side table, paper tape spooling, front view, full
+    body, on a stage under a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/stage-neutral
+- file: assets/training/stage-bowing.png
+  kind: training-set
+  tags:
+  - bowing
+  - front
+  - full-body
+  - staged
+  caption: Cadbury making a deep formal bow from the waist toward the viewer, full body, on a stage under
+    a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/stage-neutral
+- file: assets/training/stage-presenting.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - gesturing
+  - presenting
+  - staged
+  caption: Cadbury extending one arm open in a formal directing gesture, front view, full body, on a stage
+    under a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/stage-neutral
+- file: assets/training/stage-walking.png
+  kind: training-set
+  tags:
+  - front
+  - full-body
+  - staged
+  - walking
+  caption: Cadbury walking across the boards with brisk composure, front view, full body, on a stage under
+    a spotlight
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/training-set/stage-neutral
+- file: assets/expressions/neutral.png
+  kind: expression
+  tags:
+  - close-up
+  - front
+  - neutral
+  - plain-background
+  caption: Close on Cadbury's head and shoulders, composed and level, mouth closed, front view
+  created: '2026-08-06'
+  source: nano-banana-pro from sheet.png + tokens; base plate of the close-up chain
+- file: assets/expressions/alarmed.png
+  kind: expression
+  tags:
+  - alarmed
+  - close-up
+  - front
+  - plain-background
+  - surprised
+  caption: Close on Cadbury's head and shoulders, eye widened and monocle iris dilated, mouth compressed,
+    front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/expression/neutral
+- file: assets/expressions/pleased.png
+  kind: expression
+  tags:
+  - close-up
+  - front
+  - happy
+  - plain-background
+  - pleased
+  caption: Close on Cadbury's head and shoulders, eye creased and the smallest satisfied smile, chin tipped
+    down, front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/expression/neutral
+- file: assets/expressions/disapproving.png
+  kind: expression
+  tags:
+  - close-up
+  - disapproving
+  - dry
+  - front
+  - plain-background
+  caption: Close on Cadbury's head and shoulders, brow lowered and monocle iris stopped down, mouth a
+    flat line, front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/expression/neutral
+- file: assets/expressions/weary.png
+  kind: expression
+  tags:
+  - close-up
+  - front
+  - plain-background
+  - tired
+  - weary
+  caption: Close on Cadbury's head and shoulders, eyelid drooping and monocle iris half-closed, front
+    view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/expression/neutral
+- file: assets/expressions/announcing.png
+  kind: expression
+  tags:
+  - announcing
+  - close-up
+  - front
+  - plain-background
+  - talking
+  caption: Close on Cadbury's head and shoulders, chin lifted and mouth open mid-announcement, front view
+  created: '2026-08-06'
+  source: nano-banana-pro chained edit from cadbury/expression/neutral

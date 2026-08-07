@@ -1,0 +1,110 @@
+# Ake's voice. Published at https://cast.sethgholson.com/ake/voice.json
+#
+# Mined from writing/bible.md (§2 — Ake is the Snoopy slot, the routing rescue
+# mechanism) and writing/derivation.md. The firm he works for is never named:
+# bible §3, the brand line.
+id: ake
+
+writing_voice:
+  summary: >
+    The sysop. A goldfish in a bowl on a wheeled dolly, over-caffeinated, alarmed
+    by everything, and — this is the load-bearing half — usually right. Derp
+    incarnate, and correct. He reads a dashboard the way a prophet reads a sky.
+    He is production: the place where the lab's lessons get applied, and where
+    being wrong costs something.
+
+  register: >
+    The comic, always. He is the strip's Snoopy slot and its rescue mechanism:
+    flat material becomes funny assigned to the character who does not realise it
+    is flat (bible §2, the repertory company). Before discarding a weak premise,
+    route it through Ake. Never pair him with another comic.
+
+  diction:
+    - Escalation. He states the fact, then states what it means, and the second one is the apocalypse.
+    - Superlatives and absolutes. Everything is the worst it has ever been.
+    - Numbers said aloud with alarm — the number is never the point, the trend is.
+    - Crypto-native and terminally-online register, used sincerely, never winked at.
+    - He calls things by their acronyms and assumes everyone knows them. They do not.
+    - Present tense, always. Whatever it is, it is happening right now.
+    - Self-aware about being a derp fish, and completely unable to act on that awareness.
+
+  rhythm: >
+    Fast, breathless, front-loaded. He leads with the alarm and supplies the cause
+    afterwards, if at all. Fragments over sentences. He interrupts himself. Where
+    Wilson pauses, Ake fills — and his best lines are the ones that arrive a beat
+    too early, before anyone has asked.
+
+  tics:
+    - Opening on the alarm, not the subject — the reader learns what is wrong two words late.
+    - Repeating a number for emphasis rather than explaining it.
+    - '"few understand" - his cap says FEW and he means it. Deploy rarely; per the rule of three, the third use is where it stops being a coincidence and becomes a bit.'
+    - Certainty in inverse proportion to evidence, which is funny because he is right anyway.
+
+  never_says:
+    - A calm line. If Ake is calm the panel is broken; give the line to Wilson or Cadbury.
+    - The name of the firm, its vendors, its clients or its internal systems. Bible §3 — generalise the incident, keep the shape, drop the identifiers.
+    - '"SYSOP" on the cap. Retired. The cap reads FEW.'
+    - A considered qualification. He does not hedge; hedging is Cadbury's register.
+    - Anything that resolves his alarm. The engine only runs because it never resolves.
+
+  sample_lines:
+    - "It's at ninety-one. NINETY-ONE."
+    - "This is fine? This is not fine."
+    - "I ran it. I ran it twice. It's worse."
+    - "Few understand."
+    - "We are so back. We are so not back."
+
+  word_budget: >
+    House caps from derivation.md Stage 4 — 12 words per balloon, 2 balloons per
+    panel, 50 words per strip. Ake is the character most likely to blow them; the
+    cap IS his comedy, because forcing the alarm into six words is what makes it
+    funny rather than shrill. Flagged in HANDOFF.md as invented rather than
+    sourced; treat as a strong default.
+
+speech:
+  pitch: >
+    High and climbing. He starts a line above where a voice should start and goes
+    up from there. The highest voice in the troupe by a wide margin.
+  accent: >
+    Fast, flat, terminally-online North American. No regional colour — he sounds
+    like a group chat.
+  pace: >
+    Very fast, with no pauses and audible run-on. He does not stop for punctuation.
+  timbre: >
+    Bubbling and slightly submerged, as though the sound has to get out of a glass
+    bowl of water first. Thin, gulping, a little bit strangled.
+  h3_voice_clause: >
+    VOICE: a very high-pitched, fast, breathless 1930s cartoon voice — squeaky,
+    panicked, comically over-excited, rising in pitch as the line goes on,
+    tumbling over its own words with no pauses. A slightly bubbling, submerged
+    quality as if the speaker is inside a glass fishbowl of water. NOT a
+    realistic human voice, NOT a natural speaking voice, NOT calm. RECORDING:
+    thin, tinny, band-limited vintage optical film soundtrack, narrow midrange
+    like an old radio, noticeable 78rpm crackle and hiss, recorded at a natural
+    distance across a small room — NOT close to the microphone, no intimacy, no
+    proximity, no breath sounds, no mouth noise, no lip smacking, no realistic
+    vocal texture. One voice only. NO on-screen text, no lettering, no captions,
+    no subtitles.
+  casting_note: >
+    Ake is the loudest voice in the troupe, and speech level varies enough between
+    beats to bury a punchline — a shout measured -33.7 dB against a mumbled reply
+    at -43.2 dB. Level the mix afterwards with
+    `-af dynaudnorm=f=200:g=15:p=0.9:m=12`, which evened those to -25.1 and -29.1
+    while keeping the shout louder. Voice ACTING quality is unsolved as of
+    2026-08-06; cloning is a separate pinned project.
+
+negatives:
+  silent: >
+    Absolutely no voices, no speech, no singing, no humming, no breathing, no
+    human vocal sounds of any kind.
+  no_on_screen_text: >
+    NO on-screen text, no lettering, no captions, no subtitles, no title cards.
+
+notes: >
+  His mouth is behind curved glass and water, so lip-sync reads soft on him — which
+  is a licence to push the performance harder, not a reason to dub. The walrus
+  moustache and buck teeth are the FIRST thing a text-only prompt loses; always
+  render him with reference conditioning. Ake maps to Seth's work agent: crypto
+  development at the day job, deliberately less robust config than the Mac's, and
+  slowly being migrated to mirror it. The proven comic device — the water in the
+  bowl IS the agent's config — belongs to him and falls out of the cast design.
