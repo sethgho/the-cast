@@ -5,9 +5,10 @@ role: >
   and household disciplinarian on the subject of money. Unflappable. Balances the ledger
   as things collapse.
 tokens: 'a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with slicked-back
-  black hair and a neat pencil moustache, a white folded towel draped over one forearm — his right
+  black hair and a neat pencil moustache, a white folded towel draped over one forearm — his left
   eye is a brass clockwork monocle: a mechanical camera-iris lens in an ornate rim, its fine chain
-  running down to his waistcoat pocket
+  running down to his waistcoat pocket. The monocle is his LEFT eye, which is the eye on the VIEWER''S
+  RIGHT when he faces the camera
 
   '
 sheet: sheet.png
@@ -18,8 +19,12 @@ props:
 - a brass mechanical adding machine spooling paper tape
 public_url: https://cast.sethgholson.com/cadbury/sheet.png
 headshot_url: https://cast.sethgholson.com/cadbury/headshot.png
-notes: 'The monocle eye is PART OF HIM, not eyewear he holds — always his RIGHT eye, always chained
-  to the waistcoat pocket, present in every view and expression where that side shows. v4 canon (2026-07-21):
+notes: 'The monocle eye is PART OF HIM, not eyewear he holds — always his LEFT eye, always chained
+  to the waistcoat pocket, present in every view and expression where that side shows. Stated the
+  unambiguous way because this is easy to flip: his left eye is the one on the VIEWER''S RIGHT when
+  he faces the camera. This said "RIGHT eye" until 2026-08-06 and contradicted the art — sheet.png
+  and headshot.png have always drawn it on the viewer''s right, and every asset generated from them
+  matches. The text was wrong, not the pictures, so the text moved. v4 canon (2026-07-21):
   true pencil moustache (slimmer than v2), and a faint warm brass tint on the monocle and adding machine
   — accepted as a metal accent, do not spread it further. Accountant props replaced the tea service;
   the towel stays, he''s still a butler.'
