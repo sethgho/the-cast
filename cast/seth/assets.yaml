@@ -23,18 +23,17 @@ assets:
   - transparent
   caption: Seth standing at rest, arms at his sides, front view, full body
   created: '2026-08-07'
-  source: nano-banana-pro from portrait.png + headshot.png + tokens + an explicit caricature
-    proportion clause; base plate of the mid-grey chain
-  notes: 'Regenerated 2026-08-07 to fix style drift, and the whole pose library re-chained
-    off this plate. The original base was conditioned on sheet.png, and a turnaround is drawn
-    in the model-sheet idiom — near seven heads tall with a small face — while headshot.png
-    and portrait.png are caricature at about five and a half heads. Every pose inherited the
-    sheet''s build and the chain carried it through all eight. Two changes fixed it: condition
-    on portrait + headshot instead of the sheet, and state the proportions explicitly (large
-    rounded head about one fifth of standing height, chunky limbs, "he is not a realistically
-    proportioned man"). The reference swap alone recovered most of it; the proportion clause
-    was the clear winner on review. DO NOT condition full-body poses on sheet.png — the sheet
-    is still correct as identity reference, but it is the wrong style reference for a figure.'
+  source: nano-banana-pro from portrait.png + headshot.png + tokens + an explicit caricature proportion
+    clause; base plate of the mid-grey chain
+  notes: 'Regenerated 2026-08-07 to fix style drift, and the whole pose library re-chained off this plate.
+    The original base was conditioned on sheet.png, and a turnaround is drawn in the model-sheet idiom
+    — near seven heads tall with a small face — while headshot.png and portrait.png are caricature at
+    about five and a half heads. Every pose inherited the sheet''s build and the chain carried it through
+    all eight. Two changes fixed it: condition on portrait + headshot instead of the sheet, and state
+    the proportions explicitly (large rounded head about one fifth of standing height, chunky limbs, "he
+    is not a realistically proportioned man"). The reference swap alone recovered most of it; the proportion
+    clause was the clear winner on review. DO NOT condition full-body poses on sheet.png — the sheet is
+    still correct as identity reference, but it is the wrong style reference for a figure.'
 - file: assets/poses/walking.png
   kind: pose
   tags:
@@ -121,8 +120,9 @@ assets:
   - plain-background
   - standing
   caption: Seth standing at rest, arms at his sides, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro from sheet.png + tokens; base plate of the mid-grey chain
+  created: '2026-08-07'
+  source: nano-banana-pro from portrait.png + headshot.png + tokens + an explicit caricature proportion
+    clause; base plate of the mid-grey chain, and the un-matted source render of seth/pose/standing-neutral
 - file: assets/training/gray-walking.png
   kind: training-set
   tags:
@@ -131,8 +131,9 @@ assets:
   - plain-background
   - walking
   caption: Seth mid-stride walking, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/walking
 - file: assets/training/gray-gesturing.png
   kind: training-set
   tags:
@@ -142,8 +143,9 @@ assets:
   - plain-background
   - pointing
   caption: Seth pointing off to one side, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/gesturing
 - file: assets/training/gray-arms-crossed.png
   kind: training-set
   tags:
@@ -153,8 +155,9 @@ assets:
   - plain-background
   - standing
   caption: Seth standing with both arms folded, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/arms-crossed
 - file: assets/training/gray-surprised.png
   kind: training-set
   tags:
@@ -164,8 +167,9 @@ assets:
   - recoiling
   - surprised
   caption: Seth recoiling with both arms flung up, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/surprised
 - file: assets/training/gray-delighted.png
   kind: training-set
   tags:
@@ -174,8 +178,9 @@ assets:
   - full-body
   - plain-background
   caption: Seth with both arms thrown up mid-bounce, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/delighted
 - file: assets/training/gray-dejected.png
   kind: training-set
   tags:
@@ -185,8 +190,9 @@ assets:
   - plain-background
   - slumped
   caption: Seth slumped with head hanging, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/dejected
 - file: assets/training/gray-prop-coke.png
   kind: training-set
   tags:
@@ -197,20 +203,29 @@ assets:
   - prop
   - standing
   caption: Seth holding a soda can at chest height, front view, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate; the un-matted source render
+    of seth/pose/prop-coke
 - file: assets/training/gray-3q-left.png
   kind: training-set
   tags:
+  - front
   - full-body
   - neutral
   - plain-background
   - standing
-  - three-quarter-left
-  caption: Seth standing at rest turned 45 degrees to his left in three-quarter view, full body, on a
-    plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  caption: Seth standing at rest, arms at his sides, front view turned only very slightly, full body,
+    on a plain flat background
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
+  notes: This is NOT a three-quarter view and the caption no longer claims one. A true 45-degree turn
+    failed three times for Seth on 2026-08-07 and twice for Wilson before that. Attempt 2 did produce
+    a real turn but regressed the proportions back to the lanky build this whole pass exists to fix, because
+    it was conditioned on the profile render — profile renders are drawn lankier. Attempts 1 and 3 kept
+    the proportions and stayed frontal, including one that built the turn from foot direction upward and
+    named the far shoulder, the phrasing that has worked elsewhere. Captioning a frontal image as three-quarter
+    would poison the token in LoRA training, which is worse than not having the view at all, so the caption
+    describes what is actually drawn. gray-side-left carries the real off-axis information for this character.
 - file: assets/training/gray-side-left.png
   kind: training-set
   tags:
@@ -220,8 +235,8 @@ assets:
   - side
   - standing
   caption: Seth standing at rest in full left profile, full body, on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/training/gray-back.png
   kind: training-set
   tags:
@@ -232,8 +247,8 @@ assets:
   - standing
   caption: Seth standing at rest seen from behind, hair down his back and no face visible, full body,
     on a plain flat background
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/gray-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/training/stage-neutral.png
   kind: training-set
   tags:
@@ -243,8 +258,8 @@ assets:
   - staged
   - standing
   caption: Seth standing at rest, front view, full body, on a stage under a spotlight with a curtain behind
-  created: '2026-08-06'
-  source: nano-banana-pro from sheet.png + tokens; base plate of the staged chain
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/training/stage-seated.png
   kind: training-set
   tags:
@@ -255,8 +270,8 @@ assets:
   - staged
   caption: Seth seated on a wooden crate leaning forward with elbows on knees, front view, full body,
     on a stage under a spotlight
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/stage-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/training/stage-walking.png
   kind: training-set
   tags:
@@ -265,8 +280,8 @@ assets:
   - staged
   - walking
   caption: Seth mid-stride walking across the boards, front view, full body, on a stage under a spotlight
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/stage-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/training/stage-presenting.png
   kind: training-set
   tags:
@@ -277,8 +292,8 @@ assets:
   - staged
   caption: Seth sweeping one arm open in a wide presenting gesture, front view, full body, on a stage
     under a spotlight
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/stage-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/training/stage-prop-coke.png
   kind: training-set
   tags:
@@ -290,8 +305,8 @@ assets:
   - standing
   caption: Seth holding a soda can at chest height, other hand in his pocket, front view, full body, on
     a stage under a spotlight
-  created: '2026-08-06'
-  source: nano-banana-pro chained edit from seth/training-set/stage-neutral
+  created: '2026-08-07'
+  source: nano-banana-pro chained edit from the corrected mid-grey base plate
 - file: assets/expressions/neutral.png
   kind: expression
   tags:
@@ -300,8 +315,8 @@ assets:
   - neutral
   - plain-background
   caption: Close on Seth's head and shoulders, eyes level, mouth relaxed, front view
-  created: '2026-08-06'
-  source: nano-banana-pro from sheet.png + tokens; base plate of the close-up chain
+  created: '2026-08-07'
+  source: nano-banana-pro from headshot.png + portrait.png; base plate of the close-up chain
 - file: assets/expressions/alarmed.png
   kind: expression
   tags:
@@ -311,7 +326,7 @@ assets:
   - plain-background
   - surprised
   caption: Close on Seth's head and shoulders, eyes wide, eyebrows high, mouth open in an O, front view
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/expression/neutral
 - file: assets/expressions/delighted.png
   kind: expression
@@ -322,7 +337,7 @@ assets:
   - happy
   - plain-background
   caption: Close on Seth's head and shoulders, eyes creased into crescents, grinning broadly, front view
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/expression/neutral
 - file: assets/expressions/weary.png
   kind: expression
@@ -334,7 +349,7 @@ assets:
   - weary
   caption: Close on Seth's head and shoulders, eyelids heavy, brows sagging, mouth a flat line, front
     view
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/expression/neutral
 - file: assets/expressions/skeptical.png
   kind: expression
@@ -346,7 +361,7 @@ assets:
   - skeptical
   caption: Close on Seth's head and shoulders, one eyebrow raised, eyes looking off to one side, front
     view
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/expression/neutral
 - file: assets/expressions/talking.png
   kind: expression
@@ -358,7 +373,7 @@ assets:
   - talking
   caption: Close on Seth's head and shoulders, eyes bright, mouth open mid-word, head tilted slightly,
     front view
-  created: '2026-08-06'
+  created: '2026-08-07'
   source: nano-banana-pro chained edit from seth/expression/neutral
 - file: assets/plates/empty-auditorium.png
   kind: style-plate
