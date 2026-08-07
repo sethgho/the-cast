@@ -4,3 +4,6 @@ public/
 .DS_Store
 __pycache__/
 *.pyc
+
+# dev-time matting venv — rembg + a 973 MB ONNX model, never a build dependency
+.venv-matte/
