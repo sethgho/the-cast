@@ -1,0 +1,138 @@
+# "Everything's Fine" — pilot cut (verse 1 through Wilson's verse, ~60s)
+#
+# A PILOT, on purpose. The full 165s song is ~30 shots, ~3 hours of GPU and ~31
+# Comfy Cloud keyframe calls. This first 60s is 11 shots and ~65 minutes, which
+# is the exact budget already proven in the h3 skill's cast-delivery-recipe.
+# If the look holds here, the rest is the same thing repeated.
+#
+# BARS, NOT SECONDS. Every shot declares a bar count and plan.py snaps its end
+# to a measured downbeat. The song runs at 161.5 BPM measured (not the 132 the
+# caption asked for), so a bar is 1.486s and 4 bars is 5.94s — which is why most
+# shots below are 3-4 bars.
+#
+# ONE ACTION PER SHOT. From references/multi-character-scenes.md: an action that
+# spans a shot boundary gets double screen time and reads as slow motion. If a
+# character needs to arrive, they are already arrived and settled in `last`.
+#
+# Section timings are from librosa's segmentation of the generated audio and are
+# a FIRST CUT — they need one listen-pass before this renders. Marked TODO where
+# the boundary is least certain.
+
+meta:
+  song: everything-is-fine.mp3
+  style: vaudeville-1933          # STYLE_BLOCK is appended by the renderer
+  canvas: 1088x608                # 0.66MP — the both-ends conditioning ceiling
+  note: >
+    Silent generation. This is a music video: the song IS the audio track, so
+    every shot generates with the vocal-negative list and the song is laid under
+    the stitched cut. That is the one place this pipeline departs from the
+    cast delivery recipe, which uses native H3 audio because it has dialogue.
+
+shots:
+  # ---- [Intro] 0:00-0:14 — shellac crackle, piano flourish, trumpet fanfare ----
+  - id: kf00_marquee
+    bars: 4
+    first: kf00.png
+    last: kf01.png
+    prompt: >
+      Slow push in on a vaudeville theatre marquee at night, bulbs flickering on
+      in sequence around lettering that reads "EVERYTHING'S FINE". Rain-slick
+      pavement below catches the bulb light. The camera moves continuously
+      throughout, never settling.
+
+  - id: kf01_curtain
+    bars: 4
+    first: kf01.png
+    last: kf02.png
+    prompt: >
+      Heavy stage curtain rises steadily to reveal an empty vaudeville stage with
+      footlights burning. Dust drifts in the beam. The curtain is still rising as
+      the shot ends — continuous upward motion, no hold.
+
+  # ---- [Verse 1] Seth — 0:14-0:45 ----
+  - id: kf02_seth_enters
+    bars: 4
+    first: kf02.png
+    last: kf03.png
+    prompt: >
+      Seth strides on from stage left in a confident soft-shoe, arms swinging
+      wide, and arrives centre stage already settled into a grin, one hand
+      raised to the audience. Ake's ochre is the only warm colour anywhere in
+      frame.
+
+  - id: kf03_seth_boast
+    bars: 4
+    first: kf03.png
+    last: kf04.png
+    prompt: >
+      Seth performs to the house, gesturing broadly with a can of Diet Coke
+      raised like a champagne flute, weight shifting foot to foot in a steady
+      vaudeville rhythm. Continuous performance, never a frozen pose.
+
+  - id: kf04_green_lights
+    bars: 3
+    first: kf04.png
+    last: kf05.png
+    prompt: >
+      Behind Seth a tall status board of round indicator lamps clicks over one by
+      one to a calm even glow, each lamp lighting in sequence. Seth turns to
+      admire it, still moving.
+
+  - id: kf05_smoke_hint
+    bars: 3
+    first: kf05.png
+    last: kf06.png
+    prompt: >
+      A single thin ribbon of smoke rises steadily from behind the status board,
+      unnoticed. Seth continues his soft-shoe downstage, oblivious, the smoke
+      climbing throughout the shot.
+
+  # ---- [Chorus 1] 0:45-1:02 — full troupe, close harmony ----
+  - id: kf06_troupe_line
+    bars: 4
+    first: kf06.png
+    last: kf07.png
+    prompt: >
+      The full troupe swings into a chorus line across the stage — Seth, Wilson
+      the picket fence, Cadbury the butler and Ake's fishbowl on its wheeled
+      dolly — all moving together in a side-stepping kick, arms linked where
+      arms exist. Ake's ochre is the only warm colour.
+
+  - id: kf07_kickline
+    bars: 4
+    first: kf07.png
+    last: kf08.png
+    prompt: >
+      The chorus line kicks in unison, Ake's dolly rolling with them and the
+      water in his bowl sloshing visibly up the glass with each kick. Continuous
+      rhythmic motion throughout.
+
+  # ---- [Verse 2] Wilson — 1:02-1:28 — TODO verify boundary against the audio ----
+  - id: kf08_wilson_lean
+    bars: 4
+    first: kf08.png
+    last: kf09.png
+    prompt: >
+      The troupe clears and Wilson the living picket fence rolls forward alone,
+      leaning slowly over a stage rail, his segmented metal arms folding on the
+      top rail, the miniature server rack swinging gently from its chain. His
+      two cartoon eyes float in the deep shadow under the bucket hat brim.
+
+  - id: kf09_wilson_told_you
+    bars: 4
+    first: kf09.png
+    last: kf10.png
+    prompt: >
+      Wilson gesticulates unhurriedly with one segmented arm, tipping the bucket
+      hat back with the other, the whole fence panel rocking gently on its stubby
+      booted legs. He has no mouth, so the performance is entirely gesture and
+      the rocking of the panel.
+
+  - id: kf10_wilson_ledger_point
+    bars: 3
+    first: kf10.png
+    last: kf11.png
+    prompt: >
+      Wilson raises the lantern-carried server rack toward the smoking status
+      board, holding it steady as the smoke thickens behind him, then lowers it.
+      The smoke billows continuously through the shot.
