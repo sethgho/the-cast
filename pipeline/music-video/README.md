@@ -88,6 +88,61 @@ This also means lip-sync to the vocal is **not solved here**. Wilson has no mout
 and Ake is a fish, which covers half the cast; Seth and Cadbury singing in sync
 with a pre-existing vocal is an open problem, not a shipped feature.
 
+## Step 3 (optional): review the storyboard before spending GPU
+
+`storyboard.html` is a reusable, JSON-driven reviewer. Point it at a data file
+and it plays the song while showing each keyframe at its own timestamp, so you
+review the cut at performance speed rather than as a wall of stills.
+
+```
+storyboard.html?data=my-song.storyboard.json
+```
+
+```json
+{ "title": "...", "audio": "song.mp3", "imageBase": "frames/", "tempo": 161.5,
+  "shots": [ { "id": "kf02_seth_enters", "start": 11.49, "end": 17.46,
+               "frames": 158, "first": "B1_prep.png", "last": "B2_prep.png",
+               "prompt": "…the motion prompt…" } ] }
+```
+
+Pause anywhere and type; notes autosave to `localStorage` keyed by the data file,
+so a refresh or a closed tab does not cost you the pass. **Copy all notes** emits
+one markdown block to paste straight back as a revision prompt. `Space` plays,
+`←`/`→` step shots, `F` flips between a shot's first and last keyframe.
+
+Two behaviours that are deliberate, not incidental:
+
+- **The song is the clock while it plays**, but an explicit pick wins while it is
+  paused. Without that second half, clicking a thumbnail before the audio had
+  loaded snapped straight back to shot 1 — `currentTime` never moved, so the
+  clock kept re-deciding.
+- **A pause timestamp is only reported when it falls inside the shot it is
+  attached to.** Jump straight to a thumbnail and the clock reading is
+  meaningless; a wrong timestamp in the handoff is worse than none.
+
+The point of doing this before rendering: a keyframe costs one API call to
+change, and the shot it becomes costs six minutes of exclusive GPU.
+
+## Keyframes: setups, not one long chain
+
+Chained edits hold framing beautifully *within* a locked-off setup — but a chain
+is the wrong tool across a cut, because a cut is precisely where the staging is
+supposed to change. So keyframes are generated per SETUP: one base, then pose
+edits from it.
+
+The pilot's eleven shots are four setups — marquee (2 frames), the stage (6),
+the troupe line (3), Wilson at the rail (4) — which is **15 keyframes, not 12**.
+Shots inside a setup share a frame; shots either side of a cut do not.
+
+Evidence it worked: the border-crop boxes came back identical within each setup
+(`85,23,1359,728` for all six stage frames), which is the framing holding still
+to the pixel.
+
+`prep_keyframes.py` crops the aged-paper margin nano-banana-pro draws no matter
+how firmly the prompt forbids one, then cover-fits to 1088x608. It finds the
+margin by row/column standard deviation rather than a fixed inset, because the
+margin width is not constant — the Wilson setup came back with none at all.
+
 ## Budget, honestly
 
 For the 165s of "Everything's Fine":
@@ -111,5 +166,9 @@ Announce it before starting.
 - `plan.py` — working, run against the real song.
 - `everything-is-fine.pilot.yaml` — 11-shot pilot covering 0:00-1:00.
 - `everything-is-fine.pilot.plan.json` — the generated plan.
-- **Not yet rendered.** Needs section-boundary verification by ear (marked TODO
-  in the YAML) and Seth's go-ahead on the credit spend.
+- `storyboard.html` + `everything-is-fine.storyboard.json` — the reviewer, live at
+  `http://wilson/everything-is-fine-storyboard/`.
+- **15 keyframes generated** (2026-08-15) and reviewed — every character on-model,
+  framing held within each setup.
+- **Video not yet rendered.** ~64 minutes of exclusive GPU, pending the
+  storyboard pass.
