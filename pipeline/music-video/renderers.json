@@ -1,0 +1,74 @@
+{
+  "_comment": [
+    "The renderer registry. Adding a video model to this pipeline should be a",
+    "DATA change, not a code change — which is the whole reason this file exists.",
+    "",
+    "Every field here was a hardcoded constant inside plan.py until 2026-08-15.",
+    "That was fine while H3 was the only renderer and wrong the moment a shot",
+    "needed something H3 cannot do (be driven by existing audio). A second model",
+    "does not share H3's frame grid, its fps, its canvas ceiling or its cost.",
+    "",
+    "`provides` is the vocabulary the router matches shots against:",
+    "  both_ends      conditions on a first AND last keyframe (bounded drift)",
+    "  first_frame    conditions on a starting image only",
+    "  native_audio   invents its own audio from the text prompt (dialogue, SFX)",
+    "  audio_driven   takes EXISTING audio as the driver — lips, head, body",
+    "  silent         can be asked to produce no audio",
+    "",
+    "`status` is load-bearing: `measured` means someone ran it on this hardware",
+    "and wrote the number down. `unverified` means it came from a README. Never",
+    "promote a number without an experiment - see the 124-frame ceiling that",
+    "turned out to be 158."
+  ],
+
+  "renderers": {
+    "h3": {
+      "label": "MiniMax H3 (local, gpu-worker)",
+      "status": "measured",
+      "provides": ["both_ends", "first_frame", "native_audio", "silent"],
+      "fps": 24,
+      "frame_grid": { "rule": "17k+5", "a": 17, "b": 5, "max_k": 21 },
+      "max_frames": 158,
+      "max_pixels": 661504,
+      "default_canvas": [1088, 608],
+      "minutes_per_frame": 0.0401,
+      "vram_gb": 9.4,
+      "cost": "free",
+      "notes": [
+        "158 frames both-ends at 1088x608 measured 2026-08-15: 380s, ~9.4GB.",
+        "0.94MP is the hard OOM ceiling for single-ended; both-ends wants less.",
+        "Cannot be driven by existing audio - it only ever makes its own."
+      ]
+    },
+
+    "infinitetalk": {
+      "label": "InfiniteTalk on Wan 2.1-I2V-14B (local, PROPOSED)",
+      "status": "unverified",
+      "provides": ["first_frame", "audio_driven"],
+      "fps": 16,
+      "frame_grid": { "rule": "4n+1", "a": 4, "b": 1, "max_k": 200 },
+      "max_frames": 81,
+      "max_pixels": 409920,
+      "default_canvas": [854, 480],
+      "minutes_per_frame": null,
+      "vram_gb": null,
+      "cost": "free",
+      "notes": [
+        "This is what Maestro uses, and the reason its music videos sync.",
+        "Audio drives lips, head, posture and expression together, rather than",
+        "patching a mouth onto finished footage.",
+        "EVERY NUMBER HERE IS FROM DOCUMENTATION, NOT FROM OUR CARD. Full",
+        "pipeline is reported at 18-22GB peak; Q4 GGUF is the 12-16GB route and",
+        "is described as a quality/speed compromise. Apache 2.0.",
+        "Chunks for unlimited length, so max_frames is per chunk, not per shot.",
+        "Do not route real work here until status is `measured`."
+      ]
+    }
+  },
+
+  "routing": [
+    { "when": "sings",    "prefer": ["infinitetalk"], "needs": ["audio_driven"] },
+    { "when": "dialogue", "prefer": ["h3"],           "needs": ["native_audio"] },
+    { "when": "default",  "prefer": ["h3"],           "needs": ["both_ends"] }
+  ]
+}

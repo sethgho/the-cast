@@ -4,14 +4,31 @@
  "bar_seconds": 1.4861,
  "song_seconds": 164.99,
  "shot_count": 11,
- "gpu_minutes_estimate": 63.5,
  "keyframe_calls": 12,
+ "budget_by_renderer": {
+  "h3": {
+   "shots": 5,
+   "frames": 722,
+   "minutes": 28.9,
+   "status": "measured"
+  },
+  "infinitetalk": {
+   "shots": 6,
+   "frames": 534,
+   "minutes": null,
+   "status": "unverified"
+  }
+ },
  "shots": [
   {
    "id": "kf00_marquee",
+   "renderer": "h3",
+   "routed_by": "default",
+   "renderer_status": "measured",
    "start": 0.0,
    "end": 5.573,
    "seconds": 5.573,
+   "fps": 24,
    "frames": 141,
    "generated_seconds": 5.875,
    "trim_seconds": 0.302,
@@ -21,9 +38,13 @@
   },
   {
    "id": "kf01_curtain",
+   "renderer": "h3",
+   "routed_by": "default",
+   "renderer_status": "measured",
    "start": 5.573,
    "end": 11.494,
    "seconds": 5.921,
+   "fps": 24,
    "frames": 158,
    "generated_seconds": 6.583,
    "trim_seconds": 0.662,
@@ -33,81 +54,139 @@
   },
   {
    "id": "kf02_seth_enters",
+   "renderer": "infinitetalk",
+   "routed_by": "sings",
+   "renderer_status": "unverified",
    "start": 11.494,
    "end": 17.461,
    "seconds": 5.968,
-   "frames": 158,
-   "generated_seconds": 6.583,
-   "trim_seconds": 0.616,
+   "fps": 16,
+   "frames": 97,
+   "generated_seconds": 6.062,
+   "trim_seconds": 0.095,
    "first": "kf02.png",
    "last": "kf03.png",
-   "prompt": "Seth strides on from stage left in a confident soft-shoe, arms swinging wide, and arrives centre stage already settled into a grin, one hand raised to the audience. Ake's ochre is the only warm colour anywhere in frame.\n"
+   "prompt": "Seth strides on from stage left in a confident soft-shoe, arms swinging wide, and arrives centre stage already settled into a grin, one hand raised to the audience. Ake's ochre is the only warm colour anywhere in frame.\n",
+   "audio_slice": {
+    "start": 11.494,
+    "end": 17.461,
+    "source": "everything-is-fine.mp3"
+   }
   },
   {
    "id": "kf03_seth_boast",
+   "renderer": "infinitetalk",
+   "routed_by": "sings",
+   "renderer_status": "unverified",
    "start": 17.461,
    "end": 23.452,
    "seconds": 5.991,
-   "frames": 158,
-   "generated_seconds": 6.583,
-   "trim_seconds": 0.593,
+   "fps": 16,
+   "frames": 97,
+   "generated_seconds": 6.062,
+   "trim_seconds": 0.072,
    "first": "kf03.png",
    "last": "kf04.png",
-   "prompt": "Seth performs to the house, gesturing broadly with a can of Diet Coke raised like a champagne flute, weight shifting foot to foot in a steady vaudeville rhythm. Continuous performance, never a frozen pose.\n"
+   "prompt": "Seth performs to the house, gesturing broadly with a can of Diet Coke raised like a champagne flute, weight shifting foot to foot in a steady vaudeville rhythm. Continuous performance, never a frozen pose.\n",
+   "audio_slice": {
+    "start": 17.461,
+    "end": 23.452,
+    "source": "everything-is-fine.mp3"
+   }
   },
   {
    "id": "kf04_green_lights",
+   "renderer": "infinitetalk",
+   "routed_by": "sings",
+   "renderer_status": "unverified",
    "start": 23.452,
    "end": 27.957,
    "seconds": 4.505,
-   "frames": 124,
-   "generated_seconds": 5.167,
-   "trim_seconds": 0.662,
+   "fps": 16,
+   "frames": 73,
+   "generated_seconds": 4.562,
+   "trim_seconds": 0.058,
    "first": "kf04.png",
    "last": "kf05.png",
-   "prompt": "Behind Seth a tall status board of round indicator lamps clicks over one by one to a calm even glow, each lamp lighting in sequence. Seth turns to admire it, still moving.\n"
+   "prompt": "Behind Seth a tall status board of round indicator lamps clicks over one by one to a calm even glow, each lamp lighting in sequence. Seth turns to admire it, still moving.\n",
+   "audio_slice": {
+    "start": 23.452,
+    "end": 27.957,
+    "source": "everything-is-fine.mp3"
+   }
   },
   {
    "id": "kf05_smoke_hint",
+   "renderer": "infinitetalk",
+   "routed_by": "sings",
+   "renderer_status": "unverified",
    "start": 27.957,
    "end": 32.253,
    "seconds": 4.296,
-   "frames": 107,
-   "generated_seconds": 4.458,
-   "trim_seconds": 0.163,
+   "fps": 16,
+   "frames": 69,
+   "generated_seconds": 4.312,
+   "trim_seconds": 0.017,
    "first": "kf05.png",
    "last": "kf06.png",
-   "prompt": "A single thin ribbon of smoke rises steadily from behind the status board, unnoticed. Seth continues his soft-shoe downstage, oblivious, the smoke climbing throughout the shot.\n"
+   "prompt": "A single thin ribbon of smoke rises steadily from behind the status board, unnoticed. Seth continues his soft-shoe downstage, oblivious, the smoke climbing throughout the shot.\n",
+   "audio_slice": {
+    "start": 27.957,
+    "end": 32.253,
+    "source": "everything-is-fine.mp3"
+   }
   },
   {
    "id": "kf06_troupe_line",
+   "renderer": "infinitetalk",
+   "routed_by": "sings",
+   "renderer_status": "unverified",
    "start": 32.253,
    "end": 38.336,
    "seconds": 6.084,
-   "frames": 158,
-   "generated_seconds": 6.583,
-   "trim_seconds": 0.5,
+   "fps": 16,
+   "frames": 101,
+   "generated_seconds": 6.312,
+   "trim_seconds": 0.229,
    "first": "kf06.png",
    "last": "kf07.png",
-   "prompt": "The full troupe swings into a chorus line across the stage \u2014 Seth, Wilson the picket fence, Cadbury the butler and Ake's fishbowl on its wheeled dolly \u2014 all moving together in a side-stepping kick, arms linked where arms exist. Ake's ochre is the only warm colour.\n"
+   "prompt": "The full troupe swings into a chorus line across the stage \u2014 Seth, Wilson the picket fence, Cadbury the butler and Ake's fishbowl on its wheeled dolly \u2014 all moving together in a side-stepping kick, arms linked where arms exist. Ake's ochre is the only warm colour.\n",
+   "audio_slice": {
+    "start": 32.253,
+    "end": 38.336,
+    "source": "everything-is-fine.mp3"
+   }
   },
   {
    "id": "kf07_kickline",
+   "renderer": "infinitetalk",
+   "routed_by": "sings",
+   "renderer_status": "unverified",
    "start": 38.336,
    "end": 44.28,
    "seconds": 5.944,
-   "frames": 158,
-   "generated_seconds": 6.583,
-   "trim_seconds": 0.639,
+   "fps": 16,
+   "frames": 97,
+   "generated_seconds": 6.062,
+   "trim_seconds": 0.118,
    "first": "kf07.png",
    "last": "kf08.png",
-   "prompt": "The chorus line kicks in unison, Ake's dolly rolling with them and the water in his bowl sloshing visibly up the glass with each kick. Continuous rhythmic motion throughout.\n"
+   "prompt": "The chorus line kicks in unison, Ake's dolly rolling with them and the water in his bowl sloshing visibly up the glass with each kick. Continuous rhythmic motion throughout.\n",
+   "audio_slice": {
+    "start": 38.336,
+    "end": 44.28,
+    "source": "everything-is-fine.mp3"
+   }
   },
   {
    "id": "kf08_wilson_lean",
+   "renderer": "h3",
+   "routed_by": "default",
+   "renderer_status": "measured",
    "start": 44.28,
    "end": 50.202,
    "seconds": 5.921,
+   "fps": 24,
    "frames": 158,
    "generated_seconds": 6.583,
    "trim_seconds": 0.662,
@@ -117,9 +196,13 @@
   },
   {
    "id": "kf09_wilson_told_you",
+   "renderer": "h3",
+   "routed_by": "default",
+   "renderer_status": "measured",
    "start": 50.202,
    "end": 56.146,
    "seconds": 5.944,
+   "fps": 24,
    "frames": 158,
    "generated_seconds": 6.583,
    "trim_seconds": 0.639,
@@ -129,9 +212,13 @@
   },
   {
    "id": "kf10_wilson_ledger_point",
+   "renderer": "h3",
+   "routed_by": "default",
+   "renderer_status": "measured",
    "start": 56.146,
    "end": 60.581,
    "seconds": 4.435,
+   "fps": 24,
    "frames": 107,
    "generated_seconds": 4.458,
    "trim_seconds": 0.023,
@@ -141,6 +228,16 @@
   }
  ],
  "warnings": [
+  "shot 2 (kf02_seth_enters) routes to infinitetalk, which is UNVERIFIED on this hardware \u2014 spike one shot before planning a whole video on it",
+  "shot 2 (kf02_seth_enters) is 97 frames, above infinitetalk's 81 \u2014 render this one FIRST to prove it fits",
+  "shot 3 (kf03_seth_boast) routes to infinitetalk, which is UNVERIFIED on this hardware \u2014 spike one shot before planning a whole video on it",
+  "shot 3 (kf03_seth_boast) is 97 frames, above infinitetalk's 81 \u2014 render this one FIRST to prove it fits",
+  "shot 4 (kf04_green_lights) routes to infinitetalk, which is UNVERIFIED on this hardware \u2014 spike one shot before planning a whole video on it",
+  "shot 5 (kf05_smoke_hint) routes to infinitetalk, which is UNVERIFIED on this hardware \u2014 spike one shot before planning a whole video on it",
+  "shot 6 (kf06_troupe_line) routes to infinitetalk, which is UNVERIFIED on this hardware \u2014 spike one shot before planning a whole video on it",
+  "shot 6 (kf06_troupe_line) is 101 frames, above infinitetalk's 81 \u2014 render this one FIRST to prove it fits",
+  "shot 7 (kf07_kickline) routes to infinitetalk, which is UNVERIFIED on this hardware \u2014 spike one shot before planning a whole video on it",
+  "shot 7 (kf07_kickline) is 97 frames, above infinitetalk's 81 \u2014 render this one FIRST to prove it fits",
   "shot list covers 60.6s of a 165.0s song \u2014 104.4s unscored"
  ]
 }

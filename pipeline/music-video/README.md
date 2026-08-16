@@ -60,6 +60,65 @@ the render is a separate, deliberate step.
 Its warnings are the point — it flags shots that waste GPU on overshoot, shots
 that exceed the measured VRAM envelope, and any part of the song left unscored.
 
+## Renderers are data, not code
+
+The planner does not know about H3. It knows about **`renderers.json`**, and H3
+is one entry in it. Adding a model is a data change.
+
+That split exists because the first version hardcoded H3's frame grid, fps,
+canvas ceiling and cost as module constants. Correct while one model could do
+every shot; wrong the instant a shot needed something H3 cannot do.
+
+**A shot declares what it NEEDS; the router picks something that provides it.**
+
+```yaml
+- id: kf03_seth_boast
+  sings: true        # -> needs an audio_driven renderer
+  bars: 4
+```
+
+| capability | means |
+|---|---|
+| `both_ends` | conditions on a first AND last keyframe (bounded drift) |
+| `first_frame` | conditions on a starting image only |
+| `native_audio` | invents its own audio from the prompt (dialogue, SFX) |
+| `audio_driven` | takes EXISTING audio as the driver — lips, head, body |
+| `silent` | can be asked to produce no audio |
+
+`audio_driven` is the one that matters for music video and the one H3 does not
+have. H3 only ever generates its own audio from text, which is exactly why it
+cannot sing along to a song that already exists — no amount of prompting closes
+that gap, because it is a different model class.
+
+Three things fall out of the registry that were previously impossible to state:
+
+- **Frames quantise on the ROUTED renderer's grid, at its fps.** H3 is 24fps on
+  a 17k+5 grid; Wan-family models are 16fps on 4n+1. The same 6-second shot is
+  158 frames on one and 97 on the other. Hardcoding either is a silent bug.
+- **Audio-driven shots get an `audio_slice`** in the plan — the exact span of
+  song that shot sits over. A beat-locked plan already knows it, so emitting it
+  beats making the render step re-derive it and drift a frame.
+- **Budget is reported per renderer**, because "three hours of GPU" is a
+  different sentence when half of it is on a model nobody here has run.
+
+### `status` is load-bearing
+
+`measured` means someone ran it on this hardware and wrote the number down.
+`unverified` means it came out of a README. The planner warns on every shot
+routed to an unverified renderer, and refuses to quote a cost for it.
+
+This is the 124-frame ceiling lesson encoded: that number sat in our docs as
+fact for weeks, was never measured, and turned out to be 158. A number with no
+experiment behind it is a guess wearing a lab coat.
+
+### The fallback is loud on purpose
+
+A shot that asks for a capability nothing provides still gets planned — on the
+default renderer — and raises a warning saying it *will not do what the shot
+list says*. Silently downgrading "this character sings" to "silent
+interpolation" is how you end up with a finished video nobody can explain the
+badness of.
+
 ## Rules a shot list must follow
 
 **One action per shot.** From `references/multi-character-scenes.md`: an action

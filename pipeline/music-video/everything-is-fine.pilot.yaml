@@ -51,6 +51,7 @@ shots:
 
   # ---- [Verse 1] Seth — 0:14-0:45 ----
   - id: kf02_seth_enters
+    sings: true
     bars: 4
     first: kf02.png
     last: kf03.png
@@ -61,6 +62,7 @@ shots:
       frame.
 
   - id: kf03_seth_boast
+    sings: true
     bars: 4
     first: kf03.png
     last: kf04.png
@@ -70,6 +72,7 @@ shots:
       vaudeville rhythm. Continuous performance, never a frozen pose.
 
   - id: kf04_green_lights
+    sings: true
     bars: 3
     first: kf04.png
     last: kf05.png
@@ -79,6 +82,7 @@ shots:
       admire it, still moving.
 
   - id: kf05_smoke_hint
+    sings: true
     bars: 3
     first: kf05.png
     last: kf06.png
@@ -89,6 +93,7 @@ shots:
 
   # ---- [Chorus 1] 0:45-1:02 — full troupe, close harmony ----
   - id: kf06_troupe_line
+    sings: true
     bars: 4
     first: kf06.png
     last: kf07.png
@@ -99,6 +104,7 @@ shots:
       arms exist. Ake's ochre is the only warm colour.
 
   - id: kf07_kickline
+    sings: true
     bars: 4
     first: kf07.png
     last: kf08.png
