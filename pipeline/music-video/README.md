@@ -101,6 +101,30 @@ Three things fall out of the registry that were previously impossible to state:
 - **Budget is reported per renderer**, because "three hours of GPU" is a
   different sentence when half of it is on a model nobody here has run.
 
+### Verified renderers
+
+| | H3 | InfiniteTalk |
+|---|---|---|
+| drives from | keyframes + text | **existing audio** |
+| canvas | 1088x608 | 640x384 (832x480 OOMs) |
+| fps / grid | 24 / 17k+5 | 25 / 4n+1 |
+| max frames | 158 | 81 per window |
+| cost | 0.040 min/frame | 0.033 min/frame |
+
+Both measured on the 12GB card, 2026-08-15. The cost per frame is close; the
+**resolution is not**. Singing shots come out at 2.7x fewer pixels than the rest
+of the cut, so plan for a visible softness on them and grade it deliberately
+rather than being surprised by it.
+
+InfiniteTalk needs `blocks_to_swap=40` and `load_device=offload_device` — 11GB of
+Q4 weights stream from the box's 31GB of system RAM. Its wav2vec model goes in
+`models/wav2vec2`, not `models/wav2vec`; the wrong folder is silently invalid.
+
+**The aesthetic risk did not bite.** Wan 2.1 is trained on photoreal footage, so
+the open question was whether an audio-driven performance would drag a sepia
+rubber-hose drawing toward live action. Conditioned on our own keyframe it kept
+the ink line, the halftone, the proscenium, the aged paper and Seth's design.
+
 ### `status` is load-bearing
 
 `measured` means someone ran it on this hardware and wrote the number down.
