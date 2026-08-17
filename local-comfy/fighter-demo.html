@@ -135,13 +135,14 @@ function tick(now) {
   // one-shot moves own the character until their last cell plays out
   if (locked) {
     const m = MOVES[locked];
-    if (m.hold && keys.has(locked === "block" ? "l" : "ArrowDown")) {
-      frame = m.frames - 1;                       // hold on the last cell while the key is down
-    } else {
-      acc += dt;
-      if (acc >= 1 / m.fps) { acc = 0; frame++; }
-      if (frame >= m.frames) { frame = m.frames - 1; if (!m.hold) locked = null; }
-      if (m.hold && !keys.has(locked === "block" ? "l" : "ArrowDown")) locked = null;
+    // Play the move through, THEN hold on its last cell while the key is down. Snapping straight
+    // to the last cell is why crouch looked like a single flashed frame.
+    const holdKey = locked === "block" ? "l" : "ArrowDown";
+    acc += dt;
+    if (acc >= 1 / m.fps) { acc = 0; frame++; }
+    if (frame >= m.frames) {
+      frame = m.frames - 1;
+      if (!m.hold || !keys.has(holdKey)) locked = null;
     }
   }
 

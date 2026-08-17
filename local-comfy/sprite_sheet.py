@@ -109,8 +109,37 @@ def key_out(path):
         alpha = np.asarray(a8.filter(ImageFilter.MinFilter(2 * EDGE_ERODE + 1))).astype(np.float32) / 255.0
     # edge weight: 1 in the transition band, 0 on solid pixels and on the screen itself
     edge = np.clip(1.0 - np.abs(alpha * 2.0 - 1.0), 0.0, 1.0)
-    rgba = np.dstack([despill(im, edge).astype(np.uint8), (alpha * 255).astype(np.uint8)])
+    cleaned = cel_clean(despill(im, edge), alpha)
+    rgba = np.dstack([cleaned.astype(np.uint8), (alpha * 255).astype(np.uint8)])
     return Image.fromarray(rgba, "RGBA")
+
+
+def cel_clean(rgb, alpha):
+    """Make a video frame look drawn again.
+
+    H3's output carries codec noise: chroma speckle in the flats and soft, slightly coloured
+    edges. In a flat-ink cartoon both read as "ripped from video". A small median kills the
+    speckle without touching line position, and an unsharp pass puts the bite back into the
+    outlines. Applied inside the silhouette only, so the matte is untouched.
+    """
+    from PIL import ImageFilter
+    im = Image.fromarray(rgb.astype(np.uint8))
+    im = im.filter(ImageFilter.MedianFilter(3))
+    im = im.filter(ImageFilter.UnsharpMask(radius=2, percent=130, threshold=3))
+    out = np.asarray(im).astype(np.float32)
+
+    # Chroma fringe. The codec leaves blue and cyan speckle along the outlines, and it sits INSIDE
+    # the silhouette, so an edge-band fix does not reach it. The palette is a sepia duotone: every
+    # real colour in this drawing has red above green above blue. Anything that breaks that order
+    # is codec noise by definition, so it gets pulled back to the palette.
+    lum = out.mean(axis=2, keepdims=True)
+    sepia = np.concatenate([lum * 1.06, lum, lum * 0.88], axis=2)
+    r, g, b = out[..., 0], out[..., 1], out[..., 2]
+    off_palette = np.clip(np.maximum(b - r, g - r) / 18.0, 0.0, 1.0)[..., None]
+    out = out * (1 - off_palette) + sepia * off_palette
+
+    keep = (alpha > 0.02)[..., None]
+    return np.where(keep, out, rgb)
 
 
 def bbox(rgba):
@@ -219,7 +248,9 @@ def pack_set(jobs, cell, outdir, anchor, smooth, skip=6, cycle=True):
         prep = _prepare(clip, name, n, skip, cycle, anchor, smooth)
         measured.append((name, n, prep))
     tallest = max(p["natural"] for _, _, p in measured)
-    scale = (cell * 0.92) / tallest if tallest else 1.0
+    highest = max(p.get("up", 0) for _, _, p in measured)
+    # 0.94 of the cell is the feet line; leave 3% of headroom above the tallest reach
+    scale = min((cell * 0.92) / tallest, (cell * 0.91) / highest) if tallest else 1.0
     out = []
     for name, n, prep in measured:
         out.append(_emit(name, prep, cell, outdir, anchor, scale))
@@ -261,7 +292,7 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
         spans.append((ax - x0, x1 - ax, ay - y0, y1 - ay))
     natural = max(max(s[0] for s in spans) + max(s[1] for s in spans),
                   max(s[2] for s in spans) + max(s[3] for s in spans))
-    return {"rgba": rgba, "boxes": boxes, "picks": picks, "anchors": anchors,
+    return {"rgba": rgba, "boxes": boxes, "picks": picks, "anchors": anchors, "up": max(s[2] for s in spans),
             "natural": natural, "period": period, "clip": clip}
 
 
@@ -291,7 +322,10 @@ def _prepare_stills(paths, smooth=True):
     tall = max(s[2] for s in spans) + max(s[3] for s in spans)
     wide = max(s[0] for s in spans) + max(s[1] for s in spans)
     natural = max(tall, wide * 0.8)
-    return {"rgba": rgba, "boxes": boxes, "picks": picks, "anchors": anchors,
+    # A jump reaches higher above the anchor than a stand does, and the anchor sits at 94% of the
+    # cell, so "fits the cell" is not the same as "fits above the feet". Keep the tallest reach.
+    up = max(s[2] for s in spans)
+    return {"rgba": rgba, "up": up, "boxes": boxes, "picks": picks, "anchors": anchors,
             "natural": natural, "period": None, "clip": paths[0]}
 
 
