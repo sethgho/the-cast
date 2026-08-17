@@ -14,18 +14,19 @@ Measured on the RTX 3080 Ti (12GB): **~48s at 8 steps**, **~25s at 4 steps**, 10
 | `workflows/<id>-<kind>.app.json` | The same file under the name the Apps list reads. |
 | `api/<id>-<kind>.api.json` | Same graph, API format — for scripts and CI. |
 
-Two kinds today, both generated from one `build()`:
+| `plates/` | The reference images the workflows expect in `ComfyUI/input/`. |
+| `build_workflows.py` | Generates every file from one character spec. Edit here, not the JSON. |
+| `smoke_test.py` | Runs the API graph through all four switch combinations. |
 
-- **`pose`** — full-body figure from the character plate. Fields: `YOUR SHOT`.
+Both kinds carry the same `SCENE` / `TRANSPARENT PNG` / size / seed controls, numbered after
+their own fields.
+
+Two kinds today, both off one `build()`:
+
+- **`pose`** — full-body figure from the character plate. Field: `YOUR SHOT`.
 - **`headshot`** — head-and-shoulders portrait from the headshot plate. Fields:
   `HIS EXPRESSION`, `FRAMING`. Expression control is strong — "weary, heavy lids, one brow up,
-  mouth a flat line" lands as a different performance, not a different person.
-
-Both carry the same `SCENE` / `TRANSPARENT PNG` / size / seed controls, numbered after their
-own fields.
-| `plates/` | The reference images the workflow expects in `ComfyUI/input/`. |
-| `build_workflows.py` | Generates both files from one character spec. Edit here, not the JSON. |
-| `smoke_test.py` | Runs the API graph through all four switch combinations. |
+  mouth a flat line" reads as a different performance, not a different person.
 
 ## App Mode
 
