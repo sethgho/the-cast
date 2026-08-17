@@ -359,6 +359,80 @@ CHARACTERS = {
     },
 }
 
+
+CHARACTERS["wilson"] = {
+    "name": "Wilson",
+    "plate": "cast-wilson-plate.png",
+    "headshot_plate": "cast-wilson-headshot.png",
+    "scene_plate": "cast-scene-empty-stage.png",
+    "pose_lock": (
+        "Redraw the character in image 1 as a single full-body figure, keeping his identity exactly: "
+        "a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist — the panel is the body. Keep the picket panel, the bucket hat, the two cartoon eyes, the segmented metal "
+        "arms and the black boots identical to image 1. Keep every colour as muted and desaturated as image 1. The new drawing shows him as follows:"
+    ),
+    "headshot_lock": (
+        "Redraw the character in image 1 as a close portrait of the top of him, keeping his identity "
+        "exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist — the panel is the body. Frame the bucket hat, the pointed picket tops and the two cartoon eyes "
+        "floating in the deep flat shadow under the brim. He has no face beyond those two eyes — no "
+        "nose, no mouth, no eyebrows. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
+    ),
+    "shot": "he leans his side against a tall fence post, one boot crossed over the other, relaxed.",
+    "expression": "attentive — both eyes wide and level, the hat brim tipped a little forward.",
+    "framing": "close on the hat and the picket tops, facing the viewer.",
+    "restate_headshot": (
+        "Above all, redraw the two cartoon eyes and the tilt of the hat so he clearly reads as:"
+    ),
+    "scene": "the empty vaudeville stage, footlights low, the curtain half drawn behind him.",
+}
+
+CHARACTERS["cadbury"] = {
+    "name": "Cadbury",
+    "plate": "cast-cadbury-plate.png",
+    "headshot_plate": "cast-cadbury-headshot.png",
+    "scene_plate": "cast-scene-empty-stage.png",
+    "pose_lock": (
+        "Redraw the character in image 1 as a single full-body cartoon figure, keeping his identity "
+        "exactly: a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with slicked-back black hair and a neat pencil moustache, a white folded towel draped over one forearm. His left eye is a brass clockwork monocle — a mechanical camera-iris lens in an ornate rim, its fine chain running down to his waistcoat pocket — and it sits on the eye at the VIEWER'S RIGHT when he faces the camera. Keep the tailcoat, waistcoat, bow tie, hair, pencil moustache, the "
+        "white towel over his forearm and the monocle identical to image 1. Keep every colour as muted and desaturated as image 1. The new drawing "
+        "shows him as follows:"
+    ),
+    "headshot_lock": (
+        "Redraw the character in image 1 as a head-and-shoulders portrait, keeping his identity "
+        "exactly: a thin, impeccably composed butler in a black tailcoat, waistcoat and bow tie, with slicked-back black hair and a neat pencil moustache, a white folded towel draped over one forearm. His left eye is a brass clockwork monocle — a mechanical camera-iris lens in an ornate rim, its fine chain running down to his waistcoat pocket — and it sits on the eye at the VIEWER'S RIGHT when he faces the camera. Keep the shape of his face, his slicked hair, his pencil moustache and "
+        "the brass monocle on the eye at the viewer's right identical to image 1. Keep every colour as muted and desaturated as image 1. The "
+        "portrait shows him as follows:"
+    ),
+    "shot": "he presents a silver tray flat on one upturned palm, the other hand behind his back, mid-stride.",
+    "expression": "disapproving — the brow above the monocle raised, mouth pressed to a thin line.",
+    "framing": "head and shoulders, facing the viewer, chin level.",
+    "scene": "the empty vaudeville stage, footlights low, the curtain half drawn behind him.",
+}
+
+CHARACTERS["ake"] = {
+    "name": "Ake",
+    "plate": "cast-ake-plate.png",
+    "headshot_plate": "cast-ake-headshot.png",
+    "scene_plate": "cast-scene-empty-stage.png",
+    "pose_lock": (
+        "Redraw the character in image 1 keeping his identity exactly: a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, with huge googly eyes, a drooping walrus moustache and prominent front teeth, wearing a small dark cap lettered FEW perched on top of the bowl. Keep the glass bowl, "
+        "the wheeled dolly, the googly eyes, the walrus moustache, the buck teeth and the FEW cap "
+        "identical to image 1. Keep every colour as muted and desaturated as image 1. The new drawing shows him as follows:"
+    ),
+    "headshot_lock": (
+        "Redraw the character in image 1 as a close portrait of the bowl and the fish inside it, "
+        "keeping his identity exactly: a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, with huge googly eyes, a drooping walrus moustache and prominent front teeth, wearing a small dark cap lettered FEW perched on top of the bowl. Keep the googly eyes, the drooping walrus moustache, "
+        "the buck teeth and the FEW cap identical to image 1. Keep every colour as muted and desaturated as image 1. The portrait shows him as "
+        "follows:"
+    ),
+    "shot": "the dolly rolls fast to the left, the bowl tipped back and the water sloshing up one side.",
+    "expression": "alarmed — googly eyes bulging, the walrus moustache flared, buck teeth showing.",
+    "framing": "close on the bowl, the fish filling it, facing the viewer.",
+    "restate_headshot": (
+        "Above all, redraw the fish's eyes, moustache and teeth so his face clearly shows this:"
+    ),
+    "scene": "the empty vaudeville stage, footlights low, the curtain half drawn behind him.",
+}
+
 # ---------------------------------------------------------------- the workflow
 
 BLUE = ("#223", "#335")        # locked / canon
@@ -487,7 +561,8 @@ def build(cid, spec, kind_id):
     # field is restated at the end of the prompt. Without this, SCENE mode ignored the
     # expression entirely and returned the reference grin.
     restate_lead = g.add("PrimitiveStringMultiline", "RESTATEMENT — keeps the first field from being ignored",
-                         (LX, LY + row * DY), (430, 190), {"value": kind["restate"]},
+                         (LX, LY + row * DY), (430, 190),
+                         {"value": spec.get(f"restate_{kind_id}", kind["restate"])},
                          outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
     row += 1
     restate = g.add("StringConcatenate", "restatement + first field",

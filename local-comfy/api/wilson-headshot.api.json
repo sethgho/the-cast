@@ -1,0 +1,520 @@
+{
+ "2": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "attentive \u2014 both eyes wide and level, the hat brim tipped a little forward."
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 HIS EXPRESSION \u2014 what his face is doing (TYPE HERE)"
+  }
+ },
+ "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "close on the hat and the picket tops, facing the viewer."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 FRAMING \u2014 crop and head angle (TYPE HERE)"
+  }
+ },
+ "4": {
+  "class_type": "PrimitiveBoolean",
+  "inputs": {
+   "value": false
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 SCENE   off = flat grey plate \u00b7 on = in a scene"
+  }
+ },
+ "5": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "the empty vaudeville stage, footlights low, the curtain half drawn behind him."
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)"
+  }
+ },
+ "6": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-scene-empty-stage.png"
+  },
+  "_meta": {
+   "title": "\u25b6 5 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on"
+  }
+ },
+ "7": {
+  "class_type": "PrimitiveBoolean",
+  "inputs": {
+   "value": false
+  },
+  "_meta": {
+   "title": "\u25b6 6 \u00b7 TRANSPARENT PNG   on = cut the background out"
+  }
+ },
+ "8": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "\u25b6 7 \u00b7 OUTPUT SIZE"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Redraw the character in image 1 as a close portrait of the top of him, keeping his identity exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist \u2014 the panel is the body. Frame the bucket hat, the pointed picket tops and the two cartoon eyes floating in the deep flat shadow under the brim. He has no face beyond those two eyes \u2014 no nose, no mouth, no eyebrows. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
+  },
+  "_meta": {
+   "title": "CHARACTER LOCK \u2014 who Wilson is"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Behind him is a single flat mid-grey backdrop of one even tone \u2014 no scenery, no horizon and no props."
+  },
+  "_meta": {
+   "title": "PLATE BACKGROUND \u2014 used when SCENE is off"
+  }
+ },
+ "12": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "The background behind him is the scene shown in image 2, drawn in the same ink and halftone style, simplified and a little soft so his face stays the subject, but still clearly readable as that place. The scene is:"
+  },
+  "_meta": {
+   "title": "SCENE LEAD-IN \u2014 used when SCENE is on"
+  }
+ },
+ "13": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-wilson-headshot.png"
+  },
+  "_meta": {
+   "title": "CHARACTER PLATE \u2014 Wilson's reference (image 1)"
+  }
+ },
+ "14": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "9",
+    0
+   ],
+   "string_b": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ expression"
+  }
+ },
+ "15": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "14",
+    0
+   ],
+   "string_b": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ framing"
+  }
+ },
+ "16": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "12",
+    0
+   ],
+   "string_b": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scene lead-in + your scene"
+  }
+ },
+ "17": {
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "switch": [
+    "4",
+    0
+   ],
+   "on_false": [
+    "11",
+    0
+   ],
+   "on_true": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "background text switch"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "15",
+    0
+   ],
+   "string_b": [
+    "17",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ background"
+  }
+ },
+ "19": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all, redraw the two cartoon eyes and the tilt of the hat so he clearly reads as:"
+  },
+  "_meta": {
+   "title": "RESTATEMENT \u2014 keeps the first field from being ignored"
+  }
+ },
+ "20": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "19",
+    0
+   ],
+   "string_b": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "restatement + first field"
+  }
+ },
+ "21": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "18",
+    0
+   ],
+   "string_b": [
+    "20",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ restatement"
+  }
+ },
+ "22": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "21",
+    0
+   ],
+   "string_b": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "23": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "24": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "25": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "26": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "27": {
+  "class_type": "LoadBackgroundRemovalModel",
+  "inputs": {
+   "bg_removal_name": "birefnet.safetensors"
+  },
+  "_meta": {
+   "title": "BiRefNet (for TRANSPARENT PNG)"
+  }
+ },
+ "28": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "22",
+    0
+   ],
+   "clip": [
+    "25",
+    0
+   ],
+   "vae": [
+    "26",
+    0
+   ],
+   "image1": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode \u2014 plate (image 1 only)"
+  }
+ },
+ "29": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "22",
+    0
+   ],
+   "clip": [
+    "25",
+    0
+   ],
+   "vae": [
+    "26",
+    0
+   ],
+   "image1": [
+    "13",
+    0
+   ],
+   "image2": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode \u2014 scene (image 1 + image 2)"
+  }
+ },
+ "30": {
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "switch": [
+    "4",
+    0
+   ],
+   "on_false": [
+    "28",
+    0
+   ],
+   "on_true": [
+    "29",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "positive switch (same SCENE toggle)"
+  }
+ },
+ "31": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "32": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 1,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "24",
+    0
+   ],
+   "positive": [
+    "30",
+    0
+   ],
+   "negative": [
+    "31",
+    0
+   ],
+   "latent_image": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 8 \u00b7 SEED + STEPS"
+  }
+ },
+ "33": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "32",
+    0
+   ],
+   "vae": [
+    "26",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "34": {
+  "class_type": "RemoveBackground",
+  "inputs": {
+   "bg_removal_model": [
+    "27",
+    0
+   ],
+   "image": [
+    "33",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "cut the figure out"
+  }
+ },
+ "35": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "34",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "flip to ComfyUI mask convention"
+  }
+ },
+ "36": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "33",
+    0
+   ],
+   "alpha": [
+    "35",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "make it RGBA"
+  }
+ },
+ "37": {
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "switch": [
+    "7",
+    0
+   ],
+   "on_false": [
+    "33",
+    0
+   ],
+   "on_true": [
+    "36",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "transparent switch"
+  }
+ },
+ "38": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/wilson-headshot",
+   "images": [
+    "37",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

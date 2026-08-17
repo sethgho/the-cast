@@ -1,0 +1,2288 @@
+{
+ "id": "cast-local-qwen-edit",
+ "revision": 0,
+ "last_node_id": 38,
+ "last_link_id": 46,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -560,
+    -620
+   ],
+   "size": [
+    480,
+    900
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "HOW TO USE \u2014 Wilson",
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "# Wilson \u2014 headshot & expression\n\n**Fill in the numbered fields, flip the switches, press Run.**\n\n## The controls\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 HIS EXPRESSION** | Brows, eyes, mouth. One sentence, e.g. weary with heavy lids and a flat mouth. |\n| **2 \u00b7 FRAMING** | How close, which way he faces, where he looks. In SCENE mode give him room \u2014 a tight crop leaves the scene nowhere to go. |\n| **3 \u00b7 SCENE** | OFF = flat mid-grey plate. ON = the scene plate plus your scene text. |\n| **4 \u00b7 YOUR SCENE** | Where he is. Only read when SCENE is ON. |\n| **5 \u00b7 SCENE PLATE** | The image 2 backdrop. Only read when SCENE is ON. |\n| **6 \u00b7 TRANSPARENT PNG** | ON = cuts him out and saves an RGBA PNG. |\n| **7 \u00b7 WIDTH / HEIGHT** | 1024\u00d71024 by default. |\n| **8 \u00b7 SEED + STEPS** | Re-roll here. 8 steps ships; 4 drafts with the 4-step LoRA. |\n\n## What NOT to edit\n\nEverything else is collapsed on purpose. The blue group is the character and house style \u2014\nwhat makes the output look like Wilson and not a stock cartoon. Expand it only to re-canonise\nhim. Expand **FINAL PROMPT** in that group any time you want to read exactly what the model got.\n\n## Speed on gpu-worker (RTX 3080 Ti, 12GB)\n\n- **8 steps \u2248 48s** at 1024\u00d71024 \u2014 the shipped default, best hands and halftone.\n- **4 steps \u2248 25s** \u2014 swap the LoRA to `...Lightning-4steps...` and set `steps` to 4 for drafting.\n\n## Two rules learned the hard way\n\n1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a\n   *subject*, not a style \u2014 two character plates get merged into one creature.\n2. Style lives in **words**, not in a reference. If the palette drifts modern or the newsprint\n   grain vanishes, the style box got weakened.\n"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    -620
+   ],
+   "size": [
+    460,
+    260
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "1 \u00b7 HIS EXPRESSION \u2014 what his face is doing"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      2,
+      13
+     ]
+    }
+   ],
+   "title": "\u25b6 1 \u00b7 HIS EXPRESSION \u2014 what his face is doing (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "attentive \u2014 both eyes wide and level, the hat brim tipped a little forward."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 3,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    -330
+   ],
+   "size": [
+    460,
+    200
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "2 \u00b7 FRAMING \u2014 crop and head angle"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      4
+     ]
+    }
+   ],
+   "title": "\u25b6 2 \u00b7 FRAMING \u2014 crop and head angle (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "close on the hat and the picket tops, facing the viewer."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 4,
+   "type": "PrimitiveBoolean",
+   "pos": [
+    -40,
+    -100
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "3 \u00b7 SCENE \u2014 off = flat grey plate, on = in a scene"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "BOOLEAN",
+     "type": "BOOLEAN",
+     "links": [
+      9,
+      30
+     ]
+    }
+   ],
+   "title": "\u25b6 3 \u00b7 SCENE   off = flat grey plate \u00b7 on = in a scene",
+   "properties": {
+    "Node name for S&R": "PrimitiveBoolean"
+   },
+   "widgets_values": [
+    false
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 5,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    10
+   ],
+   "size": [
+    460,
+    210
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "4 \u00b7 YOUR SCENE \u2014 only read when SCENE is on"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      6
+     ]
+    }
+   ],
+   "title": "\u25b6 4 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "the empty vaudeville stage, footlights low, the curtain half drawn behind him."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 6,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    250
+   ],
+   "size": [
+    460,
+    400
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null,
+     "label": "5 \u00b7 SCENE PLATE \u2014 only read when SCENE is on"
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      26
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "\u25b6 5 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-scene-empty-stage.png",
+    "image"
+   ]
+  },
+  {
+   "id": 7,
+   "type": "PrimitiveBoolean",
+   "pos": [
+    -40,
+    680
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "6 \u00b7 TRANSPARENT PNG \u2014 cut the background out"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "BOOLEAN",
+     "type": "BOOLEAN",
+     "links": [
+      45
+     ]
+    }
+   ],
+   "title": "\u25b6 6 \u00b7 TRANSPARENT PNG   on = cut the background out",
+   "properties": {
+    "Node name for S&R": "PrimitiveBoolean"
+   },
+   "widgets_values": [
+    false
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 8,
+   "type": "EmptySD3LatentImage",
+   "pos": [
+    -40,
+    790
+   ],
+   "size": [
+    460,
+    130
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "width",
+     "localized_name": "width",
+     "type": "INT",
+     "widget": {
+      "name": "width"
+     },
+     "link": null,
+     "label": "7 \u00b7 WIDTH"
+    },
+    {
+     "name": "height",
+     "localized_name": "height",
+     "type": "INT",
+     "widget": {
+      "name": "height"
+     },
+     "link": null,
+     "label": "7 \u00b7 HEIGHT"
+    },
+    {
+     "name": "batch_size",
+     "localized_name": "batch_size",
+     "type": "INT",
+     "widget": {
+      "name": "batch_size"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      35
+     ]
+    }
+   ],
+   "title": "\u25b6 7 \u00b7 OUTPUT SIZE",
+   "properties": {
+    "Node name for S&R": "EmptySD3LatentImage"
+   },
+   "widgets_values": [
+    1024,
+    1024,
+    1
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -620
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "title": "CHARACTER LOCK \u2014 who Wilson is",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Redraw the character in image 1 as a close portrait of the top of him, keeping his identity exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist \u2014 the panel is the body. Frame the bucket hat, the pointed picket tops and the two cartoon eyes floating in the deep flat shadow under the brim. He has no face beyond those two eyes \u2014 no nose, no mouth, no eyebrows. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 10,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -574
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 10,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      17
+     ]
+    }
+   ],
+   "title": "STYLE LOCK \u2014 house style",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 11,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -528
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 11,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      7
+     ]
+    }
+   ],
+   "title": "PLATE BACKGROUND \u2014 used when SCENE is off",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Behind him is a single flat mid-grey backdrop of one even tone \u2014 no scenery, no horizon and no props."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 12,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -482
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 12,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      5
+     ]
+    }
+   ],
+   "title": "SCENE LEAD-IN \u2014 used when SCENE is on",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "The background behind him is the scene shown in image 2, drawn in the same ink and halftone style, simplified and a little soft so his face stays the subject, but still clearly readable as that place. The scene is:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 13,
+   "type": "LoadImage",
+   "pos": [
+    1240,
+    -436
+   ],
+   "size": [
+    430,
+    400
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 13,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      21,
+      25
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "CHARACTER PLATE \u2014 Wilson's reference (image 1)",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-wilson-headshot.png",
+    "image"
+   ]
+  },
+  {
+   "id": 14,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -390
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 1,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 2,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      3
+     ]
+    }
+   ],
+   "title": "+ expression",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 15,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -344
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 3,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 4,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "title": "+ framing",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 16,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -298
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 5,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 6,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      8
+     ]
+    }
+   ],
+   "title": "scene lead-in + your scene",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 17,
+   "type": "ComfySwitchNode",
+   "pos": [
+    1240,
+    -252
+   ],
+   "size": [
+    330,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "STRING",
+     "link": 7
+    },
+    {
+     "name": "on_true",
+     "type": "STRING",
+     "link": 8
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 9,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "STRING",
+     "links": [
+      11
+     ]
+    }
+   ],
+   "title": "background text switch",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 18,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -206
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 10,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 11,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      14
+     ]
+    }
+   ],
+   "title": "+ background",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 19,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -160
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 19,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "title": "RESTATEMENT \u2014 keeps the first field from being ignored",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Above all, redraw the two cartoon eyes and the tilt of the hat so he clearly reads as:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 20,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -114
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 12,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 13,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      15
+     ]
+    }
+   ],
+   "title": "restatement + first field",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 21,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -68
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 14,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 15,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      16
+     ]
+    }
+   ],
+   "title": "+ restatement",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 22,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -22
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 16,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 17,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      22,
+      27
+     ]
+    }
+   ],
+   "title": "FINAL PROMPT \u2014 expand to read what the model got",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 23,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    1240,
+    84
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 23,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      18
+     ]
+    }
+   ],
+   "title": "diffusion model",
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-edit-2511-Q4_K_S.gguf"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 24,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    1240,
+    130
+   ],
+   "size": [
+    400,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 18
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      32
+     ]
+    }
+   ],
+   "title": "Lightning LoRA (8 steps)",
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly"
+   },
+   "widgets_values": [
+    "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+    1.0
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 25,
+   "type": "CLIPLoader",
+   "pos": [
+    1240,
+    176
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 25,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      19,
+      23,
+      31
+     ]
+    }
+   ],
+   "title": "text encoder",
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 26,
+   "type": "VAELoader",
+   "pos": [
+    1240,
+    222
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 26,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      20,
+      24,
+      37
+     ]
+    }
+   ],
+   "title": "VAE",
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_vae.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 27,
+   "type": "LoadBackgroundRemovalModel",
+   "pos": [
+    1240,
+    268
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 27,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "BACKGROUND_REMOVAL",
+     "type": "BACKGROUND_REMOVAL",
+     "links": [
+      38
+     ]
+    }
+   ],
+   "title": "BiRefNet (for TRANSPARENT PNG)",
+   "properties": {
+    "Node name for S&R": "LoadBackgroundRemovalModel"
+   },
+   "widgets_values": [
+    "birefnet.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 28,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    314
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 28,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 19
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 20
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 21
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 22,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      28
+     ]
+    }
+   ],
+   "title": "encode \u2014 plate (image 1 only)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 29,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    360
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 29,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 23
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 24
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 25
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 26
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 27,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      29
+     ]
+    }
+   ],
+   "title": "encode \u2014 scene (image 1 + image 2)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 30,
+   "type": "ComfySwitchNode",
+   "pos": [
+    1240,
+    406
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 30,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "CONDITIONING",
+     "link": 28
+    },
+    {
+     "name": "on_true",
+     "type": "CONDITIONING",
+     "link": 29
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 30,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "CONDITIONING",
+     "links": [
+      33
+     ]
+    }
+   ],
+   "title": "positive switch (same SCENE toggle)",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 31,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    452
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 31,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 31
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      34
+     ]
+    }
+   ],
+   "title": "negative (only bites when cfg > 1)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 32,
+   "type": "KSampler",
+   "pos": [
+    520,
+    640
+   ],
+   "size": [
+    460,
+    270
+   ],
+   "flags": {},
+   "order": 32,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 32
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 33
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 34
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 35
+    },
+    {
+     "name": "seed",
+     "localized_name": "seed",
+     "type": "INT",
+     "widget": {
+      "name": "seed"
+     },
+     "link": null,
+     "label": "8 \u00b7 SEED"
+    },
+    {
+     "name": "steps",
+     "localized_name": "steps",
+     "type": "INT",
+     "widget": {
+      "name": "steps"
+     },
+     "link": null,
+     "label": "8 \u00b7 STEPS (8 ships, 4 drafts)"
+    },
+    {
+     "name": "cfg",
+     "localized_name": "cfg",
+     "type": "FLOAT",
+     "widget": {
+      "name": "cfg"
+     },
+     "link": null
+    },
+    {
+     "name": "sampler_name",
+     "localized_name": "sampler_name",
+     "type": "COMBO",
+     "widget": {
+      "name": "sampler_name"
+     },
+     "link": null
+    },
+    {
+     "name": "scheduler",
+     "localized_name": "scheduler",
+     "type": "COMBO",
+     "widget": {
+      "name": "scheduler"
+     },
+     "link": null
+    },
+    {
+     "name": "denoise",
+     "localized_name": "denoise",
+     "type": "FLOAT",
+     "widget": {
+      "name": "denoise"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      36
+     ]
+    }
+   ],
+   "title": "\u25b6 8 \u00b7 SEED + STEPS",
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    1,
+    "randomize",
+    8,
+    1.0,
+    "euler",
+    "simple",
+    1.0
+   ]
+  },
+  {
+   "id": 33,
+   "type": "VAEDecode",
+   "pos": [
+    520,
+    950
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 33,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 36
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 37
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      39,
+      41,
+      43
+     ]
+    }
+   ],
+   "title": "decode",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 34,
+   "type": "RemoveBackground",
+   "pos": [
+    520,
+    1000
+   ],
+   "size": [
+    380,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 34,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "bg_removal_model",
+     "type": "BACKGROUND_REMOVAL",
+     "link": 38
+    },
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 39
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      40
+     ]
+    }
+   ],
+   "title": "cut the figure out",
+   "properties": {
+    "Node name for S&R": "RemoveBackground"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 35,
+   "type": "InvertMask",
+   "pos": [
+    520,
+    1050
+   ],
+   "size": [
+    380,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 35,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 40
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      42
+     ]
+    }
+   ],
+   "title": "flip to ComfyUI mask convention",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 36,
+   "type": "JoinImageWithAlpha",
+   "pos": [
+    520,
+    1100
+   ],
+   "size": [
+    380,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 36,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 41
+    },
+    {
+     "name": "alpha",
+     "type": "MASK",
+     "link": 42
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      44
+     ]
+    }
+   ],
+   "title": "make it RGBA",
+   "properties": {
+    "Node name for S&R": "JoinImageWithAlpha"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 37,
+   "type": "ComfySwitchNode",
+   "pos": [
+    520,
+    1150
+   ],
+   "size": [
+    380,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 37,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "IMAGE",
+     "link": 43
+    },
+    {
+     "name": "on_true",
+     "type": "IMAGE",
+     "link": 44
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 45,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "IMAGE",
+     "links": [
+      46
+     ]
+    }
+   ],
+   "title": "transparent switch",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 38,
+   "type": "SaveImage",
+   "pos": [
+    520,
+    -620
+   ],
+   "size": [
+    620,
+    1200
+   ],
+   "flags": {},
+   "order": 38,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 46
+    }
+   ],
+   "outputs": [],
+   "title": "RESULT",
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "cast/wilson-headshot"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   9,
+   0,
+   14,
+   0,
+   "STRING"
+  ],
+  [
+   2,
+   2,
+   0,
+   14,
+   1,
+   "STRING"
+  ],
+  [
+   3,
+   14,
+   0,
+   15,
+   0,
+   "STRING"
+  ],
+  [
+   4,
+   3,
+   0,
+   15,
+   1,
+   "STRING"
+  ],
+  [
+   5,
+   12,
+   0,
+   16,
+   0,
+   "STRING"
+  ],
+  [
+   6,
+   5,
+   0,
+   16,
+   1,
+   "STRING"
+  ],
+  [
+   7,
+   11,
+   0,
+   17,
+   0,
+   "STRING"
+  ],
+  [
+   8,
+   16,
+   0,
+   17,
+   1,
+   "STRING"
+  ],
+  [
+   9,
+   4,
+   0,
+   17,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   10,
+   15,
+   0,
+   18,
+   0,
+   "STRING"
+  ],
+  [
+   11,
+   17,
+   0,
+   18,
+   1,
+   "STRING"
+  ],
+  [
+   12,
+   19,
+   0,
+   20,
+   0,
+   "STRING"
+  ],
+  [
+   13,
+   2,
+   0,
+   20,
+   1,
+   "STRING"
+  ],
+  [
+   14,
+   18,
+   0,
+   21,
+   0,
+   "STRING"
+  ],
+  [
+   15,
+   20,
+   0,
+   21,
+   1,
+   "STRING"
+  ],
+  [
+   16,
+   21,
+   0,
+   22,
+   0,
+   "STRING"
+  ],
+  [
+   17,
+   10,
+   0,
+   22,
+   1,
+   "STRING"
+  ],
+  [
+   18,
+   23,
+   0,
+   24,
+   0,
+   "MODEL"
+  ],
+  [
+   19,
+   25,
+   0,
+   28,
+   0,
+   "CLIP"
+  ],
+  [
+   20,
+   26,
+   0,
+   28,
+   1,
+   "VAE"
+  ],
+  [
+   21,
+   13,
+   0,
+   28,
+   2,
+   "IMAGE"
+  ],
+  [
+   22,
+   22,
+   0,
+   28,
+   3,
+   "STRING"
+  ],
+  [
+   23,
+   25,
+   0,
+   29,
+   0,
+   "CLIP"
+  ],
+  [
+   24,
+   26,
+   0,
+   29,
+   1,
+   "VAE"
+  ],
+  [
+   25,
+   13,
+   0,
+   29,
+   2,
+   "IMAGE"
+  ],
+  [
+   26,
+   6,
+   0,
+   29,
+   3,
+   "IMAGE"
+  ],
+  [
+   27,
+   22,
+   0,
+   29,
+   4,
+   "STRING"
+  ],
+  [
+   28,
+   28,
+   0,
+   30,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   29,
+   29,
+   0,
+   30,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   30,
+   4,
+   0,
+   30,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   31,
+   25,
+   0,
+   31,
+   0,
+   "CLIP"
+  ],
+  [
+   32,
+   24,
+   0,
+   32,
+   0,
+   "MODEL"
+  ],
+  [
+   33,
+   30,
+   0,
+   32,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   34,
+   31,
+   0,
+   32,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   35,
+   8,
+   0,
+   32,
+   3,
+   "LATENT"
+  ],
+  [
+   36,
+   32,
+   0,
+   33,
+   0,
+   "LATENT"
+  ],
+  [
+   37,
+   26,
+   0,
+   33,
+   1,
+   "VAE"
+  ],
+  [
+   38,
+   27,
+   0,
+   34,
+   0,
+   "BACKGROUND_REMOVAL"
+  ],
+  [
+   39,
+   33,
+   0,
+   34,
+   1,
+   "IMAGE"
+  ],
+  [
+   40,
+   34,
+   0,
+   35,
+   0,
+   "MASK"
+  ],
+  [
+   41,
+   33,
+   0,
+   36,
+   0,
+   "IMAGE"
+  ],
+  [
+   42,
+   35,
+   0,
+   36,
+   1,
+   "MASK"
+  ],
+  [
+   43,
+   33,
+   0,
+   37,
+   0,
+   "IMAGE"
+  ],
+  [
+   44,
+   36,
+   0,
+   37,
+   1,
+   "IMAGE"
+  ],
+  [
+   45,
+   7,
+   0,
+   37,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   46,
+   37,
+   0,
+   38,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "\u2460 YOUR SHOT \u00b7 everything you touch is in this column, top to bottom",
+   "bounding": [
+    -70,
+    -690,
+    520,
+    1620
+   ],
+   "color": "#4a7c3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "\u2461 WILSON \u2014 CHARACTER & STYLE LOCK \u00b7 expand only to re-canonise him",
+   "bounding": [
+    1210,
+    -690,
+    480,
+    734
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "engine \u00b7 don't touch",
+   "bounding": [
+    1210,
+    14,
+    480,
+    504
+   ],
+   "color": "#444",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "\u2462 RESULT \u00b7 seed, steps and the finished image",
+   "bounding": [
+    490,
+    -690,
+    680,
+    1930
+   ],
+   "color": "#8a6d3b",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.55,
+   "offset": [
+    1600,
+    700
+   ]
+  },
+  "linearMode": true,
+  "linearData": {
+   "inputs": [
+    [
+     "2",
+     "value"
+    ],
+    [
+     "3",
+     "value"
+    ],
+    [
+     "4",
+     "value"
+    ],
+    [
+     "5",
+     "value"
+    ],
+    [
+     "6",
+     "image"
+    ],
+    [
+     "7",
+     "value"
+    ],
+    [
+     "8",
+     "width"
+    ],
+    [
+     "8",
+     "height"
+    ],
+    [
+     "32",
+     "seed"
+    ],
+    [
+     "32",
+     "steps"
+    ]
+   ],
+   "outputs": [
+    "38"
+   ]
+  }
+ },
+ "version": 0.4
+}
