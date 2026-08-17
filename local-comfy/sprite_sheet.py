@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Turn a magenta-screen clip into a normalised sprite sheet the web can actually use.
+
+    python3 sprite_sheet.py <clip.mp4> <name> [--frames 8] [--cell 256] [--outdir DIR]
+                            [--anchor feet|centre] [--no-smooth]
+
+Writes, into --outdir (default /home/wilson/artifacts/cast-local-comfy/sprites):
+
+    <name>.png        the atlas — one row, uniform cells, transparent background
+    <name>.json       frame table: cell size, count, fps, per-frame source bbox
+    <name>.css        a ready-to-paste CSS steps() animation
+    <name>-preview.webp   animated, for eyeballing the timing
+    <name>-frames/    the individual cells, if you would rather pack them yourself
+
+## Why a sheet and not a video
+
+A PNG atlas plays in CSS `steps()`, Phaser, Pixi, Godot and Unity, and a state machine can jump
+between moves on a frame boundary. Alpha video can do none of that, and alpha WebM is still a
+coin-flip in Safari. The clip is the source; the sheet is the deliverable.
+
+## The four jitter problems, and what fixes each
+
+1. **Matte jitter** — a learned matte wobbles a pixel or two per frame. Fixed upstream by
+   rendering on a flat magenta screen and keying it here by colour distance.
+2. **Frame choice** — evenly spaced frames land on in-betweens and the animation reads mushy.
+   Fixed by picking *pose extremes*: the frames where motion energy peaks.
+3. **Drift** — the character's bounding box moves frame to frame, so a naive pack makes him
+   swim in the cell. Fixed by aligning every frame on a stable anchor — by default the bottom
+   centre of the silhouette, i.e. his feet, which is what a game engine treats as the origin.
+4. **Ragged dimensions** — every frame has a different bbox. Fixed with one uniform cell sized
+   to the largest frame plus padding, so every cell is interchangeable.
+
+A 3-frame median smooths the anchor track, which kills the last of the sub-pixel shimmer without
+flattening real movement. `--no-smooth` turns it off.
+"""
+import argparse
+import json
+import os
+import subprocess
+import sys
+
+import numpy as np
+from PIL import Image
+
+KEY = np.array([255, 0, 255], dtype=np.float32)   # the magenta the sprite-clip app renders on
+KEY_TOLERANCE = 120                              # colour distance that still counts as background
+EDGE_SOFTEN = 1                                  # px of alpha erosion, kills the key's colour halo
+
+
+def extract_frames(clip, tmp):
+    os.makedirs(tmp, exist_ok=True)
+    subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-vsync", "0", f"{tmp}/f_%04d.png"],
+                   check=True)
+    return sorted(os.path.join(tmp, f) for f in os.listdir(tmp) if f.startswith("f_"))
+
+
+def key_out(path):
+    """Magenta -> alpha. Colour distance, not an exact match: the codec shifts the key a little."""
+    # float32, not int16: squaring a 230-unit channel difference overflows int16 and the
+    # key silently eats most of the character.
+    im = np.asarray(Image.open(path).convert("RGB")).astype(np.float32)
+    dist = np.sqrt(((im - KEY) ** 2).sum(axis=2))
+    alpha = (dist > KEY_TOLERANCE).astype(np.uint8) * 255
+    if EDGE_SOFTEN:
+        from PIL import ImageFilter
+        a = Image.fromarray(alpha).filter(ImageFilter.MinFilter(2 * EDGE_SOFTEN + 1))
+        alpha = np.asarray(a)
+    rgba = np.dstack([im.astype(np.uint8), alpha])
+    return Image.fromarray(rgba, "RGBA")
+
+
+def bbox(rgba):
+    a = np.asarray(rgba)[:, :, 3]
+    ys, xs = np.nonzero(a > 8)
+    if not len(xs):
+        return None
+    return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
+
+
+def pose_extremes(frames, count):
+    """Pick the frames where the drawing changes most — the extremes, not the in-betweens."""
+    energy = [0.0]
+    prev = np.asarray(frames[0]).astype(np.float32)
+    for f in frames[1:]:
+        cur = np.asarray(f).astype(np.float32)
+        energy.append(float(np.abs(cur - prev).mean()))
+        prev = cur
+    # cumulative motion, sampled evenly: equal *movement* between cells, not equal time
+    cum = np.cumsum(energy)
+    if cum[-1] <= 0:
+        return list(np.linspace(0, len(frames) - 1, count).astype(int))
+    targets = np.linspace(0, cum[-1], count, endpoint=False)
+    return [int(np.searchsorted(cum, t)) for t in targets]
+
+
+def median3(values):
+    out = list(values)
+    for i in range(1, len(values) - 1):
+        out[i] = sorted(values[i - 1:i + 2])[1]
+    return out
+
+
+def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6):
+    """skip: H3's first frames are a settle-in from the pinned still — they are not the cycle."""
+    tmp = f"/tmp/sprite-{name}"
+    paths = extract_frames(clip, tmp)[skip:]
+    rgba = [key_out(p) for p in paths]
+    boxes = [bbox(r) for r in rgba]
+    keep = [i for i, b in enumerate(boxes) if b]
+    if not keep:
+        raise SystemExit("every frame keyed to nothing — is the clip actually on magenta?")
+
+    picks = pose_extremes([rgba[i] for i in keep], n_frames)
+    picks = [keep[p] for p in picks]
+
+    # anchor per frame: feet = bottom centre of the silhouette, the origin a game engine expects
+    anchors = []
+    for i in picks:
+        x0, y0, x1, y1 = boxes[i]
+        anchors.append(((x0 + x1) // 2, y1 if anchor == "feet" else (y0 + y1) // 2))
+    if smooth and len(anchors) > 2:
+        anchors = list(zip(median3([a[0] for a in anchors]), median3([a[1] for a in anchors])))
+
+    # one uniform cell, sized to the biggest frame, so every cell is interchangeable
+    spans = []
+    for (i, (ax, ay)) in zip(picks, anchors):
+        x0, y0, x1, y1 = boxes[i]
+        spans.append((ax - x0, x1 - ax, ay - y0, y1 - ay))
+    left = max(s[0] for s in spans); right = max(s[1] for s in spans)
+    up = max(s[2] for s in spans); down = max(s[3] for s in spans)
+    natural = max(left + right, up + down)
+    scale = (cell * 0.92) / natural if natural else 1.0
+
+    frames_dir = os.path.join(outdir, f"{name}-frames")
+    os.makedirs(frames_dir, exist_ok=True)
+    cells, table = [], []
+    for (i, (ax, ay)) in zip(picks, anchors):
+        src = rgba[i]
+        canvas = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
+        # scale about the anchor, then place the anchor at a fixed spot in the cell
+        w, h = src.size
+        sized = src.resize((max(1, int(w * scale)), max(1, int(h * scale))), Image.LANCZOS)
+        sax, say = ax * scale, ay * scale
+        target = (cell // 2, int(cell * 0.94) if anchor == "feet" else cell // 2)
+        canvas.paste(sized, (int(target[0] - sax), int(target[1] - say)), sized)
+        cells.append(canvas)
+        canvas.save(os.path.join(frames_dir, f"{name}-{len(cells):02d}.png"))
+        x0, y0, x1, y1 = boxes[i]
+        table.append({"source_frame": i, "bbox": [x0, y0, x1, y1], "anchor": [ax, ay]})
+
+    atlas = Image.new("RGBA", (cell * len(cells), cell), (0, 0, 0, 0))
+    for n, c in enumerate(cells):
+        atlas.paste(c, (n * cell, 0), c)
+    atlas_path = os.path.join(outdir, f"{name}.png")
+    atlas.save(atlas_path)
+
+    cells[0].save(os.path.join(outdir, f"{name}-preview.webp"), save_all=True,
+                  append_images=cells[1:], duration=1000 // 12, loop=0, lossless=True)
+
+    meta = {"name": name, "cell": [cell, cell], "frames": len(cells), "fps": 12,
+            "anchor": anchor, "layout": "single-row", "source_clip": os.path.basename(clip),
+            "frame_table": table}
+    json.dump(meta, open(os.path.join(outdir, f"{name}.json"), "w"), indent=1)
+
+    css = f""".{name} {{
+  width: {cell}px; height: {cell}px;
+  background: url("{name}.png") 0 0 / {cell * len(cells)}px {cell}px no-repeat;
+  animation: {name}-play {len(cells) / 12:.2f}s steps({len(cells)}) infinite;
+}}
+@keyframes {name}-play {{ to {{ background-position: -{cell * len(cells)}px 0; }} }}
+"""
+    open(os.path.join(outdir, f"{name}.css"), "w").write(css)
+    print(f"{name}: {len(cells)} frames, {cell}px cells -> {atlas_path}")
+    return atlas_path
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("clip")
+    ap.add_argument("name")
+    ap.add_argument("--frames", type=int, default=8)
+    ap.add_argument("--cell", type=int, default=256)
+    ap.add_argument("--outdir", default="/home/wilson/artifacts/cast-local-comfy/sprites")
+    ap.add_argument("--anchor", choices=("feet", "centre"), default="feet")
+    ap.add_argument("--no-smooth", action="store_true")
+    ap.add_argument("--skip", type=int, default=6,
+                    help="drop N settle-in frames off the head of the clip")
+    a = ap.parse_args()
+    os.makedirs(a.outdir, exist_ok=True)
+    pack(a.clip, a.name, a.frames, a.cell, a.outdir, a.anchor, not a.no_smooth, a.skip)
+
+
+if __name__ == "__main__":
+    main()

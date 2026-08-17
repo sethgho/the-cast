@@ -1,0 +1,23 @@
+{
+ "moves": {
+  "idle-breathe": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+  "roll-cycle": "he rolls steadily to the right at a constant speed on his wheels, the wheels turning and the body rocking slightly with the roll, ending on the pose he began with so the cycle loops \u2014 for a character with legs, read this as a smooth walk",
+  "walk-cycle": "a full walk cycle in place, striding steadily to the right through contact, down, passing and up positions, ending on the same pose he began with so the cycle loops",
+  "run-cycle": "a fast run cycle in place, leaning forward, arms pumping, both feet leaving the ground at the stretch, ending on the pose he began with so the cycle loops",
+  "jump": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+  "crouch": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+  "punch": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+  "kick": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+  "block": "he brings both arms up in front of himself into a braced blocking guard, holds it, and lowers them again",
+  "wave": "he raises one arm and waves broadly twice, then lowers the arm back to his side",
+  "take-a-bow": "he bows deeply from the waist with one arm sweeping across himself, holds the bow, and straightens back up",
+  "surprise-jolt": "he jolts upright in surprise, whole body popping up off the ground line for a beat with limbs flung out, then drops back down and settles",
+  "faint": "he wobbles, stiffens, and topples over backwards out of the standing pose, landing flat"
+ },
+ "traits": {
+  "seth": "a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump",
+  "wilson": "a living picket-fence panel \u2014 the fence panel IS his body \u2014 with two short stubby metal legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow beneath its brim; he stumps stiffly about on those short boots, upright as a plank, and never bends at a waist because he has none",
+  "cadbury": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+  "ake": "a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, wearing a little dark cap; he has no legs and never walks \u2014 the dolly rolls him along, he arrives and leaves by rolling, and the water sloshes in the bowl as he moves"
+ }
+}

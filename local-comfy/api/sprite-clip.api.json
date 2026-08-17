@@ -1,0 +1,464 @@
+{
+ "2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-cutout-seth.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 CHARACTER PLATE \u2014 a transparent cutout"
+  }
+ },
+ "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump"
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 WHO HE IS \u2014 and how he moves"
+  }
+ },
+ "4": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "a full walk cycle in place, striding steadily to the right through contact, down, passing and up positions, ending on the same pose he began with so the cycle loops"
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 THE MOVE (paste a recipe)"
+  }
+ },
+ "5": {
+  "class_type": "EmptyImage",
+  "inputs": {
+   "width": 512,
+   "height": 512,
+   "batch_size": 1,
+   "color": 16711935
+  },
+  "_meta": {
+   "title": "flat magenta keying screen"
+  }
+ },
+ "6": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 512,
+   "height": 512,
+   "crop": "disabled",
+   "image": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "fit the plate to the canvas"
+  }
+ },
+ "7": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "2",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "plate alpha"
+  }
+ },
+ "8": {
+  "class_type": "MaskToImage",
+  "inputs": {
+   "mask": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "alpha as image"
+  }
+ },
+ "9": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 512,
+   "height": 512,
+   "crop": "disabled",
+   "image": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "fit the alpha the same way"
+  }
+ },
+ "10": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "back to a mask"
+  }
+ },
+ "11": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "x": 0,
+   "y": 0,
+   "resize_source": false,
+   "destination": [
+    "5",
+    0
+   ],
+   "source": [
+    "6",
+    0
+   ],
+   "mask": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "the character on magenta"
+  }
+ },
+ "12": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "frame 0, before H3 sees it"
+  }
+ },
+ "13": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "A sprite animation reference for a 1933 rubber-hose cartoon character, drawn with confident smooth ink outlines of even weight and soft halftone shading, in the muted sepia inks of aged newsprint. The character is alone on a completely flat, evenly filled bright magenta screen that fills every part of the picture behind and around him \u2014 the magenta is a blank keying screen, so it stays one single solid colour with nothing drawn on it, no floor, no horizon, no shadow and no scenery. The camera is locked off and never moves, pans or zooms: one fixed wide side-on view, the character seen from his side, his whole body inside the frame with clear space above his head and below his feet, his feet staying on the same invisible ground line for the whole clip, and his size in the frame never changing. He performs one single move, cleanly and completely, and every drawing of him stays exactly the character in the first frame. The move is:"
+  },
+  "_meta": {
+   "title": "SPRITE LOCK \u2014 stage, camera and framing"
+  }
+ },
+ "14": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "The character is"
+  },
+  "_meta": {
+   "title": "WHO LEAD-IN"
+  }
+ },
+ "15": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
+  },
+  "_meta": {
+   "title": "SOUND LOCK \u2014 H3 needs this even when muted"
+  }
+ },
+ "16": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "13",
+    0
+   ],
+   "string_b": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "sprite lock + the move"
+  }
+ },
+ "17": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "16",
+    0
+   ],
+   "string_b": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ who lead-in"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "17",
+    0
+   ],
+   "string_b": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ who he is"
+  }
+ },
+ "19": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "18",
+    0
+   ],
+   "string_b": [
+    "15",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what H3 got"
+  }
+ },
+ "20": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  },
+  "_meta": {
+   "title": "MiniMax H3 (video)"
+  }
+ },
+ "21": {
+  "class_type": "EasyCache",
+  "inputs": {
+   "reuse_threshold": 0.2,
+   "start_percent": 0.15,
+   "end_percent": 0.95,
+   "verbose": true,
+   "model": [
+    "20",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "EasyCache"
+  }
+ },
+ "22": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "type": "minimax",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "H3 text encoder"
+  }
+ },
+ "23": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+  },
+  "_meta": {
+   "title": "video VAE"
+  }
+ },
+ "24": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "audio VAE"
+  }
+ },
+ "25": {
+  "class_type": "MiniMaxH3ImageToVideo",
+  "inputs": {
+   "prompt": [
+    "19",
+    0
+   ],
+   "width": 512,
+   "height": 512,
+   "length": 61,
+   "clip": [
+    "22",
+    0
+   ],
+   "vae": [
+    "23",
+    0
+   ],
+   "first_frame": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "H3 \u2014 the magenta frame pinned first"
+  }
+ },
+ "26": {
+  "class_type": "BasicGuider",
+  "inputs": {
+   "model": [
+    "21",
+    0
+   ],
+   "conditioning": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "guider"
+  }
+ },
+ "27": {
+  "class_type": "KSamplerSelect",
+  "inputs": {
+   "sampler_name": "res_multistep"
+  },
+  "_meta": {
+   "title": "sampler"
+  }
+ },
+ "28": {
+  "class_type": "RandomNoise",
+  "inputs": {
+   "noise_seed": 11
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 SEED"
+  }
+ },
+ "29": {
+  "class_type": "BasicScheduler",
+  "inputs": {
+   "scheduler": "simple",
+   "steps": 10,
+   "denoise": 1.0,
+   "model": [
+    "21",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 STEPS"
+  }
+ },
+ "30": {
+  "class_type": "SamplerCustomAdvanced",
+  "inputs": {
+   "noise": [
+    "28",
+    0
+   ],
+   "guider": [
+    "26",
+    0
+   ],
+   "sampler": [
+    "27",
+    0
+   ],
+   "sigmas": [
+    "29",
+    0
+   ],
+   "latent_image": [
+    "25",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "sample"
+  }
+ },
+ "31": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "30",
+    0
+   ],
+   "vae": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode frames"
+  }
+ },
+ "32": {
+  "class_type": "VAEDecodeAudio",
+  "inputs": {
+   "samples": [
+    "30",
+    0
+   ],
+   "vae": [
+    "24",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode audio"
+  }
+ },
+ "33": {
+  "class_type": "CreateVideo",
+  "inputs": {
+   "fps": 24,
+   "bit_depth": 8,
+   "images": [
+    "31",
+    0
+   ],
+   "audio": [
+    "32",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "make the clip"
+  }
+ },
+ "34": {
+  "class_type": "SaveVideo",
+  "inputs": {
+   "filename_prefix": "video/sprite",
+   "format": "auto",
+   "codec": "auto",
+   "video": [
+    "33",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}
