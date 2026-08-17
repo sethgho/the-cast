@@ -293,6 +293,7 @@ KINDS = {
             "He is standing inside the scene shown in image 2, at believable scale, lit by that "
             "scene's light and casting its shadows. The scene is:"
         ),
+        "restate": "Above all, his body clearly shows this action:",
     },
     "headshot": {
         "title": "headshot & expression",
@@ -312,6 +313,10 @@ KINDS = {
             "The background behind him is the scene shown in image 2, drawn in the same ink and "
             "halftone style, simplified and a little soft so his face stays the subject, but still "
             "clearly readable as that place. The scene is:"
+        ),
+        "restate": (
+            "Above all, redraw his brows, eyes and mouth so his face clearly shows this "
+            "expression, even though everything else about him is unchanged:"
         ),
     },
 }
@@ -476,6 +481,25 @@ def build(cid, spec, kind_id):
                 {"delimiter": " "},
                 links={"string_a": (acc, 0, "STRING", True),
                        "string_b": (bg_clause, 0, "STRING", True)},
+                outputs=[("STRING", "STRING")], collapsed=True)
+    row += 1
+    # A second reference image pulls the model back toward image 1's face, so the primary
+    # field is restated at the end of the prompt. Without this, SCENE mode ignored the
+    # expression entirely and returned the reference grin.
+    restate_lead = g.add("PrimitiveStringMultiline", "RESTATEMENT — keeps the first field from being ignored",
+                         (LX, LY + row * DY), (430, 190), {"value": kind["restate"]},
+                         outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    row += 1
+    restate = g.add("StringConcatenate", "restatement + first field",
+                    (LX, LY + row * DY), (330, 150), {"delimiter": " "},
+                    links={"string_a": (restate_lead, 0, "STRING", True),
+                           "string_b": (field_nodes[0], 0, "STRING", True)},
+                    outputs=[("STRING", "STRING")], collapsed=True)
+    row += 1
+    acc = g.add("StringConcatenate", "+ restatement", (LX, LY + row * DY), (330, 150),
+                {"delimiter": " "},
+                links={"string_a": (acc, 0, "STRING", True),
+                       "string_b": (restate, 0, "STRING", True)},
                 outputs=[("STRING", "STRING")], collapsed=True)
     row += 1
     prompt = g.add("StringConcatenate", "FINAL PROMPT — expand to read what the model got",

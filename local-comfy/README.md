@@ -97,6 +97,11 @@ claim the card), and `sudo systemctl stop comfyui` to hand the GPU back.
    drifts modern — Seth's near-black t-shirt came back mid-teal until the lock said
    "very dark olive charcoal, near-black". Positive phrasing works; "never bright green" does not.
 
+**The first field is restated at the end of the prompt on purpose.** A second reference image
+(SCENE mode) pulls the model back toward image 1's face: with the expression stated only once,
+mid-prompt, `weary` and `amped` both came back as the reference grin. The `RESTATEMENT` node in
+the blue group is what fixes that. Expression control is still strongest with SCENE off.
+
 On headshots, **SCENE only works if `FRAMING` leaves room** — at a tight crop the scene has
 nowhere to go and comes back as speckled paper. "head and shoulders with room to breathe, the
 place visible behind his shoulders" puts the auditorium in.

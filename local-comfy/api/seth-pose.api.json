@@ -172,11 +172,54 @@
   }
  },
  "17": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all, his body clearly shows this action:"
+  },
+  "_meta": {
+   "title": "RESTATEMENT \u2014 keeps the first field from being ignored"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "17",
+    0
+   ],
+   "string_b": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "restatement + first field"
+  }
+ },
+ "19": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
     "16",
+    0
+   ],
+   "string_b": [
+    "18",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ restatement"
+  }
+ },
+ "20": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "19",
     0
    ],
    "string_b": [
@@ -188,7 +231,7 @@
    "title": "FINAL PROMPT \u2014 expand to read what the model got"
   }
  },
- "18": {
+ "21": {
   "class_type": "UnetLoaderGGUF",
   "inputs": {
    "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
@@ -197,13 +240,13 @@
    "title": "diffusion model"
   }
  },
- "19": {
+ "22": {
   "class_type": "LoraLoaderModelOnly",
   "inputs": {
    "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
    "strength_model": 1.0,
    "model": [
-    "18",
+    "21",
     0
    ]
   },
@@ -211,7 +254,7 @@
    "title": "Lightning LoRA (8 steps)"
   }
  },
- "20": {
+ "23": {
   "class_type": "CLIPLoader",
   "inputs": {
    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
@@ -222,7 +265,7 @@
    "title": "text encoder"
   }
  },
- "21": {
+ "24": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "qwen_image_vae.safetensors"
@@ -231,7 +274,7 @@
    "title": "VAE"
   }
  },
- "22": {
+ "25": {
   "class_type": "LoadBackgroundRemovalModel",
   "inputs": {
    "bg_removal_name": "birefnet.safetensors"
@@ -240,19 +283,19 @@
    "title": "BiRefNet (for TRANSPARENT PNG)"
   }
  },
- "23": {
+ "26": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": [
-    "17",
-    0
-   ],
-   "clip": [
     "20",
     0
    ],
+   "clip": [
+    "23",
+    0
+   ],
    "vae": [
-    "21",
+    "24",
     0
    ],
    "image1": [
@@ -264,19 +307,19 @@
    "title": "encode \u2014 plate (image 1 only)"
   }
  },
- "24": {
+ "27": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": [
-    "17",
-    0
-   ],
-   "clip": [
     "20",
     0
    ],
+   "clip": [
+    "23",
+    0
+   ],
    "vae": [
-    "21",
+    "24",
     0
    ],
    "image1": [
@@ -292,7 +335,7 @@
    "title": "encode \u2014 scene (image 1 + image 2)"
   }
  },
- "25": {
+ "28": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
@@ -300,11 +343,11 @@
     0
    ],
    "on_false": [
-    "23",
+    "26",
     0
    ],
    "on_true": [
-    "24",
+    "27",
     0
    ]
   },
@@ -312,12 +355,12 @@
    "title": "positive switch (same SCENE toggle)"
   }
  },
- "26": {
+ "29": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
    "clip": [
-    "20",
+    "23",
     0
    ]
   },
@@ -325,7 +368,7 @@
    "title": "negative (only bites when cfg > 1)"
   }
  },
- "27": {
+ "30": {
   "class_type": "KSampler",
   "inputs": {
    "seed": 1,
@@ -335,15 +378,15 @@
    "scheduler": "simple",
    "denoise": 1.0,
    "model": [
-    "19",
+    "22",
     0
    ],
    "positive": [
-    "25",
+    "28",
     0
    ],
    "negative": [
-    "26",
+    "29",
     0
    ],
    "latent_image": [
@@ -355,15 +398,15 @@
    "title": "\u25b6 7 \u00b7 SEED + STEPS"
   }
  },
- "28": {
+ "31": {
   "class_type": "VAEDecode",
   "inputs": {
    "samples": [
-    "27",
+    "30",
     0
    ],
    "vae": [
-    "21",
+    "24",
     0
    ]
   },
@@ -371,15 +414,15 @@
    "title": "decode"
   }
  },
- "29": {
+ "32": {
   "class_type": "RemoveBackground",
   "inputs": {
    "bg_removal_model": [
-    "22",
+    "25",
     0
    ],
    "image": [
-    "28",
+    "31",
     0
    ]
   },
@@ -387,11 +430,11 @@
    "title": "cut the figure out"
   }
  },
- "30": {
+ "33": {
   "class_type": "InvertMask",
   "inputs": {
    "mask": [
-    "29",
+    "32",
     0
    ]
   },
@@ -399,15 +442,15 @@
    "title": "flip to ComfyUI mask convention"
   }
  },
- "31": {
+ "34": {
   "class_type": "JoinImageWithAlpha",
   "inputs": {
    "image": [
-    "28",
+    "31",
     0
    ],
    "alpha": [
-    "30",
+    "33",
     0
    ]
   },
@@ -415,7 +458,7 @@
    "title": "make it RGBA"
   }
  },
- "32": {
+ "35": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
@@ -423,11 +466,11 @@
     0
    ],
    "on_false": [
-    "28",
+    "31",
     0
    ],
    "on_true": [
-    "31",
+    "34",
     0
    ]
   },
@@ -435,12 +478,12 @@
    "title": "transparent switch"
   }
  },
- "33": {
+ "36": {
   "class_type": "SaveImage",
   "inputs": {
    "filename_prefix": "cast/seth-pose",
    "images": [
-    "32",
+    "35",
     0
    ]
   },

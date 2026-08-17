@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 35,
- "last_link_id": 42,
+ "last_node_id": 38,
+ "last_link_id": 46,
  "nodes": [
   {
    "id": 1,
@@ -59,7 +59,8 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      2
+      2,
+      13
      ]
     }
    ],
@@ -150,7 +151,7 @@
      "type": "BOOLEAN",
      "links": [
       9,
-      26
+      30
      ]
     }
    ],
@@ -249,7 +250,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      22
+      26
      ]
     },
     {
@@ -298,7 +299,7 @@
      "name": "BOOLEAN",
      "type": "BOOLEAN",
      "links": [
-      41
+      45
      ]
     }
    ],
@@ -362,7 +363,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      31
+      35
      ]
     }
    ],
@@ -436,7 +437,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      13
+      17
      ]
     }
    ],
@@ -544,8 +545,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      17,
-      21
+      21,
+      25
      ]
     },
     {
@@ -814,7 +815,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      12
+      14
      ]
     }
    ],
@@ -830,10 +831,46 @@
   },
   {
    "id": 19,
-   "type": "StringConcatenate",
+   "type": "PrimitiveStringMultiline",
    "pos": [
     1240,
     -160
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 19,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "title": "RESTATEMENT \u2014 keeps the first field from being ignored",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Above all, redraw his brows, eyes and mouth so his face clearly shows this expression, even though everything else about him is unchanged:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 20,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -114
    ],
    "size": [
     330,
@@ -842,7 +879,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 19,
+   "order": 20,
    "mode": 0,
    "inputs": [
     {
@@ -867,8 +904,114 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      18,
-      23
+      15
+     ]
+    }
+   ],
+   "title": "restatement + first field",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 21,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -68
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 14,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 15,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      16
+     ]
+    }
+   ],
+   "title": "+ restatement",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 22,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -22
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 16,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 17,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      22,
+      27
      ]
     }
    ],
@@ -883,127 +1026,8 @@
    ]
   },
   {
-   "id": 20,
-   "type": "UnetLoaderGGUF",
-   "pos": [
-    1240,
-    -54
-   ],
-   "size": [
-    400,
-    80
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 20,
-   "mode": 0,
-   "inputs": [],
-   "outputs": [
-    {
-     "name": "MODEL",
-     "type": "MODEL",
-     "links": [
-      14
-     ]
-    }
-   ],
-   "title": "diffusion model",
-   "properties": {
-    "Node name for S&R": "UnetLoaderGGUF"
-   },
-   "widgets_values": [
-    "qwen-image-edit-2511-Q4_K_S.gguf"
-   ],
-   "color": "#222",
-   "bgcolor": "#000"
-  },
-  {
-   "id": 21,
-   "type": "LoraLoaderModelOnly",
-   "pos": [
-    1240,
-    -8
-   ],
-   "size": [
-    400,
-    110
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 21,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "model",
-     "type": "MODEL",
-     "link": 14
-    }
-   ],
-   "outputs": [
-    {
-     "name": "MODEL",
-     "type": "MODEL",
-     "links": [
-      28
-     ]
-    }
-   ],
-   "title": "Lightning LoRA (8 steps)",
-   "properties": {
-    "Node name for S&R": "LoraLoaderModelOnly"
-   },
-   "widgets_values": [
-    "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
-    1.0
-   ],
-   "color": "#222",
-   "bgcolor": "#000"
-  },
-  {
-   "id": 22,
-   "type": "CLIPLoader",
-   "pos": [
-    1240,
-    38
-   ],
-   "size": [
-    400,
-    130
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 22,
-   "mode": 0,
-   "inputs": [],
-   "outputs": [
-    {
-     "name": "CLIP",
-     "type": "CLIP",
-     "links": [
-      15,
-      19,
-      27
-     ]
-    }
-   ],
-   "title": "text encoder",
-   "properties": {
-    "Node name for S&R": "CLIPLoader"
-   },
-   "widgets_values": [
-    "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-    "qwen_image",
-    "default"
-   ],
-   "color": "#222",
-   "bgcolor": "#000"
-  },
-  {
    "id": 23,
-   "type": "VAELoader",
+   "type": "UnetLoaderGGUF",
    "pos": [
     1240,
     84
@@ -1020,12 +1044,131 @@
    "inputs": [],
    "outputs": [
     {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      18
+     ]
+    }
+   ],
+   "title": "diffusion model",
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-edit-2511-Q4_K_S.gguf"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 24,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    1240,
+    130
+   ],
+   "size": [
+    400,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 18
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      32
+     ]
+    }
+   ],
+   "title": "Lightning LoRA (8 steps)",
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly"
+   },
+   "widgets_values": [
+    "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+    1.0
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 25,
+   "type": "CLIPLoader",
+   "pos": [
+    1240,
+    176
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 25,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      19,
+      23,
+      31
+     ]
+    }
+   ],
+   "title": "text encoder",
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 26,
+   "type": "VAELoader",
+   "pos": [
+    1240,
+    222
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 26,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
      "name": "VAE",
      "type": "VAE",
      "links": [
-      16,
       20,
-      33
+      24,
+      37
      ]
     }
    ],
@@ -1040,11 +1183,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 24,
+   "id": 27,
    "type": "LoadBackgroundRemovalModel",
    "pos": [
     1240,
-    130
+    268
    ],
    "size": [
     400,
@@ -1053,7 +1196,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 24,
+   "order": 27,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1061,7 +1204,7 @@
      "name": "BACKGROUND_REMOVAL",
      "type": "BACKGROUND_REMOVAL",
      "links": [
-      34
+      38
      ]
     }
    ],
@@ -1074,180 +1217,6 @@
    ],
    "color": "#222",
    "bgcolor": "#000"
-  },
-  {
-   "id": 25,
-   "type": "TextEncodeQwenImageEditPlus",
-   "pos": [
-    1240,
-    176
-   ],
-   "size": [
-    400,
-    130
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 25,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "clip",
-     "type": "CLIP",
-     "link": 15
-    },
-    {
-     "name": "vae",
-     "type": "VAE",
-     "link": 16
-    },
-    {
-     "name": "image1",
-     "type": "IMAGE",
-     "link": 17
-    },
-    {
-     "name": "prompt",
-     "type": "STRING",
-     "link": 18,
-     "widget": {
-      "name": "prompt"
-     }
-    }
-   ],
-   "outputs": [
-    {
-     "name": "CONDITIONING",
-     "type": "CONDITIONING",
-     "links": [
-      24
-     ]
-    }
-   ],
-   "title": "encode \u2014 plate (image 1 only)",
-   "properties": {
-    "Node name for S&R": "TextEncodeQwenImageEditPlus"
-   },
-   "widgets_values": [
-    ""
-   ]
-  },
-  {
-   "id": 26,
-   "type": "TextEncodeQwenImageEditPlus",
-   "pos": [
-    1240,
-    222
-   ],
-   "size": [
-    400,
-    130
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 26,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "clip",
-     "type": "CLIP",
-     "link": 19
-    },
-    {
-     "name": "vae",
-     "type": "VAE",
-     "link": 20
-    },
-    {
-     "name": "image1",
-     "type": "IMAGE",
-     "link": 21
-    },
-    {
-     "name": "image2",
-     "type": "IMAGE",
-     "link": 22
-    },
-    {
-     "name": "prompt",
-     "type": "STRING",
-     "link": 23,
-     "widget": {
-      "name": "prompt"
-     }
-    }
-   ],
-   "outputs": [
-    {
-     "name": "CONDITIONING",
-     "type": "CONDITIONING",
-     "links": [
-      25
-     ]
-    }
-   ],
-   "title": "encode \u2014 scene (image 1 + image 2)",
-   "properties": {
-    "Node name for S&R": "TextEncodeQwenImageEditPlus"
-   },
-   "widgets_values": [
-    ""
-   ]
-  },
-  {
-   "id": 27,
-   "type": "ComfySwitchNode",
-   "pos": [
-    1240,
-    268
-   ],
-   "size": [
-    400,
-    130
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 27,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "on_false",
-     "type": "CONDITIONING",
-     "link": 24
-    },
-    {
-     "name": "on_true",
-     "type": "CONDITIONING",
-     "link": 25
-    },
-    {
-     "name": "switch",
-     "type": "BOOLEAN",
-     "link": 26,
-     "widget": {
-      "name": "switch"
-     }
-    }
-   ],
-   "outputs": [
-    {
-     "name": "output",
-     "type": "CONDITIONING",
-     "links": [
-      29
-     ]
-    }
-   ],
-   "title": "positive switch (same SCENE toggle)",
-   "properties": {
-    "Node name for S&R": "ComfySwitchNode"
-   },
-   "widgets_values": [
-    false
-   ]
   },
   {
    "id": 28,
@@ -1269,7 +1238,25 @@
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 27
+     "link": 19
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 20
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 21
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 22,
+     "widget": {
+      "name": "prompt"
+     }
     }
    ],
    "outputs": [
@@ -1277,7 +1264,163 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      30
+      28
+     ]
+    }
+   ],
+   "title": "encode \u2014 plate (image 1 only)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 29,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    360
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 29,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 23
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 24
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 25
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 26
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 27,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      29
+     ]
+    }
+   ],
+   "title": "encode \u2014 scene (image 1 + image 2)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 30,
+   "type": "ComfySwitchNode",
+   "pos": [
+    1240,
+    406
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 30,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "CONDITIONING",
+     "link": 28
+    },
+    {
+     "name": "on_true",
+     "type": "CONDITIONING",
+     "link": 29
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 30,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "CONDITIONING",
+     "links": [
+      33
+     ]
+    }
+   ],
+   "title": "positive switch (same SCENE toggle)",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 31,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    452
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 31,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 31
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      34
      ]
     }
    ],
@@ -1292,7 +1435,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 29,
+   "id": 32,
    "type": "KSampler",
    "pos": [
     520,
@@ -1303,28 +1446,28 @@
     270
    ],
    "flags": {},
-   "order": 29,
+   "order": 32,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 28
+     "link": 32
     },
     {
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 29
+     "link": 33
     },
     {
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 30
+     "link": 34
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 31
+     "link": 35
     },
     {
      "name": "seed",
@@ -1388,7 +1531,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      32
+      36
      ]
     }
    ],
@@ -1407,7 +1550,7 @@
    ]
   },
   {
-   "id": 30,
+   "id": 33,
    "type": "VAEDecode",
    "pos": [
     520,
@@ -1420,18 +1563,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 30,
+   "order": 33,
    "mode": 0,
    "inputs": [
     {
      "name": "samples",
      "type": "LATENT",
-     "link": 32
+     "link": 36
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 33
+     "link": 37
     }
    ],
    "outputs": [
@@ -1439,9 +1582,9 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      35,
-      37,
-      39
+      39,
+      41,
+      43
      ]
     }
    ],
@@ -1452,7 +1595,7 @@
    "widgets_values": []
   },
   {
-   "id": 31,
+   "id": 34,
    "type": "RemoveBackground",
    "pos": [
     520,
@@ -1465,18 +1608,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 31,
+   "order": 34,
    "mode": 0,
    "inputs": [
     {
      "name": "bg_removal_model",
      "type": "BACKGROUND_REMOVAL",
-     "link": 34
+     "link": 38
     },
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 35
+     "link": 39
     }
    ],
    "outputs": [
@@ -1484,7 +1627,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      36
+      40
      ]
     }
    ],
@@ -1495,7 +1638,7 @@
    "widgets_values": []
   },
   {
-   "id": 32,
+   "id": 35,
    "type": "InvertMask",
    "pos": [
     520,
@@ -1508,13 +1651,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 32,
+   "order": 35,
    "mode": 0,
    "inputs": [
     {
      "name": "mask",
      "type": "MASK",
-     "link": 36
+     "link": 40
     }
    ],
    "outputs": [
@@ -1522,7 +1665,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      38
+      42
      ]
     }
    ],
@@ -1533,7 +1676,7 @@
    "widgets_values": []
   },
   {
-   "id": 33,
+   "id": 36,
    "type": "JoinImageWithAlpha",
    "pos": [
     520,
@@ -1546,18 +1689,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 33,
+   "order": 36,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 37
+     "link": 41
     },
     {
      "name": "alpha",
      "type": "MASK",
-     "link": 38
+     "link": 42
     }
    ],
    "outputs": [
@@ -1565,7 +1708,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      40
+      44
      ]
     }
    ],
@@ -1576,7 +1719,7 @@
    "widgets_values": []
   },
   {
-   "id": 34,
+   "id": 37,
    "type": "ComfySwitchNode",
    "pos": [
     520,
@@ -1589,23 +1732,23 @@
    "flags": {
     "collapsed": true
    },
-   "order": 34,
+   "order": 37,
    "mode": 0,
    "inputs": [
     {
      "name": "on_false",
      "type": "IMAGE",
-     "link": 39
+     "link": 43
     },
     {
      "name": "on_true",
      "type": "IMAGE",
-     "link": 40
+     "link": 44
     },
     {
      "name": "switch",
      "type": "BOOLEAN",
-     "link": 41,
+     "link": 45,
      "widget": {
       "name": "switch"
      }
@@ -1616,7 +1759,7 @@
      "name": "output",
      "type": "IMAGE",
      "links": [
-      42
+      46
      ]
     }
    ],
@@ -1629,7 +1772,7 @@
    ]
   },
   {
-   "id": 35,
+   "id": 38,
    "type": "SaveImage",
    "pos": [
     520,
@@ -1640,13 +1783,13 @@
     1200
    ],
    "flags": {},
-   "order": 35,
+   "order": 38,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 42
+     "link": 46
     }
    ],
    "outputs": [],
@@ -1750,73 +1893,73 @@
   ],
   [
    12,
-   18,
-   0,
    19,
+   0,
+   20,
    0,
    "STRING"
   ],
   [
    13,
-   10,
+   2,
    0,
-   19,
+   20,
    1,
    "STRING"
   ],
   [
    14,
+   18,
+   0,
+   21,
+   0,
+   "STRING"
+  ],
+  [
+   15,
    20,
    0,
    21,
+   1,
+   "STRING"
+  ],
+  [
+   16,
+   21,
+   0,
+   22,
+   0,
+   "STRING"
+  ],
+  [
+   17,
+   10,
+   0,
+   22,
+   1,
+   "STRING"
+  ],
+  [
+   18,
+   23,
+   0,
+   24,
    0,
    "MODEL"
   ],
   [
-   15,
-   22,
-   0,
-   25,
-   0,
-   "CLIP"
-  ],
-  [
-   16,
-   23,
-   0,
-   25,
-   1,
-   "VAE"
-  ],
-  [
-   17,
-   13,
-   0,
-   25,
-   2,
-   "IMAGE"
-  ],
-  [
-   18,
    19,
-   0,
    25,
-   3,
-   "STRING"
-  ],
-  [
-   19,
-   22,
    0,
-   26,
+   28,
    0,
    "CLIP"
   ],
   [
    20,
-   23,
-   0,
    26,
+   0,
+   28,
    1,
    "VAE"
   ],
@@ -1824,175 +1967,207 @@
    21,
    13,
    0,
-   26,
+   28,
    2,
    "IMAGE"
   ],
   [
    22,
+   22,
+   0,
+   28,
+   3,
+   "STRING"
+  ],
+  [
+   23,
+   25,
+   0,
+   29,
+   0,
+   "CLIP"
+  ],
+  [
+   24,
+   26,
+   0,
+   29,
+   1,
+   "VAE"
+  ],
+  [
+   25,
+   13,
+   0,
+   29,
+   2,
+   "IMAGE"
+  ],
+  [
+   26,
    6,
    0,
-   26,
+   29,
    3,
    "IMAGE"
   ],
   [
-   23,
-   19,
+   27,
+   22,
    0,
-   26,
+   29,
    4,
    "STRING"
   ],
   [
-   24,
-   25,
+   28,
+   28,
    0,
-   27,
+   30,
    0,
    "CONDITIONING"
   ],
   [
-   25,
-   26,
+   29,
+   29,
    0,
-   27,
+   30,
    1,
    "CONDITIONING"
   ],
   [
-   26,
+   30,
    4,
    0,
-   27,
+   30,
    2,
    "BOOLEAN"
   ],
   [
-   27,
-   22,
+   31,
+   25,
    0,
-   28,
+   31,
    0,
    "CLIP"
   ],
   [
-   28,
-   21,
+   32,
+   24,
    0,
-   29,
+   32,
    0,
    "MODEL"
   ],
   [
-   29,
-   27,
+   33,
+   30,
    0,
-   29,
+   32,
    1,
    "CONDITIONING"
   ],
   [
-   30,
-   28,
+   34,
+   31,
    0,
-   29,
+   32,
    2,
    "CONDITIONING"
   ],
   [
-   31,
+   35,
    8,
    0,
-   29,
+   32,
    3,
    "LATENT"
   ],
   [
+   36,
    32,
-   29,
    0,
-   30,
+   33,
    0,
    "LATENT"
   ],
   [
-   33,
-   23,
+   37,
+   26,
    0,
-   30,
+   33,
    1,
    "VAE"
   ],
   [
-   34,
-   24,
+   38,
+   27,
    0,
-   31,
+   34,
    0,
    "BACKGROUND_REMOVAL"
   ],
   [
-   35,
-   30,
-   0,
-   31,
-   1,
-   "IMAGE"
-  ],
-  [
-   36,
-   31,
-   0,
-   32,
-   0,
-   "MASK"
-  ],
-  [
-   37,
-   30,
-   0,
-   33,
-   0,
-   "IMAGE"
-  ],
-  [
-   38,
-   32,
-   0,
-   33,
-   1,
-   "MASK"
-  ],
-  [
    39,
-   30,
+   33,
    0,
    34,
-   0,
+   1,
    "IMAGE"
   ],
   [
    40,
+   34,
+   0,
+   35,
+   0,
+   "MASK"
+  ],
+  [
+   41,
    33,
    0,
-   34,
+   36,
+   0,
+   "IMAGE"
+  ],
+  [
+   42,
+   35,
+   0,
+   36,
+   1,
+   "MASK"
+  ],
+  [
+   43,
+   33,
+   0,
+   37,
+   0,
+   "IMAGE"
+  ],
+  [
+   44,
+   36,
+   0,
+   37,
    1,
    "IMAGE"
   ],
   [
-   41,
+   45,
    7,
    0,
-   34,
+   37,
    2,
    "BOOLEAN"
   ],
   [
-   42,
-   34,
+   46,
+   37,
    0,
-   35,
+   38,
    0,
    "IMAGE"
   ]
@@ -2018,7 +2193,7 @@
     1210,
     -690,
     480,
-    596
+    734
    ],
    "color": "#3f789e",
    "font_size": 24,
@@ -2029,7 +2204,7 @@
    "title": "engine \u00b7 don't touch",
    "bounding": [
     1210,
-    -124,
+    14,
     480,
     504
    ],
@@ -2096,16 +2271,16 @@
      "height"
     ],
     [
-     "29",
+     "32",
      "seed"
     ],
     [
-     "29",
+     "32",
      "steps"
     ]
    ],
    "outputs": [
-    "35"
+    "38"
    ]
   }
  },
