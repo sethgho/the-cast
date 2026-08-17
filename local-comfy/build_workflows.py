@@ -501,9 +501,12 @@ def main(ids):
         g = build(cid, CHARACTERS[cid])
         ui = os.path.join(HERE, "workflows", f"{cid}-pose.json")
         api = os.path.join(HERE, "api", f"{cid}-pose.api.json")
+        # the same file with a .app.json name is what the Apps list reads
+        app = os.path.join(HERE, "workflows", f"{cid}-pose.app.json")
         json.dump(g.to_ui(), open(ui, "w"), indent=1)
+        json.dump(g.to_ui(), open(app, "w"), indent=1)
         json.dump(g.to_api(), open(api, "w"), indent=1)
-        print(f"wrote {ui}\nwrote {api}")
+        print(f"wrote {ui}\nwrote {app}\nwrote {api}")
 
 
 if __name__ == "__main__":
