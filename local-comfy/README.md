@@ -25,6 +25,14 @@ form is defined by `extra.linearData` and is generated from the same script:
     1 · YOUR SHOT   2 · SCENE   3 · YOUR SCENE   4 · SCENE PLATE
     5 · TRANSPARENT PNG   6 · OUTPUT SIZE (w/h)   7 · SEED + STEPS  →  RESULT
 
+Field labels are the `label` on each promoted widget's input slot — the same field the UI's
+right-click → Rename writes. Two traps when authoring them by hand:
+
+- A top-level `"definitions": {"subgraphs": []}` key sends the loader down the subgraph path,
+  which rebuilds every widget input slot and **throws the labels away**. Omit the key.
+- ComfyUI keeps an already-open workflow tab in memory. After overwriting the file on disk,
+  close the tab and reopen it, or the old label-less copy is what you see.
+
 Use the breadcrumb menu at the top to leave App Mode and see the graph. App Mode has no
 conditional fields, so `3 · YOUR SCENE` and `4 · SCENE PLATE` stay on screen even when `SCENE`
 is off — they are simply ignored. Share links are Comfy-Cloud-only; on our box App Mode is

@@ -42,7 +42,18 @@
    "flags": {},
    "order": 2,
    "mode": 0,
-   "inputs": [],
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "1 \u00b7 YOUR SHOT \u2014 what he is doing"
+    }
+   ],
    "outputs": [
     {
      "name": "STRING",
@@ -76,7 +87,18 @@
    "flags": {},
    "order": 3,
    "mode": 0,
-   "inputs": [],
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "2 \u00b7 SCENE \u2014 off = flat grey plate, on = in a scene"
+    }
+   ],
    "outputs": [
     {
      "name": "BOOLEAN",
@@ -111,7 +133,18 @@
    "flags": {},
    "order": 4,
    "mode": 0,
-   "inputs": [],
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "3 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)"
+    }
+   ],
    "outputs": [
     {
      "name": "STRING",
@@ -145,7 +178,27 @@
    "flags": {},
    "order": 5,
    "mode": 0,
-   "inputs": [],
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null,
+     "label": "4 \u00b7 SCENE PLATE (only read when SCENE is on)"
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
    "outputs": [
     {
      "name": "IMAGE",
@@ -183,7 +236,18 @@
    "flags": {},
    "order": 6,
    "mode": 0,
-   "inputs": [],
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "5 \u00b7 TRANSPARENT PNG \u2014 cut the background out"
+    }
+   ],
    "outputs": [
     {
      "name": "BOOLEAN",
@@ -217,7 +281,37 @@
    "flags": {},
    "order": 7,
    "mode": 0,
-   "inputs": [],
+   "inputs": [
+    {
+     "name": "width",
+     "localized_name": "width",
+     "type": "INT",
+     "widget": {
+      "name": "width"
+     },
+     "link": null,
+     "label": "6 \u00b7 WIDTH"
+    },
+    {
+     "name": "height",
+     "localized_name": "height",
+     "type": "INT",
+     "widget": {
+      "name": "height"
+     },
+     "link": null,
+     "label": "6 \u00b7 HEIGHT"
+    },
+    {
+     "name": "batch_size",
+     "localized_name": "batch_size",
+     "type": "INT",
+     "widget": {
+      "name": "batch_size"
+     },
+     "link": null
+    }
+   ],
    "outputs": [
     {
      "name": "LATENT",
@@ -1133,6 +1227,62 @@
      "name": "latent_image",
      "type": "LATENT",
      "link": 29
+    },
+    {
+     "name": "seed",
+     "localized_name": "seed",
+     "type": "INT",
+     "widget": {
+      "name": "seed"
+     },
+     "link": null,
+     "label": "7 \u00b7 SEED"
+    },
+    {
+     "name": "steps",
+     "localized_name": "steps",
+     "type": "INT",
+     "widget": {
+      "name": "steps"
+     },
+     "link": null,
+     "label": "7 \u00b7 STEPS (8 ships, 4 drafts)"
+    },
+    {
+     "name": "cfg",
+     "localized_name": "cfg",
+     "type": "FLOAT",
+     "widget": {
+      "name": "cfg"
+     },
+     "link": null
+    },
+    {
+     "name": "sampler_name",
+     "localized_name": "sampler_name",
+     "type": "COMBO",
+     "widget": {
+      "name": "sampler_name"
+     },
+     "link": null
+    },
+    {
+     "name": "scheduler",
+     "localized_name": "scheduler",
+     "type": "COMBO",
+     "widget": {
+      "name": "scheduler"
+     },
+     "link": null
+    },
+    {
+     "name": "denoise",
+     "localized_name": "denoise",
+     "type": "FLOAT",
+     "widget": {
+      "name": "denoise"
+     },
+     "link": null
     }
    ],
    "outputs": [
@@ -1787,9 +1937,6 @@
    "flags": {}
   }
  ],
- "definitions": {
-  "subgraphs": []
- },
  "config": {},
  "extra": {
   "ds": {

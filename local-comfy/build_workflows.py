@@ -138,6 +138,23 @@ WIDGETS = {
     "MarkdownNote": ["text"],
 }
 
+# slot types for the widgets promoted into the App Mode form
+WIDGET_TYPES = {
+    ("PrimitiveStringMultiline", "value"): "STRING",
+    ("PrimitiveBoolean", "value"): "BOOLEAN",
+    ("LoadImage", "image"): "COMBO",
+    ("LoadImage", "upload"): "IMAGEUPLOAD",
+    ("EmptySD3LatentImage", "width"): "INT",
+    ("EmptySD3LatentImage", "height"): "INT",
+    ("EmptySD3LatentImage", "batch_size"): "INT",
+    ("KSampler", "seed"): "INT",
+    ("KSampler", "steps"): "INT",
+    ("KSampler", "cfg"): "FLOAT",
+    ("KSampler", "sampler_name"): "COMBO",
+    ("KSampler", "scheduler"): "COMBO",
+    ("KSampler", "denoise"): "FLOAT",
+}
+
 # widgets that are NOT sent to the API (frontend-only)
 UI_ONLY_WIDGETS = {("LoadImage", "upload"), ("KSampler", "control_after_generate")}
 
@@ -152,9 +169,31 @@ class Graph:
         self._nid = 0
         self._lid = 0
 
-    def app_input(self, node, *widget_names):
+    def app_input(self, node, *widget_names, **labels):
+        """Promote widgets into the App Mode form.
+
+        App Mode labels a field `widget.label || widget.name`, so a bare PrimitiveBoolean
+        shows up as "value". The label rides on the node's input slot for that widget —
+        the same field the UI's right-click → Rename writes.
+        """
         for w in widget_names:
             self.app_inputs.append([str(node["id"]), w])
+        # The label only survives a reload when the widget's input slot is written the
+        # way the frontend writes it — name + localized_name + real widget type.
+        existing = {i["name"] for i in node["inputs"]}
+        for w in WIDGETS[node["type"]]:
+            if w in existing or (node["type"], w) == ("KSampler", "control_after_generate"):
+                continue
+            slot = {
+                "name": w,
+                "localized_name": "choose file to upload" if w == "upload" else w,
+                "type": WIDGET_TYPES[(node["type"], w)],
+                "widget": {"name": w},
+                "link": None,
+            }
+            if labels.get(w):
+                slot["label"] = labels[w]
+            node["inputs"].append(slot)
         return node
 
     def app_output(self, node):
@@ -231,7 +270,9 @@ class Graph:
             "nodes": nodes,
             "links": self.links,
             "groups": self.groups,
-            "definitions": {"subgraphs": []},
+            # NB: no "definitions" key. An empty {"subgraphs": []} sends the loader down
+            # the subgraph path, which rebuilds every widget input slot and throws away
+            # the App Mode labels on them.
             "config": {},
             "extra": {
                 "ds": {"scale": 0.55, "offset": [1600, 700]},
@@ -254,6 +295,8 @@ class Graph:
                     continue
                 inputs[w] = n["_widgets"][w]
             for entry in n["inputs"]:
+                if entry.get("link") is None:   # label-only slot, no connection
+                    continue
                 src_id, src_slot = by_link[entry["link"]]
                 inputs[entry["name"]] = [str(src_id), src_slot]
             out[str(n["id"])] = {"class_type": n["type"], "inputs": inputs,
@@ -305,12 +348,12 @@ def build(cid, spec):
             (-70, -690, 520, 1470), GROUP_SHOT)
 
     # App Mode form, in the order it is asked for
-    g.app_input(shot, "value")
-    g.app_input(scene_on, "value")
-    g.app_input(scene_text, "value")
-    g.app_input(scene_plate, "image")
-    g.app_input(transparent_on, "value")
-    g.app_input(latent, "width", "height")
+    g.app_input(shot, "value", value="1 · YOUR SHOT — what he is doing")
+    g.app_input(scene_on, "value", value="2 · SCENE — off = flat grey plate, on = in a scene")
+    g.app_input(scene_text, "value", value="3 · YOUR SCENE — where he is (only read when SCENE is on)")
+    g.app_input(scene_plate, "image", image="4 · SCENE PLATE (only read when SCENE is on)")
+    g.app_input(transparent_on, "value", value="5 · TRANSPARENT PNG — cut the background out")
+    g.app_input(latent, "width", "height", width="6 · WIDTH", height="6 · HEIGHT")
 
     # --- 2. output --------------------------------------------------------
     # (sampler sits here because seed + steps are the only engine dials worth a poke)
@@ -441,7 +484,7 @@ def build(cid, spec):
                          "on_true": (rgba, 0, "IMAGE", False),
                          "switch": (transparent_on, 0, "BOOLEAN", True)},
                   outputs=[("output", "IMAGE")], collapsed=True)
-    g.app_input(sampler, "seed", "steps")
+    g.app_input(sampler, "seed", "steps", seed="7 · SEED", steps="7 · STEPS (8 ships, 4 drafts)")
     g.app_output(g.add("SaveImage", "RESULT", (520, -620), (620, 1200),
                        {"filename_prefix": f"cast/{cid}"},
                        links={"images": (final, 0, "IMAGE", False)}))
