@@ -154,19 +154,46 @@ def median3(values):
     return out
 
 
+def pack_set(jobs, cell, outdir, anchor, smooth, skip=6, cycle=True):
+    """Pack several moves of ONE character with a SHARED scale.
+
+    Packing each move on its own scales every sheet to its own content, so the character is a
+    different size in every move and the state machine visibly resizes him mid-fight. One pass
+    measures the tallest silhouette across the whole set; the second pass packs every move to
+    that same pixels-per-character, which is what makes the sheets interchangeable.
+    """
+    measured = []
+    for clip, name, n in jobs:
+        prep = _prepare(clip, name, n, skip, cycle, anchor, smooth)
+        measured.append((name, n, prep))
+    tallest = max(p["natural"] for _, _, p in measured)
+    scale = (cell * 0.92) / tallest if tallest else 1.0
+    out = []
+    for name, n, prep in measured:
+        out.append(_emit(name, prep, cell, outdir, anchor, scale))
+    return out
+
+
 def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6, cycle=True):
-    """skip: H3's first frames are a settle-in from the pinned still — they are not the cycle."""
+    """Pack one move on its own. Use pack_set() for a character's whole move list."""
+    prep = _prepare(clip, name, n_frames, skip, cycle, anchor, smooth)
+    scale = (cell * 0.92) / prep["natural"] if prep["natural"] else 1.0
+    return _emit(name, prep, cell, outdir, anchor, scale)
+
+
+def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
+    """Key, pick the cells, and work out each cell's anchor and reach. No pixels written yet."""
     tmp = f"/tmp/sprite-{name}"
     paths = extract_frames(clip, tmp)[skip:]
     rgba = [key_out(p) for p in paths]
     boxes = [bbox(r) for r in rgba]
     keep = [i for i, b in enumerate(boxes) if b]
     if not keep:
-        raise SystemExit("every frame keyed to nothing — is the clip actually on magenta?")
+        raise SystemExit(f"{name}: every frame keyed to nothing — is the clip actually on magenta?")
 
     picks, period = pose_extremes([rgba[i] for i in keep], n_frames, cycle)
     picks = [keep[p] for p in picks]
-    print(f"  cycle: {'period ' + str(period) + ' frames' if period else 'not periodic, spaced by motion'}")
+    print(f"  {name} cycle: {'period ' + str(period) + ' frames' if period else 'not periodic, spaced by motion'}")
 
     # anchor per frame: feet = bottom centre of the silhouette, the origin a game engine expects
     anchors = []
@@ -176,23 +203,25 @@ def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6, cycle=True)
     if smooth and len(anchors) > 2:
         anchors = list(zip(median3([a[0] for a in anchors]), median3([a[1] for a in anchors])))
 
-    # one uniform cell, sized to the biggest frame, so every cell is interchangeable
     spans = []
     for (i, (ax, ay)) in zip(picks, anchors):
         x0, y0, x1, y1 = boxes[i]
         spans.append((ax - x0, x1 - ax, ay - y0, y1 - ay))
-    left = max(s[0] for s in spans); right = max(s[1] for s in spans)
-    up = max(s[2] for s in spans); down = max(s[3] for s in spans)
-    natural = max(left + right, up + down)
-    scale = (cell * 0.92) / natural if natural else 1.0
+    natural = max(max(s[0] for s in spans) + max(s[1] for s in spans),
+                  max(s[2] for s in spans) + max(s[3] for s in spans))
+    return {"rgba": rgba, "boxes": boxes, "picks": picks, "anchors": anchors,
+            "natural": natural, "period": period, "clip": clip}
 
+
+def _emit(name, prep, cell, outdir, anchor, scale):
+    """Write the atlas, the cells, the JSON, the CSS and the preview at the given scale."""
+    rgba, boxes, picks, anchors = prep["rgba"], prep["boxes"], prep["picks"], prep["anchors"]
     frames_dir = os.path.join(outdir, f"{name}-frames")
     os.makedirs(frames_dir, exist_ok=True)
     cells, table = [], []
     for (i, (ax, ay)) in zip(picks, anchors):
         src = rgba[i]
         canvas = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
-        # scale about the anchor, then place the anchor at a fixed spot in the cell
         w, h = src.size
         sized = src.resize((max(1, int(w * scale)), max(1, int(h * scale))), Image.LANCZOS)
         sax, say = ax * scale, ay * scale
@@ -213,8 +242,9 @@ def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6, cycle=True)
                   append_images=cells[1:], duration=1000 // 12, loop=0, lossless=True)
 
     meta = {"name": name, "cell": [cell, cell], "frames": len(cells), "fps": 12,
-            "anchor": anchor, "layout": "single-row", "source_clip": os.path.basename(clip),
-            "cycle_period_frames": period, "loops": bool(period),
+            "anchor": anchor, "layout": "single-row", "scale": round(scale, 4),
+            "source_clip": os.path.basename(prep["clip"]),
+            "cycle_period_frames": prep["period"], "loops": bool(prep["period"]),
             "frame_table": table}
     json.dump(meta, open(os.path.join(outdir, f"{name}.json"), "w"), indent=1)
 
@@ -226,7 +256,7 @@ def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6, cycle=True)
 @keyframes {name}-play {{ to {{ background-position: -{cell * len(cells)}px 0; }} }}
 """
     open(os.path.join(outdir, f"{name}.css"), "w").write(css)
-    print(f"{name}: {len(cells)} frames, {cell}px cells -> {atlas_path}")
+    print(f"{name}: {len(cells)} frames, {cell}px cells, scale {scale:.3f} -> {atlas_path}")
     return atlas_path
 
 

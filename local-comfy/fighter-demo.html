@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gholson Craft Fighter — sprite sheets from local ComfyUI</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #14120f; color: #e8e2d8;
+         font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 .2rem; }
+  p.lede { color: #b3a894; margin: 0 0 1.2rem; max-width: 62ch; }
+  a { color: #d8a657; }
+  .screen { position: relative; background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px;
+            overflow: hidden; aspect-ratio: 16 / 9; }
+  canvas { width: 100%; height: 100%; display: block; image-rendering: auto; }
+  .hud { position: absolute; inset: .6rem .6rem auto .6rem; display: flex; justify-content: space-between;
+         font: 600 .8rem/1 ui-monospace, monospace; color: #6b6152; letter-spacing: .08em; pointer-events: none; }
+  .hud b { color: #b4462f; }
+  .keys { display: flex; gap: .4rem; flex-wrap: wrap; margin: .8rem 0 0; }
+  .keys button { font: 600 .85rem/1 ui-monospace, monospace; color: #e8e2d8; background: #241f19;
+                 border: 1px solid #4a4136; border-radius: 6px; padding: .55rem .7rem; cursor: pointer; }
+  .keys button:active, .keys button.on { background: #d8a657; color: #1a1610; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: .9rem; }
+  th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #2d2822; }
+  th { color: #c9bfae; }
+  code { background: #241f19; border: 1px solid #3a332a; border-radius: 4px; padding: .06em .35em; font-size: .88em; }
+  .note { border-left: 3px solid #d8a657; padding: .3rem 0 .3rem .9rem; margin: 1.2rem 0; color: #c9bfae; }
+</style>
+<main>
+  <h1>Seth, playable</h1>
+  <p class="lede">Seven moves, each one a MiniMax H3 clip rendered on a magenta stage by the
+  <code>sprite-clip</code> app and packed into a normalised atlas by <code>sprite_sheet.py</code> —
+  all on gpu-worker, no cloud credits. Nothing here is video: it is seven PNGs and a state machine.
+  <b>Click the screen, then use the keys.</b></p>
+
+  <div class="screen" id="screen" tabindex="0">
+    <canvas id="c" width="1280" height="720"></canvas>
+    <div class="hud"><span id="state">IDLE</span><span id="move"></span></div>
+  </div>
+  <div class="keys">
+    <button data-k="ArrowLeft">← walk</button>
+    <button data-k="ArrowRight">→ walk</button>
+    <button data-k="ArrowDown">↓ crouch (hold)</button>
+    <button data-k=" ">space jump</button>
+    <button data-k="j">J punch</button>
+    <button data-k="k">K kick</button>
+    <button data-k="l">L block (hold)</button>
+  </div>
+
+  <table>
+    <tr><th>Move</th><th>Cells</th><th>Loops</th><th>Source</th></tr>
+    <tr><td>idle-breathe</td><td>8</td><td>yes</td><td>H3 clip, 61 frames</td></tr>
+    <tr><td>walk-cycle</td><td>8</td><td>yes — 24-frame gait period</td><td>H3 clip, 61 frames</td></tr>
+    <tr><td>jump · punch · kick · block · crouch</td><td>6 each</td><td>no — play once</td><td>H3 clip, 61 frames</td></tr>
+  </table>
+
+  <div class="note"><b>Why this works at all.</b> Every cell is the same size and every frame is
+  aligned on the bottom centre of the character's own silhouette, so the state machine can cut
+  between moves mid-stride without him jumping around. That is the whole point of normalising:
+  a sheet you can swap into a state machine, not a video you can only play.
+  <br><br>Back to the <a href="cast-local-comfy.html">apps and how they were built</a>.</div>
+</main>
+<script>
+const MOVES = {
+  idle:   { file: "seth-idle-breathe", frames: 8, fps: 8,  loop: true },
+  walk:   { file: "seth-walk-cycle",   frames: 8, fps: 12, loop: true },
+  jump:   { file: "seth-jump",         frames: 6, fps: 10, loop: false },
+  punch:  { file: "seth-punch",        frames: 6, fps: 14, loop: false },
+  kick:   { file: "seth-kick",         frames: 6, fps: 12, loop: false },
+  block:  { file: "seth-block",        frames: 6, fps: 12, loop: false, hold: true },
+  crouch: { file: "seth-crouch",       frames: 6, fps: 12, loop: false, hold: true },
+};
+const CELL = 256;
+const sheets = {};
+for (const [name, m] of Object.entries(MOVES)) {
+  const img = new Image();
+  img.src = `cast-fighter/sprites/${m.file}.png`;
+  sheets[name] = img;
+}
+
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const stateEl = document.getElementById("state"), moveEl = document.getElementById("move");
+const keys = new Set();
+// A quick tap can start and finish inside one animation frame, so edges are latched here and
+// consumed by the state machine rather than read live off `keys`.
+const tapped = new Set();
+let state = "idle", frame = 0, acc = 0, x = 640, facing = 1, y = 0, vy = 0, locked = null;
+
+const GROUND = 660, SCALE = 1.7, WALK_SPEED = 210, GRAVITY = 2100, JUMP_V = 780;
+
+function setState(next) {
+  if (state === next) return;
+  state = next; frame = 0; acc = 0;
+  stateEl.textContent = next.toUpperCase();
+}
+
+addEventListener("keydown", e => {
+  if ([" ", "ArrowLeft", "ArrowRight", "ArrowDown"].includes(e.key)) e.preventDefault();
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (!keys.has(k)) tapped.add(k);
+  keys.add(k);
+});
+addEventListener("keyup", e => keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+for (const b of document.querySelectorAll(".keys button")) {
+  const k = b.dataset.k;
+  const on = e => { e.preventDefault(); if (!keys.has(k)) tapped.add(k); keys.add(k); b.classList.add("on"); };
+  const off = () => { keys.delete(k); b.classList.remove("on"); };
+  b.addEventListener("pointerdown", on); b.addEventListener("pointerup", off);
+  b.addEventListener("pointerleave", off); b.addEventListener("pointercancel", off);
+}
+document.getElementById("screen").focus();
+
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.05); last = now;
+
+  // one-shot moves own the character until their last cell plays out
+  if (locked) {
+    const m = MOVES[locked];
+    if (m.hold && keys.has(locked === "block" ? "l" : "ArrowDown")) {
+      frame = m.frames - 1;                       // hold on the last cell while the key is down
+    } else {
+      acc += dt;
+      if (acc >= 1 / m.fps) { acc = 0; frame++; }
+      if (frame >= m.frames) { frame = m.frames - 1; if (!m.hold) locked = null; }
+      if (m.hold && !keys.has(locked === "block" ? "l" : "ArrowDown")) locked = null;
+    }
+  }
+
+  if (!locked) {
+    const hit = k => keys.has(k) || tapped.has(k);
+    if (hit("j")) { locked = "punch"; setState("punch"); }
+    else if (hit("k")) { locked = "kick"; setState("kick"); }
+    else if (hit("l")) { locked = "block"; setState("block"); }
+    else if (hit("ArrowDown") && y === 0) { locked = "crouch"; setState("crouch"); }
+    else if (hit(" ") && y === 0) { vy = -JUMP_V; setState("jump"); }
+  }
+
+  // physics and walking run underneath the state machine
+  if (vy !== 0 || y < 0) {
+    vy += GRAVITY * dt; y += vy * dt;
+    if (y >= 0) { y = 0; vy = 0; if (state === "jump") setState("idle"); }
+  }
+  const moving = !locked && y === 0 && (keys.has("ArrowLeft") || keys.has("ArrowRight"));
+  if (keys.has("ArrowLeft"))  { x -= WALK_SPEED * dt; facing = -1; }
+  if (keys.has("ArrowRight")) { x += WALK_SPEED * dt; facing = 1; }
+  x = Math.max(120, Math.min(1160, x));
+  if (!locked && y === 0) setState(moving ? "walk" : "idle");
+  if (y < 0) setState("jump");
+
+  // advance looping states
+  if (!locked) {
+    const m = MOVES[state];
+    acc += dt;
+    if (acc >= 1 / m.fps) {
+      acc = 0;
+      frame = m.loop ? (frame + 1) % m.frames : Math.min(frame + 1, m.frames - 1);
+    }
+  }
+
+  tapped.clear();
+  draw();
+  requestAnimationFrame(tick);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  // stage: a paper floor line, so the ground contact reads
+  ctx.strokeStyle = "#c9bfa6"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(60, GROUND + 4); ctx.lineTo(1220, GROUND + 4); ctx.stroke();
+
+  const m = MOVES[locked || state], img = sheets[locked || state];
+  moveEl.textContent = `${m.file}.png · cell ${frame + 1}/${m.frames}`;
+  if (!img || !img.complete) return;
+  const w = CELL * SCALE, h = CELL * SCALE;
+  ctx.save();
+  ctx.translate(x, GROUND + y);
+  ctx.scale(facing, 1);
+  // cells are anchored at the feet, 94% down the cell — line that up with the floor
+  ctx.drawImage(img, frame * CELL, 0, CELL, CELL, -w / 2, -h * 0.94, w, h);
+  ctx.restore();
+}
+requestAnimationFrame(tick);
+</script>
+</html>
