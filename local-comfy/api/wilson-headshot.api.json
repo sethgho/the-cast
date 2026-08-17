@@ -11,7 +11,7 @@
  "3": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "extreme close-up, seen straight on: the bucket hat fills the top half of the picture and the picket tops fill the bottom half, as tightly cropped as image 1."
+   "value": "seen straight on, hat level, the picket tops square to the viewer."
   },
   "_meta": {
    "title": "\u25b6 2 \u00b7 FRAMING \u2014 crop and head angle (TYPE HERE)"
@@ -441,6 +441,38 @@
   }
  },
  "34": {
+  "class_type": "ImageCrop",
+  "inputs": {
+   "width": 570,
+   "height": 570,
+   "x": 230,
+   "y": 40,
+   "image": [
+    "33",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "crop to the portrait"
+  }
+ },
+ "35": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1024,
+   "height": 1024,
+   "crop": "disabled",
+   "image": [
+    "34",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "back up to output size"
+  }
+ },
+ "36": {
   "class_type": "RemoveBackground",
   "inputs": {
    "bg_removal_model": [
@@ -448,7 +480,7 @@
     0
    ],
    "image": [
-    "33",
+    "35",
     0
    ]
   },
@@ -456,11 +488,11 @@
    "title": "cut the figure out"
   }
  },
- "35": {
+ "37": {
   "class_type": "InvertMask",
   "inputs": {
    "mask": [
-    "34",
+    "36",
     0
    ]
   },
@@ -468,15 +500,15 @@
    "title": "flip to ComfyUI mask convention"
   }
  },
- "36": {
+ "38": {
   "class_type": "JoinImageWithAlpha",
   "inputs": {
    "image": [
-    "33",
+    "35",
     0
    ],
    "alpha": [
-    "35",
+    "37",
     0
    ]
   },
@@ -484,7 +516,7 @@
    "title": "make it RGBA"
   }
  },
- "37": {
+ "39": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
@@ -492,11 +524,11 @@
     0
    ],
    "on_false": [
-    "33",
+    "35",
     0
    ],
    "on_true": [
-    "36",
+    "38",
     0
    ]
   },
@@ -504,12 +536,12 @@
    "title": "transparent switch"
   }
  },
- "38": {
+ "40": {
   "class_type": "SaveImage",
   "inputs": {
    "filename_prefix": "cast/wilson-headshot",
    "images": [
-    "37",
+    "39",
     0
    ]
   },

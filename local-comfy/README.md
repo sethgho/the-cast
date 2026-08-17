@@ -102,6 +102,13 @@ claim the card), and `sudo systemctl stop comfyui` to hand the GPU back.
 mid-prompt, `weary` and `amped` both came back as the reference grin. The `RESTATEMENT` node in
 the blue group is what fixes that. Expression control is still strongest with SCENE off.
 
+**Some characters can't be framed by prompting at all.** Wilson has no head, so however tightly the
+crop is described — and even from a pre-cropped reference plate — the model re-completes the whole
+figure. A character spec can therefore carry `headshot_crop: [x, y, w, h]`, which puts an
+`ImageCrop` + `ImageScale` straight after the decode: the render is framed deterministically instead
+of being asked for. The box is in pixels at the default 1024×1024, so it needs re-tuning if you
+change the output size.
+
 On headshots, **SCENE only works if `FRAMING` leaves room** — at a tight crop the scene has
 nowhere to go and comes back as speckled paper. "head and shoulders with room to breathe, the
 place visible behind his shoulders" puts the auditorium in.

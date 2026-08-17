@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 38,
- "last_link_id": 46,
+ "last_node_id": 40,
+ "last_link_id": 48,
  "nodes": [
   {
    "id": 1,
@@ -114,7 +114,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "extreme close-up, seen straight on: the bucket hat fills the top half of the picture and the picket tops fill the bottom half, as tightly cropped as image 1."
+    "seen straight on, hat level, the picket tops square to the viewer."
    ],
    "color": "#232",
    "bgcolor": "#353"
@@ -299,7 +299,7 @@
      "name": "BOOLEAN",
      "type": "BOOLEAN",
      "links": [
-      45
+      47
      ]
     }
    ],
@@ -1204,7 +1204,7 @@
      "name": "BACKGROUND_REMOVAL",
      "type": "BACKGROUND_REMOVAL",
      "links": [
-      38
+      40
      ]
     }
    ],
@@ -1582,9 +1582,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      39,
-      41,
-      43
+      38
      ]
     }
    ],
@@ -1596,6 +1594,94 @@
   },
   {
    "id": 34,
+   "type": "ImageCrop",
+   "pos": [
+    520,
+    900
+   ],
+   "size": [
+    380,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 34,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 38
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      39
+     ]
+    }
+   ],
+   "title": "crop to the portrait",
+   "properties": {
+    "Node name for S&R": "ImageCrop"
+   },
+   "widgets_values": [
+    570,
+    570,
+    230,
+    40
+   ]
+  },
+  {
+   "id": 35,
+   "type": "ImageScale",
+   "pos": [
+    520,
+    925
+   ],
+   "size": [
+    380,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 35,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 39
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      41,
+      43,
+      45
+     ]
+    }
+   ],
+   "title": "back up to output size",
+   "properties": {
+    "Node name for S&R": "ImageScale"
+   },
+   "widgets_values": [
+    "lanczos",
+    1024,
+    1024,
+    "disabled"
+   ]
+  },
+  {
+   "id": 36,
    "type": "RemoveBackground",
    "pos": [
     520,
@@ -1608,18 +1694,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 34,
+   "order": 36,
    "mode": 0,
    "inputs": [
     {
      "name": "bg_removal_model",
      "type": "BACKGROUND_REMOVAL",
-     "link": 38
+     "link": 40
     },
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 39
+     "link": 41
     }
    ],
    "outputs": [
@@ -1627,7 +1713,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      40
+      42
      ]
     }
    ],
@@ -1638,7 +1724,7 @@
    "widgets_values": []
   },
   {
-   "id": 35,
+   "id": 37,
    "type": "InvertMask",
    "pos": [
     520,
@@ -1651,13 +1737,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 35,
+   "order": 37,
    "mode": 0,
    "inputs": [
     {
      "name": "mask",
      "type": "MASK",
-     "link": 40
+     "link": 42
     }
    ],
    "outputs": [
@@ -1665,7 +1751,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      42
+      44
      ]
     }
    ],
@@ -1676,7 +1762,7 @@
    "widgets_values": []
   },
   {
-   "id": 36,
+   "id": 38,
    "type": "JoinImageWithAlpha",
    "pos": [
     520,
@@ -1689,18 +1775,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 36,
+   "order": 38,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 41
+     "link": 43
     },
     {
      "name": "alpha",
      "type": "MASK",
-     "link": 42
+     "link": 44
     }
    ],
    "outputs": [
@@ -1708,7 +1794,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      44
+      46
      ]
     }
    ],
@@ -1719,7 +1805,7 @@
    "widgets_values": []
   },
   {
-   "id": 37,
+   "id": 39,
    "type": "ComfySwitchNode",
    "pos": [
     520,
@@ -1732,23 +1818,23 @@
    "flags": {
     "collapsed": true
    },
-   "order": 37,
+   "order": 39,
    "mode": 0,
    "inputs": [
     {
      "name": "on_false",
      "type": "IMAGE",
-     "link": 43
+     "link": 45
     },
     {
      "name": "on_true",
      "type": "IMAGE",
-     "link": 44
+     "link": 46
     },
     {
      "name": "switch",
      "type": "BOOLEAN",
-     "link": 45,
+     "link": 47,
      "widget": {
       "name": "switch"
      }
@@ -1759,7 +1845,7 @@
      "name": "output",
      "type": "IMAGE",
      "links": [
-      46
+      48
      ]
     }
    ],
@@ -1772,7 +1858,7 @@
    ]
   },
   {
-   "id": 38,
+   "id": 40,
    "type": "SaveImage",
    "pos": [
     520,
@@ -1783,13 +1869,13 @@
     1200
    ],
    "flags": {},
-   "order": 38,
+   "order": 40,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 46
+     "link": 48
     }
    ],
    "outputs": [],
@@ -2101,73 +2187,89 @@
   ],
   [
    38,
-   27,
-   0,
-   34,
-   0,
-   "BACKGROUND_REMOVAL"
-  ],
-  [
-   39,
    33,
    0,
    34,
-   1,
+   0,
+   "IMAGE"
+  ],
+  [
+   39,
+   34,
+   0,
+   35,
+   0,
    "IMAGE"
   ],
   [
    40,
-   34,
-   0,
-   35,
-   0,
-   "MASK"
-  ],
-  [
-   41,
-   33,
+   27,
    0,
    36,
    0,
-   "IMAGE"
+   "BACKGROUND_REMOVAL"
   ],
   [
-   42,
+   41,
    35,
    0,
    36,
    1,
+   "IMAGE"
+  ],
+  [
+   42,
+   36,
+   0,
+   37,
+   0,
    "MASK"
   ],
   [
    43,
-   33,
+   35,
    0,
-   37,
+   38,
    0,
    "IMAGE"
   ],
   [
    44,
-   36,
-   0,
    37,
+   0,
+   38,
+   1,
+   "MASK"
+  ],
+  [
+   45,
+   35,
+   0,
+   39,
+   0,
+   "IMAGE"
+  ],
+  [
+   46,
+   38,
+   0,
+   39,
    1,
    "IMAGE"
   ],
   [
-   45,
+   47,
    7,
    0,
-   37,
+   39,
    2,
    "BOOLEAN"
   ],
   [
-   46,
-   37,
+   48,
+   39,
    0,
-   38,
+   40,
    0,
    "IMAGE"
   ]
@@ -2280,7 +2382,7 @@
     ]
    ],
    "outputs": [
-    "38"
+    "40"
    ]
   }
  },

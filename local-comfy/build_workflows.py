@@ -70,6 +70,8 @@ WIDGETS = {
     "EmptySD3LatentImage": ["width", "height", "batch_size"],
     "KSampler": ["seed", "control_after_generate", "steps", "cfg", "sampler_name", "scheduler", "denoise"],
     "VAEDecode": [],
+    "ImageCrop": ["width", "height", "x", "y"],
+    "ImageScale": ["upscale_method", "width", "height", "crop"],
     "RemoveBackground": [],
     "InvertMask": [],
     "JoinImageWithAlpha": [],
@@ -378,8 +380,9 @@ CHARACTERS["wilson"] = {
     ),
     "shot": "he leans his side against a tall fence post, one boot crossed over the other, relaxed.",
     "expression": "attentive — both eyes wide and level, the hat brim tipped a little forward.",
-    "framing": ("extreme close-up, seen straight on: the bucket hat fills the top half of the picture "
-                "and the picket tops fill the bottom half, as tightly cropped as image 1."),
+    "framing": "seen straight on, hat level, the picket tops square to the viewer.",
+    # The render is cropped to this box (x, y, w, h at 1024x1024) and scaled back up.
+    "headshot_crop": [230, 40, 570, 570],
     "restate_headshot": (
         "Above all, redraw the two cartoon eyes and the tilt of the hat so he clearly reads as:"
     ),
@@ -646,6 +649,22 @@ def build(cid, spec, kind_id):
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (vae, 0, "VAE", False)},
                    outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    # Some characters can't be framed by prompting alone — Wilson has no head, so the model
+    # re-completes the whole figure however tightly the crop is described. For those, the
+    # framing is done deterministically after the render.
+    crop = spec.get(f"{kind_id}_crop")
+    if crop:
+        x, y, cw, ch = crop
+        cropped = g.add("ImageCrop", "crop to the portrait", (520, 900), (380, 150),
+                        {"width": cw, "height": ch, "x": x, "y": y},
+                        links={"image": (decode, 0, "IMAGE", False)},
+                        outputs=[("IMAGE", "IMAGE")], collapsed=True)
+        decode = g.add("ImageScale", "back up to output size", (520, 925), (380, 150),
+                       {"upscale_method": "lanczos", "width": 1024, "height": 1024,
+                        "crop": "disabled"},
+                       links={"image": (cropped, 0, "IMAGE", False)},
+                       outputs=[("IMAGE", "IMAGE")], collapsed=True)
+
     cutout = g.add("RemoveBackground", "cut the figure out", (520, 1000), (380, 90),
                    links={"bg_removal_model": (bgmodel, 0, "BACKGROUND_REMOVAL", False),
                           "image": (decode, 0, "IMAGE", False)},
