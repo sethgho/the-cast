@@ -2,49 +2,58 @@
  "2": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "he stands with both hands on his hips, chest out, one foot forward, looking off to one side, pleased with himself."
+   "value": "delighted \u2014 brows up, eyes wide, a big open grin under the moustache."
   },
   "_meta": {
-   "title": "\u25b6 1 \u00b7 YOUR SHOT \u2014 what he is doing (TYPE HERE)"
+   "title": "\u25b6 1 \u00b7 HIS EXPRESSION \u2014 what his face is doing (TYPE HERE)"
   }
  },
  "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "head and shoulders, facing the viewer, chin level, filling most of the frame."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 FRAMING \u2014 crop and head angle (TYPE HERE)"
+  }
+ },
+ "4": {
   "class_type": "PrimitiveBoolean",
   "inputs": {
    "value": false
   },
   "_meta": {
-   "title": "\u25b6 2 \u00b7 SCENE   off = flat grey plate \u00b7 on = in a scene"
+   "title": "\u25b6 3 \u00b7 SCENE   off = flat grey plate \u00b7 on = in a scene"
   }
  },
- "4": {
+ "5": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "the empty auditorium seen from the stage, house lights low, rows of seats receding."
   },
   "_meta": {
-   "title": "\u25b6 3 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)"
+   "title": "\u25b6 4 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)"
   }
  },
- "5": {
+ "6": {
   "class_type": "LoadImage",
   "inputs": {
    "image": "cast-seth-scene-empty-auditorium.png"
   },
   "_meta": {
-   "title": "\u25b6 4 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on"
+   "title": "\u25b6 5 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on"
   }
  },
- "6": {
+ "7": {
   "class_type": "PrimitiveBoolean",
   "inputs": {
    "value": false
   },
   "_meta": {
-   "title": "\u25b6 5 \u00b7 TRANSPARENT PNG   on = cut the background out"
+   "title": "\u25b6 6 \u00b7 TRANSPARENT PNG   on = cut the background out"
   }
  },
- "7": {
+ "8": {
   "class_type": "EmptySD3LatentImage",
   "inputs": {
    "width": 1024,
@@ -52,19 +61,19 @@
    "batch_size": 1
   },
   "_meta": {
-   "title": "\u25b6 6 \u00b7 OUTPUT SIZE"
+   "title": "\u25b6 7 \u00b7 OUTPUT SIZE"
   }
  },
- "8": {
+ "9": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "Redraw the character in image 1 as a single full-body cartoon figure, keeping his identity exactly: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, wearing a plain v-neck t-shirt of very dark olive charcoal \u2014 near-black, the same flat dark tone as the t-shirt in image 1 \u2014 with warm grey trousers and black-and-white sneakers. Keep his face, hair, moustache, build and clothing identical to image 1, and keep every colour as muted and desaturated as image 1. The new drawing shows him as follows:"
+   "value": "Redraw the character in image 1 as a head-and-shoulders portrait, keeping his identity exactly: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, wearing a plain v-neck t-shirt of very dark olive charcoal \u2014 near-black, the same flat dark tone as the t-shirt in image 1. Keep the shape of his face, his hair, his moustache and his colouring identical to image 1, keep both eyes and the whole moustache inside the frame, and keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
   },
   "_meta": {
    "title": "CHARACTER LOCK \u2014 who Seth is"
   }
  },
- "9": {
+ "10": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
@@ -73,39 +82,39 @@
    "title": "STYLE LOCK \u2014 house style"
   }
  },
- "10": {
+ "11": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "He is centred in frame, whole body inside the frame, on a single flat mid-grey backdrop of one even tone \u2014 no scenery, no horizon, no floor line, no cast shadow on the ground and no props except the ones named above."
+   "value": "Behind him is a single flat mid-grey backdrop of one even tone \u2014 no scenery, no horizon and no props."
   },
   "_meta": {
    "title": "PLATE BACKGROUND \u2014 used when SCENE is off"
   }
  },
- "11": {
+ "12": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "He is standing inside the scene shown in image 2, at believable scale, lit by that scene's light and casting its shadows. The scene is:"
+   "value": "The background behind him is the scene shown in image 2, drawn in the same ink and halftone style, simplified and a little soft so his face stays the subject, but still clearly readable as that place. The scene is:"
   },
   "_meta": {
    "title": "SCENE LEAD-IN \u2014 used when SCENE is on"
   }
  },
- "12": {
+ "13": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "cast-seth-plate.png"
+   "image": "cast-seth-headshot.png"
   },
   "_meta": {
    "title": "CHARACTER PLATE \u2014 Seth's reference (image 1)"
   }
  },
- "13": {
+ "14": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "8",
+    "9",
     0
    ],
    "string_b": [
@@ -114,44 +123,24 @@
    ]
   },
   "_meta": {
-   "title": "+ shot"
+   "title": "+ expression"
   }
  },
- "14": {
+ "15": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "11",
+    "14",
     0
    ],
    "string_b": [
-    "4",
-    0
-   ]
-  },
-  "_meta": {
-   "title": "scene lead-in + your scene"
-  }
- },
- "15": {
-  "class_type": "ComfySwitchNode",
-  "inputs": {
-   "switch": [
     "3",
     0
-   ],
-   "on_false": [
-    "10",
-    0
-   ],
-   "on_true": [
-    "14",
-    0
    ]
   },
   "_meta": {
-   "title": "background text switch"
+   "title": "+ framing"
   }
  },
  "16": {
@@ -159,11 +148,48 @@
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "13",
+    "12",
     0
    ],
    "string_b": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scene lead-in + your scene"
+  }
+ },
+ "17": {
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "switch": [
+    "4",
+    0
+   ],
+   "on_false": [
+    "11",
+    0
+   ],
+   "on_true": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "background text switch"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
     "15",
+    0
+   ],
+   "string_b": [
+    "17",
     0
    ]
   },
@@ -171,16 +197,16 @@
    "title": "+ background"
   }
  },
- "17": {
+ "19": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "16",
+    "18",
     0
    ],
    "string_b": [
-    "9",
+    "10",
     0
    ]
   },
@@ -188,7 +214,7 @@
    "title": "FINAL PROMPT \u2014 expand to read what the model got"
   }
  },
- "18": {
+ "20": {
   "class_type": "UnetLoaderGGUF",
   "inputs": {
    "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
@@ -197,13 +223,13 @@
    "title": "diffusion model"
   }
  },
- "19": {
+ "21": {
   "class_type": "LoraLoaderModelOnly",
   "inputs": {
    "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
    "strength_model": 1.0,
    "model": [
-    "18",
+    "20",
     0
    ]
   },
@@ -211,7 +237,7 @@
    "title": "Lightning LoRA (8 steps)"
   }
  },
- "20": {
+ "22": {
   "class_type": "CLIPLoader",
   "inputs": {
    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
@@ -222,7 +248,7 @@
    "title": "text encoder"
   }
  },
- "21": {
+ "23": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "qwen_image_vae.safetensors"
@@ -231,7 +257,7 @@
    "title": "VAE"
   }
  },
- "22": {
+ "24": {
   "class_type": "LoadBackgroundRemovalModel",
   "inputs": {
    "bg_removal_name": "birefnet.safetensors"
@@ -240,23 +266,23 @@
    "title": "BiRefNet (for TRANSPARENT PNG)"
   }
  },
- "23": {
+ "25": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": [
-    "17",
+    "19",
     0
    ],
    "clip": [
-    "20",
+    "22",
     0
    ],
    "vae": [
-    "21",
+    "23",
     0
    ],
    "image1": [
-    "12",
+    "13",
     0
    ]
   },
@@ -264,27 +290,27 @@
    "title": "encode \u2014 plate (image 1 only)"
   }
  },
- "24": {
+ "26": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": [
-    "17",
+    "19",
     0
    ],
    "clip": [
-    "20",
+    "22",
     0
    ],
    "vae": [
-    "21",
+    "23",
     0
    ],
    "image1": [
-    "12",
+    "13",
     0
    ],
    "image2": [
-    "5",
+    "6",
     0
    ]
   },
@@ -292,19 +318,19 @@
    "title": "encode \u2014 scene (image 1 + image 2)"
   }
  },
- "25": {
+ "27": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
-    "3",
+    "4",
     0
    ],
    "on_false": [
-    "23",
+    "25",
     0
    ],
    "on_true": [
-    "24",
+    "26",
     0
    ]
   },
@@ -312,12 +338,12 @@
    "title": "positive switch (same SCENE toggle)"
   }
  },
- "26": {
+ "28": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
    "clip": [
-    "20",
+    "22",
     0
    ]
   },
@@ -325,7 +351,7 @@
    "title": "negative (only bites when cfg > 1)"
   }
  },
- "27": {
+ "29": {
   "class_type": "KSampler",
   "inputs": {
    "seed": 1,
@@ -335,35 +361,35 @@
    "scheduler": "simple",
    "denoise": 1.0,
    "model": [
-    "19",
+    "21",
     0
    ],
    "positive": [
-    "25",
+    "27",
     0
    ],
    "negative": [
-    "26",
+    "28",
     0
    ],
    "latent_image": [
-    "7",
+    "8",
     0
    ]
   },
   "_meta": {
-   "title": "\u25b6 7 \u00b7 SEED + STEPS"
+   "title": "\u25b6 8 \u00b7 SEED + STEPS"
   }
  },
- "28": {
+ "30": {
   "class_type": "VAEDecode",
   "inputs": {
    "samples": [
-    "27",
+    "29",
     0
    ],
    "vae": [
-    "21",
+    "23",
     0
    ]
   },
@@ -371,15 +397,15 @@
    "title": "decode"
   }
  },
- "29": {
+ "31": {
   "class_type": "RemoveBackground",
   "inputs": {
    "bg_removal_model": [
-    "22",
+    "24",
     0
    ],
    "image": [
-    "28",
+    "30",
     0
    ]
   },
@@ -387,11 +413,11 @@
    "title": "cut the figure out"
   }
  },
- "30": {
+ "32": {
   "class_type": "InvertMask",
   "inputs": {
    "mask": [
-    "29",
+    "31",
     0
    ]
   },
@@ -399,15 +425,15 @@
    "title": "flip to ComfyUI mask convention"
   }
  },
- "31": {
+ "33": {
   "class_type": "JoinImageWithAlpha",
   "inputs": {
    "image": [
-    "28",
+    "30",
     0
    ],
    "alpha": [
-    "30",
+    "32",
     0
    ]
   },
@@ -415,19 +441,19 @@
    "title": "make it RGBA"
   }
  },
- "32": {
+ "34": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
-    "6",
+    "7",
     0
    ],
    "on_false": [
-    "28",
+    "30",
     0
    ],
    "on_true": [
-    "31",
+    "33",
     0
    ]
   },
@@ -435,12 +461,12 @@
    "title": "transparent switch"
   }
  },
- "33": {
+ "35": {
   "class_type": "SaveImage",
   "inputs": {
-   "filename_prefix": "cast/seth-pose",
+   "filename_prefix": "cast/seth-headshot",
    "images": [
-    "32",
+    "34",
     0
    ]
   },

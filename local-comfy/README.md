@@ -10,8 +10,19 @@ Measured on the RTX 3080 Ti (12GB): **~48s at 8 steps**, **~25s at 4 steps**, 10
 
 | Path | What it is |
 |---|---|
-| `workflows/<id>-pose.json` | Load this in the ComfyUI builder. |
-| `api/<id>-pose.api.json` | Same graph, API format — for scripts and CI. |
+| `workflows/<id>-<kind>.json` | Load this in the ComfyUI builder. |
+| `workflows/<id>-<kind>.app.json` | The same file under the name the Apps list reads. |
+| `api/<id>-<kind>.api.json` | Same graph, API format — for scripts and CI. |
+
+Two kinds today, both generated from one `build()`:
+
+- **`pose`** — full-body figure from the character plate. Fields: `YOUR SHOT`.
+- **`headshot`** — head-and-shoulders portrait from the headshot plate. Fields:
+  `HIS EXPRESSION`, `FRAMING`. Expression control is strong — "weary, heavy lids, one brow up,
+  mouth a flat line" lands as a different performance, not a different person.
+
+Both carry the same `SCENE` / `TRANSPARENT PNG` / size / seed controls, numbered after their
+own fields.
 | `plates/` | The reference images the workflow expects in `ComfyUI/input/`. |
 | `build_workflows.py` | Generates both files from one character spec. Edit here, not the JSON. |
 | `smoke_test.py` | Runs the API graph through all four switch combinations. |
@@ -85,6 +96,10 @@ claim the card), and `sudo systemctl stop comfyui` to hand the GPU back.
 2. **State the style, and the colours, in words.** With only a reference image the palette
    drifts modern — Seth's near-black t-shirt came back mid-teal until the lock said
    "very dark olive charcoal, near-black". Positive phrasing works; "never bright green" does not.
+
+On headshots, **SCENE only works if `FRAMING` leaves room** — at a tight crop the scene has
+nowhere to go and comes back as speckled paper. "head and shoulders with room to breathe, the
+place visible behind his shoulders" puts the auditorium in.
 
 A third, smaller one: `JoinImageWithAlpha` inverts its mask (ComfyUI's convention is 1 = masked
 out), so `RemoveBackground` needs an `InvertMask` after it or the *figure* goes transparent.

@@ -8,8 +8,8 @@
    "id": 1,
    "type": "MarkdownNote",
    "pos": [
-    -1560,
-    -560
+    -560,
+    -620
    ],
    "size": [
     480,
@@ -25,7 +25,7 @@
     "Node name for S&R": "MarkdownNote"
    },
    "widgets_values": [
-    "# Seth \u2014 pose & scene\n\n**Type in the two green boxes. Flip the two switches. Press Run.**\n\n## The controls\n\nEverything you touch is the numbered column on the left, top to bottom.\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 YOUR SHOT** | The one box you always edit. Say what he is *doing*, in one sentence. |\n| **2 \u00b7 SCENE** | OFF = flat mid-grey plate (pose-library style). ON = puts him in the scene plate + your scene text. |\n| **3 \u00b7 YOUR SCENE** | Where he is. Only read when `SCENE` is ON. |\n| **4 \u00b7 SCENE PLATE** | The image 2 backdrop. Only read when `SCENE` is ON. |\n| **5 \u00b7 TRANSPARENT PNG** | ON = cuts the background out and saves an RGBA PNG. Meant for plate shots. |\n| **6 \u00b7 OUTPUT SIZE** | 1024\u00d71024 by default. 1024\u00d71536 for a tall figure, 1536\u00d71024 for a wide gag. |\n| **7 \u00b7 SEED + STEPS** | Re-roll here. 8 steps ships; drop to 4 with the 4-step LoRA for drafts. |\n\n## What NOT to edit\n\nEverything else is collapsed on purpose. The blue group is the character and house style \u2014\nwhat makes the output look like Seth and not a stock cartoon. Expand it only to re-canonise\nhim. Expand **FINAL PROMPT** in that group any time you want to read exactly what the model got.\n\n## Speed on gpu-worker (RTX 3080 Ti, 12GB)\n\n- **8 steps \u2248 48s** at 1024\u00d71024 \u2014 the shipped default, best hands and halftone.\n- **4 steps \u2248 25s** \u2014 swap the LoRA to `...Lightning-4steps...` and set `steps` to 4 for drafting.\n\n## Two rules learned the hard way\n\n1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a\n   *subject*, not a style \u2014 two character plates get merged into one creature.\n2. Style lives in **words**, not in a reference. If the palette drifts modern or the newsprint\n   grain vanishes, the style box got weakened.\n"
+    "# Seth \u2014 pose & scene\n\n**Fill in the numbered fields, flip the switches, press Run.**\n\n## The controls\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 YOUR SHOT** | The one box you always edit. Say what he is *doing*, in one sentence. |\n| **2 \u00b7 SCENE** | OFF = flat mid-grey plate. ON = the scene plate plus your scene text. |\n| **3 \u00b7 YOUR SCENE** | Where he is. Only read when SCENE is ON. |\n| **4 \u00b7 SCENE PLATE** | The image 2 backdrop. Only read when SCENE is ON. |\n| **5 \u00b7 TRANSPARENT PNG** | ON = cuts him out and saves an RGBA PNG. |\n| **6 \u00b7 WIDTH / HEIGHT** | 1024\u00d71024 by default. |\n| **7 \u00b7 SEED + STEPS** | Re-roll here. 8 steps ships; 4 drafts with the 4-step LoRA. |\n\n## What NOT to edit\n\nEverything else is collapsed on purpose. The blue group is the character and house style \u2014\nwhat makes the output look like Seth and not a stock cartoon. Expand it only to re-canonise\nhim. Expand **FINAL PROMPT** in that group any time you want to read exactly what the model got.\n\n## Speed on gpu-worker (RTX 3080 Ti, 12GB)\n\n- **8 steps \u2248 48s** at 1024\u00d71024 \u2014 the shipped default, best hands and halftone.\n- **4 steps \u2248 25s** \u2014 swap the LoRA to `...Lightning-4steps...` and set `steps` to 4 for drafting.\n\n## Two rules learned the hard way\n\n1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a\n   *subject*, not a style \u2014 two character plates get merged into one creature.\n2. Style lives in **words**, not in a reference. If the palette drifts modern or the newsprint\n   grain vanishes, the style box got weakened.\n"
    ]
   },
   {
@@ -109,7 +109,7 @@
      ]
     }
    ],
-   "title": "\u25b6 2 \u00b7 SCENE   false = flat grey plate \u00b7 true = in a scene",
+   "title": "\u25b6 2 \u00b7 SCENE   off = flat grey plate \u00b7 on = in a scene",
    "properties": {
     "Node name for S&R": "PrimitiveBoolean"
    },
@@ -142,7 +142,7 @@
       "name": "value"
      },
      "link": null,
-     "label": "3 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)"
+     "label": "3 \u00b7 YOUR SCENE \u2014 only read when SCENE is on"
     }
    ],
    "outputs": [
@@ -154,7 +154,7 @@
      ]
     }
    ],
-   "title": "\u25b6 3 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE = true)",
+   "title": "\u25b6 3 \u00b7 YOUR SCENE \u2014 where he is (only read when SCENE is on)",
    "properties": {
     "Node name for S&R": "PrimitiveStringMultiline"
    },
@@ -187,7 +187,7 @@
       "name": "image"
      },
      "link": null,
-     "label": "4 \u00b7 SCENE PLATE (only read when SCENE is on)"
+     "label": "4 \u00b7 SCENE PLATE \u2014 only read when SCENE is on"
     },
     {
      "name": "upload",
@@ -213,7 +213,7 @@
      "links": null
     }
    ],
-   "title": "\u25b6 4 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE = true",
+   "title": "\u25b6 4 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on",
    "properties": {
     "Node name for S&R": "LoadImage"
    },
@@ -257,7 +257,7 @@
      ]
     }
    ],
-   "title": "\u25b6 5 \u00b7 TRANSPARENT PNG   true = cut the background out",
+   "title": "\u25b6 5 \u00b7 TRANSPARENT PNG   on = cut the background out",
    "properties": {
     "Node name for S&R": "PrimitiveBoolean"
    },
@@ -561,7 +561,7 @@
      ]
     }
    ],
-   "title": "character lock + your shot",
+   "title": "+ shot",
    "properties": {
     "Node name for S&R": "StringConcatenate"
    },
@@ -1557,7 +1557,7 @@
     "Node name for S&R": "SaveImage"
    },
    "widgets_values": [
-    "cast/seth"
+    "cast/seth-pose"
    ]
   }
  ],
@@ -1886,12 +1886,12 @@
  "groups": [
   {
    "id": 1,
-   "title": "\u2461 YOUR SHOT \u00b7 everything you touch is in this column, top to bottom",
+   "title": "\u2460 YOUR SHOT \u00b7 everything you touch is in this column, top to bottom",
    "bounding": [
     -70,
     -690,
     520,
-    1470
+    1430
    ],
    "color": "#4a7c3f",
    "font_size": 24,
@@ -1899,7 +1899,7 @@
   },
   {
    "id": 2,
-   "title": "\u2460 SETH \u2014 CHARACTER & STYLE LOCK \u00b7 expand only to re-canonise him",
+   "title": "\u2461 SETH \u2014 CHARACTER & STYLE LOCK \u00b7 expand only to re-canonise him",
    "bounding": [
     1210,
     -690,
