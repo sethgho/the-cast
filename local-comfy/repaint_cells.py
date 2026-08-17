@@ -111,9 +111,38 @@ def graph(image_name):
     }
 
 
+PAD = 0.86     # how much of the frame the character is shrunk into before repainting
+
+
+def pad_for_repaint(src, dst):
+    """Shrink the frame into itself before handing it to the repaint.
+
+    H3 draws the character filling the 832 frame, and the repaint reliably draws him a few percent
+    LARGER than he arrived -- so his hair ran off the top edge. Eight of ten walk frames came back
+    with a flat-topped head, which then poisoned everything downstream: a clipped silhouette has no
+    true top, so the head-size measure and the alignment were both reading a truncated shape.
+
+    Padding first costs a little resolution and buys a guaranteed margin. The key colour is
+    measured from the frame rather than assumed, so the padding is the same magenta the model
+    painted and the keyer cannot see a seam.
+    """
+    import numpy as np
+    from PIL import Image
+    im = Image.open(src).convert("RGB")
+    key = tuple(int(v) for v in SS.measure_key(np.asarray(im).astype(np.float32)))
+    w, h = im.size
+    small = im.resize((int(w * PAD), int(h * PAD)), Image.LANCZOS)
+    canvas = Image.new("RGB", (w, h), key)
+    # centred horizontally, sitting low: the headroom is what we are buying
+    canvas.paste(small, ((w - small.width) // 2, h - small.height - int(h * 0.02)))
+    canvas.save(dst)
+    return dst
+
+
 def repaint(src, dst):
     import run as R
-    g = graph(R.upload(src))
+    padded = pad_for_repaint(src, dst.replace(".png", "-padded.png"))
+    g = graph(R.upload(padded))
     for node in g.values():
         node.setdefault("_meta", {"title": "node"})
     pid = S.api("/prompt", {"prompt": g, "client_id": "repaint"})["prompt_id"]
