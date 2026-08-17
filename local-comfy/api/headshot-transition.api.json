@@ -1,0 +1,471 @@
+{
+ "2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-seth-headshot.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 HEADSHOT A \u2014 who starts in frame"
+  }
+ },
+ "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump"
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 WHO A IS \u2014 and how he moves"
+  }
+ },
+ "4": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-wilson-headshot.png"
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 HEADSHOT B \u2014 who ends in frame"
+  }
+ },
+ "5": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "a living picket-fence panel \u2014 the fence panel IS his body \u2014 with two short stubby metal legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow beneath its brim; he stumps stiffly about on those short boots, upright as a plank, and never bends at a waist because he has none"
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 WHO B IS \u2014 and how he moves"
+  }
+ },
+ "6": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "the character who leaves turns and walks out of frame past the left edge, and as the frame empties the character who arrives walks in from the right edge and stops in exactly the same spot, settling into the portrait"
+  },
+  "_meta": {
+   "title": "\u25b6 5 \u00b7 THE TRANSITION (paste a recipe)"
+  }
+ },
+ "7": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "A short clip from a 1933 newspaper comic strip, drawn in Fleischer-era rubber-hose cartoon style: confident smooth ink outlines of even weight, soft halftone dot shading, warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. The camera never moves and the framing never changes: one fixed head-and-shoulders frame with the same flat backdrop throughout, like a portrait slot that two characters take turns standing in. The clip begins on the character in the first frame and ends on the character in the last frame, and only ever those two characters appear."
+  },
+  "_meta": {
+   "title": "SHOT LOCK \u2014 style, camera and framing"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "The character who leaves is"
+  },
+  "_meta": {
+   "title": "WHO-A LEAD-IN"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "The character who arrives is"
+  },
+  "_meta": {
+   "title": "WHO-B LEAD-IN"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "The handover happens like this:"
+  },
+  "_meta": {
+   "title": "TRANSITION LEAD-IN"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
+  },
+  "_meta": {
+   "title": "SOUND LOCK \u2014 H3 needs this even when muted"
+  }
+ },
+ "12": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "7",
+    0
+   ],
+   "string_b": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "shot lock + who-A lead"
+  }
+ },
+ "13": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "12",
+    0
+   ],
+   "string_b": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ who A is"
+  }
+ },
+ "14": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "13",
+    0
+   ],
+   "string_b": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ who-B lead"
+  }
+ },
+ "15": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "14",
+    0
+   ],
+   "string_b": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ who B is"
+  }
+ },
+ "16": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "15",
+    0
+   ],
+   "string_b": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ transition lead"
+  }
+ },
+ "17": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "16",
+    0
+   ],
+   "string_b": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ the transition"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "17",
+    0
+   ],
+   "string_b": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what H3 got"
+  }
+ },
+ "19": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  },
+  "_meta": {
+   "title": "MiniMax H3 (video)"
+  }
+ },
+ "20": {
+  "class_type": "EasyCache",
+  "inputs": {
+   "reuse_threshold": 0.2,
+   "start_percent": 0.15,
+   "end_percent": 0.95,
+   "verbose": true,
+   "model": [
+    "19",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "EasyCache"
+  }
+ },
+ "21": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "type": "minimax",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "H3 text encoder"
+  }
+ },
+ "22": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+  },
+  "_meta": {
+   "title": "video VAE"
+  }
+ },
+ "23": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "audio VAE"
+  }
+ },
+ "24": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 480,
+   "height": 480,
+   "crop": "disabled",
+   "image": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale headshot A to the canvas"
+  }
+ },
+ "25": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 480,
+   "height": 480,
+   "crop": "disabled",
+   "image": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale headshot B to the canvas"
+  }
+ },
+ "26": {
+  "class_type": "MiniMaxH3ImageToVideo",
+  "inputs": {
+   "prompt": [
+    "18",
+    0
+   ],
+   "width": 480,
+   "height": 480,
+   "length": 61,
+   "clip": [
+    "21",
+    0
+   ],
+   "vae": [
+    "22",
+    0
+   ],
+   "first_frame": [
+    "24",
+    0
+   ],
+   "last_frame": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "H3 \u2014 A pinned first, B pinned last"
+  }
+ },
+ "27": {
+  "class_type": "BasicGuider",
+  "inputs": {
+   "model": [
+    "20",
+    0
+   ],
+   "conditioning": [
+    "26",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "guider"
+  }
+ },
+ "28": {
+  "class_type": "KSamplerSelect",
+  "inputs": {
+   "sampler_name": "res_multistep"
+  },
+  "_meta": {
+   "title": "sampler"
+  }
+ },
+ "29": {
+  "class_type": "RandomNoise",
+  "inputs": {
+   "noise_seed": 11
+  },
+  "_meta": {
+   "title": "\u25b6 6 \u00b7 SEED"
+  }
+ },
+ "30": {
+  "class_type": "BasicScheduler",
+  "inputs": {
+   "scheduler": "simple",
+   "steps": 10,
+   "denoise": 1.0,
+   "model": [
+    "20",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 6 \u00b7 STEPS"
+  }
+ },
+ "31": {
+  "class_type": "SamplerCustomAdvanced",
+  "inputs": {
+   "noise": [
+    "29",
+    0
+   ],
+   "guider": [
+    "27",
+    0
+   ],
+   "sampler": [
+    "28",
+    0
+   ],
+   "sigmas": [
+    "30",
+    0
+   ],
+   "latent_image": [
+    "26",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "sample"
+  }
+ },
+ "32": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "31",
+    0
+   ],
+   "vae": [
+    "22",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode frames"
+  }
+ },
+ "33": {
+  "class_type": "VAEDecodeAudio",
+  "inputs": {
+   "samples": [
+    "31",
+    0
+   ],
+   "vae": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode audio"
+  }
+ },
+ "34": {
+  "class_type": "CreateVideo",
+  "inputs": {
+   "fps": 24,
+   "bit_depth": 8,
+   "images": [
+    "32",
+    0
+   ],
+   "audio": [
+    "33",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "make the video"
+  }
+ },
+ "35": {
+  "class_type": "SaveVideo",
+  "inputs": {
+   "filename_prefix": "video/transition",
+   "format": "auto",
+   "codec": "auto",
+   "video": [
+    "34",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

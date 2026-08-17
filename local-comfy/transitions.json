@@ -1,0 +1,22 @@
+{
+ "transitions": {
+  "walk-across": "the character who leaves turns and walks out of frame past the left edge, and as the frame empties the character who arrives walks in from the right edge and stops in exactly the same spot, settling into the portrait",
+  "slide-swap": "both characters slide sideways as if standing on a moving belt \u2014 the one who leaves glides out past the left edge while the one who arrives glides in from the right \u2014 and the arriving character comes to rest square in the middle of the frame",
+  "curtain-wipe": "a heavy stage curtain sweeps across the frame from one side, hiding everything for a moment, and when it sweeps back the character who arrives is standing in the portrait instead",
+  "iris-wipe": "the picture irises down \u2014 a circle of black closing in from the edges until it pinches shut on the character who leaves \u2014 then irises open again from a point to reveal the character who arrives standing in the same spot",
+  "spin-swap": "the whole portrait spins on the spot like a flipped coin, blurring as it turns, and when it slows and settles the character who arrives is the one facing forward",
+  "trapdoor": "a trapdoor bangs open under the character who leaves and drops him straight down out of frame with a puff of dust; a beat later the same trapdoor flips up and the character who arrives rises up through it into the portrait",
+  "vaudeville-hook": "a long crooked shepherd's hook reaches in from the side of the frame, catches the character who leaves and yanks him out sideways; the character who arrives strolls in from the other side and takes the spot",
+  "puff-of-smoke": "the character who leaves vanishes in a sudden puff of smoke, the smoke swells and curls to fill the frame, and as it thins and drifts away the character who arrives is standing there in his place",
+  "anvil-drop": "a heavy iron anvil drops into frame on top of the character who leaves with a cloud of dust, and when the dust settles it is the character who arrives standing there, unbothered",
+  "page-turn": "the whole picture is a sheet of newsprint that peels up at one corner and turns like a page, and the page underneath is the same portrait with the character who arrives in it",
+  "cannon-launch": "the character who leaves is fired out of frame like a circus cannonball, leaving a little smoke ring behind, and the character who arrives drops into the empty spot from above and bounces once before settling",
+  "squash-and-stretch": "the character who leaves squashes down into a rubbery blob, the blob wobbles, and then it stretches back up into the character who arrives, who shakes himself straight"
+ },
+ "traits": {
+  "seth": "a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump",
+  "wilson": "a living picket-fence panel \u2014 the fence panel IS his body \u2014 with two short stubby metal legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow beneath its brim; he stumps stiffly about on those short boots, upright as a plank, and never bends at a waist because he has none",
+  "cadbury": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+  "ake": "a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, wearing a little dark cap; he has no legs and never walks \u2014 the dolly rolls him along, he arrives and leaves by rolling, and the water sloshes in the bowl as he moves"
+ }
+}
