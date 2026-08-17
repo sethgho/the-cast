@@ -1,0 +1,1756 @@
+{
+ "id": "cast-local-qwen-edit",
+ "revision": 0,
+ "last_node_id": 33,
+ "last_link_id": 40,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -1560,
+    -560
+   ],
+   "size": [
+    480,
+    900
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "HOW TO USE \u2014 Seth",
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "# Seth \u2014 pose & scene\n\n**Type in the two green boxes. Flip the two switches. Press Run.**\n\n## The controls\n\n| Control | What it does |\n|---|---|\n| **\u25b6 YOUR SHOT** | The one box you always edit. Say what he is *doing*, in one sentence. |\n| **\u25b6 YOUR SCENE** | Where he is. Only used when `SCENE` is ON. |\n| **SCENE** switch | OFF = flat mid-grey plate (pose-library style). ON = puts him in the scene image + your scene text. |\n| **TRANSPARENT PNG** switch | ON = cuts the background out and saves an RGBA PNG. Works with either scene setting, but is meant for plate shots. |\n| **OUTPUT SIZE** | 1024\u00d71024 by default. 1024\u00d71536 for a tall figure, 1536\u00d71024 for a wide gag. |\n\n## What NOT to edit\n\nThe blue boxes are the character and house style. They are what makes the output look like\nSeth and not a stock cartoon. Leave them alone unless you are deliberately re-canonising him.\n\n## Speed on gpu-worker (RTX 3080 Ti, 12GB)\n\n- **8 steps \u2248 48s** at 1024\u00d71024 \u2014 the shipped default, best hands and halftone.\n- **4 steps \u2248 25s** \u2014 swap the LoRA to `...Lightning-4steps...` and set `steps` to 4 for drafting.\n\n## Two rules learned the hard way\n\n1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a\n   *subject*, not a style \u2014 two character plates get merged into one creature.\n2. Style lives in **words**, not in a reference. If the palette drifts modern or the newsprint\n   grain vanishes, the style box got weakened.\n"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -1020,
+    -560
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      6
+     ]
+    }
+   ],
+   "title": "CHARACTER LOCK \u2014 who Seth is (leave alone)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Redraw the character in image 1 as a single full-body cartoon figure, keeping his identity exactly: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, wearing a plain v-neck t-shirt of very dark olive charcoal \u2014 near-black, the same flat dark tone as the t-shirt in image 1 \u2014 with warm grey trousers and black-and-white sneakers. Keep his face, hair, moustache, build and clothing identical to image 1, and keep every colour as muted and desaturated as image 1. The new drawing shows him as follows:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 3,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -1020,
+    -230
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      11
+     ]
+    }
+   ],
+   "title": "STYLE LOCK \u2014 house style (leave alone)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 4,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -1020,
+    100
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      3
+     ]
+    }
+   ],
+   "title": "PLATE BACKGROUND \u2014 used when SCENE is OFF (leave alone)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "He is centred in frame, whole body inside the frame, on a single flat mid-grey backdrop of one even tone \u2014 no scenery, no horizon, no floor line, no cast shadow on the ground and no props except the ones named above."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 5,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -1020,
+    320
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "title": "SCENE LEAD-IN \u2014 used when SCENE is ON (leave alone)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "He is standing inside the scene shown in image 2, at believable scale, lit by that scene's light and casting its shadows. The scene is:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 6,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -520,
+    -560
+   ],
+   "size": [
+    440,
+    330
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      7
+     ]
+    }
+   ],
+   "title": "\u25b6 YOUR SHOT \u2014 what he is doing (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "he stands with both hands on his hips, chest out, one foot forward, looking off to one side, pleased with himself."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 7,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -520,
+    -200
+   ],
+   "size": [
+    440,
+    250
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      2
+     ]
+    }
+   ],
+   "title": "\u25b6 YOUR SCENE \u2014 where he is (TYPE HERE, needs SCENE = true)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "the empty auditorium seen from the stage, house lights low, rows of seats receding."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 8,
+   "type": "PrimitiveBoolean",
+   "pos": [
+    -520,
+    80
+   ],
+   "size": [
+    440,
+    90
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "BOOLEAN",
+     "type": "BOOLEAN",
+     "links": [
+      5,
+      24
+     ]
+    }
+   ],
+   "title": "SCENE  \u00b7  false = flat grey plate,  true = in a scene",
+   "properties": {
+    "Node name for S&R": "PrimitiveBoolean"
+   },
+   "widgets_values": [
+    false
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveBoolean",
+   "pos": [
+    -520,
+    200
+   ],
+   "size": [
+    440,
+    90
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "BOOLEAN",
+     "type": "BOOLEAN",
+     "links": [
+      39
+     ]
+    }
+   ],
+   "title": "TRANSPARENT PNG  \u00b7  true = cut the background out",
+   "properties": {
+    "Node name for S&R": "PrimitiveBoolean"
+   },
+   "widgets_values": [
+    false
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 10,
+   "type": "LoadImage",
+   "pos": [
+    -520,
+    320
+   ],
+   "size": [
+    440,
+    420
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      15,
+      19
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "CHARACTER PLATE \u2014 Seth's reference (image 1)",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-seth-plate.png",
+    "image"
+   ]
+  },
+  {
+   "id": 11,
+   "type": "LoadImage",
+   "pos": [
+    -520,
+    780
+   ],
+   "size": [
+    440,
+    420
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      20
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "SCENE PLATE (image 2) \u2014 only read when SCENE = true",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-seth-scene-empty-auditorium.png",
+    "image"
+   ]
+  },
+  {
+   "id": 12,
+   "type": "StringConcatenate",
+   "pos": [
+    -20,
+    -200
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 1,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 2,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      4
+     ]
+    }
+   ],
+   "title": "scene lead-in + your scene",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 13,
+   "type": "ComfySwitchNode",
+   "pos": [
+    -20,
+    0
+   ],
+   "size": [
+    330,
+    130
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "STRING",
+     "link": 3
+    },
+    {
+     "name": "on_true",
+     "type": "STRING",
+     "link": 4
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 5,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "STRING",
+     "links": [
+      9
+     ]
+    }
+   ],
+   "title": "BACKGROUND text switch",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 14,
+   "type": "StringConcatenate",
+   "pos": [
+    -20,
+    -560
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 6,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 7,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      8
+     ]
+    }
+   ],
+   "title": "character lock + your shot",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 15,
+   "type": "StringConcatenate",
+   "pos": [
+    -20,
+    -390
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 8,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 9,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "title": "+ background",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 16,
+   "type": "StringConcatenate",
+   "pos": [
+    -20,
+    160
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 10,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 11,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      16,
+      21
+     ]
+    }
+   ],
+   "title": "FINAL PROMPT (= what the model reads)",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 17,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    -20,
+    700
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "title": "diffusion model",
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-edit-2511-Q4_K_S.gguf"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 18,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -20,
+    820
+   ],
+   "size": [
+    400,
+    110
+   ],
+   "flags": {},
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 12
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      26
+     ]
+    }
+   ],
+   "title": "Lightning LoRA (8 steps)",
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly"
+   },
+   "widgets_values": [
+    "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+    1.0
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 19,
+   "type": "CLIPLoader",
+   "pos": [
+    -20,
+    970
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      13,
+      17,
+      25
+     ]
+    }
+   ],
+   "title": "text encoder",
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 20,
+   "type": "VAELoader",
+   "pos": [
+    -20,
+    1140
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {},
+   "order": 20,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      14,
+      18,
+      31
+     ]
+    }
+   ],
+   "title": "VAE",
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_vae.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 21,
+   "type": "LoadBackgroundRemovalModel",
+   "pos": [
+    -20,
+    1260
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "BACKGROUND_REMOVAL",
+     "type": "BACKGROUND_REMOVAL",
+     "links": [
+      32
+     ]
+    }
+   ],
+   "title": "BiRefNet (for TRANSPARENT PNG)",
+   "properties": {
+    "Node name for S&R": "LoadBackgroundRemovalModel"
+   },
+   "widgets_values": [
+    "birefnet.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 22,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    420,
+    -560
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 13
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 14
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 15
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 16,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      22
+     ]
+    }
+   ],
+   "title": "encode \u2014 plate (image 1 only)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 23,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    420,
+    -380
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 17
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 18
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 19
+    },
+    {
+     "name": "image2",
+     "type": "IMAGE",
+     "link": 20
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 21,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      23
+     ]
+    }
+   ],
+   "title": "encode \u2014 scene (image 1 + image 2)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 24,
+   "type": "ComfySwitchNode",
+   "pos": [
+    420,
+    -190
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "CONDITIONING",
+     "link": 22
+    },
+    {
+     "name": "on_true",
+     "type": "CONDITIONING",
+     "link": 23
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 24,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "CONDITIONING",
+     "links": [
+      27
+     ]
+    }
+   ],
+   "title": "POSITIVE switch (same SCENE toggle)",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 25,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    420,
+    0
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 25,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 25
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      28
+     ]
+    }
+   ],
+   "title": "negative (only bites when cfg > 1)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 26,
+   "type": "EmptySD3LatentImage",
+   "pos": [
+    420,
+    180
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 26,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      29
+     ]
+    }
+   ],
+   "title": "OUTPUT SIZE",
+   "properties": {
+    "Node name for S&R": "EmptySD3LatentImage"
+   },
+   "widgets_values": [
+    1024,
+    1024,
+    1
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 27,
+   "type": "KSampler",
+   "pos": [
+    420,
+    360
+   ],
+   "size": [
+    400,
+    270
+   ],
+   "flags": {},
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 26
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 27
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 28
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 29
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      30
+     ]
+    }
+   ],
+   "title": "sampler \u00b7 seed + steps live here",
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    1,
+    "randomize",
+    8,
+    1.0,
+    "euler",
+    "simple",
+    1.0
+   ]
+  },
+  {
+   "id": 28,
+   "type": "VAEDecode",
+   "pos": [
+    420,
+    680
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {},
+   "order": 28,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 30
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 31
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      33,
+      35,
+      37
+     ]
+    }
+   ],
+   "title": "decode",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 29,
+   "type": "RemoveBackground",
+   "pos": [
+    900,
+    -560
+   ],
+   "size": [
+    380,
+    90
+   ],
+   "flags": {},
+   "order": 29,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "bg_removal_model",
+     "type": "BACKGROUND_REMOVAL",
+     "link": 32
+    },
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 33
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      34
+     ]
+    }
+   ],
+   "title": "cut the figure out",
+   "properties": {
+    "Node name for S&R": "RemoveBackground"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 30,
+   "type": "InvertMask",
+   "pos": [
+    900,
+    -430
+   ],
+   "size": [
+    380,
+    80
+   ],
+   "flags": {},
+   "order": 30,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 34
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      36
+     ]
+    }
+   ],
+   "title": "flip to ComfyUI mask convention",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 31,
+   "type": "JoinImageWithAlpha",
+   "pos": [
+    900,
+    -330
+   ],
+   "size": [
+    380,
+    90
+   ],
+   "flags": {},
+   "order": 31,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 35
+    },
+    {
+     "name": "alpha",
+     "type": "MASK",
+     "link": 36
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      38
+     ]
+    }
+   ],
+   "title": "make it RGBA",
+   "properties": {
+    "Node name for S&R": "JoinImageWithAlpha"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 32,
+   "type": "ComfySwitchNode",
+   "pos": [
+    900,
+    -200
+   ],
+   "size": [
+    380,
+    130
+   ],
+   "flags": {},
+   "order": 32,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "IMAGE",
+     "link": 37
+    },
+    {
+     "name": "on_true",
+     "type": "IMAGE",
+     "link": 38
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 39,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "IMAGE",
+     "links": [
+      40
+     ]
+    }
+   ],
+   "title": "TRANSPARENT switch",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 33,
+   "type": "SaveImage",
+   "pos": [
+    900,
+    -100
+   ],
+   "size": [
+    600,
+    700
+   ],
+   "flags": {},
+   "order": 33,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 40
+    }
+   ],
+   "outputs": [],
+   "title": "SAVE",
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "cast/seth"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   5,
+   0,
+   12,
+   0,
+   "STRING"
+  ],
+  [
+   2,
+   7,
+   0,
+   12,
+   1,
+   "STRING"
+  ],
+  [
+   3,
+   4,
+   0,
+   13,
+   0,
+   "STRING"
+  ],
+  [
+   4,
+   12,
+   0,
+   13,
+   1,
+   "STRING"
+  ],
+  [
+   5,
+   8,
+   0,
+   13,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   6,
+   2,
+   0,
+   14,
+   0,
+   "STRING"
+  ],
+  [
+   7,
+   6,
+   0,
+   14,
+   1,
+   "STRING"
+  ],
+  [
+   8,
+   14,
+   0,
+   15,
+   0,
+   "STRING"
+  ],
+  [
+   9,
+   13,
+   0,
+   15,
+   1,
+   "STRING"
+  ],
+  [
+   10,
+   15,
+   0,
+   16,
+   0,
+   "STRING"
+  ],
+  [
+   11,
+   3,
+   0,
+   16,
+   1,
+   "STRING"
+  ],
+  [
+   12,
+   17,
+   0,
+   18,
+   0,
+   "MODEL"
+  ],
+  [
+   13,
+   19,
+   0,
+   22,
+   0,
+   "CLIP"
+  ],
+  [
+   14,
+   20,
+   0,
+   22,
+   1,
+   "VAE"
+  ],
+  [
+   15,
+   10,
+   0,
+   22,
+   2,
+   "IMAGE"
+  ],
+  [
+   16,
+   16,
+   0,
+   22,
+   3,
+   "STRING"
+  ],
+  [
+   17,
+   19,
+   0,
+   23,
+   0,
+   "CLIP"
+  ],
+  [
+   18,
+   20,
+   0,
+   23,
+   1,
+   "VAE"
+  ],
+  [
+   19,
+   10,
+   0,
+   23,
+   2,
+   "IMAGE"
+  ],
+  [
+   20,
+   11,
+   0,
+   23,
+   3,
+   "IMAGE"
+  ],
+  [
+   21,
+   16,
+   0,
+   23,
+   4,
+   "STRING"
+  ],
+  [
+   22,
+   22,
+   0,
+   24,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   23,
+   23,
+   0,
+   24,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   24,
+   8,
+   0,
+   24,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   25,
+   19,
+   0,
+   25,
+   0,
+   "CLIP"
+  ],
+  [
+   26,
+   18,
+   0,
+   27,
+   0,
+   "MODEL"
+  ],
+  [
+   27,
+   24,
+   0,
+   27,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   28,
+   25,
+   0,
+   27,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   29,
+   26,
+   0,
+   27,
+   3,
+   "LATENT"
+  ],
+  [
+   30,
+   27,
+   0,
+   28,
+   0,
+   "LATENT"
+  ],
+  [
+   31,
+   20,
+   0,
+   28,
+   1,
+   "VAE"
+  ],
+  [
+   32,
+   21,
+   0,
+   29,
+   0,
+   "BACKGROUND_REMOVAL"
+  ],
+  [
+   33,
+   28,
+   0,
+   29,
+   1,
+   "IMAGE"
+  ],
+  [
+   34,
+   29,
+   0,
+   30,
+   0,
+   "MASK"
+  ],
+  [
+   35,
+   28,
+   0,
+   31,
+   0,
+   "IMAGE"
+  ],
+  [
+   36,
+   30,
+   0,
+   31,
+   1,
+   "MASK"
+  ],
+  [
+   37,
+   28,
+   0,
+   32,
+   0,
+   "IMAGE"
+  ],
+  [
+   38,
+   31,
+   0,
+   32,
+   1,
+   "IMAGE"
+  ],
+  [
+   39,
+   9,
+   0,
+   32,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   40,
+   32,
+   0,
+   33,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "\u2460 SETH \u2014 CHARACTER & STYLE LOCK \u00b7 leave alone",
+   "bounding": [
+    -1050,
+    -630,
+    490,
+    1180
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "\u2461 YOUR SHOT \u00b7 type in the green boxes, flip the switches",
+   "bounding": [
+    -550,
+    -630,
+    500,
+    1860
+   ],
+   "color": "#4a7c3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "engine \u00b7 don't touch",
+   "bounding": [
+    -50,
+    630,
+    460,
+    760
+   ],
+   "color": "#444",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "\u2462 OUTPUT",
+   "bounding": [
+    870,
+    -630,
+    660,
+    1250
+   ],
+   "color": "#8a6d3b",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "definitions": {
+  "subgraphs": []
+ },
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.55,
+   "offset": [
+    1600,
+    700
+   ]
+  }
+ },
+ "version": 0.4
+}
