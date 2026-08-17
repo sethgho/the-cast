@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 38,
- "last_link_id": 46,
+ "last_node_id": 35,
+ "last_link_id": 38,
  "nodes": [
   {
    "id": 1,
@@ -25,7 +25,7 @@
     "Node name for S&R": "MarkdownNote"
    },
    "widgets_values": [
-    "# Cadbury \u2014 headshot & expression\n\n**Fill in the numbered fields, flip the switches, press Run.**\n\n## The controls\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 HIS EXPRESSION** | Brows, eyes, mouth. One sentence, e.g. weary with heavy lids and a flat mouth. |\n| **2 \u00b7 FRAMING** | How close, which way he faces, where he looks. In SCENE mode give him room \u2014 a tight crop leaves the scene nowhere to go. |\n| **3 \u00b7 SCENE** | OFF = flat mid-grey plate. ON = the scene plate plus your scene text. |\n| **4 \u00b7 YOUR SCENE** | Where he is. Only read when SCENE is ON. |\n| **5 \u00b7 SCENE PLATE** | The image 2 backdrop. Only read when SCENE is ON. |\n| **6 \u00b7 TRANSPARENT PNG** | ON = cuts him out and saves an RGBA PNG. |\n| **7 \u00b7 WIDTH / HEIGHT** | 1024\u00d71024 by default. |\n| **8 \u00b7 SEED + STEPS** | Re-roll here. 8 steps ships; 4 drafts with the 4-step LoRA. |\n\n## What NOT to edit\n\nEverything else is collapsed on purpose. The blue group is the character and house style \u2014\nwhat makes the output look like Cadbury and not a stock cartoon. Expand it only to re-canonise\nhim. Expand **FINAL PROMPT** in that group any time you want to read exactly what the model got.\n\n## Speed on gpu-worker (RTX 3080 Ti, 12GB)\n\n- **8 steps \u2248 48s** at 1024\u00d71024 \u2014 the shipped default, best hands and halftone.\n- **4 steps \u2248 25s** \u2014 swap the LoRA to `...Lightning-4steps...` and set `steps` to 4 for drafting.\n\n## Two rules learned the hard way\n\n1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a\n   *subject*, not a style \u2014 two character plates get merged into one creature.\n2. Style lives in **words**, not in a reference. If the palette drifts modern or the newsprint\n   grain vanishes, the style box got weakened.\n"
+    "# Cadbury \u2014 headshot & expression\n\n**Fill in the numbered fields, flip the switches, press Run.**\n\n## The controls\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 HIS EXPRESSION** | Brows, eyes, mouth. One sentence, e.g. weary with heavy lids and a flat mouth. |\n| **2 \u00b7 FRAMING** | How close, which way he faces, where he looks. In SCENE mode give him room \u2014 a tight crop leaves the scene nowhere to go. |\n| **3 \u00b7 SCENE** | OFF = flat mid-grey plate. ON = the place you describe below. |\n| **4 \u00b7 YOUR SCENE** | The location, in words. Only read when SCENE is ON. |\n| **5 \u00b7 TRANSPARENT PNG** | ON = cuts him out and saves an RGBA PNG. |\n| **6 \u00b7 WIDTH / HEIGHT** | 1024\u00d71024 by default. |\n| **7 \u00b7 SEED + STEPS** | Re-roll here. 8 steps ships; 4 drafts with the 4-step LoRA. |\n\n## What NOT to edit\n\nEverything else is collapsed on purpose. The blue group is the character and house style \u2014\nwhat makes the output look like Cadbury and not a stock cartoon. Expand it only to re-canonise\nhim. Expand **FINAL PROMPT** in that group any time you want to read exactly what the model got.\n\n## Speed on gpu-worker (RTX 3080 Ti, 12GB)\n\n- **8 steps \u2248 48s** at 1024\u00d71024 \u2014 the shipped default, best hands and halftone.\n- **4 steps \u2248 25s** \u2014 swap the LoRA to `...Lightning-4steps...` and set `steps` to 4 for drafting.\n\n## Two rules learned the hard way\n\n1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a\n   *subject*, not a style \u2014 two character plates get merged into one creature.\n2. Style lives in **words**, not in a reference. If the palette drifts modern or the newsprint\n   grain vanishes, the style box got weakened.\n"
    ]
   },
   {
@@ -150,8 +150,7 @@
      "name": "BOOLEAN",
      "type": "BOOLEAN",
      "links": [
-      9,
-      30
+      9
      ]
     }
    ],
@@ -212,75 +211,17 @@
   },
   {
    "id": 6,
-   "type": "LoadImage",
+   "type": "PrimitiveBoolean",
    "pos": [
     -40,
     250
    ],
    "size": [
     460,
-    400
-   ],
-   "flags": {},
-   "order": 6,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "image",
-     "localized_name": "image",
-     "type": "COMBO",
-     "widget": {
-      "name": "image"
-     },
-     "link": null,
-     "label": "5 \u00b7 SCENE PLATE \u2014 only read when SCENE is on"
-    },
-    {
-     "name": "upload",
-     "localized_name": "choose file to upload",
-     "type": "IMAGEUPLOAD",
-     "widget": {
-      "name": "upload"
-     },
-     "link": null
-    }
-   ],
-   "outputs": [
-    {
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "links": [
-      26
-     ]
-    },
-    {
-     "name": "MASK",
-     "type": "MASK",
-     "links": null
-    }
-   ],
-   "title": "\u25b6 5 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on",
-   "properties": {
-    "Node name for S&R": "LoadImage"
-   },
-   "widgets_values": [
-    "cast-scene-empty-stage.png",
-    "image"
-   ]
-  },
-  {
-   "id": 7,
-   "type": "PrimitiveBoolean",
-   "pos": [
-    -40,
-    680
-   ],
-   "size": [
-    460,
     80
    ],
    "flags": {},
-   "order": 7,
+   "order": 6,
    "mode": 0,
    "inputs": [
     {
@@ -291,7 +232,7 @@
       "name": "value"
      },
      "link": null,
-     "label": "6 \u00b7 TRANSPARENT PNG \u2014 cut the background out"
+     "label": "5 \u00b7 TRANSPARENT PNG \u2014 cut the background out"
     }
    ],
    "outputs": [
@@ -299,11 +240,11 @@
      "name": "BOOLEAN",
      "type": "BOOLEAN",
      "links": [
-      45
+      37
      ]
     }
    ],
-   "title": "\u25b6 6 \u00b7 TRANSPARENT PNG   on = cut the background out",
+   "title": "\u25b6 5 \u00b7 TRANSPARENT PNG   on = cut the background out",
    "properties": {
     "Node name for S&R": "PrimitiveBoolean"
    },
@@ -314,18 +255,18 @@
    "bgcolor": "#535"
   },
   {
-   "id": 8,
+   "id": 7,
    "type": "EmptySD3LatentImage",
    "pos": [
     -40,
-    790
+    360
    ],
    "size": [
     460,
     130
    ],
    "flags": {},
-   "order": 8,
+   "order": 7,
    "mode": 0,
    "inputs": [
     {
@@ -336,7 +277,7 @@
       "name": "width"
      },
      "link": null,
-     "label": "7 \u00b7 WIDTH"
+     "label": "6 \u00b7 WIDTH"
     },
     {
      "name": "height",
@@ -346,7 +287,7 @@
       "name": "height"
      },
      "link": null,
-     "label": "7 \u00b7 HEIGHT"
+     "label": "6 \u00b7 HEIGHT"
     },
     {
      "name": "batch_size",
@@ -363,11 +304,11 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      35
+      27
      ]
     }
    ],
-   "title": "\u25b6 7 \u00b7 OUTPUT SIZE",
+   "title": "\u25b6 6 \u00b7 OUTPUT SIZE",
    "properties": {
     "Node name for S&R": "EmptySD3LatentImage"
    },
@@ -380,7 +321,7 @@
    "bgcolor": "#535"
   },
   {
-   "id": 9,
+   "id": 8,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1240,
@@ -393,7 +334,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 9,
+   "order": 8,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -416,7 +357,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 10,
+   "id": 9,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1240,
@@ -429,7 +370,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 10,
+   "order": 9,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -452,7 +393,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 11,
+   "id": 10,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1240,
@@ -465,7 +406,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 11,
+   "order": 10,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -488,7 +429,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 12,
+   "id": 11,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1240,
@@ -501,7 +442,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 12,
+   "order": 11,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -518,13 +459,13 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "The background behind him is the scene shown in image 2, drawn in the same ink and halftone style, simplified and a little soft so his face stays the subject, but still clearly readable as that place. The scene is:"
+    "Draw the location behind him in the same ink and halftone, simplified and a little soft so his face stays the subject, but clearly readable as that place. The location is:"
    ],
    "color": "#223",
    "bgcolor": "#335"
   },
   {
-   "id": 13,
+   "id": 12,
    "type": "LoadImage",
    "pos": [
     1240,
@@ -537,7 +478,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 13,
+   "order": 12,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -545,8 +486,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      21,
-      25
+      21
      ]
     },
     {
@@ -565,7 +505,7 @@
    ]
   },
   {
-   "id": 14,
+   "id": 13,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -578,7 +518,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 14,
+   "order": 13,
    "mode": 0,
    "inputs": [
     {
@@ -618,7 +558,7 @@
    ]
   },
   {
-   "id": 15,
+   "id": 14,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -631,7 +571,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 15,
+   "order": 14,
    "mode": 0,
    "inputs": [
     {
@@ -671,7 +611,7 @@
    ]
   },
   {
-   "id": 16,
+   "id": 15,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -684,7 +624,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 16,
+   "order": 15,
    "mode": 0,
    "inputs": [
     {
@@ -724,7 +664,7 @@
    ]
   },
   {
-   "id": 17,
+   "id": 16,
    "type": "ComfySwitchNode",
    "pos": [
     1240,
@@ -737,7 +677,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 17,
+   "order": 16,
    "mode": 0,
    "inputs": [
     {
@@ -777,7 +717,7 @@
    ]
   },
   {
-   "id": 18,
+   "id": 17,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -790,7 +730,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 18,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
@@ -830,7 +770,7 @@
    ]
   },
   {
-   "id": 19,
+   "id": 18,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1240,
@@ -843,7 +783,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 19,
+   "order": 18,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -866,7 +806,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 20,
+   "id": 19,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -879,7 +819,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 20,
+   "order": 19,
    "mode": 0,
    "inputs": [
     {
@@ -919,7 +859,7 @@
    ]
   },
   {
-   "id": 21,
+   "id": 20,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -932,7 +872,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 21,
+   "order": 20,
    "mode": 0,
    "inputs": [
     {
@@ -972,7 +912,7 @@
    ]
   },
   {
-   "id": 22,
+   "id": 21,
    "type": "StringConcatenate",
    "pos": [
     1240,
@@ -985,7 +925,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 22,
+   "order": 21,
    "mode": 0,
    "inputs": [
     {
@@ -1010,8 +950,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      22,
-      27
+      22
      ]
     }
    ],
@@ -1026,7 +965,7 @@
    ]
   },
   {
-   "id": 23,
+   "id": 22,
    "type": "UnetLoaderGGUF",
    "pos": [
     1240,
@@ -1039,7 +978,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 23,
+   "order": 22,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1062,7 +1001,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 24,
+   "id": 23,
    "type": "LoraLoaderModelOnly",
    "pos": [
     1240,
@@ -1075,7 +1014,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 24,
+   "order": 23,
    "mode": 0,
    "inputs": [
     {
@@ -1089,7 +1028,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      32
+      24
      ]
     }
    ],
@@ -1105,7 +1044,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 25,
+   "id": 24,
    "type": "CLIPLoader",
    "pos": [
     1240,
@@ -1118,7 +1057,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 25,
+   "order": 24,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1127,8 +1066,7 @@
      "type": "CLIP",
      "links": [
       19,
-      23,
-      31
+      23
      ]
     }
    ],
@@ -1145,7 +1083,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 26,
+   "id": 25,
    "type": "VAELoader",
    "pos": [
     1240,
@@ -1158,7 +1096,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 26,
+   "order": 25,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1167,8 +1105,7 @@
      "type": "VAE",
      "links": [
       20,
-      24,
-      37
+      29
      ]
     }
    ],
@@ -1183,7 +1120,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 27,
+   "id": 26,
    "type": "LoadBackgroundRemovalModel",
    "pos": [
     1240,
@@ -1196,7 +1133,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 27,
+   "order": 26,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1204,7 +1141,7 @@
      "name": "BACKGROUND_REMOVAL",
      "type": "BACKGROUND_REMOVAL",
      "links": [
-      38
+      30
      ]
     }
    ],
@@ -1219,7 +1156,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 28,
+   "id": 27,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1240,
@@ -1232,7 +1169,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 28,
+   "order": 27,
    "mode": 0,
    "inputs": [
     {
@@ -1264,11 +1201,11 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      28
+      25
      ]
     }
    ],
-   "title": "encode \u2014 plate (image 1 only)",
+   "title": "encode (character plate + the prompt)",
    "properties": {
     "Node name for S&R": "TextEncodeQwenImageEditPlus"
    },
@@ -1277,7 +1214,7 @@
    ]
   },
   {
-   "id": 29,
+   "id": 28,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1240,
@@ -1290,36 +1227,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 29,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "name": "clip",
      "type": "CLIP",
      "link": 23
-    },
-    {
-     "name": "vae",
-     "type": "VAE",
-     "link": 24
-    },
-    {
-     "name": "image1",
-     "type": "IMAGE",
-     "link": 25
-    },
-    {
-     "name": "image2",
-     "type": "IMAGE",
-     "link": 26
-    },
-    {
-     "name": "prompt",
-     "type": "STRING",
-     "link": 27,
-     "widget": {
-      "name": "prompt"
-     }
     }
    ],
    "outputs": [
@@ -1327,100 +1241,7 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      29
-     ]
-    }
-   ],
-   "title": "encode \u2014 scene (image 1 + image 2)",
-   "properties": {
-    "Node name for S&R": "TextEncodeQwenImageEditPlus"
-   },
-   "widgets_values": [
-    ""
-   ]
-  },
-  {
-   "id": 30,
-   "type": "ComfySwitchNode",
-   "pos": [
-    1240,
-    406
-   ],
-   "size": [
-    400,
-    130
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 30,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "on_false",
-     "type": "CONDITIONING",
-     "link": 28
-    },
-    {
-     "name": "on_true",
-     "type": "CONDITIONING",
-     "link": 29
-    },
-    {
-     "name": "switch",
-     "type": "BOOLEAN",
-     "link": 30,
-     "widget": {
-      "name": "switch"
-     }
-    }
-   ],
-   "outputs": [
-    {
-     "name": "output",
-     "type": "CONDITIONING",
-     "links": [
-      33
-     ]
-    }
-   ],
-   "title": "positive switch (same SCENE toggle)",
-   "properties": {
-    "Node name for S&R": "ComfySwitchNode"
-   },
-   "widgets_values": [
-    false
-   ]
-  },
-  {
-   "id": 31,
-   "type": "TextEncodeQwenImageEditPlus",
-   "pos": [
-    1240,
-    452
-   ],
-   "size": [
-    400,
-    130
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 31,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "clip",
-     "type": "CLIP",
-     "link": 31
-    }
-   ],
-   "outputs": [
-    {
-     "name": "CONDITIONING",
-     "type": "CONDITIONING",
-     "links": [
-      34
+      26
      ]
     }
    ],
@@ -1435,7 +1256,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 32,
+   "id": 29,
    "type": "KSampler",
    "pos": [
     520,
@@ -1446,28 +1267,28 @@
     270
    ],
    "flags": {},
-   "order": 32,
+   "order": 29,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 32
+     "link": 24
     },
     {
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 33
+     "link": 25
     },
     {
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 34
+     "link": 26
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 35
+     "link": 27
     },
     {
      "name": "seed",
@@ -1477,7 +1298,7 @@
       "name": "seed"
      },
      "link": null,
-     "label": "8 \u00b7 SEED"
+     "label": "7 \u00b7 SEED"
     },
     {
      "name": "steps",
@@ -1487,7 +1308,7 @@
       "name": "steps"
      },
      "link": null,
-     "label": "8 \u00b7 STEPS (8 ships, 4 drafts)"
+     "label": "7 \u00b7 STEPS (8 ships, 4 drafts)"
     },
     {
      "name": "cfg",
@@ -1531,11 +1352,11 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      36
+      28
      ]
     }
    ],
-   "title": "\u25b6 8 \u00b7 SEED + STEPS",
+   "title": "\u25b6 7 \u00b7 SEED + STEPS",
    "properties": {
     "Node name for S&R": "KSampler"
    },
@@ -1550,7 +1371,7 @@
    ]
   },
   {
-   "id": 33,
+   "id": 30,
    "type": "VAEDecode",
    "pos": [
     520,
@@ -1563,18 +1384,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 33,
+   "order": 30,
    "mode": 0,
    "inputs": [
     {
      "name": "samples",
      "type": "LATENT",
-     "link": 36
+     "link": 28
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 37
+     "link": 29
     }
    ],
    "outputs": [
@@ -1582,9 +1403,9 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      39,
-      41,
-      43
+      31,
+      33,
+      35
      ]
     }
    ],
@@ -1595,7 +1416,7 @@
    "widgets_values": []
   },
   {
-   "id": 34,
+   "id": 31,
    "type": "RemoveBackground",
    "pos": [
     520,
@@ -1608,18 +1429,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 34,
+   "order": 31,
    "mode": 0,
    "inputs": [
     {
      "name": "bg_removal_model",
      "type": "BACKGROUND_REMOVAL",
-     "link": 38
+     "link": 30
     },
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 39
+     "link": 31
     }
    ],
    "outputs": [
@@ -1627,7 +1448,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      40
+      32
      ]
     }
    ],
@@ -1638,7 +1459,7 @@
    "widgets_values": []
   },
   {
-   "id": 35,
+   "id": 32,
    "type": "InvertMask",
    "pos": [
     520,
@@ -1651,13 +1472,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 35,
+   "order": 32,
    "mode": 0,
    "inputs": [
     {
      "name": "mask",
      "type": "MASK",
-     "link": 40
+     "link": 32
     }
    ],
    "outputs": [
@@ -1665,7 +1486,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      42
+      34
      ]
     }
    ],
@@ -1676,7 +1497,7 @@
    "widgets_values": []
   },
   {
-   "id": 36,
+   "id": 33,
    "type": "JoinImageWithAlpha",
    "pos": [
     520,
@@ -1689,18 +1510,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 36,
+   "order": 33,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 41
+     "link": 33
     },
     {
      "name": "alpha",
      "type": "MASK",
-     "link": 42
+     "link": 34
     }
    ],
    "outputs": [
@@ -1708,7 +1529,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      44
+      36
      ]
     }
    ],
@@ -1719,7 +1540,7 @@
    "widgets_values": []
   },
   {
-   "id": 37,
+   "id": 34,
    "type": "ComfySwitchNode",
    "pos": [
     520,
@@ -1732,23 +1553,23 @@
    "flags": {
     "collapsed": true
    },
-   "order": 37,
+   "order": 34,
    "mode": 0,
    "inputs": [
     {
      "name": "on_false",
      "type": "IMAGE",
-     "link": 43
+     "link": 35
     },
     {
      "name": "on_true",
      "type": "IMAGE",
-     "link": 44
+     "link": 36
     },
     {
      "name": "switch",
      "type": "BOOLEAN",
-     "link": 45,
+     "link": 37,
      "widget": {
       "name": "switch"
      }
@@ -1759,7 +1580,7 @@
      "name": "output",
      "type": "IMAGE",
      "links": [
-      46
+      38
      ]
     }
    ],
@@ -1772,7 +1593,7 @@
    ]
   },
   {
-   "id": 38,
+   "id": 35,
    "type": "SaveImage",
    "pos": [
     520,
@@ -1783,13 +1604,13 @@
     1200
    ],
    "flags": {},
-   "order": 38,
+   "order": 35,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 46
+     "link": 38
     }
    ],
    "outputs": [],
@@ -1805,9 +1626,9 @@
  "links": [
   [
    1,
-   9,
+   8,
    0,
-   14,
+   13,
    0,
    "STRING"
   ],
@@ -1815,15 +1636,15 @@
    2,
    2,
    0,
-   14,
+   13,
    1,
    "STRING"
   ],
   [
    3,
-   14,
+   13,
    0,
-   15,
+   14,
    0,
    "STRING"
   ],
@@ -1831,15 +1652,15 @@
    4,
    3,
    0,
-   15,
+   14,
    1,
    "STRING"
   ],
   [
    5,
-   12,
+   11,
    0,
-   16,
+   15,
    0,
    "STRING"
   ],
@@ -1847,23 +1668,23 @@
    6,
    5,
    0,
-   16,
+   15,
    1,
    "STRING"
   ],
   [
    7,
-   11,
+   10,
    0,
-   17,
+   16,
    0,
    "STRING"
   ],
   [
    8,
-   16,
+   15,
    0,
-   17,
+   16,
    1,
    "STRING"
   ],
@@ -1871,31 +1692,31 @@
    9,
    4,
    0,
-   17,
+   16,
    2,
    "BOOLEAN"
   ],
   [
    10,
-   15,
+   14,
    0,
-   18,
+   17,
    0,
    "STRING"
   ],
   [
    11,
-   17,
+   16,
    0,
-   18,
+   17,
    1,
    "STRING"
   ],
   [
    12,
-   19,
+   18,
    0,
-   20,
+   19,
    0,
    "STRING"
   ],
@@ -1903,212 +1724,188 @@
    13,
    2,
    0,
-   20,
+   19,
    1,
    "STRING"
   ],
   [
    14,
-   18,
+   17,
    0,
-   21,
+   20,
    0,
    "STRING"
   ],
   [
    15,
-   20,
+   19,
    0,
-   21,
+   20,
    1,
    "STRING"
   ],
   [
    16,
-   21,
+   20,
    0,
-   22,
+   21,
    0,
    "STRING"
   ],
   [
    17,
-   10,
+   9,
    0,
-   22,
+   21,
    1,
    "STRING"
   ],
   [
    18,
-   23,
+   22,
    0,
-   24,
+   23,
    0,
    "MODEL"
   ],
   [
    19,
-   25,
+   24,
    0,
-   28,
+   27,
    0,
    "CLIP"
   ],
   [
    20,
-   26,
+   25,
    0,
-   28,
+   27,
    1,
    "VAE"
   ],
   [
    21,
-   13,
+   12,
    0,
-   28,
+   27,
    2,
    "IMAGE"
   ],
   [
    22,
-   22,
+   21,
    0,
-   28,
+   27,
    3,
    "STRING"
   ],
   [
    23,
-   25,
+   24,
    0,
-   29,
+   28,
    0,
    "CLIP"
   ],
   [
    24,
-   26,
+   23,
    0,
    29,
-   1,
-   "VAE"
-  ],
-  [
-   25,
-   13,
-   0,
-   29,
-   2,
-   "IMAGE"
-  ],
-  [
-   26,
-   6,
-   0,
-   29,
-   3,
-   "IMAGE"
-  ],
-  [
-   27,
-   22,
-   0,
-   29,
-   4,
-   "STRING"
-  ],
-  [
-   28,
-   28,
-   0,
-   30,
-   0,
-   "CONDITIONING"
-  ],
-  [
-   29,
-   29,
-   0,
-   30,
-   1,
-   "CONDITIONING"
-  ],
-  [
-   30,
-   4,
-   0,
-   30,
-   2,
-   "BOOLEAN"
-  ],
-  [
-   31,
-   25,
-   0,
-   31,
-   0,
-   "CLIP"
-  ],
-  [
-   32,
-   24,
-   0,
-   32,
    0,
    "MODEL"
   ],
   [
-   33,
-   30,
+   25,
+   27,
    0,
-   32,
+   29,
    1,
    "CONDITIONING"
   ],
   [
-   34,
-   31,
+   26,
+   28,
    0,
-   32,
+   29,
    2,
    "CONDITIONING"
   ],
   [
-   35,
-   8,
+   27,
+   7,
    0,
-   32,
+   29,
    3,
    "LATENT"
   ],
   [
-   36,
-   32,
+   28,
+   29,
    0,
-   33,
+   30,
    0,
    "LATENT"
   ],
   [
-   37,
-   26,
+   29,
+   25,
    0,
-   33,
+   30,
    1,
    "VAE"
   ],
   [
-   38,
-   27,
+   30,
+   26,
    0,
-   34,
+   31,
    0,
    "BACKGROUND_REMOVAL"
   ],
   [
-   39,
+   31,
+   30,
+   0,
+   31,
+   1,
+   "IMAGE"
+  ],
+  [
+   32,
+   31,
+   0,
+   32,
+   0,
+   "MASK"
+  ],
+  [
+   33,
+   30,
+   0,
+   33,
+   0,
+   "IMAGE"
+  ],
+  [
+   34,
+   32,
+   0,
+   33,
+   1,
+   "MASK"
+  ],
+  [
+   35,
+   30,
+   0,
+   34,
+   0,
+   "IMAGE"
+  ],
+  [
+   36,
    33,
    0,
    34,
@@ -2116,58 +1913,18 @@
    "IMAGE"
   ],
   [
-   40,
+   37,
+   6,
+   0,
    34,
-   0,
-   35,
-   0,
-   "MASK"
-  ],
-  [
-   41,
-   33,
-   0,
-   36,
-   0,
-   "IMAGE"
-  ],
-  [
-   42,
-   35,
-   0,
-   36,
-   1,
-   "MASK"
-  ],
-  [
-   43,
-   33,
-   0,
-   37,
-   0,
-   "IMAGE"
-  ],
-  [
-   44,
-   36,
-   0,
-   37,
-   1,
-   "IMAGE"
-  ],
-  [
-   45,
-   7,
-   0,
-   37,
    2,
    "BOOLEAN"
   ],
   [
-   46,
-   37,
-   0,
    38,
+   34,
+   0,
+   35,
    0,
    "IMAGE"
   ]
@@ -2180,7 +1937,7 @@
     -70,
     -690,
     520,
-    1620
+    1190
    ],
    "color": "#4a7c3f",
    "font_size": 24,
@@ -2256,31 +2013,27 @@
     ],
     [
      "6",
-     "image"
-    ],
-    [
-     "7",
      "value"
     ],
     [
-     "8",
+     "7",
      "width"
     ],
     [
-     "8",
+     "7",
      "height"
     ],
     [
-     "32",
+     "29",
      "seed"
     ],
     [
-     "32",
+     "29",
      "steps"
     ]
    ],
    "outputs": [
-    "38"
+    "35"
    ]
   }
  },

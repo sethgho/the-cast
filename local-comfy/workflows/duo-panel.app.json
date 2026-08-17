@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 38,
- "last_link_id": 44,
+ "last_node_id": 48,
+ "last_link_id": 62,
  "nodes": [
   {
    "id": 1,
@@ -37,7 +37,7 @@
    ],
    "size": [
     460,
-    260
+    240
    ],
    "flags": {},
    "order": 2,
@@ -59,7 +59,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      27
+      37
      ]
     }
    ],
@@ -75,17 +75,62 @@
   },
   {
    "id": 3,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    -350
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "2 \u00b7 WHERE IT HAPPENS"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      41
+     ]
+    }
+   ],
+   "title": "\u25b6 2 \u00b7 WHERE IT HAPPENS (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "the vaudeville stage, seen from the house \u2014 bare boards underfoot, a heavy curtain hanging behind them, a row of footlights along the front edge."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 4,
    "type": "LoadImage",
    "pos": [
     -40,
-    -330
+    -80
    ],
    "size": [
     460,
     400
    ],
    "flags": {},
-   "order": 3,
+   "order": 4,
    "mode": 0,
    "inputs": [
     {
@@ -96,7 +141,7 @@
       "name": "image"
      },
      "link": null,
-     "label": "2 \u00b7 LEFT CHARACTER (transparent PNG)"
+     "label": "3 \u00b7 LEFT CHARACTER (transparent PNG)"
     },
     {
      "name": "upload",
@@ -124,7 +169,7 @@
      ]
     }
    ],
-   "title": "\u25b6 2 \u00b7 LEFT CHARACTER \u2014 a transparent cutout",
+   "title": "\u25b6 3 \u00b7 LEFT CHARACTER \u2014 a transparent cutout",
    "properties": {
     "Node name for S&R": "LoadImage"
    },
@@ -134,57 +179,11 @@
    ]
   },
   {
-   "id": 4,
+   "id": 5,
    "type": "PrimitiveFloat",
    "pos": [
     -40,
-    100
-   ],
-   "size": [
-    460,
-    80
-   ],
-   "flags": {},
-   "order": 4,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "value",
-     "localized_name": "value",
-     "type": "FLOAT",
-     "widget": {
-      "name": "value"
-     },
-     "link": null,
-     "label": "3 \u00b7 LEFT SIZE (1.0 = full height)"
-    }
-   ],
-   "outputs": [
-    {
-     "name": "FLOAT",
-     "type": "FLOAT",
-     "links": [
-      2,
-      6
-     ]
-    }
-   ],
-   "title": "\u25b6 3 \u00b7 LEFT SIZE",
-   "properties": {
-    "Node name for S&R": "PrimitiveFloat"
-   },
-   "widgets_values": [
-    0.6
-   ],
-   "color": "#323",
-   "bgcolor": "#535"
-  },
-  {
-   "id": 5,
-   "type": "PrimitiveInt",
-   "pos": [
-    -40,
-    210
+    350
    ],
    "size": [
     460,
@@ -197,29 +196,30 @@
     {
      "name": "value",
      "localized_name": "value",
-     "type": "INT",
+     "type": "FLOAT",
      "widget": {
       "name": "value"
      },
      "link": null,
-     "label": "4 \u00b7 LEFT X (pixels from the left edge)"
+     "label": "4 \u00b7 LEFT SIZE (1.0 = full height)"
     }
    ],
    "outputs": [
     {
-     "name": "INT",
-     "type": "INT",
+     "name": "FLOAT",
+     "type": "FLOAT",
      "links": [
-      11
+      2,
+      6
      ]
     }
    ],
-   "title": "\u25b6 4 \u00b7 LEFT X",
+   "title": "\u25b6 4 \u00b7 LEFT SIZE",
    "properties": {
-    "Node name for S&R": "PrimitiveInt"
+    "Node name for S&R": "PrimitiveFloat"
    },
    "widgets_values": [
-    180
+    0.6
    ],
    "color": "#323",
    "bgcolor": "#535"
@@ -229,7 +229,7 @@
    "type": "PrimitiveInt",
    "pos": [
     -40,
-    320
+    460
    ],
    "size": [
     460,
@@ -247,7 +247,7 @@
       "name": "value"
      },
      "link": null,
-     "label": "5 \u00b7 LEFT Y (pixels from the top edge)"
+     "label": "5 \u00b7 LEFT X (pixels from the left edge)"
     }
    ],
    "outputs": [
@@ -255,11 +255,58 @@
      "name": "INT",
      "type": "INT",
      "links": [
-      12
+      11,
+      16
      ]
     }
    ],
-   "title": "\u25b6 5 \u00b7 LEFT Y",
+   "title": "\u25b6 5 \u00b7 LEFT X",
+   "properties": {
+    "Node name for S&R": "PrimitiveInt"
+   },
+   "widgets_values": [
+    180
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 7,
+   "type": "PrimitiveInt",
+   "pos": [
+    -40,
+    570
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "INT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "6 \u00b7 LEFT Y (pixels from the top edge)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "INT",
+     "type": "INT",
+     "links": [
+      12,
+      17
+     ]
+    }
+   ],
+   "title": "\u25b6 6 \u00b7 LEFT Y",
    "properties": {
     "Node name for S&R": "PrimitiveInt"
    },
@@ -270,18 +317,18 @@
    "bgcolor": "#535"
   },
   {
-   "id": 7,
+   "id": 8,
    "type": "LoadImage",
    "pos": [
     -40,
-    430
+    680
    ],
    "size": [
     460,
     400
    ],
    "flags": {},
-   "order": 7,
+   "order": 8,
    "mode": 0,
    "inputs": [
     {
@@ -292,7 +339,7 @@
       "name": "image"
      },
      "link": null,
-     "label": "6 \u00b7 RIGHT CHARACTER (transparent PNG)"
+     "label": "7 \u00b7 RIGHT CHARACTER (transparent PNG)"
     },
     {
      "name": "upload",
@@ -309,18 +356,18 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      13
+      18
      ]
     },
     {
      "name": "MASK",
      "type": "MASK",
      "links": [
-      15
+      20
      ]
     }
    ],
-   "title": "\u25b6 6 \u00b7 RIGHT CHARACTER \u2014 a transparent cutout",
+   "title": "\u25b6 7 \u00b7 RIGHT CHARACTER \u2014 a transparent cutout",
    "properties": {
     "Node name for S&R": "LoadImage"
    },
@@ -330,57 +377,11 @@
    ]
   },
   {
-   "id": 8,
+   "id": 9,
    "type": "PrimitiveFloat",
    "pos": [
     -40,
-    860
-   ],
-   "size": [
-    460,
-    80
-   ],
-   "flags": {},
-   "order": 8,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "value",
-     "localized_name": "value",
-     "type": "FLOAT",
-     "widget": {
-      "name": "value"
-     },
-     "link": null,
-     "label": "7 \u00b7 RIGHT SIZE (1.0 = full height)"
-    }
-   ],
-   "outputs": [
-    {
-     "name": "FLOAT",
-     "type": "FLOAT",
-     "links": [
-      14,
-      18
-     ]
-    }
-   ],
-   "title": "\u25b6 7 \u00b7 RIGHT SIZE",
-   "properties": {
-    "Node name for S&R": "PrimitiveFloat"
-   },
-   "widgets_values": [
-    0.66
-   ],
-   "color": "#323",
-   "bgcolor": "#535"
-  },
-  {
-   "id": 9,
-   "type": "PrimitiveInt",
-   "pos": [
-    -40,
-    970
+    1110
    ],
    "size": [
     460,
@@ -393,29 +394,30 @@
     {
      "name": "value",
      "localized_name": "value",
-     "type": "INT",
+     "type": "FLOAT",
      "widget": {
       "name": "value"
      },
      "link": null,
-     "label": "8 \u00b7 RIGHT X (pixels from the left edge)"
+     "label": "8 \u00b7 RIGHT SIZE (1.0 = full height)"
     }
    ],
    "outputs": [
     {
-     "name": "INT",
-     "type": "INT",
+     "name": "FLOAT",
+     "type": "FLOAT",
      "links": [
+      19,
       23
      ]
     }
    ],
-   "title": "\u25b6 8 \u00b7 RIGHT X",
+   "title": "\u25b6 8 \u00b7 RIGHT SIZE",
    "properties": {
-    "Node name for S&R": "PrimitiveInt"
+    "Node name for S&R": "PrimitiveFloat"
    },
    "widgets_values": [
-    470
+    0.66
    ],
    "color": "#323",
    "bgcolor": "#535"
@@ -425,7 +427,7 @@
    "type": "PrimitiveInt",
    "pos": [
     -40,
-    1080
+    1220
    ],
    "size": [
     460,
@@ -443,7 +445,7 @@
       "name": "value"
      },
      "link": null,
-     "label": "9 \u00b7 RIGHT Y (pixels from the top edge)"
+     "label": "9 \u00b7 RIGHT X (pixels from the left edge)"
     }
    ],
    "outputs": [
@@ -451,11 +453,58 @@
      "name": "INT",
      "type": "INT",
      "links": [
-      24
+      28,
+      33
      ]
     }
    ],
-   "title": "\u25b6 9 \u00b7 RIGHT Y",
+   "title": "\u25b6 9 \u00b7 RIGHT X",
+   "properties": {
+    "Node name for S&R": "PrimitiveInt"
+   },
+   "widgets_values": [
+    470
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 11,
+   "type": "PrimitiveInt",
+   "pos": [
+    -40,
+    1330
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "INT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "10 \u00b7 RIGHT Y (pixels from the top edge)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "INT",
+     "type": "INT",
+     "links": [
+      29,
+      34
+     ]
+    }
+   ],
+   "title": "\u25b6 10 \u00b7 RIGHT Y",
    "properties": {
     "Node name for S&R": "PrimitiveInt"
    },
@@ -466,40 +515,22 @@
    "bgcolor": "#535"
   },
   {
-   "id": 11,
-   "type": "LoadImage",
+   "id": 12,
+   "type": "EmptyImage",
    "pos": [
     -40,
-    1190
+    1440
    ],
    "size": [
     460,
-    400
+    150
    ],
-   "flags": {},
-   "order": 11,
+   "flags": {
+    "collapsed": true
+   },
+   "order": 12,
    "mode": 0,
-   "inputs": [
-    {
-     "name": "image",
-     "localized_name": "image",
-     "type": "COMBO",
-     "widget": {
-      "name": "image"
-     },
-     "link": null,
-     "label": "10 \u00b7 SCENE PLATE"
-    },
-    {
-     "name": "upload",
-     "localized_name": "choose file to upload",
-     "type": "IMAGEUPLOAD",
-     "widget": {
-      "name": "upload"
-     },
-     "link": null
-    }
-   ],
+   "inputs": [],
    "outputs": [
     {
      "name": "IMAGE",
@@ -507,24 +538,58 @@
      "links": [
       8
      ]
-    },
-    {
-     "name": "MASK",
-     "type": "MASK",
-     "links": null
     }
    ],
-   "title": "\u25b6 10 \u00b7 SCENE PLATE \u2014 the empty location",
+   "title": "blank paper the figures are laid out on",
    "properties": {
-    "Node name for S&R": "LoadImage"
+    "Node name for S&R": "EmptyImage"
    },
    "widgets_values": [
-    "cast-scene-empty-stage.png",
-    "image"
+    1024,
+    1024,
+    1,
+    15263173
    ]
   },
   {
-   "id": 12,
+   "id": 13,
+   "type": "EmptyImage",
+   "pos": [
+    560,
+    -680
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 13,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      13
+     ]
+    }
+   ],
+   "title": "black canvas for the figure silhouettes",
+   "properties": {
+    "Node name for S&R": "EmptyImage"
+   },
+   "widgets_values": [
+    1024,
+    1024,
+    1,
+    0
+   ]
+  },
+  {
+   "id": 14,
    "type": "ImageScaleBy",
    "pos": [
     560,
@@ -537,7 +602,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 12,
+   "order": 14,
    "mode": 0,
    "inputs": [
     {
@@ -573,7 +638,7 @@
    ]
   },
   {
-   "id": 13,
+   "id": 15,
    "type": "InvertMask",
    "pos": [
     560,
@@ -586,7 +651,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 13,
+   "order": 15,
    "mode": 0,
    "inputs": [
     {
@@ -611,7 +676,7 @@
    "widgets_values": []
   },
   {
-   "id": 14,
+   "id": 16,
    "type": "MaskToImage",
    "pos": [
     560,
@@ -624,7 +689,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 14,
+   "order": 16,
    "mode": 0,
    "inputs": [
     {
@@ -649,7 +714,7 @@
    "widgets_values": []
   },
   {
-   "id": 15,
+   "id": 17,
    "type": "ImageScaleBy",
    "pos": [
     560,
@@ -662,7 +727,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 15,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
@@ -684,7 +749,8 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      7
+      7,
+      14
      ]
     }
    ],
@@ -698,7 +764,7 @@
    ]
   },
   {
-   "id": 16,
+   "id": 18,
    "type": "ImageToMask",
    "pos": [
     560,
@@ -711,7 +777,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 16,
+   "order": 18,
    "mode": 0,
    "inputs": [
     {
@@ -725,7 +791,8 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      10
+      10,
+      15
      ]
     }
    ],
@@ -738,7 +805,7 @@
    ]
   },
   {
-   "id": 17,
+   "id": 19,
    "type": "ImageCompositeMasked",
    "pos": [
     560,
@@ -751,7 +818,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 17,
+   "order": 19,
    "mode": 0,
    "inputs": [
     {
@@ -791,7 +858,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      20
+      25
      ]
     }
    ],
@@ -806,102 +873,15 @@
    ]
   },
   {
-   "id": 18,
-   "type": "ImageScaleBy",
+   "id": 20,
+   "type": "ImageCompositeMasked",
    "pos": [
     560,
     -344
    ],
    "size": [
     330,
-    110
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 18,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "image",
-     "type": "IMAGE",
-     "link": 13
-    },
-    {
-     "name": "scale_by",
-     "type": "FLOAT",
-     "link": 14,
-     "widget": {
-      "name": "scale_by"
-     }
-    }
-   ],
-   "outputs": [
-    {
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "links": [
-      21
-     ]
-    }
-   ],
-   "title": "scale right",
-   "properties": {
-    "Node name for S&R": "ImageScaleBy"
-   },
-   "widgets_values": [
-    "lanczos",
-    ""
-   ]
-  },
-  {
-   "id": 19,
-   "type": "InvertMask",
-   "pos": [
-    560,
-    -298
-   ],
-   "size": [
-    330,
-    80
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 19,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "mask",
-     "type": "MASK",
-     "link": 15
-    }
-   ],
-   "outputs": [
-    {
-     "name": "MASK",
-     "type": "MASK",
-     "links": [
-      16
-     ]
-    }
-   ],
-   "title": "right alpha",
-   "properties": {
-    "Node name for S&R": "InvertMask"
-   },
-   "widgets_values": []
-  },
-  {
-   "id": 20,
-   "type": "MaskToImage",
-   "pos": [
-    560,
-    -252
-   ],
-   "size": [
-    330,
-    80
+    150
    ],
    "flags": {
     "collapsed": true
@@ -910,9 +890,35 @@
    "mode": 0,
    "inputs": [
     {
+     "name": "destination",
+     "type": "IMAGE",
+     "link": 13
+    },
+    {
+     "name": "source",
+     "type": "IMAGE",
+     "link": 14
+    },
+    {
      "name": "mask",
      "type": "MASK",
-     "link": 16
+     "link": 15
+    },
+    {
+     "name": "x",
+     "type": "INT",
+     "link": 16,
+     "widget": {
+      "name": "x"
+     }
+    },
+    {
+     "name": "y",
+     "type": "INT",
+     "link": 17,
+     "widget": {
+      "name": "y"
+     }
     }
    ],
    "outputs": [
@@ -920,22 +926,26 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      17
+      30
      ]
     }
    ],
-   "title": "right alpha as image",
+   "title": "stamp left silhouette",
    "properties": {
-    "Node name for S&R": "MaskToImage"
+    "Node name for S&R": "ImageCompositeMasked"
    },
-   "widgets_values": []
+   "widgets_values": [
+    "",
+    "",
+    false
+   ]
   },
   {
    "id": 21,
    "type": "ImageScaleBy",
    "pos": [
     560,
-    -206
+    -298
    ],
    "size": [
     330,
@@ -950,12 +960,12 @@
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 17
+     "link": 18
     },
     {
      "name": "scale_by",
      "type": "FLOAT",
-     "link": 18,
+     "link": 19,
      "widget": {
       "name": "scale_by"
      }
@@ -966,7 +976,133 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      19
+      26
+     ]
+    }
+   ],
+   "title": "scale right",
+   "properties": {
+    "Node name for S&R": "ImageScaleBy"
+   },
+   "widgets_values": [
+    "lanczos",
+    ""
+   ]
+  },
+  {
+   "id": 22,
+   "type": "InvertMask",
+   "pos": [
+    560,
+    -252
+   ],
+   "size": [
+    330,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 20
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      21
+     ]
+    }
+   ],
+   "title": "right alpha",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 23,
+   "type": "MaskToImage",
+   "pos": [
+    560,
+    -206
+   ],
+   "size": [
+    330,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 21
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      22
+     ]
+    }
+   ],
+   "title": "right alpha as image",
+   "properties": {
+    "Node name for S&R": "MaskToImage"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 24,
+   "type": "ImageScaleBy",
+   "pos": [
+    560,
+    -160
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 22
+    },
+    {
+     "name": "scale_by",
+     "type": "FLOAT",
+     "link": 23,
+     "widget": {
+      "name": "scale_by"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      24,
+      31
      ]
     }
    ],
@@ -980,11 +1116,11 @@
    ]
   },
   {
-   "id": 22,
+   "id": 25,
    "type": "ImageToMask",
    "pos": [
     560,
-    -160
+    -114
    ],
    "size": [
     330,
@@ -993,13 +1129,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 22,
+   "order": 25,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 19
+     "link": 24
     }
    ],
    "outputs": [
@@ -1007,7 +1143,8 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      22
+      27,
+      32
      ]
     }
    ],
@@ -1020,11 +1157,11 @@
    ]
   },
   {
-   "id": 23,
+   "id": 26,
    "type": "ImageCompositeMasked",
    "pos": [
     560,
-    -114
+    -68
    ],
    "size": [
     330,
@@ -1033,28 +1170,28 @@
    "flags": {
     "collapsed": true
    },
-   "order": 23,
+   "order": 26,
    "mode": 0,
    "inputs": [
     {
      "name": "destination",
      "type": "IMAGE",
-     "link": 20
+     "link": 25
     },
     {
      "name": "source",
      "type": "IMAGE",
-     "link": 21
+     "link": 26
     },
     {
      "name": "mask",
      "type": "MASK",
-     "link": 22
+     "link": 27
     },
     {
      "name": "x",
      "type": "INT",
-     "link": 23,
+     "link": 28,
      "widget": {
       "name": "x"
      }
@@ -1062,7 +1199,7 @@
     {
      "name": "y",
      "type": "INT",
-     "link": 24,
+     "link": 29,
      "widget": {
       "name": "y"
      }
@@ -1073,9 +1210,9 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      25,
-      33,
-      36
+      35,
+      47,
+      50
      ]
     }
    ],
@@ -1090,24 +1227,92 @@
    ]
   },
   {
-   "id": 24,
+   "id": 27,
+   "type": "ImageCompositeMasked",
+   "pos": [
+    560,
+    -22
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "destination",
+     "type": "IMAGE",
+     "link": 30
+    },
+    {
+     "name": "source",
+     "type": "IMAGE",
+     "link": 31
+    },
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 32
+    },
+    {
+     "name": "x",
+     "type": "INT",
+     "link": 33,
+     "widget": {
+      "name": "x"
+     }
+    },
+    {
+     "name": "y",
+     "type": "INT",
+     "link": 34,
+     "widget": {
+      "name": "y"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      52
+     ]
+    }
+   ],
+   "title": "stamp right silhouette",
+   "properties": {
+    "Node name for S&R": "ImageCompositeMasked"
+   },
+   "widgets_values": [
+    "",
+    "",
+    false
+   ]
+  },
+  {
+   "id": 28,
    "type": "PreviewImage",
    "pos": [
     560,
-    -8
+    84
    ],
    "size": [
     330,
     330
    ],
    "flags": {},
-   "order": 24,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 25
+     "link": 35
     }
    ],
    "outputs": [],
@@ -1118,7 +1323,7 @@
    "widgets_values": []
   },
   {
-   "id": 25,
+   "id": 29,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1020,
@@ -1131,7 +1336,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 25,
+   "order": 29,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1139,7 +1344,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      26
+      36
      ]
     }
    ],
@@ -1148,13 +1353,13 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "This is a single panel from the 1933 newspaper comic strip. Keep each character's identity, costume and proportions exactly as they are in image 1, and keep them as two separate characters who never merge or swap parts. Draw them INTO the location rather than on top of it: their weight on the same floor at the same perspective, one light direction across the whole picture, a soft cast shadow pooling on the floor beneath each of them, and the ink weight and paper grain of the figures identical to the room. What is happening in the panel:"
+    "This is a single panel from the 1933 newspaper comic strip. The two characters in image 1 are on blank paper: keep each one's identity, costume, pose and proportions exactly as they are, and keep them as two separate characters who never merge or swap parts. Draw the location around them, filling the blank paper \u2014 floor beneath their feet in one perspective, walls and props behind them, one light direction for the whole picture, a soft cast shadow pooling under each of them where they stand. The only characters anywhere in the picture are the two already drawn \u2014 every other shape in the panel is scenery, furniture or a prop. The drawing runs edge to edge as one continuous illustration. What is happening in the panel:"
    ],
    "color": "#223",
    "bgcolor": "#335"
   },
   {
-   "id": 26,
+   "id": 30,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1020,
@@ -1167,7 +1372,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 26,
+   "order": 30,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1175,7 +1380,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      29
+      43
      ]
     }
    ],
@@ -1190,11 +1395,47 @@
    "bgcolor": "#335"
   },
   {
-   "id": 27,
-   "type": "StringConcatenate",
+   "id": 31,
+   "type": "PrimitiveStringMultiline",
    "pos": [
     1020,
     -528
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 31,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      39
+     ]
+    }
+   ],
+   "title": "WHERE LEAD-IN \u2014 leave alone",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "The location drawn around them is:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 32,
+   "type": "StringConcatenate",
+   "pos": [
+    1020,
+    -482
    ],
    "size": [
     330,
@@ -1203,13 +1444,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 27,
+   "order": 32,
    "mode": 0,
    "inputs": [
     {
      "name": "string_a",
      "type": "STRING",
-     "link": 26,
+     "link": 36,
      "widget": {
       "name": "string_a"
      }
@@ -1217,7 +1458,7 @@
     {
      "name": "string_b",
      "type": "STRING",
-     "link": 27,
+     "link": 37,
      "widget": {
       "name": "string_b"
      }
@@ -1228,7 +1469,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      28
+      38
      ]
     }
    ],
@@ -1243,11 +1484,11 @@
    ]
   },
   {
-   "id": 28,
+   "id": 33,
    "type": "StringConcatenate",
    "pos": [
     1020,
-    -482
+    -436
    ],
    "size": [
     330,
@@ -1256,13 +1497,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 28,
+   "order": 33,
    "mode": 0,
    "inputs": [
     {
      "name": "string_a",
      "type": "STRING",
-     "link": 28,
+     "link": 38,
      "widget": {
       "name": "string_a"
      }
@@ -1270,7 +1511,7 @@
     {
      "name": "string_b",
      "type": "STRING",
-     "link": 29,
+     "link": 39,
      "widget": {
       "name": "string_b"
      }
@@ -1281,7 +1522,113 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      34
+      40
+     ]
+    }
+   ],
+   "title": "+ where lead-in",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 34,
+   "type": "StringConcatenate",
+   "pos": [
+    1020,
+    -390
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 34,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 40,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 41,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      42
+     ]
+    }
+   ],
+   "title": "+ where it happens",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 35,
+   "type": "StringConcatenate",
+   "pos": [
+    1020,
+    -344
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 35,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 42,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 43,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      48
      ]
     }
    ],
@@ -1296,7 +1643,7 @@
    ]
   },
   {
-   "id": 29,
+   "id": 36,
    "type": "UnetLoaderGGUF",
    "pos": [
     1020,
@@ -1309,7 +1656,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 29,
+   "order": 36,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1317,7 +1664,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      30
+      44
      ]
     }
    ],
@@ -1332,7 +1679,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 30,
+   "id": 37,
    "type": "LoraLoaderModelOnly",
    "pos": [
     1020,
@@ -1345,13 +1692,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 30,
+   "order": 37,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 30
+     "link": 44
     }
    ],
    "outputs": [
@@ -1359,7 +1706,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      38
+      56
      ]
     }
    ],
@@ -1375,7 +1722,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 31,
+   "id": 38,
    "type": "CLIPLoader",
    "pos": [
     1020,
@@ -1388,7 +1735,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 31,
+   "order": 38,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1396,8 +1743,8 @@
      "name": "CLIP",
      "type": "CLIP",
      "links": [
-      31,
-      35
+      45,
+      49
      ]
     }
    ],
@@ -1414,7 +1761,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 32,
+   "id": 39,
    "type": "VAELoader",
    "pos": [
     1020,
@@ -1427,7 +1774,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 32,
+   "order": 39,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1435,9 +1782,9 @@
      "name": "VAE",
      "type": "VAE",
      "links": [
-      32,
-      37,
-      43
+      46,
+      51,
+      61
      ]
     }
    ],
@@ -1452,7 +1799,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 33,
+   "id": 40,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1020,
@@ -1465,28 +1812,28 @@
    "flags": {
     "collapsed": true
    },
-   "order": 33,
+   "order": 40,
    "mode": 0,
    "inputs": [
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 31
+     "link": 45
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 32
+     "link": 46
     },
     {
      "name": "image1",
      "type": "IMAGE",
-     "link": 33
+     "link": 47
     },
     {
      "name": "prompt",
      "type": "STRING",
-     "link": 34,
+     "link": 48,
      "widget": {
       "name": "prompt"
      }
@@ -1497,7 +1844,7 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      39
+      57
      ]
     }
    ],
@@ -1510,7 +1857,7 @@
    ]
   },
   {
-   "id": 34,
+   "id": 41,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1020,
@@ -1523,13 +1870,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 34,
+   "order": 41,
    "mode": 0,
    "inputs": [
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 35
+     "link": 49
     }
    ],
    "outputs": [
@@ -1537,7 +1884,7 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      40
+      58
      ]
     }
    ],
@@ -1552,7 +1899,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 35,
+   "id": 42,
    "type": "VAEEncode",
    "pos": [
     1020,
@@ -1565,18 +1912,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 35,
+   "order": 42,
    "mode": 0,
    "inputs": [
     {
      "name": "pixels",
      "type": "IMAGE",
-     "link": 36
+     "link": 50
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 37
+     "link": 51
     }
    ],
    "outputs": [
@@ -1584,7 +1931,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      41
+      54
      ]
     }
    ],
@@ -1595,7 +1942,128 @@
    "widgets_values": []
   },
   {
-   "id": 36,
+   "id": 43,
+   "type": "ImageToMask",
+   "pos": [
+    1020,
+    -68
+   ],
+   "size": [
+    400,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 43,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 52
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      53
+     ]
+    }
+   ],
+   "title": "figures as a mask",
+   "properties": {
+    "Node name for S&R": "ImageToMask"
+   },
+   "widgets_values": [
+    "red"
+   ]
+  },
+  {
+   "id": 44,
+   "type": "InvertMask",
+   "pos": [
+    1020,
+    -22
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 44,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 53
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      55
+     ]
+    }
+   ],
+   "title": "everything except the figures",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 45,
+   "type": "SetLatentNoiseMask",
+   "pos": [
+    1020,
+    24
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 45,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 54
+    },
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 55
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      59
+     ]
+    }
+   ],
+   "title": "paint only the background",
+   "properties": {
+    "Node name for S&R": "SetLatentNoiseMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 46,
    "type": "KSampler",
    "pos": [
     560,
@@ -1606,28 +2074,28 @@
     270
    ],
    "flags": {},
-   "order": 36,
+   "order": 46,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 38
+     "link": 56
     },
     {
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 39
+     "link": 57
     },
     {
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 40
+     "link": 58
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 41
+     "link": 59
     },
     {
      "name": "seed",
@@ -1637,7 +2105,7 @@
       "name": "seed"
      },
      "link": null,
-     "label": "13 \u00b7 SEED"
+     "label": "12 \u00b7 SEED"
     },
     {
      "name": "steps",
@@ -1647,7 +2115,7 @@
       "name": "steps"
      },
      "link": null,
-     "label": "12 \u00b7 STEPS (20 for a panel)"
+     "label": "11 \u00b7 STEPS (20 for a panel)"
     },
     {
      "name": "cfg",
@@ -1683,8 +2151,7 @@
      "widget": {
       "name": "denoise"
      },
-     "link": null,
-     "label": "11 \u00b7 POLISH (0.45 blends, 0.6 starts inventing)"
+     "link": null
     }
    ],
    "outputs": [
@@ -1692,11 +2159,11 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      42
+      60
      ]
     }
    ],
-   "title": "\u25b6 11-13 \u00b7 POLISH, STEPS, SEED",
+   "title": "\u25b6 11-12 \u00b7 STEPS + SEED",
    "properties": {
     "Node name for S&R": "KSampler"
    },
@@ -1707,11 +2174,11 @@
     1.0,
     "euler",
     "simple",
-    0.45
+    1.0
    ]
   },
   {
-   "id": 37,
+   "id": 47,
    "type": "VAEDecode",
    "pos": [
     560,
@@ -1724,18 +2191,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 37,
+   "order": 47,
    "mode": 0,
    "inputs": [
     {
      "name": "samples",
      "type": "LATENT",
-     "link": 42
+     "link": 60
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 43
+     "link": 61
     }
    ],
    "outputs": [
@@ -1743,7 +2210,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      44
+      62
      ]
     }
    ],
@@ -1754,7 +2221,7 @@
    "widgets_values": []
   },
   {
-   "id": 38,
+   "id": 48,
    "type": "SaveImage",
    "pos": [
     1060,
@@ -1765,13 +2232,13 @@
     700
    ],
    "flags": {},
-   "order": 38,
+   "order": 48,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 44
+     "link": 62
     }
    ],
    "outputs": [],
@@ -1787,198 +2254,174 @@
  "links": [
   [
    1,
-   3,
+   4,
    0,
-   12,
+   14,
    0,
    "IMAGE"
   ],
   [
    2,
-   4,
+   5,
    0,
-   12,
+   14,
    1,
    "FLOAT"
   ],
   [
    3,
-   3,
+   4,
    1,
-   13,
+   15,
    0,
    "MASK"
   ],
   [
    4,
-   13,
+   15,
    0,
-   14,
+   16,
    0,
    "MASK"
   ],
   [
    5,
-   14,
+   16,
    0,
-   15,
+   17,
    0,
    "IMAGE"
   ],
   [
    6,
-   4,
+   5,
    0,
-   15,
+   17,
    1,
    "FLOAT"
   ],
   [
    7,
-   15,
+   17,
    0,
-   16,
+   18,
    0,
    "IMAGE"
   ],
   [
    8,
-   11,
+   12,
    0,
-   17,
+   19,
    0,
    "IMAGE"
   ],
   [
    9,
-   12,
+   14,
    0,
-   17,
+   19,
    1,
    "IMAGE"
   ],
   [
    10,
-   16,
+   18,
    0,
-   17,
+   19,
    2,
    "MASK"
   ],
   [
    11,
-   5,
+   6,
    0,
-   17,
+   19,
    3,
    "INT"
   ],
   [
    12,
-   6,
+   7,
    0,
-   17,
+   19,
    4,
    "INT"
   ],
   [
    13,
-   7,
+   13,
    0,
-   18,
+   20,
    0,
    "IMAGE"
   ],
   [
    14,
-   8,
+   17,
    0,
-   18,
+   20,
    1,
-   "FLOAT"
+   "IMAGE"
   ],
   [
    15,
-   7,
-   1,
-   19,
-   0,
-   "MASK"
-  ],
-  [
-   16,
-   19,
-   0,
-   20,
-   0,
-   "MASK"
-  ],
-  [
-   17,
-   20,
-   0,
-   21,
-   0,
-   "IMAGE"
-  ],
-  [
-   18,
-   8,
-   0,
-   21,
-   1,
-   "FLOAT"
-  ],
-  [
-   19,
-   21,
-   0,
-   22,
-   0,
-   "IMAGE"
-  ],
-  [
-   20,
-   17,
-   0,
-   23,
-   0,
-   "IMAGE"
-  ],
-  [
-   21,
    18,
    0,
-   23,
-   1,
-   "IMAGE"
-  ],
-  [
-   22,
-   22,
-   0,
-   23,
+   20,
    2,
    "MASK"
   ],
   [
-   23,
-   9,
+   16,
+   6,
    0,
-   23,
+   20,
    3,
    "INT"
   ],
   [
-   24,
-   10,
+   17,
+   7,
    0,
-   23,
+   20,
    4,
    "INT"
   ],
   [
-   25,
+   18,
+   8,
+   0,
+   21,
+   0,
+   "IMAGE"
+  ],
+  [
+   19,
+   9,
+   0,
+   21,
+   1,
+   "FLOAT"
+  ],
+  [
+   20,
+   8,
+   1,
+   22,
+   0,
+   "MASK"
+  ],
+  [
+   21,
+   22,
+   0,
+   23,
+   0,
+   "MASK"
+  ],
+  [
+   22,
    23,
    0,
    24,
@@ -1986,154 +2429,322 @@
    "IMAGE"
   ],
   [
+   23,
+   9,
+   0,
+   24,
+   1,
+   "FLOAT"
+  ],
+  [
+   24,
+   24,
+   0,
+   25,
+   0,
+   "IMAGE"
+  ],
+  [
+   25,
+   19,
+   0,
    26,
+   0,
+   "IMAGE"
+  ],
+  [
+   26,
+   21,
+   0,
+   26,
+   1,
+   "IMAGE"
+  ],
+  [
+   27,
+   25,
+   0,
+   26,
+   2,
+   "MASK"
+  ],
+  [
+   28,
+   10,
+   0,
+   26,
+   3,
+   "INT"
+  ],
+  [
+   29,
+   11,
+   0,
+   26,
+   4,
+   "INT"
+  ],
+  [
+   30,
+   20,
+   0,
+   27,
+   0,
+   "IMAGE"
+  ],
+  [
+   31,
+   24,
+   0,
+   27,
+   1,
+   "IMAGE"
+  ],
+  [
+   32,
    25,
    0,
    27,
-   0,
-   "STRING"
-  ],
-  [
-   27,
    2,
+   "MASK"
+  ],
+  [
+   33,
+   10,
    0,
    27,
-   1,
-   "STRING"
-  ],
-  [
-   28,
-   27,
-   0,
-   28,
-   0,
-   "STRING"
-  ],
-  [
-   29,
-   26,
-   0,
-   28,
-   1,
-   "STRING"
-  ],
-  [
-   30,
-   29,
-   0,
-   30,
-   0,
-   "MODEL"
-  ],
-  [
-   31,
-   31,
-   0,
-   33,
-   0,
-   "CLIP"
-  ],
-  [
-   32,
-   32,
-   0,
-   33,
-   1,
-   "VAE"
-  ],
-  [
-   33,
-   23,
-   0,
-   33,
-   2,
-   "IMAGE"
+   3,
+   "INT"
   ],
   [
    34,
-   28,
+   11,
    0,
-   33,
-   3,
-   "STRING"
+   27,
+   4,
+   "INT"
   ],
   [
    35,
-   31,
+   26,
    0,
-   34,
+   28,
    0,
-   "CLIP"
+   "IMAGE"
   ],
   [
    36,
-   23,
+   29,
    0,
-   35,
+   32,
    0,
-   "IMAGE"
+   "STRING"
   ],
   [
    37,
-   32,
+   2,
    0,
-   35,
+   32,
    1,
-   "VAE"
+   "STRING"
   ],
   [
    38,
-   30,
+   32,
    0,
-   36,
+   33,
    0,
-   "MODEL"
+   "STRING"
   ],
   [
    39,
-   33,
+   31,
    0,
-   36,
+   33,
    1,
-   "CONDITIONING"
+   "STRING"
   ],
   [
    40,
+   33,
+   0,
    34,
    0,
-   36,
-   2,
-   "CONDITIONING"
+   "STRING"
   ],
   [
    41,
-   35,
-   0,
-   36,
    3,
-   "LATENT"
+   0,
+   34,
+   1,
+   "STRING"
   ],
   [
    42,
+   34,
+   0,
+   35,
+   0,
+   "STRING"
+  ],
+  [
+   43,
+   30,
+   0,
+   35,
+   1,
+   "STRING"
+  ],
+  [
+   44,
    36,
    0,
    37,
    0,
-   "LATENT"
+   "MODEL"
   ],
   [
-   43,
-   32,
+   45,
+   38,
    0,
-   37,
+   40,
+   0,
+   "CLIP"
+  ],
+  [
+   46,
+   39,
+   0,
+   40,
    1,
    "VAE"
   ],
   [
+   47,
+   26,
+   0,
+   40,
+   2,
+   "IMAGE"
+  ],
+  [
+   48,
+   35,
+   0,
+   40,
+   3,
+   "STRING"
+  ],
+  [
+   49,
+   38,
+   0,
+   41,
+   0,
+   "CLIP"
+  ],
+  [
+   50,
+   26,
+   0,
+   42,
+   0,
+   "IMAGE"
+  ],
+  [
+   51,
+   39,
+   0,
+   42,
+   1,
+   "VAE"
+  ],
+  [
+   52,
+   27,
+   0,
+   43,
+   0,
+   "IMAGE"
+  ],
+  [
+   53,
+   43,
+   0,
    44,
+   0,
+   "MASK"
+  ],
+  [
+   54,
+   42,
+   0,
+   45,
+   0,
+   "LATENT"
+  ],
+  [
+   55,
+   44,
+   0,
+   45,
+   1,
+   "MASK"
+  ],
+  [
+   56,
    37,
    0,
-   38,
+   46,
+   0,
+   "MODEL"
+  ],
+  [
+   57,
+   40,
+   0,
+   46,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   58,
+   41,
+   0,
+   46,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   59,
+   45,
+   0,
+   46,
+   3,
+   "LATENT"
+  ],
+  [
+   60,
+   46,
+   0,
+   47,
+   0,
+   "LATENT"
+  ],
+  [
+   61,
+   39,
+   0,
+   47,
+   1,
+   "VAE"
+  ],
+  [
+   62,
+   47,
+   0,
+   48,
    0,
    "IMAGE"
   ]
@@ -2159,7 +2770,7 @@
     530,
     -690,
     400,
-    642
+    734
    ],
    "color": "#8a6d3b",
    "font_size": 24,
@@ -2210,11 +2821,11 @@
     ],
     [
      "3",
-     "image"
+     "value"
     ],
     [
      "4",
-     "value"
+     "image"
     ],
     [
      "5",
@@ -2226,11 +2837,11 @@
     ],
     [
      "7",
-     "image"
+     "value"
     ],
     [
      "8",
-     "value"
+     "image"
     ],
     [
      "9",
@@ -2242,23 +2853,19 @@
     ],
     [
      "11",
-     "image"
+     "value"
     ],
     [
-     "36",
-     "denoise"
-    ],
-    [
-     "36",
+     "46",
      "steps"
     ],
     [
-     "36",
+     "46",
      "seed"
     ]
    ],
    "outputs": [
-    "38"
+    "48"
    ]
   }
  },

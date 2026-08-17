@@ -36,24 +36,15 @@
   }
  },
  "6": {
-  "class_type": "LoadImage",
-  "inputs": {
-   "image": "cast-scene-empty-stage.png"
-  },
-  "_meta": {
-   "title": "\u25b6 5 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on"
-  }
- },
- "7": {
   "class_type": "PrimitiveBoolean",
   "inputs": {
    "value": false
   },
   "_meta": {
-   "title": "\u25b6 6 \u00b7 TRANSPARENT PNG   on = cut the background out"
+   "title": "\u25b6 5 \u00b7 TRANSPARENT PNG   on = cut the background out"
   }
  },
- "8": {
+ "7": {
   "class_type": "EmptySD3LatentImage",
   "inputs": {
    "width": 1024,
@@ -61,10 +52,10 @@
    "batch_size": 1
   },
   "_meta": {
-   "title": "\u25b6 7 \u00b7 OUTPUT SIZE"
+   "title": "\u25b6 6 \u00b7 OUTPUT SIZE"
   }
  },
- "9": {
+ "8": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "Redraw the character in image 1 as a close portrait of the bowl and the fish inside it, keeping his identity exactly: a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, with huge googly eyes, a drooping walrus moustache and prominent front teeth, wearing a small dark cap lettered FEW perched on top of the bowl. Keep the googly eyes, the drooping walrus moustache, the buck teeth and the FEW cap identical to image 1. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
@@ -73,7 +64,7 @@
    "title": "CHARACTER LOCK \u2014 who Ake is"
   }
  },
- "10": {
+ "9": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
@@ -82,7 +73,7 @@
    "title": "STYLE LOCK \u2014 house style"
   }
  },
- "11": {
+ "10": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "Behind him is a single flat mid-grey backdrop of one even tone \u2014 no scenery, no horizon and no props."
@@ -91,16 +82,16 @@
    "title": "PLATE BACKGROUND \u2014 used when SCENE is off"
   }
  },
- "12": {
+ "11": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "The background behind him is the scene shown in image 2, drawn in the same ink and halftone style, simplified and a little soft so his face stays the subject, but still clearly readable as that place. The scene is:"
+   "value": "Draw the location behind him in the same ink and halftone, simplified and a little soft so his face stays the subject, but clearly readable as that place. The location is:"
   },
   "_meta": {
    "title": "SCENE LEAD-IN \u2014 used when SCENE is on"
   }
  },
- "13": {
+ "12": {
   "class_type": "LoadImage",
   "inputs": {
    "image": "cast-ake-headshot.png"
@@ -109,12 +100,12 @@
    "title": "CHARACTER PLATE \u2014 Ake's reference (image 1)"
   }
  },
- "14": {
+ "13": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "9",
+    "8",
     0
    ],
    "string_b": [
@@ -126,12 +117,12 @@
    "title": "+ expression"
   }
  },
- "15": {
+ "14": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "14",
+    "13",
     0
    ],
    "string_b": [
@@ -143,12 +134,12 @@
    "title": "+ framing"
   }
  },
- "16": {
+ "15": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "12",
+    "11",
     0
    ],
    "string_b": [
@@ -160,7 +151,7 @@
    "title": "scene lead-in + your scene"
   }
  },
- "17": {
+ "16": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
@@ -168,11 +159,11 @@
     0
    ],
    "on_false": [
-    "11",
+    "10",
     0
    ],
    "on_true": [
-    "16",
+    "15",
     0
    ]
   },
@@ -180,16 +171,16 @@
    "title": "background text switch"
   }
  },
- "18": {
+ "17": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "15",
+    "14",
     0
    ],
    "string_b": [
-    "17",
+    "16",
     0
    ]
   },
@@ -197,7 +188,7 @@
    "title": "+ background"
   }
  },
- "19": {
+ "18": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "Above all, redraw the fish's eyes, moustache and teeth so his face clearly shows this:"
@@ -206,12 +197,12 @@
    "title": "RESTATEMENT \u2014 keeps the first field from being ignored"
   }
  },
- "20": {
+ "19": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "19",
+    "18",
     0
    ],
    "string_b": [
@@ -223,16 +214,16 @@
    "title": "restatement + first field"
   }
  },
- "21": {
+ "20": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "18",
+    "17",
     0
    ],
    "string_b": [
-    "20",
+    "19",
     0
    ]
   },
@@ -240,16 +231,16 @@
    "title": "+ restatement"
   }
  },
- "22": {
+ "21": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "21",
+    "20",
     0
    ],
    "string_b": [
-    "10",
+    "9",
     0
    ]
   },
@@ -257,7 +248,7 @@
    "title": "FINAL PROMPT \u2014 expand to read what the model got"
   }
  },
- "23": {
+ "22": {
   "class_type": "UnetLoaderGGUF",
   "inputs": {
    "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
@@ -266,13 +257,13 @@
    "title": "diffusion model"
   }
  },
- "24": {
+ "23": {
   "class_type": "LoraLoaderModelOnly",
   "inputs": {
    "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
    "strength_model": 1.0,
    "model": [
-    "23",
+    "22",
     0
    ]
   },
@@ -280,7 +271,7 @@
    "title": "Lightning LoRA (8 steps)"
   }
  },
- "25": {
+ "24": {
   "class_type": "CLIPLoader",
   "inputs": {
    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
@@ -291,7 +282,7 @@
    "title": "text encoder"
   }
  },
- "26": {
+ "25": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "qwen_image_vae.safetensors"
@@ -300,7 +291,7 @@
    "title": "VAE"
   }
  },
- "27": {
+ "26": {
   "class_type": "LoadBackgroundRemovalModel",
   "inputs": {
    "bg_removal_name": "birefnet.safetensors"
@@ -309,84 +300,36 @@
    "title": "BiRefNet (for TRANSPARENT PNG)"
   }
  },
+ "27": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "21",
+    0
+   ],
+   "clip": [
+    "24",
+    0
+   ],
+   "vae": [
+    "25",
+    0
+   ],
+   "image1": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode (character plate + the prompt)"
+  }
+ },
  "28": {
-  "class_type": "TextEncodeQwenImageEditPlus",
-  "inputs": {
-   "prompt": [
-    "22",
-    0
-   ],
-   "clip": [
-    "25",
-    0
-   ],
-   "vae": [
-    "26",
-    0
-   ],
-   "image1": [
-    "13",
-    0
-   ]
-  },
-  "_meta": {
-   "title": "encode \u2014 plate (image 1 only)"
-  }
- },
- "29": {
-  "class_type": "TextEncodeQwenImageEditPlus",
-  "inputs": {
-   "prompt": [
-    "22",
-    0
-   ],
-   "clip": [
-    "25",
-    0
-   ],
-   "vae": [
-    "26",
-    0
-   ],
-   "image1": [
-    "13",
-    0
-   ],
-   "image2": [
-    "6",
-    0
-   ]
-  },
-  "_meta": {
-   "title": "encode \u2014 scene (image 1 + image 2)"
-  }
- },
- "30": {
-  "class_type": "ComfySwitchNode",
-  "inputs": {
-   "switch": [
-    "4",
-    0
-   ],
-   "on_false": [
-    "28",
-    0
-   ],
-   "on_true": [
-    "29",
-    0
-   ]
-  },
-  "_meta": {
-   "title": "positive switch (same SCENE toggle)"
-  }
- },
- "31": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
    "clip": [
-    "25",
+    "24",
     0
    ]
   },
@@ -394,7 +337,7 @@
    "title": "negative (only bites when cfg > 1)"
   }
  },
- "32": {
+ "29": {
   "class_type": "KSampler",
   "inputs": {
    "seed": 1,
@@ -404,35 +347,35 @@
    "scheduler": "simple",
    "denoise": 1.0,
    "model": [
-    "24",
+    "23",
     0
    ],
    "positive": [
-    "30",
+    "27",
     0
    ],
    "negative": [
-    "31",
+    "28",
     0
    ],
    "latent_image": [
-    "8",
+    "7",
     0
    ]
   },
   "_meta": {
-   "title": "\u25b6 8 \u00b7 SEED + STEPS"
+   "title": "\u25b6 7 \u00b7 SEED + STEPS"
   }
  },
- "33": {
+ "30": {
   "class_type": "VAEDecode",
   "inputs": {
    "samples": [
-    "32",
+    "29",
     0
    ],
    "vae": [
-    "26",
+    "25",
     0
    ]
   },
@@ -440,15 +383,15 @@
    "title": "decode"
   }
  },
- "34": {
+ "31": {
   "class_type": "RemoveBackground",
   "inputs": {
    "bg_removal_model": [
-    "27",
+    "26",
     0
    ],
    "image": [
-    "33",
+    "30",
     0
    ]
   },
@@ -456,11 +399,11 @@
    "title": "cut the figure out"
   }
  },
- "35": {
+ "32": {
   "class_type": "InvertMask",
   "inputs": {
    "mask": [
-    "34",
+    "31",
     0
    ]
   },
@@ -468,15 +411,15 @@
    "title": "flip to ComfyUI mask convention"
   }
  },
- "36": {
+ "33": {
   "class_type": "JoinImageWithAlpha",
   "inputs": {
    "image": [
-    "33",
+    "30",
     0
    ],
    "alpha": [
-    "35",
+    "32",
     0
    ]
   },
@@ -484,19 +427,19 @@
    "title": "make it RGBA"
   }
  },
- "37": {
+ "34": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
-    "7",
+    "6",
     0
    ],
    "on_false": [
-    "33",
+    "30",
     0
    ],
    "on_true": [
-    "36",
+    "33",
     0
    ]
   },
@@ -504,12 +447,12 @@
    "title": "transparent switch"
   }
  },
- "38": {
+ "35": {
   "class_type": "SaveImage",
   "inputs": {
    "filename_prefix": "cast/ake-headshot",
    "images": [
-    "37",
+    "34",
     0
    ]
   },

@@ -76,6 +76,8 @@ WIDGETS = {
     "ImageToMask": ["channel"],
     "MaskToImage": [],
     "VAEEncode": [],
+    "EmptyImage": ["width", "height", "batch_size", "color"],
+    "SetLatentNoiseMask": [],
     "PrimitiveFloat": ["value"],
     "PrimitiveInt": ["value"],
     "ImageScale": ["upscale_method", "width", "height", "crop"],
@@ -302,8 +304,9 @@ KINDS = {
             "the ground and no props except the ones named above."
         ),
         "scene_lead": (
-            "He is standing inside the scene shown in image 2, at believable scale, lit by that "
-            "scene's light and casting its shadows. The scene is:"
+            "Draw the whole location around him in the same ink, halftone and muted sepia, with him "
+            "standing in it at believable scale, lit by that place's light and casting its shadows "
+            "on its floor. The location is:"
         ),
         "restate": "Above all, his body clearly shows this action:",
     },
@@ -322,9 +325,8 @@ KINDS = {
             "horizon and no props."
         ),
         "scene_lead": (
-            "The background behind him is the scene shown in image 2, drawn in the same ink and "
-            "halftone style, simplified and a little soft so his face stays the subject, but still "
-            "clearly readable as that place. The scene is:"
+            "Draw the location behind him in the same ink and halftone, simplified and a little soft "
+            "so his face stays the subject, but clearly readable as that place. The location is:"
         ),
         "restate": (
             "Above all, redraw his brows, eyes and mouth so his face clearly shows this "
@@ -465,12 +467,11 @@ def control_table(kind, fields):
             for i, f in enumerate(fields, start=1)]
     n = len(fields)
     rows += [
-        f"| **{n+1} · SCENE** | OFF = flat mid-grey plate. ON = the scene plate plus your scene text. |",
-        f"| **{n+2} · YOUR SCENE** | Where he is. Only read when SCENE is ON. |",
-        f"| **{n+3} · SCENE PLATE** | The image 2 backdrop. Only read when SCENE is ON. |",
-        f"| **{n+4} · TRANSPARENT PNG** | ON = cuts him out and saves an RGBA PNG. |",
-        f"| **{n+5} · WIDTH / HEIGHT** | 1024×1024 by default. |",
-        f"| **{n+6} · SEED + STEPS** | Re-roll here. 8 steps ships; 4 drafts with the 4-step LoRA. |",
+        f"| **{n+1} · SCENE** | OFF = flat mid-grey plate. ON = the place you describe below. |",
+        f"| **{n+2} · YOUR SCENE** | The location, in words. Only read when SCENE is ON. |",
+        f"| **{n+3} · TRANSPARENT PNG** | ON = cuts him out and saves an RGBA PNG. |",
+        f"| **{n+4} · WIDTH / HEIGHT** | 1024×1024 by default. |",
+        f"| **{n+5} · SEED + STEPS** | Re-roll here. 8 steps ships; 4 drafts with the 4-step LoRA. |",
     ]
     return "| Control | What it does |\n|---|---|\n" + "\n".join(rows)
 
@@ -506,20 +507,15 @@ def build(cid, spec, kind_id):
                        outputs=[("STRING", "STRING")], color=GREEN)
     g.app_input(scene_text, "value", value=f"{n+2} · YOUR SCENE — only read when SCENE is on")
     y += 240
-    scene_plate = g.add("LoadImage", f"▶ {n+3} · SCENE PLATE (image 2) — only read when SCENE is on",
-                        (X, y), (460, 400), {"image": spec["scene_plate"], "upload": "image"},
-                        outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
-    g.app_input(scene_plate, "image", image=f"{n+3} · SCENE PLATE — only read when SCENE is on")
-    y += 430
-    transparent_on = g.add("PrimitiveBoolean", f"▶ {n+4} · TRANSPARENT PNG   on = cut the background out",
+    transparent_on = g.add("PrimitiveBoolean", f"▶ {n+3} · TRANSPARENT PNG   on = cut the background out",
                            (X, y), (460, 80), {"value": False},
                            outputs=[("BOOLEAN", "BOOLEAN")], color=GREY)
-    g.app_input(transparent_on, "value", value=f"{n+4} · TRANSPARENT PNG — cut the background out")
+    g.app_input(transparent_on, "value", value=f"{n+3} · TRANSPARENT PNG — cut the background out")
     y += 110
-    latent = g.add("EmptySD3LatentImage", f"▶ {n+5} · OUTPUT SIZE", (X, y), (460, 130),
+    latent = g.add("EmptySD3LatentImage", f"▶ {n+4} · OUTPUT SIZE", (X, y), (460, 130),
                    {"width": 1024, "height": 1024, "batch_size": 1},
                    outputs=[("LATENT", "LATENT")], color=GREY)
-    g.app_input(latent, "width", "height", width=f"{n+5} · WIDTH", height=f"{n+5} · HEIGHT")
+    g.app_input(latent, "width", "height", width=f"{n+4} · WIDTH", height=f"{n+4} · HEIGHT")
     g.group("① YOUR SHOT · everything you touch is in this column, top to bottom",
             (X - 30, -690, 520, y + 830), GROUP_SHOT)
 
@@ -617,35 +613,21 @@ def build(cid, spec, kind_id):
                     (EX, EY + 4 * DY), (400, 80), {"bg_removal_name": BGREMOVAL},
                     outputs=[("BACKGROUND_REMOVAL", "BACKGROUND_REMOVAL")], color=ENGINE,
                     collapsed=True)
-    enc_plate = g.add("TextEncodeQwenImageEditPlus", "encode — plate (image 1 only)",
-                      (EX, EY + 5 * DY), (400, 130), {"prompt": ""},
-                      links={"clip": (clip, 0, "CLIP", False),
-                             "vae": (vae, 0, "VAE", False),
-                             "image1": (plate, 0, "IMAGE", False),
-                             "prompt": (prompt, 0, "STRING", True)},
-                      outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
-    enc_scene = g.add("TextEncodeQwenImageEditPlus", "encode — scene (image 1 + image 2)",
-                      (EX, EY + 6 * DY), (400, 130), {"prompt": ""},
-                      links={"clip": (clip, 0, "CLIP", False),
-                             "vae": (vae, 0, "VAE", False),
-                             "image1": (plate, 0, "IMAGE", False),
-                             "image2": (scene_plate, 0, "IMAGE", False),
-                             "prompt": (prompt, 0, "STRING", True)},
-                      outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
-    positive = g.add("ComfySwitchNode", "positive switch (same SCENE toggle)",
-                     (EX, EY + 7 * DY), (400, 130), {"switch": False},
-                     links={"on_false": (enc_plate, 0, "CONDITIONING", False),
-                            "on_true": (enc_scene, 0, "CONDITIONING", False),
-                            "switch": (scene_on, 0, "BOOLEAN", True)},
-                     outputs=[("output", "CONDITIONING")], collapsed=True)
+    positive = g.add("TextEncodeQwenImageEditPlus", "encode (character plate + the prompt)",
+                     (EX, EY + 5 * DY), (400, 130), {"prompt": ""},
+                     links={"clip": (clip, 0, "CLIP", False),
+                            "vae": (vae, 0, "VAE", False),
+                            "image1": (plate, 0, "IMAGE", False),
+                            "prompt": (prompt, 0, "STRING", True)},
+                     outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
     negative = g.add("TextEncodeQwenImageEditPlus", "negative (only bites when cfg > 1)",
-                     (EX, EY + 8 * DY), (400, 130), {"prompt": NEGATIVE},
+                     (EX, EY + 6 * DY), (400, 130), {"prompt": NEGATIVE},
                      links={"clip": (clip, 0, "CLIP", False)},
                      outputs=[("CONDITIONING", "CONDITIONING")], color=ENGINE, collapsed=True)
     g.group("engine · don't touch", (EX - 30, EY - 70, 480, 9 * DY + 90), GROUP_ENGINE)
 
     # --- 4. sampling + output --------------------------------------------
-    sampler = g.add("KSampler", f"▶ {n+6} · SEED + STEPS", (520, 640), (460, 270),
+    sampler = g.add("KSampler", f"▶ {n+5} · SEED + STEPS", (520, 640), (460, 270),
                     {"seed": 1, "control_after_generate": "randomize", "steps": STEPS, "cfg": 1.0,
                      "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0},
                     links={"model": (lora, 0, "MODEL", False),
@@ -654,7 +636,7 @@ def build(cid, spec, kind_id):
                            "latent_image": (latent, 0, "LATENT", False)},
                     outputs=[("LATENT", "LATENT")])
     g.app_input(sampler, "seed", "steps",
-                seed=f"{n+6} · SEED", steps=f"{n+6} · STEPS (8 ships, 4 drafts)")
+                seed=f"{n+5} · SEED", steps=f"{n+5} · STEPS (8 ships, 4 drafts)")
     decode = g.add("VAEDecode", "decode", (520, 950), (400, 80),
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (vae, 0, "VAE", False)},
@@ -705,13 +687,17 @@ def build(cid, spec, kind_id):
 
 
 PANEL_LOCK = (
-    "This is a single panel from the 1933 newspaper comic strip. Keep each character's identity, "
-    "costume and proportions exactly as they are in image 1, and keep them as two separate characters "
-    "who never merge or swap parts. Draw them INTO the location rather than on top of it: their weight "
-    "on the same floor at the same perspective, one light direction across the whole picture, a soft "
-    "cast shadow pooling on the floor beneath each of them, and the ink weight and paper grain of the "
-    "figures identical to the room. What is happening in the panel:"
+    "This is a single panel from the 1933 newspaper comic strip. The two characters in image 1 are on "
+    "blank paper: keep each one's identity, costume, pose and proportions exactly as they are, and "
+    "keep them as two separate characters who never merge or swap parts. Draw the location around "
+    "them, filling the blank paper — floor beneath their feet in one perspective, walls and props "
+    "behind them, one light direction for the whole picture, a soft cast shadow pooling under each of "
+    "them where they stand. The only characters anywhere in the picture are the two already drawn — "
+    "every other shape in the panel is scenery, furniture or a prop. The drawing runs edge to edge as "
+    "one continuous illustration. What is happening in the panel:"
 )
+
+WHERE_LEAD_IN = "The location drawn around them is:"
 
 
 def build_duo(spec):
@@ -726,14 +712,19 @@ def build_duo(spec):
 
     X, y = -40, -620
     action = g.add("PrimitiveStringMultiline", "▶ 1 · WHAT IS HAPPENING (TYPE HERE)",
-                   (X, y), (460, 260), {"value": spec["action"]},
+                   (X, y), (460, 240), {"value": spec["action"]},
                    outputs=[("STRING", "STRING")], color=GREEN)
     g.app_input(action, "value", value="1 · WHAT IS HAPPENING")
-    y += 290
+    y += 270
+    where = g.add("PrimitiveStringMultiline", "▶ 2 · WHERE IT HAPPENS (TYPE HERE)",
+                  (X, y), (460, 240), {"value": spec["where"]},
+                  outputs=[("STRING", "STRING")], color=GREEN)
+    g.app_input(where, "value", value="2 · WHERE IT HAPPENS")
+    y += 270
 
     figures = []
     for i, (side, cid) in enumerate((("LEFT", spec["left"]), ("RIGHT", spec["right"])), start=0):
-        n0 = 2 + i * 4
+        n0 = 3 + i * 4
         img = g.add("LoadImage", f"▶ {n0} · {side} CHARACTER — a transparent cutout",
                     (X, y), (460, 400), {"image": f"cast-cutout-{cid}.png", "upload": "image"},
                     outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
@@ -754,17 +745,20 @@ def build_duo(spec):
         y += 110
         figures.append((side, img, size, px, py))
 
-    plate = g.add("LoadImage", "▶ 10 · SCENE PLATE — the empty location",
-                  (X, y), (460, 400), {"image": spec["scene_plate"], "upload": "image"},
-                  outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
-    g.app_input(plate, "image", image="10 · SCENE PLATE")
-    y += 430
+    # The location is drawn by the model from words — the figures are pasted onto blank paper.
+    plate = g.add("EmptyImage", "blank paper the figures are laid out on", (X, y), (460, 150),
+                  {"width": 1024, "height": 1024, "batch_size": 1, "color": 15263173},
+                  outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    y += 180
     g.group("① THE PANEL · everything you touch is in this column",
             (X - 30, -690, 520, y + 200), GROUP_SHOT)
 
     # --- composite: pixels, not prompting ---------------------------------
     CX, CY, DY = 560, -620, 46
     dest = plate
+    silhouettes = g.add("EmptyImage", "black canvas for the figure silhouettes", (CX, CY - 60),
+                        (330, 150), {"width": 1024, "height": 1024, "batch_size": 1, "color": 0},
+                        outputs=[("IMAGE", "IMAGE")], collapsed=True)
     row = 0
     for side, img, size, px, py in figures:
         scaled = g.add("ImageScaleBy", f"scale {side.lower()}", (CX, CY + row * DY), (330, 110),
@@ -801,6 +795,15 @@ def build_duo(spec):
                             "y": (py, 0, "INT", True)},
                      outputs=[("IMAGE", "IMAGE")], collapsed=True)
         row += 1
+        silhouettes = g.add("ImageCompositeMasked", f"stamp {side.lower()} silhouette",
+                            (CX, CY + row * DY), (330, 150), {"resize_source": False},
+                            links={"destination": (silhouettes, 0, "IMAGE", False),
+                                   "source": (alpha_scaled, 0, "IMAGE", False),
+                                   "mask": (mask, 0, "MASK", False),
+                                   "x": (px, 0, "INT", True),
+                                   "y": (py, 0, "INT", True)},
+                            outputs=[("IMAGE", "IMAGE")], collapsed=True)
+        row += 1
     g.group("② LAYOUT · pixels, not prompting", (CX - 30, CY - 70, 400, row * DY + 90), GROUP_OUT)
 
     g.add("PreviewImage", "the composite, before the model sees it", (CX, CY + row * DY + 60),
@@ -814,14 +817,27 @@ def build_duo(spec):
     style_lock = g.add("PrimitiveStringMultiline", "STYLE LOCK — house style",
                        (LX, LY + DY), (430, 300), {"value": STYLE_LOCK},
                        outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
-    cat = g.add("StringConcatenate", "panel lock + what is happening", (LX, LY + 2 * DY), (330, 150),
+    where_lead = g.add("PrimitiveStringMultiline", "WHERE LEAD-IN — leave alone",
+                       (LX, LY + 2 * DY), (430, 190), {"value": WHERE_LEAD_IN},
+                       outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    cat = g.add("StringConcatenate", "panel lock + what is happening", (LX, LY + 3 * DY), (330, 150),
                 {"delimiter": " "},
                 links={"string_a": (panel_lock, 0, "STRING", True),
                        "string_b": (action, 0, "STRING", True)},
                 outputs=[("STRING", "STRING")], collapsed=True)
+    cat2 = g.add("StringConcatenate", "+ where lead-in", (LX, LY + 4 * DY), (330, 150),
+                 {"delimiter": " "},
+                 links={"string_a": (cat, 0, "STRING", True),
+                        "string_b": (where_lead, 0, "STRING", True)},
+                 outputs=[("STRING", "STRING")], collapsed=True)
+    cat3 = g.add("StringConcatenate", "+ where it happens", (LX, LY + 5 * DY), (330, 150),
+                 {"delimiter": " "},
+                 links={"string_a": (cat2, 0, "STRING", True),
+                        "string_b": (where, 0, "STRING", True)},
+                 outputs=[("STRING", "STRING")], collapsed=True)
     prompt = g.add("StringConcatenate", "FINAL PROMPT — expand to read what the model got",
-                   (LX, LY + 3 * DY), (330, 150), {"delimiter": " "},
-                   links={"string_a": (cat, 0, "STRING", True),
+                   (LX, LY + 6 * DY), (330, 150), {"delimiter": " "},
+                   links={"string_a": (cat3, 0, "STRING", True),
                           "string_b": (style_lock, 0, "STRING", True)},
                    outputs=[("STRING", "STRING")], collapsed=True)
     g.group("③ PANEL & STYLE LOCK · leave alone", (LX - 30, LY - 70, 480, 4 * DY + 90), GROUP_LOCK)
@@ -853,20 +869,32 @@ def build_duo(spec):
     latent = g.add("VAEEncode", "the composite as latent", (EX, EY + 6 * DY), (400, 80),
                    links={"pixels": (dest, 0, "IMAGE", False), "vae": (vae, 0, "VAE", False)},
                    outputs=[("LATENT", "LATENT")], collapsed=True)
+    # Only the blank paper around the figures is re-generated: the figures' own pixels are held,
+    # so the model draws the location around them instead of redrawing them.
+    figure_mask = g.add("ImageToMask", "figures as a mask", (EX, EY + 7 * DY), (400, 90),
+                        {"channel": "red"},
+                        links={"image": (silhouettes, 0, "IMAGE", False)},
+                        outputs=[("MASK", "MASK")], collapsed=True)
+    bg_mask = g.add("InvertMask", "everything except the figures", (EX, EY + 8 * DY), (400, 80),
+                    links={"mask": (figure_mask, 0, "MASK", False)},
+                    outputs=[("MASK", "MASK")], collapsed=True)
+    latent = g.add("SetLatentNoiseMask", "paint only the background", (EX, EY + 9 * DY), (400, 80),
+                   links={"samples": (latent, 0, "LATENT", False),
+                          "mask": (bg_mask, 0, "MASK", False)},
+                   outputs=[("LATENT", "LATENT")], collapsed=True)
     g.group("engine · don't touch", (EX - 30, EY - 70, 480, 7 * DY + 90), GROUP_ENGINE)
 
-    sampler = g.add("KSampler", "▶ 11-13 · POLISH, STEPS, SEED", (560, 640), (460, 270),
+    sampler = g.add("KSampler", "▶ 11-12 · STEPS + SEED", (560, 640), (460, 270),
                     {"seed": 1, "control_after_generate": "randomize", "steps": spec["steps"],
                      "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple",
-                     "denoise": spec["polish"]},
+                     "denoise": 1.0},
                     links={"model": (lora, 0, "MODEL", False),
                            "positive": (pos, 0, "CONDITIONING", False),
                            "negative": (neg, 0, "CONDITIONING", False),
                            "latent_image": (latent, 0, "LATENT", False)},
                     outputs=[("LATENT", "LATENT")])
-    g.app_input(sampler, "denoise", "steps", "seed",
-                denoise="11 · POLISH (0.45 blends, 0.6 starts inventing)",
-                steps="12 · STEPS (20 for a panel)", seed="13 · SEED")
+    g.app_input(sampler, "steps", "seed",
+                steps="11 · STEPS (20 for a panel)", seed="12 · SEED")
     decode = g.add("VAEDecode", "decode", (560, 950), (400, 80),
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (vae, 0, "VAE", False)},
@@ -924,8 +952,9 @@ DUO = {
     "left": "wilson", "right": "seth",
     "left_size": 0.60, "left_x": 180, "left_y": 360,
     "right_size": 0.66, "right_x": 470, "right_y": 330,
-    "scene_plate": "cast-scene-empty-stage.png",
-    "polish": 0.45, "steps": 20,
+    "where": ("the vaudeville stage, seen from the house — bare boards underfoot, a heavy curtain "
+              "hanging behind them, a row of footlights along the front edge."),
+    "steps": 20,
 }
 
 

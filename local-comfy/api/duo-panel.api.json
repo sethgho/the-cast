@@ -9,96 +9,120 @@
   }
  },
  "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "the vaudeville stage, seen from the house \u2014 bare boards underfoot, a heavy curtain hanging behind them, a row of footlights along the front edge."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 WHERE IT HAPPENS (TYPE HERE)"
+  }
+ },
+ "4": {
   "class_type": "LoadImage",
   "inputs": {
    "image": "cast-cutout-wilson.png"
   },
   "_meta": {
-   "title": "\u25b6 2 \u00b7 LEFT CHARACTER \u2014 a transparent cutout"
+   "title": "\u25b6 3 \u00b7 LEFT CHARACTER \u2014 a transparent cutout"
   }
  },
- "4": {
+ "5": {
   "class_type": "PrimitiveFloat",
   "inputs": {
    "value": 0.6
   },
   "_meta": {
-   "title": "\u25b6 3 \u00b7 LEFT SIZE"
-  }
- },
- "5": {
-  "class_type": "PrimitiveInt",
-  "inputs": {
-   "value": 180
-  },
-  "_meta": {
-   "title": "\u25b6 4 \u00b7 LEFT X"
+   "title": "\u25b6 4 \u00b7 LEFT SIZE"
   }
  },
  "6": {
   "class_type": "PrimitiveInt",
   "inputs": {
-   "value": 360
+   "value": 180
   },
   "_meta": {
-   "title": "\u25b6 5 \u00b7 LEFT Y"
+   "title": "\u25b6 5 \u00b7 LEFT X"
   }
  },
  "7": {
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 360
+  },
+  "_meta": {
+   "title": "\u25b6 6 \u00b7 LEFT Y"
+  }
+ },
+ "8": {
   "class_type": "LoadImage",
   "inputs": {
    "image": "cast-cutout-seth.png"
   },
   "_meta": {
-   "title": "\u25b6 6 \u00b7 RIGHT CHARACTER \u2014 a transparent cutout"
+   "title": "\u25b6 7 \u00b7 RIGHT CHARACTER \u2014 a transparent cutout"
   }
  },
- "8": {
+ "9": {
   "class_type": "PrimitiveFloat",
   "inputs": {
    "value": 0.66
   },
   "_meta": {
-   "title": "\u25b6 7 \u00b7 RIGHT SIZE"
-  }
- },
- "9": {
-  "class_type": "PrimitiveInt",
-  "inputs": {
-   "value": 470
-  },
-  "_meta": {
-   "title": "\u25b6 8 \u00b7 RIGHT X"
+   "title": "\u25b6 8 \u00b7 RIGHT SIZE"
   }
  },
  "10": {
   "class_type": "PrimitiveInt",
   "inputs": {
-   "value": 330
+   "value": 470
   },
   "_meta": {
-   "title": "\u25b6 9 \u00b7 RIGHT Y"
+   "title": "\u25b6 9 \u00b7 RIGHT X"
   }
  },
  "11": {
-  "class_type": "LoadImage",
+  "class_type": "PrimitiveInt",
   "inputs": {
-   "image": "cast-scene-empty-stage.png"
+   "value": 330
   },
   "_meta": {
-   "title": "\u25b6 10 \u00b7 SCENE PLATE \u2014 the empty location"
+   "title": "\u25b6 10 \u00b7 RIGHT Y"
   }
  },
  "12": {
+  "class_type": "EmptyImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1,
+   "color": 15263173
+  },
+  "_meta": {
+   "title": "blank paper the figures are laid out on"
+  }
+ },
+ "13": {
+  "class_type": "EmptyImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1,
+   "color": 0
+  },
+  "_meta": {
+   "title": "black canvas for the figure silhouettes"
+  }
+ },
+ "14": {
   "class_type": "ImageScaleBy",
   "inputs": {
    "upscale_method": "lanczos",
    "image": [
-    "3",
+    "4",
     0
    ],
    "scale_by": [
-    "4",
+    "5",
     0
    ]
   },
@@ -106,11 +130,11 @@
    "title": "scale left"
   }
  },
- "13": {
+ "15": {
   "class_type": "InvertMask",
   "inputs": {
    "mask": [
-    "3",
+    "4",
     1
    ]
   },
@@ -118,11 +142,11 @@
    "title": "left alpha"
   }
  },
- "14": {
+ "16": {
   "class_type": "MaskToImage",
   "inputs": {
    "mask": [
-    "13",
+    "15",
     0
    ]
   },
@@ -130,16 +154,16 @@
    "title": "left alpha as image"
   }
  },
- "15": {
+ "17": {
   "class_type": "ImageScaleBy",
   "inputs": {
    "upscale_method": "lanczos",
    "image": [
-    "14",
+    "16",
     0
    ],
    "scale_by": [
-    "4",
+    "5",
     0
    ]
   },
@@ -147,12 +171,12 @@
    "title": "scale left alpha"
   }
  },
- "16": {
+ "18": {
   "class_type": "ImageToMask",
   "inputs": {
    "channel": "red",
    "image": [
-    "15",
+    "17",
     0
    ]
   },
@@ -160,28 +184,28 @@
    "title": "left mask"
   }
  },
- "17": {
+ "19": {
   "class_type": "ImageCompositeMasked",
   "inputs": {
    "resize_source": false,
    "destination": [
-    "11",
-    0
-   ],
-   "source": [
     "12",
     0
    ],
+   "source": [
+    "14",
+    0
+   ],
    "mask": [
-    "16",
+    "18",
     0
    ],
    "x": [
-    "5",
+    "6",
     0
    ],
    "y": [
-    "6",
+    "7",
     0
    ]
   },
@@ -189,45 +213,33 @@
    "title": "paste left"
   }
  },
- "18": {
-  "class_type": "ImageScaleBy",
+ "20": {
+  "class_type": "ImageCompositeMasked",
   "inputs": {
-   "upscale_method": "lanczos",
-   "image": [
-    "7",
+   "resize_source": false,
+   "destination": [
+    "13",
     0
    ],
-   "scale_by": [
-    "8",
+   "source": [
+    "17",
     0
-   ]
-  },
-  "_meta": {
-   "title": "scale right"
-  }
- },
- "19": {
-  "class_type": "InvertMask",
-  "inputs": {
+   ],
    "mask": [
+    "18",
+    0
+   ],
+   "x": [
+    "6",
+    0
+   ],
+   "y": [
     "7",
-    1
-   ]
-  },
-  "_meta": {
-   "title": "right alpha"
-  }
- },
- "20": {
-  "class_type": "MaskToImage",
-  "inputs": {
-   "mask": [
-    "19",
     0
    ]
   },
   "_meta": {
-   "title": "right alpha as image"
+   "title": "stamp left silhouette"
   }
  },
  "21": {
@@ -235,11 +247,52 @@
   "inputs": {
    "upscale_method": "lanczos",
    "image": [
-    "20",
+    "8",
     0
    ],
    "scale_by": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale right"
+  }
+ },
+ "22": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
     "8",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "right alpha"
+  }
+ },
+ "23": {
+  "class_type": "MaskToImage",
+  "inputs": {
+   "mask": [
+    "22",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "right alpha as image"
+  }
+ },
+ "24": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "image": [
+    "23",
+    0
+   ],
+   "scale_by": [
+    "9",
     0
    ]
   },
@@ -247,12 +300,12 @@
    "title": "scale right alpha"
   }
  },
- "22": {
+ "25": {
   "class_type": "ImageToMask",
   "inputs": {
    "channel": "red",
    "image": [
-    "21",
+    "24",
     0
    ]
   },
@@ -260,28 +313,28 @@
    "title": "right mask"
   }
  },
- "23": {
+ "26": {
   "class_type": "ImageCompositeMasked",
   "inputs": {
    "resize_source": false,
    "destination": [
-    "17",
+    "19",
     0
    ],
    "source": [
-    "18",
+    "21",
     0
    ],
    "mask": [
-    "22",
+    "25",
     0
    ],
    "x": [
-    "9",
+    "10",
     0
    ],
    "y": [
-    "10",
+    "11",
     0
    ]
   },
@@ -289,11 +342,40 @@
    "title": "paste right"
   }
  },
- "24": {
+ "27": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "resize_source": false,
+   "destination": [
+    "20",
+    0
+   ],
+   "source": [
+    "24",
+    0
+   ],
+   "mask": [
+    "25",
+    0
+   ],
+   "x": [
+    "10",
+    0
+   ],
+   "y": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "stamp right silhouette"
+  }
+ },
+ "28": {
   "class_type": "PreviewImage",
   "inputs": {
    "images": [
-    "23",
+    "26",
     0
    ]
   },
@@ -301,16 +383,16 @@
    "title": "the composite, before the model sees it"
   }
  },
- "25": {
+ "29": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "This is a single panel from the 1933 newspaper comic strip. Keep each character's identity, costume and proportions exactly as they are in image 1, and keep them as two separate characters who never merge or swap parts. Draw them INTO the location rather than on top of it: their weight on the same floor at the same perspective, one light direction across the whole picture, a soft cast shadow pooling on the floor beneath each of them, and the ink weight and paper grain of the figures identical to the room. What is happening in the panel:"
+   "value": "This is a single panel from the 1933 newspaper comic strip. The two characters in image 1 are on blank paper: keep each one's identity, costume, pose and proportions exactly as they are, and keep them as two separate characters who never merge or swap parts. Draw the location around them, filling the blank paper \u2014 floor beneath their feet in one perspective, walls and props behind them, one light direction for the whole picture, a soft cast shadow pooling under each of them where they stand. The only characters anywhere in the picture are the two already drawn \u2014 every other shape in the panel is scenery, furniture or a prop. The drawing runs edge to edge as one continuous illustration. What is happening in the panel:"
   },
   "_meta": {
    "title": "PANEL LOCK \u2014 how the redraw is asked for"
   }
  },
- "26": {
+ "30": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
    "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
@@ -319,12 +401,21 @@
    "title": "STYLE LOCK \u2014 house style"
   }
  },
- "27": {
+ "31": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "The location drawn around them is:"
+  },
+  "_meta": {
+   "title": "WHERE LEAD-IN \u2014 leave alone"
+  }
+ },
+ "32": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "25",
+    "29",
     0
    ],
    "string_b": [
@@ -336,16 +427,50 @@
    "title": "panel lock + what is happening"
   }
  },
- "28": {
+ "33": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "27",
+    "32",
     0
    ],
    "string_b": [
-    "26",
+    "31",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ where lead-in"
+  }
+ },
+ "34": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "33",
+    0
+   ],
+   "string_b": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ where it happens"
+  }
+ },
+ "35": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "34",
+    0
+   ],
+   "string_b": [
+    "30",
     0
    ]
   },
@@ -353,7 +478,7 @@
    "title": "FINAL PROMPT \u2014 expand to read what the model got"
   }
  },
- "29": {
+ "36": {
   "class_type": "UnetLoaderGGUF",
   "inputs": {
    "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
@@ -362,13 +487,13 @@
    "title": "diffusion model"
   }
  },
- "30": {
+ "37": {
   "class_type": "LoraLoaderModelOnly",
   "inputs": {
    "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
    "strength_model": 1.0,
    "model": [
-    "29",
+    "36",
     0
    ]
   },
@@ -376,7 +501,7 @@
    "title": "Lightning LoRA (8 steps)"
   }
  },
- "31": {
+ "38": {
   "class_type": "CLIPLoader",
   "inputs": {
    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
@@ -387,7 +512,7 @@
    "title": "text encoder"
   }
  },
- "32": {
+ "39": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "qwen_image_vae.safetensors"
@@ -396,23 +521,23 @@
    "title": "VAE"
   }
  },
- "33": {
+ "40": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": [
-    "28",
+    "35",
     0
    ],
    "clip": [
-    "31",
+    "38",
     0
    ],
    "vae": [
-    "32",
+    "39",
     0
    ],
    "image1": [
-    "23",
+    "26",
     0
    ]
   },
@@ -420,12 +545,12 @@
    "title": "encode the composite"
   }
  },
- "34": {
+ "41": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
    "clip": [
-    "31",
+    "38",
     0
    ]
   },
@@ -433,15 +558,15 @@
    "title": "negative (only bites when cfg > 1)"
   }
  },
- "35": {
+ "42": {
   "class_type": "VAEEncode",
   "inputs": {
    "pixels": [
-    "23",
+    "26",
     0
    ],
    "vae": [
-    "32",
+    "39",
     0
    ]
   },
@@ -449,7 +574,48 @@
    "title": "the composite as latent"
   }
  },
- "36": {
+ "43": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "27",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "figures as a mask"
+  }
+ },
+ "44": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "43",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "everything except the figures"
+  }
+ },
+ "45": {
+  "class_type": "SetLatentNoiseMask",
+  "inputs": {
+   "samples": [
+    "42",
+    0
+   ],
+   "mask": [
+    "44",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "paint only the background"
+  }
+ },
+ "46": {
   "class_type": "KSampler",
   "inputs": {
    "seed": 1,
@@ -457,37 +623,37 @@
    "cfg": 1.0,
    "sampler_name": "euler",
    "scheduler": "simple",
-   "denoise": 0.45,
+   "denoise": 1.0,
    "model": [
-    "30",
+    "37",
     0
    ],
    "positive": [
-    "33",
+    "40",
     0
    ],
    "negative": [
-    "34",
+    "41",
     0
    ],
    "latent_image": [
-    "35",
+    "45",
     0
    ]
   },
   "_meta": {
-   "title": "\u25b6 11-13 \u00b7 POLISH, STEPS, SEED"
+   "title": "\u25b6 11-12 \u00b7 STEPS + SEED"
   }
  },
- "37": {
+ "47": {
   "class_type": "VAEDecode",
   "inputs": {
    "samples": [
-    "36",
+    "46",
     0
    ],
    "vae": [
-    "32",
+    "39",
     0
    ]
   },
@@ -495,12 +661,12 @@
    "title": "decode"
   }
  },
- "38": {
+ "48": {
   "class_type": "SaveImage",
   "inputs": {
    "filename_prefix": "cast/duo",
    "images": [
-    "37",
+    "47",
     0
    ]
   },
