@@ -50,7 +50,11 @@ CELL = 512
 
 # move -> (clip, cells, fps, loop, hold, unify_height)
 MOVES = {
-    "walk":   ("/tmp/seth-walk-cycle-832-20.mp4",   10, 14, True,  False, True),
+        # unify_height is WRONG for a walk. It rescales every cell to the set median silhouette
+    # height, but a stride genuinely rises and falls -- so it scaled the up and down positions by
+    # different factors, which reads as the character growing and shrinking, and pushed one head
+    # past the top of the cell. It stays on only for moves that should not change height at all.
+    "walk":   ("/tmp/seth-walk-cycle-832-20.mp4",   10, 14, True,  False, False),
     # Idle is a breath. More cells does NOT buy more subtlety: asked for 16, the repaint returned
     # only 8 distinct drawings, because a locked seed maps two near-identical source frames onto
     # the same output. The extra cells became uneven holds, which reads as a stutter. So: 8 real

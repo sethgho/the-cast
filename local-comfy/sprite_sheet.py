@@ -281,7 +281,7 @@ def pack_set(jobs, cell, outdir, anchor, smooth, skip=6, cycle=True):
     tallest = max(p["natural"] for _, _, p in measured)
     highest = max(p.get("up", 0) for _, _, p in measured)
     # 0.94 of the cell is the feet line; leave 3% of headroom above the tallest reach
-    scale = min((cell * 0.92) / tallest, (cell * 0.91) / highest) if tallest else 1.0
+    scale = min((cell * 0.92) / tallest, (cell * 0.88) / highest) if tallest else 1.0
     out = []
     for name, n, prep in measured:
         out.append(_emit(name, prep, cell, outdir, anchor, scale))
@@ -313,9 +313,10 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
     anchors = []
     for i in picks:
         x0, y0, x1, y1 = boxes[i]
-        anchors.append(((x0 + x1) // 2, y1 if anchor == "feet" else (y0 + y1) // 2))
+        anchors.append((torso_cx(rgba[i], boxes[i]),
+                        y1 if anchor == "feet" else (y0 + y1) // 2))
     if smooth and len(anchors) > 2:
-        anchors = list(zip(median3([a[0] for a in anchors]), median3([a[1] for a in anchors])))
+        anchors = _smooth_anchors(anchors)
 
     spans = []
     for (i, (ax, ay)) in zip(picks, anchors):
@@ -341,9 +342,9 @@ def _prepare_stills(paths, smooth=True):
     anchors = []
     for i in picks:
         x0, y0, x1, y1 = boxes[i]
-        anchors.append(((x0 + x1) // 2, y1))
+        anchors.append((torso_cx(rgba[i], boxes[i]), y1))
     if smooth and len(anchors) > 2:
-        anchors = list(zip(median3([a[0] for a in anchors]), median3([a[1] for a in anchors])))
+        anchors = _smooth_anchors(anchors)
     spans = []
     for (i, (ax, ay)) in zip(picks, anchors):
         x0, y0, x1, y1 = boxes[i]
@@ -358,6 +359,40 @@ def _prepare_stills(paths, smooth=True):
     up = max(s[2] for s in spans)
     return {"rgba": rgba, "up": up, "boxes": boxes, "picks": picks, "anchors": anchors,
             "natural": natural, "period": None, "clip": paths[0]}
+
+
+# A raw anchor moves for two different reasons: sub-pixel matte shimmer, which should be smoothed
+# away, and the character genuinely striding, which must not be. A plain median filter cannot tell
+# them apart — it swaps in a neighbour's foot position wholesale, which floated the walk cells up
+# to 16px off the ground line. So the smoothed value is only allowed to pull an anchor a few
+# pixels: enough for shimmer, never enough to move a footfall.
+ANCHOR_PULL = 3
+
+
+def torso_cx(rgba, box):
+    """Horizontal anchor that does not swing with the legs.
+
+    The bottom-centre of the silhouette is the right ORIGIN but the wrong x: a stride throws one
+    leg forward and one back, so the bounding box's centre swings with the legs and drags the
+    whole drawing side to side — the walk cells slid 23px against each other while the feet were
+    already planted. The head and shoulders travel with the body instead, so the x anchor is
+    taken from the top third of the silhouette.
+    """
+    a = np.asarray(rgba)[:, :, 3] > 32
+    x0, y0, x1, y1 = box
+    band = a[y0:y0 + max(1, (y1 - y0) // 3), :]
+    xs = np.nonzero(band)[1]
+    return int(xs.mean()) if xs.size else (x0 + x1) // 2
+
+
+def _smooth_anchors(anchors):
+    xs = median3([a[0] for a in anchors])
+    ys = median3([a[1] for a in anchors])
+    out = []
+    for (ax, ay), sx, sy in zip(anchors, xs, ys):
+        out.append((ax + max(-ANCHOR_PULL, min(ANCHOR_PULL, sx - ax)),
+                    ay + max(-ANCHOR_PULL, min(ANCHOR_PULL, sy - ay))))
+    return out
 
 
 def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
