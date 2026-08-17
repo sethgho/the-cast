@@ -16,7 +16,21 @@ Measured on the RTX 3080 Ti (12GB): **~48s at 8 steps**, **~25s at 4 steps**, 10
 | `build_workflows.py` | Generates both files from one character spec. Edit here, not the JSON. |
 | `smoke_test.py` | Runs the API graph through all four switch combinations. |
 
-## The control surface
+## App Mode
+
+The workflow ships with `extra.linearMode: true`, so opening it drops you straight into
+ComfyUI's [App Mode](https://docs.comfy.org/interface/app-mode) — a plain form, no graph. The
+form is defined by `extra.linearData` and is generated from the same script:
+
+    1 · YOUR SHOT   2 · SCENE   3 · YOUR SCENE   4 · SCENE PLATE
+    5 · TRANSPARENT PNG   6 · OUTPUT SIZE (w/h)   7 · SEED + STEPS  →  RESULT
+
+Use the breadcrumb menu at the top to leave App Mode and see the graph. App Mode has no
+conditional fields, so `3 · YOUR SCENE` and `4 · SCENE PLATE` stay on screen even when `SCENE`
+is off — they are simply ignored. Share links are Comfy-Cloud-only; on our box App Mode is
+local-only.
+
+## The control surface (graph view)
 
 Three groups, colour-coded:
 

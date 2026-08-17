@@ -58,18 +58,23 @@ HOW_TO_USE = """# {name} — pose & scene
 
 ## The controls
 
+Everything you touch is the numbered column on the left, top to bottom.
+
 | Control | What it does |
 |---|---|
-| **▶ YOUR SHOT** | The one box you always edit. Say what he is *doing*, in one sentence. |
-| **▶ YOUR SCENE** | Where he is. Only used when `SCENE` is ON. |
-| **SCENE** switch | OFF = flat mid-grey plate (pose-library style). ON = puts him in the scene image + your scene text. |
-| **TRANSPARENT PNG** switch | ON = cuts the background out and saves an RGBA PNG. Works with either scene setting, but is meant for plate shots. |
-| **OUTPUT SIZE** | 1024×1024 by default. 1024×1536 for a tall figure, 1536×1024 for a wide gag. |
+| **1 · YOUR SHOT** | The one box you always edit. Say what he is *doing*, in one sentence. |
+| **2 · SCENE** | OFF = flat mid-grey plate (pose-library style). ON = puts him in the scene plate + your scene text. |
+| **3 · YOUR SCENE** | Where he is. Only read when `SCENE` is ON. |
+| **4 · SCENE PLATE** | The image 2 backdrop. Only read when `SCENE` is ON. |
+| **5 · TRANSPARENT PNG** | ON = cuts the background out and saves an RGBA PNG. Meant for plate shots. |
+| **6 · OUTPUT SIZE** | 1024×1024 by default. 1024×1536 for a tall figure, 1536×1024 for a wide gag. |
+| **7 · SEED + STEPS** | Re-roll here. 8 steps ships; drop to 4 with the 4-step LoRA for drafts. |
 
 ## What NOT to edit
 
-The blue boxes are the character and house style. They are what makes the output look like
-{name} and not a stock cartoon. Leave them alone unless you are deliberately re-canonising him.
+Everything else is collapsed on purpose. The blue group is the character and house style —
+what makes the output look like {name} and not a stock cartoon. Expand it only to re-canonise
+him. Expand **FINAL PROMPT** in that group any time you want to read exactly what the model got.
 
 ## Speed on gpu-worker (RTX 3080 Ti, 12GB)
 
@@ -142,10 +147,22 @@ class Graph:
         self.nodes = []
         self.links = []
         self.groups = []
+        self.app_inputs = []   # [[node_id, widget_name], ...] — the App Mode form, in order
+        self.app_outputs = []  # [node_id, ...]
         self._nid = 0
         self._lid = 0
 
-    def add(self, ntype, title, pos, size, widgets=None, links=None, outputs=None, color=None):
+    def app_input(self, node, *widget_names):
+        for w in widget_names:
+            self.app_inputs.append([str(node["id"]), w])
+        return node
+
+    def app_output(self, node):
+        self.app_outputs.append(str(node["id"]))
+        return node
+
+    def add(self, ntype, title, pos, size, widgets=None, links=None, outputs=None, color=None,
+            collapsed=False):
         """links: {input_name: (node, slot, TYPE, is_widget_input)}"""
         self._nid += 1
         node = {
@@ -153,7 +170,7 @@ class Graph:
             "type": ntype,
             "pos": list(pos),
             "size": list(size),
-            "flags": {},
+            "flags": {"collapsed": True} if collapsed else {},
             "order": self._nid,
             "mode": 0,
             "inputs": [],
@@ -216,7 +233,12 @@ class Graph:
             "groups": self.groups,
             "definitions": {"subgraphs": []},
             "config": {},
-            "extra": {"ds": {"scale": 0.55, "offset": [1600, 700]}},
+            "extra": {
+                "ds": {"scale": 0.55, "offset": [1600, 700]},
+                # App Mode ("linear mode"): the form the workflow opens as.
+                "linearMode": True,
+                "linearData": {"inputs": self.app_inputs, "outputs": self.app_outputs},
+            },
             "version": 0.4,
         }
 
@@ -260,119 +282,134 @@ def build(cid, spec):
     g.add("MarkdownNote", f"HOW TO USE — {spec['name']}", (-1560, -560), (480, 900),
           {"text": HOW_TO_USE.format(name=spec["name"])})
 
-    # --- 1. character + style lock ---------------------------------------
-    char_lock = g.add("PrimitiveStringMultiline", f"CHARACTER LOCK — who {spec['name']} is (leave alone)",
-                      (-1020, -560), (430, 300), {"value": spec["character_lock"]},
-                      outputs=[("STRING", "STRING")], color=BLUE)
-    style_lock = g.add("PrimitiveStringMultiline", "STYLE LOCK — house style (leave alone)",
-                       (-1020, -230), (430, 300), {"value": STYLE_LOCK},
-                       outputs=[("STRING", "STRING")], color=BLUE)
-    plate_clause = g.add("PrimitiveStringMultiline", "PLATE BACKGROUND — used when SCENE is OFF (leave alone)",
-                         (-1020, 100), (430, 190), {"value": PLATE_CLAUSE},
-                         outputs=[("STRING", "STRING")], color=BLUE)
-    scene_lead = g.add("PrimitiveStringMultiline", "SCENE LEAD-IN — used when SCENE is ON (leave alone)",
-                       (-1020, 320), (430, 190), {"value": SCENE_LEAD_IN},
-                       outputs=[("STRING", "STRING")], color=BLUE)
-    g.group(f"① {spec['name'].upper()} — CHARACTER & STYLE LOCK · leave alone",
-            (-1050, -630, 490, 1180), GROUP_LOCK)
-
-    # --- 2. your shot ----------------------------------------------------
-    shot = g.add("PrimitiveStringMultiline", "▶ YOUR SHOT — what he is doing (TYPE HERE)",
-                 (-520, -560), (440, 330), {"value": spec["shot"]},
+    # --- 1. the column you actually touch --------------------------------
+    shot = g.add("PrimitiveStringMultiline", "▶ 1 · YOUR SHOT — what he is doing (TYPE HERE)",
+                 (-40, -620), (460, 300), {"value": spec["shot"]},
                  outputs=[("STRING", "STRING")], color=GREEN)
-    scene_text = g.add("PrimitiveStringMultiline", "▶ YOUR SCENE — where he is (TYPE HERE, needs SCENE = true)",
-                       (-520, -200), (440, 250), {"value": spec["scene"]},
-                       outputs=[("STRING", "STRING")], color=GREEN)
-    scene_on = g.add("PrimitiveBoolean", "SCENE  ·  false = flat grey plate,  true = in a scene",
-                     (-520, 80), (440, 90), {"value": False},
+    scene_on = g.add("PrimitiveBoolean", "▶ 2 · SCENE   false = flat grey plate · true = in a scene",
+                     (-40, -290), (460, 80), {"value": False},
                      outputs=[("BOOLEAN", "BOOLEAN")], color=GREY)
-    transparent_on = g.add("PrimitiveBoolean", "TRANSPARENT PNG  ·  true = cut the background out",
-                           (-520, 200), (440, 90), {"value": False},
-                           outputs=[("BOOLEAN", "BOOLEAN")], color=GREY)
-    plate = g.add("LoadImage", f"CHARACTER PLATE — {spec['name']}'s reference (image 1)",
-                  (-520, 320), (440, 420), {"image": spec["plate"], "upload": "image"},
-                  outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
-    scene_plate = g.add("LoadImage", "SCENE PLATE (image 2) — only read when SCENE = true",
-                        (-520, 780), (440, 420), {"image": spec["scene_plate"], "upload": "image"},
+    scene_text = g.add("PrimitiveStringMultiline", "▶ 3 · YOUR SCENE — where he is (only read when SCENE = true)",
+                       (-40, -180), (460, 210), {"value": spec["scene"]},
+                       outputs=[("STRING", "STRING")], color=GREEN)
+    scene_plate = g.add("LoadImage", "▶ 4 · SCENE PLATE (image 2) — only read when SCENE = true",
+                        (-40, 60), (460, 400), {"image": spec["scene_plate"], "upload": "image"},
                         outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
-    g.group("② YOUR SHOT · type in the green boxes, flip the switches",
-            (-550, -630, 500, 1860), GROUP_SHOT)
+    transparent_on = g.add("PrimitiveBoolean", "▶ 5 · TRANSPARENT PNG   true = cut the background out",
+                           (-40, 490), (460, 80), {"value": False},
+                           outputs=[("BOOLEAN", "BOOLEAN")], color=GREY)
+    latent = g.add("EmptySD3LatentImage", "▶ 6 · OUTPUT SIZE", (-40, 600), (460, 130),
+                   {"width": 1024, "height": 1024, "batch_size": 1},
+                   outputs=[("LATENT", "LATENT")], color=GREY)
+    g.group("② YOUR SHOT · everything you touch is in this column, top to bottom",
+            (-70, -690, 520, 1470), GROUP_SHOT)
 
-    # --- 3. prompt assembly ---------------------------------------------
+    # App Mode form, in the order it is asked for
+    g.app_input(shot, "value")
+    g.app_input(scene_on, "value")
+    g.app_input(scene_text, "value")
+    g.app_input(scene_plate, "image")
+    g.app_input(transparent_on, "value")
+    g.app_input(latent, "width", "height")
+
+    # --- 2. output --------------------------------------------------------
+    # (sampler sits here because seed + steps are the only engine dials worth a poke)
+    sampler_pos = (520, 640)
+
+    # --- 3. character + style lock (collapsed; expand to re-canonise) ------
+    LX, LY, DY = 1240, -620, 46
+    char_lock = g.add("PrimitiveStringMultiline", f"CHARACTER LOCK — who {spec['name']} is",
+                      (LX, LY), (430, 300), {"value": spec["character_lock"]},
+                      outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    style_lock = g.add("PrimitiveStringMultiline", "STYLE LOCK — house style",
+                       (LX, LY + DY), (430, 300), {"value": STYLE_LOCK},
+                       outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    plate_clause = g.add("PrimitiveStringMultiline", "PLATE BACKGROUND — used when SCENE is off",
+                         (LX, LY + 2 * DY), (430, 190), {"value": PLATE_CLAUSE},
+                         outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    scene_lead = g.add("PrimitiveStringMultiline", "SCENE LEAD-IN — used when SCENE is on",
+                       (LX, LY + 3 * DY), (430, 190), {"value": SCENE_LEAD_IN},
+                       outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    plate = g.add("LoadImage", f"CHARACTER PLATE — {spec['name']}'s reference (image 1)",
+                  (LX, LY + 4 * DY), (430, 400), {"image": spec["plate"], "upload": "image"},
+                  outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")], collapsed=True)
+
+    # prompt assembly, collapsed — FINAL PROMPT is the one worth expanding to read
+    cat1 = g.add("StringConcatenate", "character lock + your shot",
+                 (LX, LY + 5 * DY), (330, 150), {"delimiter": " "},
+                 links={"string_a": (char_lock, 0, "STRING", True),
+                        "string_b": (shot, 0, "STRING", True)},
+                 outputs=[("STRING", "STRING")], collapsed=True)
     scene_clause = g.add("StringConcatenate", "scene lead-in + your scene",
-                         (-20, -200), (330, 150), {"delimiter": " "},
+                         (LX, LY + 6 * DY), (330, 150), {"delimiter": " "},
                          links={"string_a": (scene_lead, 0, "STRING", True),
                                 "string_b": (scene_text, 0, "STRING", True)},
-                         outputs=[("STRING", "STRING")])
-    bg_clause = g.add("ComfySwitchNode", "BACKGROUND text switch",
-                      (-20, 0), (330, 130), {"switch": False},
+                         outputs=[("STRING", "STRING")], collapsed=True)
+    bg_clause = g.add("ComfySwitchNode", "background text switch",
+                      (LX, LY + 7 * DY), (330, 130), {"switch": False},
                       links={"on_false": (plate_clause, 0, "STRING", False),
                              "on_true": (scene_clause, 0, "STRING", False),
                              "switch": (scene_on, 0, "BOOLEAN", True)},
-                      outputs=[("output", "STRING")])
-    cat1 = g.add("StringConcatenate", "character lock + your shot",
-                 (-20, -560), (330, 150), {"delimiter": " "},
-                 links={"string_a": (char_lock, 0, "STRING", True),
-                        "string_b": (shot, 0, "STRING", True)},
-                 outputs=[("STRING", "STRING")])
+                      outputs=[("output", "STRING")], collapsed=True)
     cat2 = g.add("StringConcatenate", "+ background",
-                 (-20, -390), (330, 150), {"delimiter": " "},
+                 (LX, LY + 8 * DY), (330, 150), {"delimiter": " "},
                  links={"string_a": (cat1, 0, "STRING", True),
                         "string_b": (bg_clause, 0, "STRING", True)},
-                 outputs=[("STRING", "STRING")])
-    prompt = g.add("StringConcatenate", "FINAL PROMPT (= what the model reads)",
-                   (-20, 160), (330, 150), {"delimiter": " "},
+                 outputs=[("STRING", "STRING")], collapsed=True)
+    prompt = g.add("StringConcatenate", "FINAL PROMPT — expand to read what the model got",
+                   (LX, LY + 9 * DY), (330, 150), {"delimiter": " "},
                    links={"string_a": (cat2, 0, "STRING", True),
                           "string_b": (style_lock, 0, "STRING", True)},
-                   outputs=[("STRING", "STRING")])
+                   outputs=[("STRING", "STRING")], collapsed=True)
+    g.group(f"① {spec['name'].upper()} — CHARACTER & STYLE LOCK · expand only to re-canonise him",
+            (LX - 30, LY - 70, 480, 10 * DY + 90), GROUP_LOCK)
 
-    # --- 4. engine -------------------------------------------------------
-    unet = g.add("UnetLoaderGGUF", "diffusion model", (-20, 700), (400, 80),
-                 {"unet_name": UNET}, outputs=[("MODEL", "MODEL")], color=ENGINE)
-    lora = g.add("LoraLoaderModelOnly", "Lightning LoRA (8 steps)", (-20, 820), (400, 110),
+    # --- 4. engine (all collapsed) ---------------------------------------
+    EX, EY = LX, LY + 10 * DY + 60
+    unet = g.add("UnetLoaderGGUF", "diffusion model", (EX, EY), (400, 80),
+                 {"unet_name": UNET}, outputs=[("MODEL", "MODEL")], color=ENGINE, collapsed=True)
+    lora = g.add("LoraLoaderModelOnly", "Lightning LoRA (8 steps)", (EX, EY + DY), (400, 110),
                  {"lora_name": LORA, "strength_model": 1.0},
                  links={"model": (unet, 0, "MODEL", False)},
-                 outputs=[("MODEL", "MODEL")], color=ENGINE)
-    clip = g.add("CLIPLoader", "text encoder", (-20, 970), (400, 130),
+                 outputs=[("MODEL", "MODEL")], color=ENGINE, collapsed=True)
+    clip = g.add("CLIPLoader", "text encoder", (EX, EY + 2 * DY), (400, 130),
                  {"clip_name": CLIP, "type": "qwen_image", "device": "default"},
-                 outputs=[("CLIP", "CLIP")], color=ENGINE)
-    vae = g.add("VAELoader", "VAE", (-20, 1140), (400, 80), {"vae_name": VAE},
-                outputs=[("VAE", "VAE")], color=ENGINE)
+                 outputs=[("CLIP", "CLIP")], color=ENGINE, collapsed=True)
+    vae = g.add("VAELoader", "VAE", (EX, EY + 3 * DY), (400, 80), {"vae_name": VAE},
+                outputs=[("VAE", "VAE")], color=ENGINE, collapsed=True)
     bgmodel = g.add("LoadBackgroundRemovalModel", "BiRefNet (for TRANSPARENT PNG)",
-                    (-20, 1260), (400, 80), {"bg_removal_name": BGREMOVAL},
-                    outputs=[("BACKGROUND_REMOVAL", "BACKGROUND_REMOVAL")], color=ENGINE)
-    g.group("engine · don't touch", (-50, 630, 460, 760), GROUP_ENGINE)
-
-    # --- 5. conditioning + sampling --------------------------------------
+                    (EX, EY + 4 * DY), (400, 80), {"bg_removal_name": BGREMOVAL},
+                    outputs=[("BACKGROUND_REMOVAL", "BACKGROUND_REMOVAL")], color=ENGINE,
+                    collapsed=True)
     enc_plate = g.add("TextEncodeQwenImageEditPlus", "encode — plate (image 1 only)",
-                      (420, -560), (400, 130), {"prompt": ""},
+                      (EX, EY + 5 * DY), (400, 130), {"prompt": ""},
                       links={"clip": (clip, 0, "CLIP", False),
                              "vae": (vae, 0, "VAE", False),
                              "image1": (plate, 0, "IMAGE", False),
                              "prompt": (prompt, 0, "STRING", True)},
-                      outputs=[("CONDITIONING", "CONDITIONING")])
+                      outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
     enc_scene = g.add("TextEncodeQwenImageEditPlus", "encode — scene (image 1 + image 2)",
-                      (420, -380), (400, 130), {"prompt": ""},
+                      (EX, EY + 6 * DY), (400, 130), {"prompt": ""},
                       links={"clip": (clip, 0, "CLIP", False),
                              "vae": (vae, 0, "VAE", False),
                              "image1": (plate, 0, "IMAGE", False),
                              "image2": (scene_plate, 0, "IMAGE", False),
                              "prompt": (prompt, 0, "STRING", True)},
-                      outputs=[("CONDITIONING", "CONDITIONING")])
-    positive = g.add("ComfySwitchNode", "POSITIVE switch (same SCENE toggle)",
-                     (420, -190), (400, 130), {"switch": False},
+                      outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
+    positive = g.add("ComfySwitchNode", "positive switch (same SCENE toggle)",
+                     (EX, EY + 7 * DY), (400, 130), {"switch": False},
                      links={"on_false": (enc_plate, 0, "CONDITIONING", False),
                             "on_true": (enc_scene, 0, "CONDITIONING", False),
                             "switch": (scene_on, 0, "BOOLEAN", True)},
-                     outputs=[("output", "CONDITIONING")])
+                     outputs=[("output", "CONDITIONING")], collapsed=True)
     negative = g.add("TextEncodeQwenImageEditPlus", "negative (only bites when cfg > 1)",
-                     (420, 0), (400, 130), {"prompt": NEGATIVE},
+                     (EX, EY + 8 * DY), (400, 130), {"prompt": NEGATIVE},
                      links={"clip": (clip, 0, "CLIP", False)},
-                     outputs=[("CONDITIONING", "CONDITIONING")], color=ENGINE)
-    latent = g.add("EmptySD3LatentImage", "OUTPUT SIZE", (420, 180), (400, 130),
-                   {"width": 1024, "height": 1024, "batch_size": 1},
-                   outputs=[("LATENT", "LATENT")], color=GREY)
-    sampler = g.add("KSampler", "sampler · seed + steps live here", (420, 360), (400, 270),
+                     outputs=[("CONDITIONING", "CONDITIONING")], color=ENGINE, collapsed=True)
+    g.group("engine · don't touch", (EX - 30, EY - 70, 480, 9 * DY + 90), GROUP_ENGINE)
+
+    # --- 5. sampling + output --------------------------------------------
+    sampler = g.add("KSampler", "▶ 7 · SEED + STEPS", sampler_pos, (460, 270),
                     {"seed": 1, "control_after_generate": "randomize", "steps": STEPS, "cfg": 1.0,
                      "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0},
                     links={"model": (lora, 0, "MODEL", False),
@@ -380,36 +417,36 @@ def build(cid, spec):
                            "negative": (negative, 0, "CONDITIONING", False),
                            "latent_image": (latent, 0, "LATENT", False)},
                     outputs=[("LATENT", "LATENT")])
-    decode = g.add("VAEDecode", "decode", (420, 680), (400, 80),
+    decode = g.add("VAEDecode", "decode", (520, 950), (400, 80),
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (vae, 0, "VAE", False)},
-                   outputs=[("IMAGE", "IMAGE")])
-
-    # --- 6. output -------------------------------------------------------
-    cutout = g.add("RemoveBackground", "cut the figure out", (900, -560), (380, 90),
+                   outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    cutout = g.add("RemoveBackground", "cut the figure out", (520, 1000), (380, 90),
                    links={"bg_removal_model": (bgmodel, 0, "BACKGROUND_REMOVAL", False),
                           "image": (decode, 0, "IMAGE", False)},
-                   outputs=[("MASK", "MASK")])
+                   outputs=[("MASK", "MASK")], collapsed=True)
     # JoinImageWithAlpha inverts the mask internally (ComfyUI's mask convention is
     # 1 = masked OUT), so the foreground mask has to be flipped first or the figure
     # is what goes transparent.
-    inverted = g.add("InvertMask", "flip to ComfyUI mask convention", (900, -430), (380, 80),
+    inverted = g.add("InvertMask", "flip to ComfyUI mask convention", (520, 1050), (380, 80),
                      links={"mask": (cutout, 0, "MASK", False)},
-                     outputs=[("MASK", "MASK")])
-    rgba = g.add("JoinImageWithAlpha", "make it RGBA", (900, -330), (380, 90),
+                     outputs=[("MASK", "MASK")], collapsed=True)
+    rgba = g.add("JoinImageWithAlpha", "make it RGBA", (520, 1100), (380, 90),
                  links={"image": (decode, 0, "IMAGE", False),
                         "alpha": (inverted, 0, "MASK", False)},
-                 outputs=[("IMAGE", "IMAGE")])
-    final = g.add("ComfySwitchNode", "TRANSPARENT switch", (900, -200), (380, 130),
+                 outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    final = g.add("ComfySwitchNode", "transparent switch", (520, 1150), (380, 130),
                   {"switch": False},
                   links={"on_false": (decode, 0, "IMAGE", False),
                          "on_true": (rgba, 0, "IMAGE", False),
                          "switch": (transparent_on, 0, "BOOLEAN", True)},
-                  outputs=[("output", "IMAGE")])
-    g.add("SaveImage", "SAVE", (900, -100), (600, 700),
-          {"filename_prefix": f"cast/{cid}"},
-          links={"images": (final, 0, "IMAGE", False)})
-    g.group("③ OUTPUT", (870, -630, 660, 1250), GROUP_OUT)
+                  outputs=[("output", "IMAGE")], collapsed=True)
+    g.app_input(sampler, "seed", "steps")
+    g.app_output(g.add("SaveImage", "RESULT", (520, -620), (620, 1200),
+                       {"filename_prefix": f"cast/{cid}"},
+                       links={"images": (final, 0, "IMAGE", False)}))
+    g.group("③ RESULT · seed, steps and the finished image",
+            (490, -690, 680, 1930), GROUP_OUT)
 
     return g
 

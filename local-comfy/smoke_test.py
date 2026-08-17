@@ -43,7 +43,7 @@ def run(graph, label, outdir):
     if status.get("status_str") != "success":
         print(f"{label}: FAILED — {json.dumps(status)[:400]}")
         return
-    out = hist[pid]["outputs"][find(graph, "SAVE")]["images"][0]
+    out = hist[pid]["outputs"][find(graph, "RESULT")]["images"][0]
     url = f"/view?filename={out['filename']}&subfolder={out.get('subfolder','')}&type=output"
     with urllib.request.urlopen(HOST + url, timeout=300) as r:
         data = r.read()
@@ -56,9 +56,9 @@ def run(graph, label, outdir):
 def main(cid, outdir):
     os.makedirs(outdir, exist_ok=True)
     base = json.load(open(os.path.join(HERE, "api", f"{cid}-pose-and-scene.api.json")))
-    scene_id = find(base, "SCENE  ·")
-    alpha_id = find(base, "TRANSPARENT PNG  ·")
-    seed_id = find(base, "sampler")
+    scene_id = find(base, "▶ 2 · SCENE")
+    alpha_id = find(base, "▶ 5 · TRANSPARENT")
+    seed_id = find(base, "▶ 7 · SEED")
     for scene in (False, True):
         for alpha in (False, True):
             g = json.loads(json.dumps(base))
