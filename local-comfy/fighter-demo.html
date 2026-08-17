@@ -49,12 +49,12 @@
   </div>
 
   <table>
-    <tr><th>Move</th><th>Cells</th><th>Plays</th><th>Height normalised</th></tr>
-    <tr><td>idle</td><td>4</td><td>loops</td><td>yes</td></tr>
-    <tr><td>walk</td><td>8 — the full contact/down/passing/up cycle, both legs</td><td>loops</td><td>yes</td></tr>
-    <tr><td>punch · kick</td><td>5 each — guard, wind, half, extension, recovery</td><td>once</td><td>no</td></tr>
-    <tr><td>jump</td><td>5 — crouch, launch, apex, descent, land</td><td>once</td><td>no</td></tr>
-    <tr><td>block · crouch</td><td>3 each</td><td>once, holds on the last cell</td><td>no</td></tr>
+    <tr><th>Move</th><th>Drawn beats</th><th>Cells after RIFE</th><th>Plays at</th></tr>
+    <tr><td>walk</td><td>8 — contact/down/passing/up, both legs</td><td>24</td><td>24 fps, loops</td></tr>
+    <tr><td>idle</td><td>4</td><td>12</td><td>18 fps, loops</td></tr>
+    <tr><td>punch · kick</td><td>5 — guard, wind, half, extension, recovery</td><td>9</td><td>22–24 fps, once</td></tr>
+    <tr><td>jump</td><td>5 — crouch, launch, apex, descent, land</td><td>9</td><td>18 fps, once</td></tr>
+    <tr><td>block · crouch</td><td>3</td><td>5</td><td>once, holds on the last cell</td></tr>
   </table>
 
   <div class="note"><b>Stills, not video — and that was the whole fix.</b> The first version cut
@@ -70,25 +70,31 @@
   median height, because independently generated stills vary a few percent and a walk cycle that
   breathes in size looks broken. Crouch and jump deliberately skip that — their height change is
   the move.
+  <br><br><b>The in-betweens are interpolated, not drawn.</b> Eight drawings at 12fps reads as a
+  flip-book, and paying 48s a drawing for 24 of them is silly. The beats go through RIFE
+  (<code>FrameInterpolate</code>, local) at ×3 — 24 walk cells for six seconds of GPU. Two things
+  that needed care: the in-betweens are made <i>before</i> keying, while everything is still on the
+  magenta screen, so an interpolated frame gets matted exactly like a drawn one; and RIFE smears
+  the screen colour into fast limbs, which the despill now removes by testing for blue-above-green
+  — the character's browns are all blue-below-green, so it can run at full strength on the smears
+  without touching the drawing.
   <br><br>Back to the <a href="cast-local-comfy.html">apps and how they were built</a>.</div>
 </main>
 <script>
-const MOVES = {
-  idle:   { file: "seth-idle",   frames: 4, fps: 6,  loop: true },
-  walk:   { file: "seth-walk",   frames: 8, fps: 12, loop: true },
-  jump:   { file: "seth-jump",   frames: 5, fps: 10, loop: false },
-  punch:  { file: "seth-punch",  frames: 5, fps: 14, loop: false },
-  kick:   { file: "seth-kick",   frames: 5, fps: 12, loop: false },
-  block:  { file: "seth-block",  frames: 3, fps: 14, loop: false, hold: true },
-  crouch: { file: "seth-crouch", frames: 3, fps: 14, loop: false, hold: true },
-};
-const CELL = 256;
+// The sheets describe themselves: sprite_poses.py writes seth-moves.json next to the atlases
+// with the frame count and the playback rate for every move, so this page never goes stale.
+let MOVES = {};
 const sheets = {};
-for (const [name, m] of Object.entries(MOVES)) {
-  const img = new Image();
-  img.src = `cast-fighter/sprites/${m.file}.png`;
-  sheets[name] = img;
+async function loadMoves() {
+  MOVES = await (await fetch("cast-fighter/sprites/seth-moves.json")).json();
+  await Promise.all(Object.entries(MOVES).map(([name, m]) => new Promise(res => {
+    const img = new Image();
+    img.onload = img.onerror = res;
+    img.src = `cast-fighter/sprites/${m.file}.png`;
+    sheets[name] = img;
+  })));
 }
+const CELL = 256;
 
 const cv = document.getElementById("c"), ctx = cv.getContext("2d");
 const stateEl = document.getElementById("state"), moveEl = document.getElementById("move");
@@ -192,6 +198,6 @@ function draw() {
   ctx.drawImage(img, frame * CELL, 0, CELL, CELL, -w / 2, -h * 0.94, w, h);
   ctx.restore();
 }
-requestAnimationFrame(tick);
+loadMoves().then(() => requestAnimationFrame(tick));
 </script>
 </html>

@@ -43,8 +43,8 @@ import numpy as np
 from PIL import Image
 
 KEY = np.array([255, 0, 255], dtype=np.float32)   # the magenta the sprite-clip app renders on
-SOFT_IN, SOFT_OUT = 90.0, 170.0                  # colour distance: fully background .. fully solid
-EDGE_ERODE = 1                                   # px pulled off the matte before despill
+SOFT_IN, SOFT_OUT = 45.0, 110.0   # colour distance from the measured screen: background .. solid
+EDGE_ERODE = 0                    # eroding eats the ink OUTLINE — the darkest pixels in the drawing
 
 
 def extract_frames(clip, tmp):
@@ -65,10 +65,14 @@ def despill(rgb, edge=None):
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     spill = np.maximum((r + b) * 0.5 - g, 0.0)
     if edge is not None:
-        # ONLY the anti-aliased edge. Applied to solid pixels this rule strips every warm colour
-        # in the drawing — brown hair, tan skin and khaki trousers all have red above green — and
-        # the character comes out bleached.
-        spill = spill * edge
+        # Two places the screen shows up inside the drawing. The anti-aliased edge, and — once
+        # RIFE is interpolating between poses — pink smears where a limb moved a long way between
+        # keys. Both are magenta-ish: blue ABOVE green. The character's own warm colours are the
+        # opposite (brown hair, tan skin, khaki trousers all sit blue below green), so that one
+        # test separates them and lets the despill run at full strength on the smears without
+        # touching the drawing.
+        pinkish = (rgb[..., 2] > rgb[..., 1] + 6).astype(np.float32)
+        spill = spill * np.maximum(edge, pinkish)
     out = rgb.copy()
     out[..., 0] = np.clip(r - spill, 0, 255)
     out[..., 2] = np.clip(b - spill, 0, 255)

@@ -44,7 +44,10 @@ STAGE_LOCK = (
     "wide side view, standing on an invisible ground line at the bottom of the frame, his whole "
     "body inside the picture at the same size and the same place in every frame, alone on a "
     "completely flat bright magenta screen of one solid colour that fills the whole picture behind "
-    "him with nothing else drawn on it. Keep his identity exactly as image 1 draws it. He is "
+    "him with nothing else drawn on it. Keep his identity exactly as image 1 draws it, and keep "
+    "his colours exactly as deep as image 1 draws them — the dark near-black of his shirt, the dark "
+    "brown of his hair, the mid tone of his trousers — with strong black ink lines and real "
+    "contrast, never pale or washed out. He is "
 )
 POSE_LEAD = "The pose in this frame is:"
 
@@ -197,7 +200,10 @@ def pack(cid, moves=None, cell=256):
     os.makedirs(SHEET_DIR, exist_ok=True)
     preps = []
     for move in moves:
-        d = os.path.join(OUT_ROOT, f"{cid}-{move}")
+        # prefer the RIFE-smoothed sequence when interpolate_poses.py has produced one
+        d = os.path.join(OUT_ROOT, f"{cid}-{move}-smooth")
+        if not os.path.isdir(d):
+            d = os.path.join(OUT_ROOT, f"{cid}-{move}")
         paths = sorted(os.path.join(d, f) for f in os.listdir(d) if f.endswith(".png"))
         if not paths:
             continue
@@ -211,8 +217,14 @@ def pack(cid, moves=None, cell=256):
         # height changes or the move stops reading as a crouch or a jump
         _emit(name, prep, cell, SHEET_DIR, "feet", scale,
               unify_height=MOVE_META.get(move, {}).get("loop", False))
-        index[move] = dict(MOVE_META.get(move, {"fps": 12, "loop": False}),
-                           file=name, frames=len(prep["picks"]))
+        beats = len(POSE_BEATS[move])
+        n = len(prep["picks"])
+        meta = dict(MOVE_META.get(move, {"fps": 12, "loop": False}))
+        # in-betweens only help if they are played at the matching rate
+        # keep the move's duration, but cap the rate: a 24-frame walk at 36fps is a sprint, and
+        # nothing on the web benefits from stepping a sprite faster than the display refresh.
+        meta["fps"] = min(round(meta["fps"] * n / beats), 24)
+        index[move] = dict(meta, file=name, frames=n, beats=beats)
     json.dump(index, open(os.path.join(SHEET_DIR, f"{cid}-moves.json"), "w"), indent=1)
     print(f"packed {len(preps)} moves at shared scale {scale:.3f} -> {SHEET_DIR}")
 
