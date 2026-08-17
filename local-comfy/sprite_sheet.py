@@ -45,6 +45,8 @@ from PIL import Image
 KEY = np.array([255, 0, 255], dtype=np.float32)   # the magenta the sprite-clip app renders on
 SOFT_IN, SOFT_OUT = 45.0, 110.0   # colour distance from the measured screen: background .. solid
 EDGE_ERODE = 0                    # eroding eats the ink OUTLINE — the darkest pixels in the drawing
+CEL_CLEAN = True                  # off for repainted cells: they are drawn, not decoded, so there
+                                  # is no codec noise to remove and the median only costs halftone
 
 
 def extract_frames(clip, tmp):
@@ -109,7 +111,9 @@ def key_out(path):
         alpha = np.asarray(a8.filter(ImageFilter.MinFilter(2 * EDGE_ERODE + 1))).astype(np.float32) / 255.0
     # edge weight: 1 in the transition band, 0 on solid pixels and on the screen itself
     edge = np.clip(1.0 - np.abs(alpha * 2.0 - 1.0), 0.0, 1.0)
-    cleaned = cel_clean(despill(im, edge), alpha)
+    cleaned = despill(im, edge)
+    if CEL_CLEAN:
+        cleaned = cel_clean(cleaned, alpha)
     rgba = np.dstack([cleaned.astype(np.uint8), (alpha * 255).astype(np.uint8)])
     return Image.fromarray(rgba, "RGBA")
 
