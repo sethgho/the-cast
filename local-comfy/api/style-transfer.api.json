@@ -1,0 +1,356 @@
+{
+ "2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-scene-source.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 YOUR PICTURE \u2014 the photo to redraw"
+  }
+ },
+ "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "a rack of computer servers in a machine room."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 WHAT IT IS (TYPE HERE)"
+  }
+ },
+ "4": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "the layout of the room, the number of machines, and where the light falls."
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 KEEP (TYPE HERE)"
+  }
+ },
+ "5": {
+  "class_type": "PrimitiveBoolean",
+  "inputs": {
+   "value": false
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 TRANSPARENT PNG   on = cut the subject out"
+  }
+ },
+ "6": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "\u25b6 5 \u00b7 OUTPUT SIZE"
+  }
+ },
+ "7": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Redraw the picture in image 1 as a hand-inked 1933 newspaper comic-strip drawing. Keep its layout, its perspective and every object in it where they are, and convert photographic tone into flat ink: confident smooth outlines of even weight, soft halftone dots for shading, and the whole picture in warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. The picture shows:"
+  },
+  "_meta": {
+   "title": "RESTYLE LOCK \u2014 how the redraw is asked for"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "These parts of it must survive the redraw exactly:"
+  },
+  "_meta": {
+   "title": "KEEP LEAD-IN \u2014 leave alone"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "10": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "7",
+    0
+   ],
+   "string_b": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "restyle lock + what it is"
+  }
+ },
+ "11": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "10",
+    0
+   ],
+   "string_b": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ keep lead-in"
+  }
+ },
+ "12": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "11",
+    0
+   ],
+   "string_b": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ keep"
+  }
+ },
+ "13": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "12",
+    0
+   ],
+   "string_b": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "14": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "15": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "16": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "17": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "18": {
+  "class_type": "LoadBackgroundRemovalModel",
+  "inputs": {
+   "bg_removal_name": "birefnet.safetensors"
+  },
+  "_meta": {
+   "title": "BiRefNet (for TRANSPARENT PNG)"
+  }
+ },
+ "19": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "13",
+    0
+   ],
+   "clip": [
+    "16",
+    0
+   ],
+   "vae": [
+    "17",
+    0
+   ],
+   "image1": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode (your picture + the prompt)"
+  }
+ },
+ "20": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "21": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 1,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "15",
+    0
+   ],
+   "positive": [
+    "19",
+    0
+   ],
+   "negative": [
+    "20",
+    0
+   ],
+   "latent_image": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 6 \u00b7 SEED + STEPS"
+  }
+ },
+ "22": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "21",
+    0
+   ],
+   "vae": [
+    "17",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "23": {
+  "class_type": "RemoveBackground",
+  "inputs": {
+   "bg_removal_model": [
+    "18",
+    0
+   ],
+   "image": [
+    "22",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "cut the subject out"
+  }
+ },
+ "24": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "flip to ComfyUI mask convention"
+  }
+ },
+ "25": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "22",
+    0
+   ],
+   "alpha": [
+    "24",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "make it RGBA"
+  }
+ },
+ "26": {
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "switch": [
+    "5",
+    0
+   ],
+   "on_false": [
+    "22",
+    0
+   ],
+   "on_true": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "transparent switch"
+  }
+ },
+ "27": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/restyle",
+   "images": [
+    "26",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

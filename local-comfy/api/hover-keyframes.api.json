@@ -1,0 +1,307 @@
+{
+ "2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-cutout-wilson.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 FRAME A \u2014 the frame you already have"
+  }
+ },
+ "3": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "he lifts the bucket hat an inch off the picket points in a small greeting, and both eyes crinkle up."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 THE MOTION (TYPE HERE)"
+  }
+ },
+ "4": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "the same framing, the same scale, the same position in the frame, the same colours, and a background of exactly the same flat even tone as image 1 \u2014 the two frames stack on each other."
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 HOLD (leave the default unless you must)"
+  }
+ },
+ "5": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "output size (match frame A)"
+  }
+ },
+ "6": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Redraw the picture in image 1 as the next frame of the same drawing, for a short looping animation. Keep the character's identity, costume, colour, size, position in the frame and distance from the camera exactly as they are in image 1, and keep the background exactly as it is, the same flat even tone, so the two frames stack on each other and everything holds still except the one movement described. Every feature of the character stays exactly as image 1 draws it, gaining nothing new. The movement is:"
+  },
+  "_meta": {
+   "title": "KEYFRAME LOCK \u2014 how the next frame is asked for"
+  }
+ },
+ "7": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Everything else holds:"
+  },
+  "_meta": {
+   "title": "HOLD LEAD-IN \u2014 leave alone"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "9": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "6",
+    0
+   ],
+   "string_b": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "keyframe lock + the motion"
+  }
+ },
+ "10": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "9",
+    0
+   ],
+   "string_b": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ hold lead-in"
+  }
+ },
+ "11": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "10",
+    0
+   ],
+   "string_b": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ hold"
+  }
+ },
+ "12": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "11",
+    0
+   ],
+   "string_b": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "13": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "14": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "15": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "16": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "17": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "12",
+    0
+   ],
+   "clip": [
+    "15",
+    0
+   ],
+   "vae": [
+    "16",
+    0
+   ],
+   "image1": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode (frame A + the prompt)"
+  }
+ },
+ "18": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "15",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "19": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 1,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "14",
+    0
+   ],
+   "positive": [
+    "17",
+    0
+   ],
+   "negative": [
+    "18",
+    0
+   ],
+   "latent_image": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 SEED + STEPS"
+  }
+ },
+ "20": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "19",
+    0
+   ],
+   "vae": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode frame B"
+  }
+ },
+ "21": {
+  "class_type": "ImageStitch",
+  "inputs": {
+   "direction": "right",
+   "match_image_size": true,
+   "spacing_width": 8,
+   "spacing_color": "white",
+   "image1": [
+    "2",
+    0
+   ],
+   "image2": [
+    "20",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "A and B side by side"
+  }
+ },
+ "22": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/keyframe-b",
+   "images": [
+    "20",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ },
+ "23": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/keyframe-pair",
+   "images": [
+    "21",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "PAIR"
+  }
+ }
+}

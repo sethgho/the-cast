@@ -1,0 +1,1608 @@
+{
+ "id": "cast-local-qwen-edit",
+ "revision": 0,
+ "last_node_id": 27,
+ "last_link_id": 29,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -560,
+    -620
+   ],
+   "size": [
+    480,
+    900
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "HOW TO USE \u2014 style transfer",
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "# Style transfer\n\n**Any photo or sketch in, a house-style drawing out.**\n\nPoint it at a photo of the real fence, the real rack, a real room, and get something that sits\nnext to the cast without describing it from scratch.\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 YOUR PICTURE** | Upload the photo. Anything ComfyUI can load. |\n| **2 \u00b7 WHAT IT IS** | Say what the picture shows. The model reads the image, but naming the subject stops it inventing. |\n| **3 \u00b7 KEEP** | The parts that must survive \u2014 layout, specific objects, the lettering on a sign. |\n| **4 \u00b7 TRANSPARENT PNG** | Cuts the subject out. Useful when the photo is of one object. |\n| **5 \u00b7 WIDTH / HEIGHT** | Match the source aspect or the composition gets squeezed. |\n| **6 \u00b7 SEED + STEPS** | Re-roll here. |\n\nIt is one reference image and words \u2014 never add a second image hoping for style, Qwen reads every\nreference as a subject and will merge them.\n"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    -620
+   ],
+   "size": [
+    460,
+    400
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null,
+     "label": "1 \u00b7 YOUR PICTURE"
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      12
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "\u25b6 1 \u00b7 YOUR PICTURE \u2014 the photo to redraw",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-scene-source.png",
+    "image"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    -190
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "2 \u00b7 WHAT IT IS"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      2
+     ]
+    }
+   ],
+   "title": "\u25b6 2 \u00b7 WHAT IT IS (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "a rack of computer servers in a machine room."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 4,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    60
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "3 \u00b7 KEEP \u2014 what must survive the redraw"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      6
+     ]
+    }
+   ],
+   "title": "\u25b6 3 \u00b7 KEEP (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "the layout of the room, the number of machines, and where the light falls."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 5,
+   "type": "PrimitiveBoolean",
+   "pos": [
+    -40,
+    310
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "4 \u00b7 TRANSPARENT PNG \u2014 cut the subject out"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "BOOLEAN",
+     "type": "BOOLEAN",
+     "links": [
+      28
+     ]
+    }
+   ],
+   "title": "\u25b6 4 \u00b7 TRANSPARENT PNG   on = cut the subject out",
+   "properties": {
+    "Node name for S&R": "PrimitiveBoolean"
+   },
+   "widgets_values": [
+    false
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 6,
+   "type": "EmptySD3LatentImage",
+   "pos": [
+    -40,
+    420
+   ],
+   "size": [
+    460,
+    130
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "width",
+     "localized_name": "width",
+     "type": "INT",
+     "widget": {
+      "name": "width"
+     },
+     "link": null,
+     "label": "5 \u00b7 WIDTH"
+    },
+    {
+     "name": "height",
+     "localized_name": "height",
+     "type": "INT",
+     "widget": {
+      "name": "height"
+     },
+     "link": null,
+     "label": "5 \u00b7 HEIGHT"
+    },
+    {
+     "name": "batch_size",
+     "localized_name": "batch_size",
+     "type": "INT",
+     "widget": {
+      "name": "batch_size"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      18
+     ]
+    }
+   ],
+   "title": "\u25b6 5 \u00b7 OUTPUT SIZE",
+   "properties": {
+    "Node name for S&R": "EmptySD3LatentImage"
+   },
+   "widgets_values": [
+    1024,
+    1024,
+    1
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 7,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -620
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "title": "RESTYLE LOCK \u2014 how the redraw is asked for",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Redraw the picture in image 1 as a hand-inked 1933 newspaper comic-strip drawing. Keep its layout, its perspective and every object in it where they are, and convert photographic tone into flat ink: confident smooth outlines of even weight, soft halftone dots for shading, and the whole picture in warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. The picture shows:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 8,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -574
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 8,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      4
+     ]
+    }
+   ],
+   "title": "KEEP LEAD-IN \u2014 leave alone",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "These parts of it must survive the redraw exactly:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -528
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      8
+     ]
+    }
+   ],
+   "title": "STYLE LOCK \u2014 house style",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 10,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -482
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 1,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 2,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      3
+     ]
+    }
+   ],
+   "title": "restyle lock + what it is",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 11,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -436
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 3,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 4,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      5
+     ]
+    }
+   ],
+   "title": "+ keep lead-in",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 12,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -390
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 5,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 6,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      7
+     ]
+    }
+   ],
+   "title": "+ keep",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 13,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -344
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 7,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 8,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      13
+     ]
+    }
+   ],
+   "title": "FINAL PROMPT \u2014 expand to read what the model got",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 14,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    1240,
+    -252
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 14,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      9
+     ]
+    }
+   ],
+   "title": "diffusion model",
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-edit-2511-Q4_K_S.gguf"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 15,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    1240,
+    -206
+   ],
+   "size": [
+    400,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 9
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      15
+     ]
+    }
+   ],
+   "title": "Lightning LoRA (8 steps)",
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly"
+   },
+   "widgets_values": [
+    "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+    1.0
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 16,
+   "type": "CLIPLoader",
+   "pos": [
+    1240,
+    -160
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 16,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      10,
+      14
+     ]
+    }
+   ],
+   "title": "text encoder",
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 17,
+   "type": "VAELoader",
+   "pos": [
+    1240,
+    -114
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 17,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      11,
+      20
+     ]
+    }
+   ],
+   "title": "VAE",
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_vae.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 18,
+   "type": "LoadBackgroundRemovalModel",
+   "pos": [
+    1240,
+    -68
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 18,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "BACKGROUND_REMOVAL",
+     "type": "BACKGROUND_REMOVAL",
+     "links": [
+      21
+     ]
+    }
+   ],
+   "title": "BiRefNet (for TRANSPARENT PNG)",
+   "properties": {
+    "Node name for S&R": "LoadBackgroundRemovalModel"
+   },
+   "widgets_values": [
+    "birefnet.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 19,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    -22
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 10
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 11
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 12
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 13,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      16
+     ]
+    }
+   ],
+   "title": "encode (your picture + the prompt)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 20,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1240,
+    24
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 14
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      17
+     ]
+    }
+   ],
+   "title": "negative (only bites when cfg > 1)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 21,
+   "type": "KSampler",
+   "pos": [
+    520,
+    640
+   ],
+   "size": [
+    460,
+    270
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 15
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 16
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 17
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 18
+    },
+    {
+     "name": "seed",
+     "localized_name": "seed",
+     "type": "INT",
+     "widget": {
+      "name": "seed"
+     },
+     "link": null,
+     "label": "6 \u00b7 SEED"
+    },
+    {
+     "name": "steps",
+     "localized_name": "steps",
+     "type": "INT",
+     "widget": {
+      "name": "steps"
+     },
+     "link": null,
+     "label": "6 \u00b7 STEPS (8 ships)"
+    },
+    {
+     "name": "cfg",
+     "localized_name": "cfg",
+     "type": "FLOAT",
+     "widget": {
+      "name": "cfg"
+     },
+     "link": null
+    },
+    {
+     "name": "sampler_name",
+     "localized_name": "sampler_name",
+     "type": "COMBO",
+     "widget": {
+      "name": "sampler_name"
+     },
+     "link": null
+    },
+    {
+     "name": "scheduler",
+     "localized_name": "scheduler",
+     "type": "COMBO",
+     "widget": {
+      "name": "scheduler"
+     },
+     "link": null
+    },
+    {
+     "name": "denoise",
+     "localized_name": "denoise",
+     "type": "FLOAT",
+     "widget": {
+      "name": "denoise"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      19
+     ]
+    }
+   ],
+   "title": "\u25b6 6 \u00b7 SEED + STEPS",
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    1,
+    "randomize",
+    8,
+    1.0,
+    "euler",
+    "simple",
+    1.0
+   ]
+  },
+  {
+   "id": 22,
+   "type": "VAEDecode",
+   "pos": [
+    520,
+    950
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 19
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 20
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      22,
+      24,
+      26
+     ]
+    }
+   ],
+   "title": "decode",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 23,
+   "type": "RemoveBackground",
+   "pos": [
+    520,
+    1000
+   ],
+   "size": [
+    380,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "bg_removal_model",
+     "type": "BACKGROUND_REMOVAL",
+     "link": 21
+    },
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 22
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      23
+     ]
+    }
+   ],
+   "title": "cut the subject out",
+   "properties": {
+    "Node name for S&R": "RemoveBackground"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 24,
+   "type": "InvertMask",
+   "pos": [
+    520,
+    1046
+   ],
+   "size": [
+    380,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 23
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      25
+     ]
+    }
+   ],
+   "title": "flip to ComfyUI mask convention",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 25,
+   "type": "JoinImageWithAlpha",
+   "pos": [
+    520,
+    1092
+   ],
+   "size": [
+    380,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 25,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 24
+    },
+    {
+     "name": "alpha",
+     "type": "MASK",
+     "link": 25
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      27
+     ]
+    }
+   ],
+   "title": "make it RGBA",
+   "properties": {
+    "Node name for S&R": "JoinImageWithAlpha"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 26,
+   "type": "ComfySwitchNode",
+   "pos": [
+    520,
+    1138
+   ],
+   "size": [
+    380,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 26,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "IMAGE",
+     "link": 26
+    },
+    {
+     "name": "on_true",
+     "type": "IMAGE",
+     "link": 27
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 28,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "IMAGE",
+     "links": [
+      29
+     ]
+    }
+   ],
+   "title": "transparent switch",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    false
+   ]
+  },
+  {
+   "id": 27,
+   "type": "SaveImage",
+   "pos": [
+    520,
+    -620
+   ],
+   "size": [
+    620,
+    1200
+   ],
+   "flags": {},
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 29
+    }
+   ],
+   "outputs": [],
+   "title": "RESULT",
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "cast/restyle"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   7,
+   0,
+   10,
+   0,
+   "STRING"
+  ],
+  [
+   2,
+   3,
+   0,
+   10,
+   1,
+   "STRING"
+  ],
+  [
+   3,
+   10,
+   0,
+   11,
+   0,
+   "STRING"
+  ],
+  [
+   4,
+   8,
+   0,
+   11,
+   1,
+   "STRING"
+  ],
+  [
+   5,
+   11,
+   0,
+   12,
+   0,
+   "STRING"
+  ],
+  [
+   6,
+   4,
+   0,
+   12,
+   1,
+   "STRING"
+  ],
+  [
+   7,
+   12,
+   0,
+   13,
+   0,
+   "STRING"
+  ],
+  [
+   8,
+   9,
+   0,
+   13,
+   1,
+   "STRING"
+  ],
+  [
+   9,
+   14,
+   0,
+   15,
+   0,
+   "MODEL"
+  ],
+  [
+   10,
+   16,
+   0,
+   19,
+   0,
+   "CLIP"
+  ],
+  [
+   11,
+   17,
+   0,
+   19,
+   1,
+   "VAE"
+  ],
+  [
+   12,
+   2,
+   0,
+   19,
+   2,
+   "IMAGE"
+  ],
+  [
+   13,
+   13,
+   0,
+   19,
+   3,
+   "STRING"
+  ],
+  [
+   14,
+   16,
+   0,
+   20,
+   0,
+   "CLIP"
+  ],
+  [
+   15,
+   15,
+   0,
+   21,
+   0,
+   "MODEL"
+  ],
+  [
+   16,
+   19,
+   0,
+   21,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   17,
+   20,
+   0,
+   21,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   18,
+   6,
+   0,
+   21,
+   3,
+   "LATENT"
+  ],
+  [
+   19,
+   21,
+   0,
+   22,
+   0,
+   "LATENT"
+  ],
+  [
+   20,
+   17,
+   0,
+   22,
+   1,
+   "VAE"
+  ],
+  [
+   21,
+   18,
+   0,
+   23,
+   0,
+   "BACKGROUND_REMOVAL"
+  ],
+  [
+   22,
+   22,
+   0,
+   23,
+   1,
+   "IMAGE"
+  ],
+  [
+   23,
+   23,
+   0,
+   24,
+   0,
+   "MASK"
+  ],
+  [
+   24,
+   22,
+   0,
+   25,
+   0,
+   "IMAGE"
+  ],
+  [
+   25,
+   24,
+   0,
+   25,
+   1,
+   "MASK"
+  ],
+  [
+   26,
+   22,
+   0,
+   26,
+   0,
+   "IMAGE"
+  ],
+  [
+   27,
+   25,
+   0,
+   26,
+   1,
+   "IMAGE"
+  ],
+  [
+   28,
+   5,
+   0,
+   26,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   29,
+   26,
+   0,
+   27,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "\u2460 YOUR PICTURE \u00b7 everything you touch is in this column",
+   "bounding": [
+    -70,
+    -690,
+    520,
+    720
+   ],
+   "color": "#4a7c3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "\u2461 RESTYLE & STYLE LOCK \u00b7 leave alone",
+   "bounding": [
+    1210,
+    -690,
+    480,
+    412
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "engine \u00b7 don't touch",
+   "bounding": [
+    1210,
+    -322,
+    480,
+    412
+   ],
+   "color": "#444",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "\u2462 RESULT",
+   "bounding": [
+    490,
+    -690,
+    680,
+    1930
+   ],
+   "color": "#8a6d3b",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.55,
+   "offset": [
+    1600,
+    700
+   ]
+  },
+  "linearMode": true,
+  "linearData": {
+   "inputs": [
+    [
+     "2",
+     "image"
+    ],
+    [
+     "3",
+     "value"
+    ],
+    [
+     "4",
+     "value"
+    ],
+    [
+     "5",
+     "value"
+    ],
+    [
+     "6",
+     "width"
+    ],
+    [
+     "6",
+     "height"
+    ],
+    [
+     "21",
+     "seed"
+    ],
+    [
+     "21",
+     "steps"
+    ]
+   ],
+   "outputs": [
+    "27"
+   ]
+  }
+ },
+ "version": 0.4
+}
