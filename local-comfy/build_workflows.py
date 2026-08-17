@@ -372,13 +372,14 @@ CHARACTERS["wilson"] = {
     ),
     "headshot_lock": (
         "Redraw the character in image 1 as a close portrait of the top of him, keeping his identity "
-        "exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist — the panel is the body. Frame the bucket hat, the pointed picket tops and the two cartoon eyes "
+        "exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist — the panel is the body. Crop in tight on the bucket hat, the pointed picket tops and the two cartoon eyes so they fill the whole frame — the arms, the legs and the boots are cropped away entirely. Keep the eyes "
         "floating in the deep flat shadow under the brim. He has no face beyond those two eyes — no "
         "nose, no mouth, no eyebrows. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
     ),
     "shot": "he leans his side against a tall fence post, one boot crossed over the other, relaxed.",
     "expression": "attentive — both eyes wide and level, the hat brim tipped a little forward.",
-    "framing": "close on the hat and the picket tops, facing the viewer.",
+    "framing": ("extreme close-up, seen straight on: the bucket hat fills the top half of the picture "
+                "and the picket tops fill the bottom half, as tightly cropped as image 1."),
     "restate_headshot": (
         "Above all, redraw the two cartoon eyes and the tilt of the hat so he clearly reads as:"
     ),

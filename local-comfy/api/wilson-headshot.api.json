@@ -11,7 +11,7 @@
  "3": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "close on the hat and the picket tops, facing the viewer."
+   "value": "extreme close-up, seen straight on: the bucket hat fills the top half of the picture and the picket tops fill the bottom half, as tightly cropped as image 1."
   },
   "_meta": {
    "title": "\u25b6 2 \u00b7 FRAMING \u2014 crop and head angle (TYPE HERE)"
@@ -67,7 +67,7 @@
  "9": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "Redraw the character in image 1 as a close portrait of the top of him, keeping his identity exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist \u2014 the panel is the body. Frame the bucket hat, the pointed picket tops and the two cartoon eyes floating in the deep flat shadow under the brim. He has no face beyond those two eyes \u2014 no nose, no mouth, no eyebrows. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
+   "value": "Redraw the character in image 1 as a close portrait of the top of him, keeping his identity exactly: a living picket fence: one wide wooden fence panel of vertical slats with pointed tops IS his whole body, with two segmented riveted metal arms attached at its side edges, two short stubby metal legs with rolled cuffs and heavy black boots beneath its bottom rail, and a battered wide-brimmed floppy canvas bucket hat resting on the picket points; in the deep flat shadow between hat brim and pickets float two simple cartoon eyes, white ovals with round dark pupils. He has no head, no neck, no torso and no waist \u2014 the panel is the body. Crop in tight on the bucket hat, the pointed picket tops and the two cartoon eyes so they fill the whole frame \u2014 the arms, the legs and the boots are cropped away entirely. Keep the eyes floating in the deep flat shadow under the brim. He has no face beyond those two eyes \u2014 no nose, no mouth, no eyebrows. Keep every colour as muted and desaturated as image 1. The portrait shows him as follows:"
   },
   "_meta": {
    "title": "CHARACTER LOCK \u2014 who Wilson is"
