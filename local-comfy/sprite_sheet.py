@@ -43,8 +43,8 @@ import numpy as np
 from PIL import Image
 
 KEY = np.array([255, 0, 255], dtype=np.float32)   # the magenta the sprite-clip app renders on
-KEY_TOLERANCE = 120                              # colour distance that still counts as background
-EDGE_SOFTEN = 1                                  # px of alpha erosion, kills the key's colour halo
+SOFT_IN, SOFT_OUT = 90.0, 170.0                  # colour distance: fully background .. fully solid
+EDGE_ERODE = 1                                   # px pulled off the matte before despill
 
 
 def extract_frames(clip, tmp):
@@ -54,18 +54,35 @@ def extract_frames(clip, tmp):
     return sorted(os.path.join(tmp, f) for f in os.listdir(tmp) if f.startswith("f_"))
 
 
+def despill(rgb):
+    """Magenta bleeds into every anti-aliased edge pixel and reads as a red fringe.
+
+    Magenta is high red + high blue, low green. Where a pixel's red/blue average sits above its
+    green, that excess is the screen showing through the edge — pull both channels down to the
+    green level. This is the standard green-screen despill with the channels swapped, and it is
+    why the fringe cannot be fixed by eroding the matte alone: the colour is IN the pixel.
+    """
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    spill = np.maximum((r + b) * 0.5 - g, 0.0)
+    out = rgb.copy()
+    out[..., 0] = np.clip(r - spill, 0, 255)
+    out[..., 2] = np.clip(b - spill, 0, 255)
+    return out
+
+
 def key_out(path):
-    """Magenta -> alpha. Colour distance, not an exact match: the codec shifts the key a little."""
+    """Magenta -> soft alpha, plus despill. Colour distance, not an exact match: the codec moves it."""
     # float32, not int16: squaring a 230-unit channel difference overflows int16 and the
     # key silently eats most of the character.
     im = np.asarray(Image.open(path).convert("RGB")).astype(np.float32)
     dist = np.sqrt(((im - KEY) ** 2).sum(axis=2))
-    alpha = (dist > KEY_TOLERANCE).astype(np.uint8) * 255
-    if EDGE_SOFTEN:
+    # A soft ramp, not a hard threshold: a binary matte stair-steps every outline.
+    alpha = np.clip((dist - SOFT_IN) / (SOFT_OUT - SOFT_IN), 0.0, 1.0)
+    if EDGE_ERODE:
         from PIL import ImageFilter
-        a = Image.fromarray(alpha).filter(ImageFilter.MinFilter(2 * EDGE_SOFTEN + 1))
-        alpha = np.asarray(a)
-    rgba = np.dstack([im.astype(np.uint8), alpha])
+        a8 = Image.fromarray((alpha * 255).astype(np.uint8))
+        alpha = np.asarray(a8.filter(ImageFilter.MinFilter(2 * EDGE_ERODE + 1))).astype(np.float32) / 255.0
+    rgba = np.dstack([despill(im).astype(np.uint8), (alpha * 255).astype(np.uint8)])
     return Image.fromarray(rgba, "RGBA")
 
 
@@ -77,8 +94,45 @@ def bbox(rgba):
     return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
 
 
-def pose_extremes(frames, count):
-    """Pick the frames where the drawing changes most — the extremes, not the in-betweens."""
+def silhouettes(frames):
+    """Small binary silhouettes — enough to compare poses, cheap enough to compare them all."""
+    out = []
+    for f in frames:
+        a = np.asarray(f)[:, :, 3]
+        im = Image.fromarray((a > 8).astype(np.uint8) * 255).resize((48, 48), Image.BILINEAR)
+        out.append(np.asarray(im).astype(np.float32) / 255.0)
+    return out
+
+
+def find_cycle(sils, min_period=6):
+    """Find the gait period by self-similarity, so the sheet spans exactly one loop.
+
+    A walk repeats: frame t looks like frame t+P. Score every candidate period by how closely the
+    clip matches itself shifted by P, and take the best. Sampling n frames across exactly one
+    period is what makes the first and last cell adjacent poses — i.e. what makes the loop
+    seamless. Without this the sheet spans some arbitrary 0.7 of a stride and visibly hitches.
+    """
+    n = len(sils)
+    best, best_score = None, None
+    for p in range(min_period, n // 2 + 1):
+        pairs = n - p
+        diff = sum(float(np.abs(sils[t] - sils[t + p]).mean()) for t in range(pairs)) / pairs
+        if best_score is None or diff < best_score:
+            best, best_score = p, diff
+    return best, best_score
+
+
+def pose_extremes(frames, count, cycle=True):
+    """Pick the cells. Inside one gait period when the move loops, by motion energy when it does not."""
+    sils = silhouettes(frames)
+    if cycle and len(frames) >= 16:
+        period, score = find_cycle(sils)
+        # A loose match means the move genuinely is not periodic (a jump, a bow) — fall through.
+        if period and score < 0.09:
+            start = max(range(len(frames) - period),
+                        key=lambda t: float(np.abs(sils[t] - sils[t + 1]).mean()))
+            picks = [start + int(round(period * i / count)) for i in range(count)]
+            return [min(p, len(frames) - 1) for p in picks], period
     energy = [0.0]
     prev = np.asarray(frames[0]).astype(np.float32)
     for f in frames[1:]:
@@ -88,9 +142,9 @@ def pose_extremes(frames, count):
     # cumulative motion, sampled evenly: equal *movement* between cells, not equal time
     cum = np.cumsum(energy)
     if cum[-1] <= 0:
-        return list(np.linspace(0, len(frames) - 1, count).astype(int))
+        return list(np.linspace(0, len(frames) - 1, count).astype(int)), None
     targets = np.linspace(0, cum[-1], count, endpoint=False)
-    return [int(np.searchsorted(cum, t)) for t in targets]
+    return [int(np.searchsorted(cum, t)) for t in targets], None
 
 
 def median3(values):
@@ -100,7 +154,7 @@ def median3(values):
     return out
 
 
-def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6):
+def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6, cycle=True):
     """skip: H3's first frames are a settle-in from the pinned still — they are not the cycle."""
     tmp = f"/tmp/sprite-{name}"
     paths = extract_frames(clip, tmp)[skip:]
@@ -110,8 +164,9 @@ def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6):
     if not keep:
         raise SystemExit("every frame keyed to nothing — is the clip actually on magenta?")
 
-    picks = pose_extremes([rgba[i] for i in keep], n_frames)
+    picks, period = pose_extremes([rgba[i] for i in keep], n_frames, cycle)
     picks = [keep[p] for p in picks]
+    print(f"  cycle: {'period ' + str(period) + ' frames' if period else 'not periodic, spaced by motion'}")
 
     # anchor per frame: feet = bottom centre of the silhouette, the origin a game engine expects
     anchors = []
@@ -159,6 +214,7 @@ def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6):
 
     meta = {"name": name, "cell": [cell, cell], "frames": len(cells), "fps": 12,
             "anchor": anchor, "layout": "single-row", "source_clip": os.path.basename(clip),
+            "cycle_period_frames": period, "loops": bool(period),
             "frame_table": table}
     json.dump(meta, open(os.path.join(outdir, f"{name}.json"), "w"), indent=1)
 
@@ -185,9 +241,12 @@ def main():
     ap.add_argument("--no-smooth", action="store_true")
     ap.add_argument("--skip", type=int, default=6,
                     help="drop N settle-in frames off the head of the clip")
+    ap.add_argument("--no-cycle", action="store_true",
+                    help="do not look for a gait period; space cells by motion instead")
     a = ap.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
-    pack(a.clip, a.name, a.frames, a.cell, a.outdir, a.anchor, not a.no_smooth, a.skip)
+    pack(a.clip, a.name, a.frames, a.cell, a.outdir, a.anchor, not a.no_smooth, a.skip,
+         not a.no_cycle)
 
 
 if __name__ == "__main__":
