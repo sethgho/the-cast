@@ -54,7 +54,7 @@ MOVES = {
     # height, but a stride genuinely rises and falls -- so it scaled the up and down positions by
     # different factors, which reads as the character growing and shrinking, and pushed one head
     # past the top of the cell. It stays on only for moves that should not change height at all.
-    "walk":   ("/tmp/seth-walk-cycle-832-20.mp4",   10, 14, True,  False, False),
+    "walk":   ("/tmp/seth-walk-cycle-832-20.mp4",   10, 14, True,  False, "head"),
     # Idle is a breath. More cells does NOT buy more subtlety: asked for 16, the repaint returned
     # only 8 distinct drawings, because a locked seed maps two near-identical source frames onto
     # the same output. The extra cells became uneven holds, which reads as a stutter. So: 8 real
@@ -214,14 +214,14 @@ def main():
         SS.CEL_CLEAN = False                   # repaints are drawn, not decoded
         if hold:
             out_paths = trim_to_peak(out_paths)
-        prep = SS._prepare_stills(out_paths, smooth=True)
+        prep = SS._prepare_stills(out_paths, smooth=True, unify=unify)
         match_palette(prep)
         prepared.append((f"{cid}-{move}", prep, fps, loop, hold, unify))
 
     # One scale across the whole set, or he changes size when the state machine switches move.
     tallest = max(p["natural"] for _, p, *_ in prepared)
     highest = max(p["up"] for _, p, *_ in prepared)
-    scale = min((CELL * 0.92) / tallest, (CELL * 0.91) / highest)
+    scale = min((CELL * 0.92) / tallest, (CELL * 0.88) / highest)
 
     SS.CEL_CLEAN = False
     meta = {}

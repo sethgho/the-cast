@@ -328,7 +328,7 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
             "natural": natural, "period": period, "clip": clip}
 
 
-def _prepare_stills(paths, smooth=True):
+def _prepare_stills(paths, smooth=True, unify="none"):
     """Same measurement pass as _prepare, but every still IS a cell — no picking, no cycle hunt.
 
     Stills come from sprite_poses.py: one render per pose beat, so the frame order is the
@@ -345,10 +345,15 @@ def _prepare_stills(paths, smooth=True):
         anchors.append((torso_cx(rgba[i], boxes[i]), y1))
     if smooth and len(anchors) > 2:
         anchors = _smooth_anchors(anchors)
+    # Per-cell size correction, worked out BEFORE the set scale. A cell that gets scaled up by 6%
+    # reaches 6% higher, so measuring the set's reach on uncorrected spans under-reads it and the
+    # heads end up against the top of the cell.
+    factors = _unify_factors(rgba, boxes, picks, unify)
+
     spans = []
-    for (i, (ax, ay)) in zip(picks, anchors):
+    for (i, (ax, ay), f) in zip(picks, anchors, factors):
         x0, y0, x1, y1 = boxes[i]
-        spans.append((ax - x0, x1 - ax, ay - y0, y1 - ay))
+        spans.append(((ax - x0) * f, (x1 - ax) * f, (ay - y0) * f, (y1 - ay) * f))
     # Scale off HEIGHT, with width only allowed to veto if it would overflow the cell. A wide
     # pose — a kick at full extension — would otherwise shrink every other move to match it.
     tall = max(s[2] for s in spans) + max(s[3] for s in spans)
@@ -358,7 +363,7 @@ def _prepare_stills(paths, smooth=True):
     # cell, so "fits the cell" is not the same as "fits above the feet". Keep the tallest reach.
     up = max(s[2] for s in spans)
     return {"rgba": rgba, "up": up, "boxes": boxes, "picks": picks, "anchors": anchors,
-            "natural": natural, "period": None, "clip": paths[0]}
+            "factors": factors, "natural": natural, "period": None, "clip": paths[0]}
 
 
 # A raw anchor moves for two different reasons: sub-pixel matte shimmer, which should be smoothed
@@ -367,6 +372,21 @@ def _prepare_stills(paths, smooth=True):
 # to 16px off the ground line. So the smoothed value is only allowed to pull an anchor a few
 # pixels: enough for shimmer, never enough to move a footfall.
 ANCHOR_PULL = 3
+
+
+def head_width(rgba, box):
+    """A size measure that a stride cannot change.
+
+    Unifying cells by total silhouette height is wrong for a walk: the body genuinely rises and
+    falls, so height mixes real animation with generation drift and correcting it distorts the
+    animation. The head does not change size when he takes a step, so the widest row of the top
+    fifth of the silhouette is a clean scale reference.
+    """
+    a = np.asarray(rgba)[:, :, 3] > 32
+    x0, y0, x1, y1 = box
+    band = a[y0:y0 + max(2, (y1 - y0) // 5), :]
+    rows = band.sum(axis=1)
+    return float(np.median(rows[rows > 0])) if (rows > 0).any() else 0.0
 
 
 def torso_cx(rgba, box):
@@ -395,6 +415,20 @@ def _smooth_anchors(anchors):
     return out
 
 
+def _unify_factors(rgba, boxes, picks, unify):
+    """Per-cell scale correction, clamped. "none" -> all 1.0."""
+    mode = "height" if unify is True else (unify or "none")
+    if mode == "none":
+        return [1.0] * len(picks)
+    if mode == "head":
+        sizes = [head_width(rgba[i], boxes[i]) for i in picks]
+    else:
+        sizes = [float(boxes[i][3] - boxes[i][1]) for i in picks]
+    med = sorted(sizes)[len(sizes) // 2]
+    # Past a few percent it is a mis-measurement, not drift, and acting on it distorts the drawing.
+    return [max(0.94, min(1.06, med / z)) if z else 1.0 for z in sizes]
+
+
 def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
     """Write the atlas, the cells, the JSON, the CSS and the preview at the given scale."""
     rgba, boxes, picks, anchors = prep["rgba"], prep["boxes"], prep["picks"], prep["anchors"]
@@ -404,15 +438,14 @@ def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
     # comes out a few percent bigger or smaller each time and a looping sprite "breathes". For a
     # cycle that has to be seamless, each frame is scaled so its silhouette height matches the
     # set's median. Moves whose height genuinely changes — crouch, jump — must NOT use this.
-    heights = [boxes[i][3] - boxes[i][1] for i in picks]
-    median_h = sorted(heights)[len(heights) // 2]
+    factors = prep.get("factors") or [1.0] * len(picks)
 
     cells, table = [], []
     for (i, (ax, ay)) in zip(picks, anchors):
         src = rgba[i]
         canvas = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
         w, h = src.size
-        f_scale = scale * (median_h / (boxes[i][3] - boxes[i][1])) if unify_height else scale
+        f_scale = scale * factors[len(cells)]
         sized = src.resize((max(1, int(w * f_scale)), max(1, int(h * f_scale))), Image.LANCZOS)
         sax, say = ax * f_scale, ay * f_scale
         target = (cell // 2, int(cell * 0.94) if anchor == "feet" else cell // 2)
