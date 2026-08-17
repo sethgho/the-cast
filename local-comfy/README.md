@@ -52,7 +52,10 @@ words for everything else:
 - **Stage the cutouts.** Generate them already turned toward each other with `TRANSPARENT PNG` on;
   the model will not re-pose what the mask holds fixed. Nearer figure a little larger for depth.
 - A `PreviewImage` shows the composite before the model sees it — the fast way to fix an X/Y.
-- It likes to ink a panel border. Crop it, or keep it.
+- **The panel border is not a prompt problem.** It survived dropping the word "panel", dropping
+  "1933 newspaper comic strip", dropping the edge-to-edge sentence, dropping the style block's
+  no-border negation, and swapping the paper canvas for grey — six variants at one seed, a border in
+  all six. The graph crops it instead: `ImageCrop` 62px in, then back up to full size.
 
 ## App Mode
 

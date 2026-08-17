@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 48,
- "last_link_id": 62,
+ "last_node_id": 50,
+ "last_link_id": 64,
  "nodes": [
   {
    "id": 1,
@@ -2222,6 +2222,92 @@
   },
   {
    "id": 48,
+   "type": "ImageCrop",
+   "pos": [
+    560,
+    1000
+   ],
+   "size": [
+    400,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 48,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 62
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      63
+     ]
+    }
+   ],
+   "title": "cut off the inked border",
+   "properties": {
+    "Node name for S&R": "ImageCrop"
+   },
+   "widgets_values": [
+    900,
+    900,
+    62,
+    62
+   ]
+  },
+  {
+   "id": 49,
+   "type": "ImageScale",
+   "pos": [
+    560,
+    1050
+   ],
+   "size": [
+    400,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 49,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 63
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      64
+     ]
+    }
+   ],
+   "title": "back up to full size",
+   "properties": {
+    "Node name for S&R": "ImageScale"
+   },
+   "widgets_values": [
+    "lanczos",
+    1024,
+    1024,
+    "disabled"
+   ]
+  },
+  {
+   "id": 50,
    "type": "SaveImage",
    "pos": [
     1060,
@@ -2232,13 +2318,13 @@
     700
    ],
    "flags": {},
-   "order": 48,
+   "order": 50,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 62
+     "link": 64
     }
    ],
    "outputs": [],
@@ -2747,6 +2833,22 @@
    48,
    0,
    "IMAGE"
+  ],
+  [
+   63,
+   48,
+   0,
+   49,
+   0,
+   "IMAGE"
+  ],
+  [
+   64,
+   49,
+   0,
+   50,
+   0,
+   "IMAGE"
   ]
  ],
  "groups": [
@@ -2865,7 +2967,7 @@
     ]
    ],
    "outputs": [
-    "48"
+    "50"
    ]
   }
  },

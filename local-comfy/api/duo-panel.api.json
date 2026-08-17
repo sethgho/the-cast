@@ -662,11 +662,43 @@
   }
  },
  "48": {
+  "class_type": "ImageCrop",
+  "inputs": {
+   "width": 900,
+   "height": 900,
+   "x": 62,
+   "y": 62,
+   "image": [
+    "47",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "cut off the inked border"
+  }
+ },
+ "49": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1024,
+   "height": 1024,
+   "crop": "disabled",
+   "image": [
+    "48",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "back up to full size"
+  }
+ },
+ "50": {
   "class_type": "SaveImage",
   "inputs": {
    "filename_prefix": "cast/duo",
    "images": [
-    "47",
+    "49",
     0
    ]
   },

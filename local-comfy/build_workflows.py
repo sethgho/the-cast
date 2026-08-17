@@ -899,6 +899,17 @@ def build_duo(spec):
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (vae, 0, "VAE", False)},
                    outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    # The model inks a panel border and a paper margin whatever the prompt says — it was there
+    # with and without the words "panel", "newspaper" and "edge to edge", and on a grey canvas.
+    # So the border is cut off instead of argued with.
+    cropped = g.add("ImageCrop", "cut off the inked border", (560, 1000), (400, 150),
+                    {"width": 900, "height": 900, "x": 62, "y": 62},
+                    links={"image": (decode, 0, "IMAGE", False)},
+                    outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    decode = g.add("ImageScale", "back up to full size", (560, 1050), (400, 150),
+                   {"upscale_method": "lanczos", "width": 1024, "height": 1024, "crop": "disabled"},
+                   links={"image": (cropped, 0, "IMAGE", False)},
+                   outputs=[("IMAGE", "IMAGE")], collapsed=True)
     g.app_output(g.add("SaveImage", "RESULT", (1060, 640), (620, 700),
                        {"filename_prefix": "cast/duo"},
                        links={"images": (decode, 0, "IMAGE", False)}))
