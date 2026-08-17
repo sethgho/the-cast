@@ -1,0 +1,2261 @@
+{
+ "id": "cast-local-qwen-edit",
+ "revision": 0,
+ "last_node_id": 38,
+ "last_link_id": 44,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -560,
+    -620
+   ],
+   "size": [
+    480,
+    900
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "HOW TO USE \u2014 two-hander",
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "# Two-hander \u2014 a panel with two characters\n\n**Layout is pixels. Only the redraw is prompted.**\n\nFeeding two character plates to the model as references merges them into one creature \u2014 Qwen\nreads every reference image as a single subject. So this app composites the two cutouts onto a\nscene plate itself, then asks the model to redraw that composite as one unified panel at low\ndenoise.\n\n## The controls\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 WHAT IS HAPPENING** | The panel's action, one or two sentences. |\n| **2\u20135 \u00b7 LEFT CHARACTER** | A transparent cutout, its size, and where it sits (X, Y in pixels). |\n| **6\u20139 \u00b7 RIGHT CHARACTER** | The same for the second figure. |\n| **10 \u00b7 SCENE PLATE** | The empty location. `cast-scene-*.png` in `ComfyUI/input/`. |\n| **11 \u00b7 POLISH** | Denoise. 0.2 keeps the paste almost exactly; 0.5 redraws freely and can drift. |\n| **12 \u00b7 SEED** | Re-roll. |\n\nCutouts come from the pose apps with `TRANSPARENT PNG` on \u2014 save one, drop it in\n`ComfyUI/input/`, pick it here. The preview node shows the composite before the model sees it,\nwhich is the fastest way to fix a bad X/Y.\n"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -40,
+    -620
+   ],
+   "size": [
+    460,
+    260
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "1 \u00b7 WHAT IS HAPPENING"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      27
+     ]
+    }
+   ],
+   "title": "\u25b6 1 \u00b7 WHAT IS HAPPENING (TYPE HERE)",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Wilson has just handed Seth the rack of humming servers and Seth is buckling under the weight; Wilson watches, unbothered."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 3,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    -330
+   ],
+   "size": [
+    460,
+    400
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null,
+     "label": "2 \u00b7 LEFT CHARACTER (transparent PNG)"
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      1
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      3
+     ]
+    }
+   ],
+   "title": "\u25b6 2 \u00b7 LEFT CHARACTER \u2014 a transparent cutout",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-cutout-wilson.png",
+    "image"
+   ]
+  },
+  {
+   "id": 4,
+   "type": "PrimitiveFloat",
+   "pos": [
+    -40,
+    100
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "FLOAT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "3 \u00b7 LEFT SIZE (1.0 = full height)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "FLOAT",
+     "type": "FLOAT",
+     "links": [
+      2,
+      6
+     ]
+    }
+   ],
+   "title": "\u25b6 3 \u00b7 LEFT SIZE",
+   "properties": {
+    "Node name for S&R": "PrimitiveFloat"
+   },
+   "widgets_values": [
+    0.62
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 5,
+   "type": "PrimitiveInt",
+   "pos": [
+    -40,
+    210
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "INT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "4 \u00b7 LEFT X (pixels from the left edge)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "INT",
+     "type": "INT",
+     "links": [
+      11
+     ]
+    }
+   ],
+   "title": "\u25b6 4 \u00b7 LEFT X",
+   "properties": {
+    "Node name for S&R": "PrimitiveInt"
+   },
+   "widgets_values": [
+    90
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 6,
+   "type": "PrimitiveInt",
+   "pos": [
+    -40,
+    320
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "INT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "5 \u00b7 LEFT Y (pixels from the top edge)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "INT",
+     "type": "INT",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "title": "\u25b6 5 \u00b7 LEFT Y",
+   "properties": {
+    "Node name for S&R": "PrimitiveInt"
+   },
+   "widgets_values": [
+    330
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 7,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    430
+   ],
+   "size": [
+    460,
+    400
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null,
+     "label": "6 \u00b7 RIGHT CHARACTER (transparent PNG)"
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      13
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      15
+     ]
+    }
+   ],
+   "title": "\u25b6 6 \u00b7 RIGHT CHARACTER \u2014 a transparent cutout",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-cutout-seth.png",
+    "image"
+   ]
+  },
+  {
+   "id": 8,
+   "type": "PrimitiveFloat",
+   "pos": [
+    -40,
+    860
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "FLOAT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "7 \u00b7 RIGHT SIZE (1.0 = full height)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "FLOAT",
+     "type": "FLOAT",
+     "links": [
+      14,
+      18
+     ]
+    }
+   ],
+   "title": "\u25b6 7 \u00b7 RIGHT SIZE",
+   "properties": {
+    "Node name for S&R": "PrimitiveFloat"
+   },
+   "widgets_values": [
+    0.62
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveInt",
+   "pos": [
+    -40,
+    970
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "INT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "8 \u00b7 RIGHT X (pixels from the left edge)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "INT",
+     "type": "INT",
+     "links": [
+      23
+     ]
+    }
+   ],
+   "title": "\u25b6 8 \u00b7 RIGHT X",
+   "properties": {
+    "Node name for S&R": "PrimitiveInt"
+   },
+   "widgets_values": [
+    520
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 10,
+   "type": "PrimitiveInt",
+   "pos": [
+    -40,
+    1080
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "INT",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "9 \u00b7 RIGHT Y (pixels from the top edge)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "INT",
+     "type": "INT",
+     "links": [
+      24
+     ]
+    }
+   ],
+   "title": "\u25b6 9 \u00b7 RIGHT Y",
+   "properties": {
+    "Node name for S&R": "PrimitiveInt"
+   },
+   "widgets_values": [
+    330
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 11,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    1190
+   ],
+   "size": [
+    460,
+    400
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null,
+     "label": "10 \u00b7 SCENE PLATE"
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      8
+     ]
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "\u25b6 10 \u00b7 SCENE PLATE \u2014 the empty location",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "cast-scene-empty-stage.png",
+    "image"
+   ]
+  },
+  {
+   "id": 12,
+   "type": "ImageScaleBy",
+   "pos": [
+    560,
+    -620
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 1
+    },
+    {
+     "name": "scale_by",
+     "type": "FLOAT",
+     "link": 2,
+     "widget": {
+      "name": "scale_by"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      9
+     ]
+    }
+   ],
+   "title": "scale left",
+   "properties": {
+    "Node name for S&R": "ImageScaleBy"
+   },
+   "widgets_values": [
+    "lanczos",
+    ""
+   ]
+  },
+  {
+   "id": 13,
+   "type": "InvertMask",
+   "pos": [
+    560,
+    -574
+   ],
+   "size": [
+    330,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      4
+     ]
+    }
+   ],
+   "title": "left alpha",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 14,
+   "type": "MaskToImage",
+   "pos": [
+    560,
+    -528
+   ],
+   "size": [
+    330,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      5
+     ]
+    }
+   ],
+   "title": "left alpha as image",
+   "properties": {
+    "Node name for S&R": "MaskToImage"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 15,
+   "type": "ImageScaleBy",
+   "pos": [
+    560,
+    -482
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 5
+    },
+    {
+     "name": "scale_by",
+     "type": "FLOAT",
+     "link": 6,
+     "widget": {
+      "name": "scale_by"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      7
+     ]
+    }
+   ],
+   "title": "scale left alpha",
+   "properties": {
+    "Node name for S&R": "ImageScaleBy"
+   },
+   "widgets_values": [
+    "lanczos",
+    ""
+   ]
+  },
+  {
+   "id": 16,
+   "type": "ImageToMask",
+   "pos": [
+    560,
+    -436
+   ],
+   "size": [
+    330,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 7
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "title": "left mask",
+   "properties": {
+    "Node name for S&R": "ImageToMask"
+   },
+   "widgets_values": [
+    "red"
+   ]
+  },
+  {
+   "id": 17,
+   "type": "ImageCompositeMasked",
+   "pos": [
+    560,
+    -390
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "destination",
+     "type": "IMAGE",
+     "link": 8
+    },
+    {
+     "name": "source",
+     "type": "IMAGE",
+     "link": 9
+    },
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 10
+    },
+    {
+     "name": "x",
+     "type": "INT",
+     "link": 11,
+     "widget": {
+      "name": "x"
+     }
+    },
+    {
+     "name": "y",
+     "type": "INT",
+     "link": 12,
+     "widget": {
+      "name": "y"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      20
+     ]
+    }
+   ],
+   "title": "paste left",
+   "properties": {
+    "Node name for S&R": "ImageCompositeMasked"
+   },
+   "widgets_values": [
+    "",
+    "",
+    false
+   ]
+  },
+  {
+   "id": 18,
+   "type": "ImageScaleBy",
+   "pos": [
+    560,
+    -344
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 13
+    },
+    {
+     "name": "scale_by",
+     "type": "FLOAT",
+     "link": 14,
+     "widget": {
+      "name": "scale_by"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      21
+     ]
+    }
+   ],
+   "title": "scale right",
+   "properties": {
+    "Node name for S&R": "ImageScaleBy"
+   },
+   "widgets_values": [
+    "lanczos",
+    ""
+   ]
+  },
+  {
+   "id": 19,
+   "type": "InvertMask",
+   "pos": [
+    560,
+    -298
+   ],
+   "size": [
+    330,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 15
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      16
+     ]
+    }
+   ],
+   "title": "right alpha",
+   "properties": {
+    "Node name for S&R": "InvertMask"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 20,
+   "type": "MaskToImage",
+   "pos": [
+    560,
+    -252
+   ],
+   "size": [
+    330,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 16
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      17
+     ]
+    }
+   ],
+   "title": "right alpha as image",
+   "properties": {
+    "Node name for S&R": "MaskToImage"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 21,
+   "type": "ImageScaleBy",
+   "pos": [
+    560,
+    -206
+   ],
+   "size": [
+    330,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 17
+    },
+    {
+     "name": "scale_by",
+     "type": "FLOAT",
+     "link": 18,
+     "widget": {
+      "name": "scale_by"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      19
+     ]
+    }
+   ],
+   "title": "scale right alpha",
+   "properties": {
+    "Node name for S&R": "ImageScaleBy"
+   },
+   "widgets_values": [
+    "lanczos",
+    ""
+   ]
+  },
+  {
+   "id": 22,
+   "type": "ImageToMask",
+   "pos": [
+    560,
+    -160
+   ],
+   "size": [
+    330,
+    90
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 19
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [
+      22
+     ]
+    }
+   ],
+   "title": "right mask",
+   "properties": {
+    "Node name for S&R": "ImageToMask"
+   },
+   "widgets_values": [
+    "red"
+   ]
+  },
+  {
+   "id": 23,
+   "type": "ImageCompositeMasked",
+   "pos": [
+    560,
+    -114
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "destination",
+     "type": "IMAGE",
+     "link": 20
+    },
+    {
+     "name": "source",
+     "type": "IMAGE",
+     "link": 21
+    },
+    {
+     "name": "mask",
+     "type": "MASK",
+     "link": 22
+    },
+    {
+     "name": "x",
+     "type": "INT",
+     "link": 23,
+     "widget": {
+      "name": "x"
+     }
+    },
+    {
+     "name": "y",
+     "type": "INT",
+     "link": 24,
+     "widget": {
+      "name": "y"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      25,
+      33,
+      36
+     ]
+    }
+   ],
+   "title": "paste right",
+   "properties": {
+    "Node name for S&R": "ImageCompositeMasked"
+   },
+   "widgets_values": [
+    "",
+    "",
+    false
+   ]
+  },
+  {
+   "id": 24,
+   "type": "PreviewImage",
+   "pos": [
+    560,
+    -8
+   ],
+   "size": [
+    330,
+    330
+   ],
+   "flags": {},
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 25
+    }
+   ],
+   "outputs": [],
+   "title": "the composite, before the model sees it",
+   "properties": {
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 25,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1020,
+    -620
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 25,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      26
+     ]
+    }
+   ],
+   "title": "PANEL LOCK \u2014 how the redraw is asked for",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "This is a single panel from the 1933 newspaper comic strip. Both characters are already drawn in place in image 1 \u2014 keep each character's design, size and position exactly as it is, keep the location behind them exactly as it is, and keep them as two separate characters who never merge or swap parts. Redraw the whole picture as one unified drawing: a single ink weight, a single paper, one consistent light, with soft contact shadows where each figure meets the ground so neither looks pasted on. What is happening in the panel:"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 26,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1020,
+    -574
+   ],
+   "size": [
+    430,
+    300
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 26,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      29
+     ]
+    }
+   ],
+   "title": "STYLE LOCK \u2014 house style",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 27,
+   "type": "StringConcatenate",
+   "pos": [
+    1020,
+    -528
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 26,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 27,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      28
+     ]
+    }
+   ],
+   "title": "panel lock + what is happening",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 28,
+   "type": "StringConcatenate",
+   "pos": [
+    1020,
+    -482
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 28,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 28,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 29,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      34
+     ]
+    }
+   ],
+   "title": "FINAL PROMPT \u2014 expand to read what the model got",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 29,
+   "type": "UnetLoaderGGUF",
+   "pos": [
+    1020,
+    -390
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 29,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      30
+     ]
+    }
+   ],
+   "title": "diffusion model",
+   "properties": {
+    "Node name for S&R": "UnetLoaderGGUF"
+   },
+   "widgets_values": [
+    "qwen-image-edit-2511-Q4_K_S.gguf"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 30,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    1020,
+    -344
+   ],
+   "size": [
+    400,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 30,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 30
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      38
+     ]
+    }
+   ],
+   "title": "Lightning LoRA (8 steps)",
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly"
+   },
+   "widgets_values": [
+    "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+    1.0
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 31,
+   "type": "CLIPLoader",
+   "pos": [
+    1020,
+    -298
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 31,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      31,
+      35
+     ]
+    }
+   ],
+   "title": "text encoder",
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "qwen_image",
+    "default"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 32,
+   "type": "VAELoader",
+   "pos": [
+    1020,
+    -252
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 32,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      32,
+      37,
+      43
+     ]
+    }
+   ],
+   "title": "VAE",
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "qwen_image_vae.safetensors"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 33,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1020,
+    -206
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 33,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 31
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 32
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 33
+    },
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 34,
+     "widget": {
+      "name": "prompt"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      39
+     ]
+    }
+   ],
+   "title": "encode the composite",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    ""
+   ]
+  },
+  {
+   "id": 34,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1020,
+    -160
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 34,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 35
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      40
+     ]
+    }
+   ],
+   "title": "negative (only bites when cfg > 1)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark"
+   ],
+   "color": "#222",
+   "bgcolor": "#000"
+  },
+  {
+   "id": 35,
+   "type": "VAEEncode",
+   "pos": [
+    1020,
+    -114
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 35,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "pixels",
+     "type": "IMAGE",
+     "link": 36
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 37
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      41
+     ]
+    }
+   ],
+   "title": "the composite as latent",
+   "properties": {
+    "Node name for S&R": "VAEEncode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 36,
+   "type": "KSampler",
+   "pos": [
+    560,
+    640
+   ],
+   "size": [
+    460,
+    270
+   ],
+   "flags": {},
+   "order": 36,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 38
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 39
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 40
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 41
+    },
+    {
+     "name": "seed",
+     "localized_name": "seed",
+     "type": "INT",
+     "widget": {
+      "name": "seed"
+     },
+     "link": null,
+     "label": "12 \u00b7 SEED"
+    },
+    {
+     "name": "steps",
+     "localized_name": "steps",
+     "type": "INT",
+     "widget": {
+      "name": "steps"
+     },
+     "link": null
+    },
+    {
+     "name": "cfg",
+     "localized_name": "cfg",
+     "type": "FLOAT",
+     "widget": {
+      "name": "cfg"
+     },
+     "link": null
+    },
+    {
+     "name": "sampler_name",
+     "localized_name": "sampler_name",
+     "type": "COMBO",
+     "widget": {
+      "name": "sampler_name"
+     },
+     "link": null
+    },
+    {
+     "name": "scheduler",
+     "localized_name": "scheduler",
+     "type": "COMBO",
+     "widget": {
+      "name": "scheduler"
+     },
+     "link": null
+    },
+    {
+     "name": "denoise",
+     "localized_name": "denoise",
+     "type": "FLOAT",
+     "widget": {
+      "name": "denoise"
+     },
+     "link": null,
+     "label": "11 \u00b7 POLISH (0.2 keeps the paste, 0.5 redraws it)"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      42
+     ]
+    }
+   ],
+   "title": "\u25b6 11 \u00b7 POLISH + SEED",
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    1,
+    "randomize",
+    8,
+    1.0,
+    "euler",
+    "simple",
+    0.35
+   ]
+  },
+  {
+   "id": 37,
+   "type": "VAEDecode",
+   "pos": [
+    560,
+    950
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 37,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 42
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 43
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      44
+     ]
+    }
+   ],
+   "title": "decode",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 38,
+   "type": "SaveImage",
+   "pos": [
+    1060,
+    640
+   ],
+   "size": [
+    620,
+    700
+   ],
+   "flags": {},
+   "order": 38,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 44
+    }
+   ],
+   "outputs": [],
+   "title": "RESULT",
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "cast/duo"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   3,
+   0,
+   12,
+   0,
+   "IMAGE"
+  ],
+  [
+   2,
+   4,
+   0,
+   12,
+   1,
+   "FLOAT"
+  ],
+  [
+   3,
+   3,
+   1,
+   13,
+   0,
+   "MASK"
+  ],
+  [
+   4,
+   13,
+   0,
+   14,
+   0,
+   "MASK"
+  ],
+  [
+   5,
+   14,
+   0,
+   15,
+   0,
+   "IMAGE"
+  ],
+  [
+   6,
+   4,
+   0,
+   15,
+   1,
+   "FLOAT"
+  ],
+  [
+   7,
+   15,
+   0,
+   16,
+   0,
+   "IMAGE"
+  ],
+  [
+   8,
+   11,
+   0,
+   17,
+   0,
+   "IMAGE"
+  ],
+  [
+   9,
+   12,
+   0,
+   17,
+   1,
+   "IMAGE"
+  ],
+  [
+   10,
+   16,
+   0,
+   17,
+   2,
+   "MASK"
+  ],
+  [
+   11,
+   5,
+   0,
+   17,
+   3,
+   "INT"
+  ],
+  [
+   12,
+   6,
+   0,
+   17,
+   4,
+   "INT"
+  ],
+  [
+   13,
+   7,
+   0,
+   18,
+   0,
+   "IMAGE"
+  ],
+  [
+   14,
+   8,
+   0,
+   18,
+   1,
+   "FLOAT"
+  ],
+  [
+   15,
+   7,
+   1,
+   19,
+   0,
+   "MASK"
+  ],
+  [
+   16,
+   19,
+   0,
+   20,
+   0,
+   "MASK"
+  ],
+  [
+   17,
+   20,
+   0,
+   21,
+   0,
+   "IMAGE"
+  ],
+  [
+   18,
+   8,
+   0,
+   21,
+   1,
+   "FLOAT"
+  ],
+  [
+   19,
+   21,
+   0,
+   22,
+   0,
+   "IMAGE"
+  ],
+  [
+   20,
+   17,
+   0,
+   23,
+   0,
+   "IMAGE"
+  ],
+  [
+   21,
+   18,
+   0,
+   23,
+   1,
+   "IMAGE"
+  ],
+  [
+   22,
+   22,
+   0,
+   23,
+   2,
+   "MASK"
+  ],
+  [
+   23,
+   9,
+   0,
+   23,
+   3,
+   "INT"
+  ],
+  [
+   24,
+   10,
+   0,
+   23,
+   4,
+   "INT"
+  ],
+  [
+   25,
+   23,
+   0,
+   24,
+   0,
+   "IMAGE"
+  ],
+  [
+   26,
+   25,
+   0,
+   27,
+   0,
+   "STRING"
+  ],
+  [
+   27,
+   2,
+   0,
+   27,
+   1,
+   "STRING"
+  ],
+  [
+   28,
+   27,
+   0,
+   28,
+   0,
+   "STRING"
+  ],
+  [
+   29,
+   26,
+   0,
+   28,
+   1,
+   "STRING"
+  ],
+  [
+   30,
+   29,
+   0,
+   30,
+   0,
+   "MODEL"
+  ],
+  [
+   31,
+   31,
+   0,
+   33,
+   0,
+   "CLIP"
+  ],
+  [
+   32,
+   32,
+   0,
+   33,
+   1,
+   "VAE"
+  ],
+  [
+   33,
+   23,
+   0,
+   33,
+   2,
+   "IMAGE"
+  ],
+  [
+   34,
+   28,
+   0,
+   33,
+   3,
+   "STRING"
+  ],
+  [
+   35,
+   31,
+   0,
+   34,
+   0,
+   "CLIP"
+  ],
+  [
+   36,
+   23,
+   0,
+   35,
+   0,
+   "IMAGE"
+  ],
+  [
+   37,
+   32,
+   0,
+   35,
+   1,
+   "VAE"
+  ],
+  [
+   38,
+   30,
+   0,
+   36,
+   0,
+   "MODEL"
+  ],
+  [
+   39,
+   33,
+   0,
+   36,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   40,
+   34,
+   0,
+   36,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   41,
+   35,
+   0,
+   36,
+   3,
+   "LATENT"
+  ],
+  [
+   42,
+   36,
+   0,
+   37,
+   0,
+   "LATENT"
+  ],
+  [
+   43,
+   32,
+   0,
+   37,
+   1,
+   "VAE"
+  ],
+  [
+   44,
+   37,
+   0,
+   38,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "\u2460 THE PANEL \u00b7 everything you touch is in this column",
+   "bounding": [
+    -70,
+    -690,
+    520,
+    1820
+   ],
+   "color": "#4a7c3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "\u2461 LAYOUT \u00b7 pixels, not prompting",
+   "bounding": [
+    530,
+    -690,
+    400,
+    642
+   ],
+   "color": "#8a6d3b",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "\u2462 PANEL & STYLE LOCK \u00b7 leave alone",
+   "bounding": [
+    990,
+    -690,
+    480,
+    274
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "engine \u00b7 don't touch",
+   "bounding": [
+    990,
+    -460,
+    480,
+    412
+   ],
+   "color": "#444",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.55,
+   "offset": [
+    1600,
+    700
+   ]
+  },
+  "linearMode": true,
+  "linearData": {
+   "inputs": [
+    [
+     "2",
+     "value"
+    ],
+    [
+     "3",
+     "image"
+    ],
+    [
+     "4",
+     "value"
+    ],
+    [
+     "5",
+     "value"
+    ],
+    [
+     "6",
+     "value"
+    ],
+    [
+     "7",
+     "image"
+    ],
+    [
+     "8",
+     "value"
+    ],
+    [
+     "9",
+     "value"
+    ],
+    [
+     "10",
+     "value"
+    ],
+    [
+     "11",
+     "image"
+    ],
+    [
+     "36",
+     "denoise"
+    ],
+    [
+     "36",
+     "seed"
+    ]
+   ],
+   "outputs": [
+    "38"
+   ]
+  }
+ },
+ "version": 0.4
+}

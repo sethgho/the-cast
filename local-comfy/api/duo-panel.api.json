@@ -1,0 +1,511 @@
+{
+ "2": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Wilson has just handed Seth the rack of humming servers and Seth is buckling under the weight; Wilson watches, unbothered."
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 WHAT IS HAPPENING (TYPE HERE)"
+  }
+ },
+ "3": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-cutout-wilson.png"
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 LEFT CHARACTER \u2014 a transparent cutout"
+  }
+ },
+ "4": {
+  "class_type": "PrimitiveFloat",
+  "inputs": {
+   "value": 0.62
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 LEFT SIZE"
+  }
+ },
+ "5": {
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 90
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 LEFT X"
+  }
+ },
+ "6": {
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 330
+  },
+  "_meta": {
+   "title": "\u25b6 5 \u00b7 LEFT Y"
+  }
+ },
+ "7": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-cutout-seth.png"
+  },
+  "_meta": {
+   "title": "\u25b6 6 \u00b7 RIGHT CHARACTER \u2014 a transparent cutout"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveFloat",
+  "inputs": {
+   "value": 0.62
+  },
+  "_meta": {
+   "title": "\u25b6 7 \u00b7 RIGHT SIZE"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 520
+  },
+  "_meta": {
+   "title": "\u25b6 8 \u00b7 RIGHT X"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 330
+  },
+  "_meta": {
+   "title": "\u25b6 9 \u00b7 RIGHT Y"
+  }
+ },
+ "11": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-scene-empty-stage.png"
+  },
+  "_meta": {
+   "title": "\u25b6 10 \u00b7 SCENE PLATE \u2014 the empty location"
+  }
+ },
+ "12": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "image": [
+    "3",
+    0
+   ],
+   "scale_by": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale left"
+  }
+ },
+ "13": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "3",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "left alpha"
+  }
+ },
+ "14": {
+  "class_type": "MaskToImage",
+  "inputs": {
+   "mask": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "left alpha as image"
+  }
+ },
+ "15": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "image": [
+    "14",
+    0
+   ],
+   "scale_by": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale left alpha"
+  }
+ },
+ "16": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "15",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "left mask"
+  }
+ },
+ "17": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "resize_source": false,
+   "destination": [
+    "11",
+    0
+   ],
+   "source": [
+    "12",
+    0
+   ],
+   "mask": [
+    "16",
+    0
+   ],
+   "x": [
+    "5",
+    0
+   ],
+   "y": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "paste left"
+  }
+ },
+ "18": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "image": [
+    "7",
+    0
+   ],
+   "scale_by": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale right"
+  }
+ },
+ "19": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "7",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "right alpha"
+  }
+ },
+ "20": {
+  "class_type": "MaskToImage",
+  "inputs": {
+   "mask": [
+    "19",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "right alpha as image"
+  }
+ },
+ "21": {
+  "class_type": "ImageScaleBy",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "image": [
+    "20",
+    0
+   ],
+   "scale_by": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scale right alpha"
+  }
+ },
+ "22": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "21",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "right mask"
+  }
+ },
+ "23": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "resize_source": false,
+   "destination": [
+    "17",
+    0
+   ],
+   "source": [
+    "18",
+    0
+   ],
+   "mask": [
+    "22",
+    0
+   ],
+   "x": [
+    "9",
+    0
+   ],
+   "y": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "paste right"
+  }
+ },
+ "24": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "the composite, before the model sees it"
+  }
+ },
+ "25": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "This is a single panel from the 1933 newspaper comic strip. Both characters are already drawn in place in image 1 \u2014 keep each character's design, size and position exactly as it is, keep the location behind them exactly as it is, and keep them as two separate characters who never merge or swap parts. Redraw the whole picture as one unified drawing: a single ink weight, a single paper, one consistent light, with soft contact shadows where each figure meets the ground so neither looks pasted on. What is happening in the panel:"
+  },
+  "_meta": {
+   "title": "PANEL LOCK \u2014 how the redraw is asked for"
+  }
+ },
+ "26": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "27": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "25",
+    0
+   ],
+   "string_b": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "panel lock + what is happening"
+  }
+ },
+ "28": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "27",
+    0
+   ],
+   "string_b": [
+    "26",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "29": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "30": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "29",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "31": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "32": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "33": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "28",
+    0
+   ],
+   "clip": [
+    "31",
+    0
+   ],
+   "vae": [
+    "32",
+    0
+   ],
+   "image1": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode the composite"
+  }
+ },
+ "34": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "31",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "35": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "23",
+    0
+   ],
+   "vae": [
+    "32",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "the composite as latent"
+  }
+ },
+ "36": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 1,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 0.35,
+   "model": [
+    "30",
+    0
+   ],
+   "positive": [
+    "33",
+    0
+   ],
+   "negative": [
+    "34",
+    0
+   ],
+   "latent_image": [
+    "35",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 11 \u00b7 POLISH + SEED"
+  }
+ },
+ "37": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "36",
+    0
+   ],
+   "vae": [
+    "32",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "38": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/duo",
+   "images": [
+    "37",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

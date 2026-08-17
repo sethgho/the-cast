@@ -29,7 +29,7 @@
  "5": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "cast-seth-scene-empty-auditorium.png"
+   "image": "cast-scene-empty-auditorium.png"
   },
   "_meta": {
    "title": "\u25b6 4 \u00b7 SCENE PLATE (image 2) \u2014 only read when SCENE is on"

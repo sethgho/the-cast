@@ -71,12 +71,20 @@ WIDGETS = {
     "KSampler": ["seed", "control_after_generate", "steps", "cfg", "sampler_name", "scheduler", "denoise"],
     "VAEDecode": [],
     "ImageCrop": ["width", "height", "x", "y"],
+    "ImageScaleBy": ["upscale_method", "scale_by"],
+    "ImageCompositeMasked": ["x", "y", "resize_source"],
+    "ImageToMask": ["channel"],
+    "MaskToImage": [],
+    "VAEEncode": [],
+    "PrimitiveFloat": ["value"],
+    "PrimitiveInt": ["value"],
     "ImageScale": ["upscale_method", "width", "height", "crop"],
     "RemoveBackground": [],
     "InvertMask": [],
     "JoinImageWithAlpha": [],
     "SaveImage": ["filename_prefix"],
     "MarkdownNote": ["text"],
+    "PreviewImage": [],
 }
 
 # slot types for the widgets promoted into the App Mode form
@@ -94,6 +102,8 @@ WIDGET_TYPES = {
     ("KSampler", "sampler_name"): "COMBO",
     ("KSampler", "scheduler"): "COMBO",
     ("KSampler", "denoise"): "FLOAT",
+    ("PrimitiveFloat", "value"): "FLOAT",
+    ("PrimitiveInt", "value"): "INT",
 }
 
 # widgets that are NOT sent to the API (frontend-only)
@@ -336,7 +346,7 @@ CHARACTERS = {
         "name": "Seth",
         "plate": "cast-seth-plate.png",
         "headshot_plate": "cast-seth-headshot.png",
-        "scene_plate": "cast-seth-scene-empty-auditorium.png",
+        "scene_plate": "cast-scene-empty-auditorium.png",
         "pose_lock": (
             "Redraw the character in image 1 as a single full-body cartoon figure, keeping his "
             f"identity exactly: {SETH_LOOK} — with warm grey trousers and black-and-white sneakers. "
@@ -694,6 +704,214 @@ def build(cid, spec, kind_id):
     return g
 
 
+PANEL_LOCK = (
+    "This is a single panel from the 1933 newspaper comic strip. Both characters are already drawn "
+    "in place in image 1 — keep each character's design, size and position exactly as it is, keep "
+    "the location behind them exactly as it is, and keep them as two separate characters who never "
+    "merge or swap parts. Redraw the whole picture as one unified drawing: a single ink weight, a "
+    "single paper, one consistent light, with soft contact shadows where each figure meets the "
+    "ground so neither looks pasted on. What is happening in the panel:"
+)
+
+
+def build_duo(spec):
+    """The two-hander. Composite two cutouts onto a plate, then redraw the composite.
+
+    Feeding both characters to the model as reference images merges them — Qwen reads every
+    reference as one subject. So the layout is done with pixels (composite), and the model is
+    only asked to unify the ink at low denoise.
+    """
+    g = Graph()
+    g.add("MarkdownNote", "HOW TO USE — two-hander", (-560, -620), (480, 900), {"text": DUO_HOW_TO})
+
+    X, y = -40, -620
+    action = g.add("PrimitiveStringMultiline", "▶ 1 · WHAT IS HAPPENING (TYPE HERE)",
+                   (X, y), (460, 260), {"value": spec["action"]},
+                   outputs=[("STRING", "STRING")], color=GREEN)
+    g.app_input(action, "value", value="1 · WHAT IS HAPPENING")
+    y += 290
+
+    figures = []
+    for i, (side, cid) in enumerate((("LEFT", spec["left"]), ("RIGHT", spec["right"])), start=0):
+        n0 = 2 + i * 4
+        img = g.add("LoadImage", f"▶ {n0} · {side} CHARACTER — a transparent cutout",
+                    (X, y), (460, 400), {"image": f"cast-cutout-{cid}.png", "upload": "image"},
+                    outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
+        g.app_input(img, "image", image=f"{n0} · {side} CHARACTER (transparent PNG)")
+        y += 430
+        size = g.add("PrimitiveFloat", f"▶ {n0+1} · {side} SIZE", (X, y), (460, 80),
+                     {"value": spec[f"{side.lower()}_size"]},
+                     outputs=[("FLOAT", "FLOAT")], color=GREY)
+        g.app_input(size, "value", value=f"{n0+1} · {side} SIZE (1.0 = full height)")
+        y += 110
+        px = g.add("PrimitiveInt", f"▶ {n0+2} · {side} X", (X, y), (460, 80),
+                   {"value": spec[f"{side.lower()}_x"]}, outputs=[("INT", "INT")], color=GREY)
+        g.app_input(px, "value", value=f"{n0+2} · {side} X (pixels from the left edge)")
+        y += 110
+        py = g.add("PrimitiveInt", f"▶ {n0+3} · {side} Y", (X, y), (460, 80),
+                   {"value": spec[f"{side.lower()}_y"]}, outputs=[("INT", "INT")], color=GREY)
+        g.app_input(py, "value", value=f"{n0+3} · {side} Y (pixels from the top edge)")
+        y += 110
+        figures.append((side, img, size, px, py))
+
+    plate = g.add("LoadImage", "▶ 10 · SCENE PLATE — the empty location",
+                  (X, y), (460, 400), {"image": spec["scene_plate"], "upload": "image"},
+                  outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
+    g.app_input(plate, "image", image="10 · SCENE PLATE")
+    y += 430
+    g.group("① THE PANEL · everything you touch is in this column",
+            (X - 30, -690, 520, y + 200), GROUP_SHOT)
+
+    # --- composite: pixels, not prompting ---------------------------------
+    CX, CY, DY = 560, -620, 46
+    dest = plate
+    row = 0
+    for side, img, size, px, py in figures:
+        scaled = g.add("ImageScaleBy", f"scale {side.lower()}", (CX, CY + row * DY), (330, 110),
+                       {"upscale_method": "lanczos"},
+                       links={"image": (img, 0, "IMAGE", False),
+                              "scale_by": (size, 0, "FLOAT", True)},
+                       outputs=[("IMAGE", "IMAGE")], collapsed=True)
+        row += 1
+        alpha = g.add("InvertMask", f"{side.lower()} alpha", (CX, CY + row * DY), (330, 80),
+                      links={"mask": (img, 1, "MASK", False)},
+                      outputs=[("MASK", "MASK")], collapsed=True)
+        row += 1
+        alpha_img = g.add("MaskToImage", f"{side.lower()} alpha as image", (CX, CY + row * DY),
+                          (330, 80), links={"mask": (alpha, 0, "MASK", False)},
+                          outputs=[("IMAGE", "IMAGE")], collapsed=True)
+        row += 1
+        alpha_scaled = g.add("ImageScaleBy", f"scale {side.lower()} alpha", (CX, CY + row * DY),
+                             (330, 110), {"upscale_method": "lanczos"},
+                             links={"image": (alpha_img, 0, "IMAGE", False),
+                                    "scale_by": (size, 0, "FLOAT", True)},
+                             outputs=[("IMAGE", "IMAGE")], collapsed=True)
+        row += 1
+        mask = g.add("ImageToMask", f"{side.lower()} mask", (CX, CY + row * DY), (330, 90),
+                     {"channel": "red"},
+                     links={"image": (alpha_scaled, 0, "IMAGE", False)},
+                     outputs=[("MASK", "MASK")], collapsed=True)
+        row += 1
+        dest = g.add("ImageCompositeMasked", f"paste {side.lower()}", (CX, CY + row * DY),
+                     (330, 150), {"resize_source": False},
+                     links={"destination": (dest, 0, "IMAGE", False),
+                            "source": (scaled, 0, "IMAGE", False),
+                            "mask": (mask, 0, "MASK", False),
+                            "x": (px, 0, "INT", True),
+                            "y": (py, 0, "INT", True)},
+                     outputs=[("IMAGE", "IMAGE")], collapsed=True)
+        row += 1
+    g.group("② LAYOUT · pixels, not prompting", (CX - 30, CY - 70, 400, row * DY + 90), GROUP_OUT)
+
+    g.add("PreviewImage", "the composite, before the model sees it", (CX, CY + row * DY + 60),
+          (330, 330), links={"images": (dest, 0, "IMAGE", False)})
+
+    # --- locked prompt ----------------------------------------------------
+    LX, LY = 1020, -620
+    panel_lock = g.add("PrimitiveStringMultiline", "PANEL LOCK — how the redraw is asked for",
+                       (LX, LY), (430, 300), {"value": PANEL_LOCK},
+                       outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    style_lock = g.add("PrimitiveStringMultiline", "STYLE LOCK — house style",
+                       (LX, LY + DY), (430, 300), {"value": STYLE_LOCK},
+                       outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+    cat = g.add("StringConcatenate", "panel lock + what is happening", (LX, LY + 2 * DY), (330, 150),
+                {"delimiter": " "},
+                links={"string_a": (panel_lock, 0, "STRING", True),
+                       "string_b": (action, 0, "STRING", True)},
+                outputs=[("STRING", "STRING")], collapsed=True)
+    prompt = g.add("StringConcatenate", "FINAL PROMPT — expand to read what the model got",
+                   (LX, LY + 3 * DY), (330, 150), {"delimiter": " "},
+                   links={"string_a": (cat, 0, "STRING", True),
+                          "string_b": (style_lock, 0, "STRING", True)},
+                   outputs=[("STRING", "STRING")], collapsed=True)
+    g.group("③ PANEL & STYLE LOCK · leave alone", (LX - 30, LY - 70, 480, 4 * DY + 90), GROUP_LOCK)
+
+    # --- engine -----------------------------------------------------------
+    EX, EY = LX, LY + 5 * DY
+    unet = g.add("UnetLoaderGGUF", "diffusion model", (EX, EY), (400, 80), {"unet_name": UNET},
+                 outputs=[("MODEL", "MODEL")], color=ENGINE, collapsed=True)
+    lora = g.add("LoraLoaderModelOnly", "Lightning LoRA (8 steps)", (EX, EY + DY), (400, 110),
+                 {"lora_name": LORA, "strength_model": 1.0},
+                 links={"model": (unet, 0, "MODEL", False)},
+                 outputs=[("MODEL", "MODEL")], color=ENGINE, collapsed=True)
+    clip = g.add("CLIPLoader", "text encoder", (EX, EY + 2 * DY), (400, 130),
+                 {"clip_name": CLIP, "type": "qwen_image", "device": "default"},
+                 outputs=[("CLIP", "CLIP")], color=ENGINE, collapsed=True)
+    vae = g.add("VAELoader", "VAE", (EX, EY + 3 * DY), (400, 80), {"vae_name": VAE},
+                outputs=[("VAE", "VAE")], color=ENGINE, collapsed=True)
+    pos = g.add("TextEncodeQwenImageEditPlus", "encode the composite", (EX, EY + 4 * DY), (400, 130),
+                {"prompt": ""},
+                links={"clip": (clip, 0, "CLIP", False),
+                       "vae": (vae, 0, "VAE", False),
+                       "image1": (dest, 0, "IMAGE", False),
+                       "prompt": (prompt, 0, "STRING", True)},
+                outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
+    neg = g.add("TextEncodeQwenImageEditPlus", "negative (only bites when cfg > 1)",
+                (EX, EY + 5 * DY), (400, 130), {"prompt": NEGATIVE},
+                links={"clip": (clip, 0, "CLIP", False)},
+                outputs=[("CONDITIONING", "CONDITIONING")], color=ENGINE, collapsed=True)
+    latent = g.add("VAEEncode", "the composite as latent", (EX, EY + 6 * DY), (400, 80),
+                   links={"pixels": (dest, 0, "IMAGE", False), "vae": (vae, 0, "VAE", False)},
+                   outputs=[("LATENT", "LATENT")], collapsed=True)
+    g.group("engine · don't touch", (EX - 30, EY - 70, 480, 7 * DY + 90), GROUP_ENGINE)
+
+    sampler = g.add("KSampler", "▶ 11 · POLISH + SEED", (560, 640), (460, 270),
+                    {"seed": 1, "control_after_generate": "randomize", "steps": STEPS, "cfg": 1.0,
+                     "sampler_name": "euler", "scheduler": "simple", "denoise": spec["polish"]},
+                    links={"model": (lora, 0, "MODEL", False),
+                           "positive": (pos, 0, "CONDITIONING", False),
+                           "negative": (neg, 0, "CONDITIONING", False),
+                           "latent_image": (latent, 0, "LATENT", False)},
+                    outputs=[("LATENT", "LATENT")])
+    g.app_input(sampler, "denoise", "seed",
+                denoise="11 · POLISH (0.2 keeps the paste, 0.5 redraws it)", seed="12 · SEED")
+    decode = g.add("VAEDecode", "decode", (560, 950), (400, 80),
+                   links={"samples": (sampler, 0, "LATENT", False),
+                          "vae": (vae, 0, "VAE", False)},
+                   outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    g.app_output(g.add("SaveImage", "RESULT", (1060, 640), (620, 700),
+                       {"filename_prefix": "cast/duo"},
+                       links={"images": (decode, 0, "IMAGE", False)}))
+    return g
+
+
+DUO_HOW_TO = """# Two-hander — a panel with two characters
+
+**Layout is pixels. Only the redraw is prompted.**
+
+Feeding two character plates to the model as references merges them into one creature — Qwen
+reads every reference image as a single subject. So this app composites the two cutouts onto a
+scene plate itself, then asks the model to redraw that composite as one unified panel at low
+denoise.
+
+## The controls
+
+| Control | What it does |
+|---|---|
+| **1 · WHAT IS HAPPENING** | The panel's action, one or two sentences. |
+| **2–5 · LEFT CHARACTER** | A transparent cutout, its size, and where it sits (X, Y in pixels). |
+| **6–9 · RIGHT CHARACTER** | The same for the second figure. |
+| **10 · SCENE PLATE** | The empty location. `cast-scene-*.png` in `ComfyUI/input/`. |
+| **11 · POLISH** | Denoise. 0.2 keeps the paste almost exactly; 0.5 redraws freely and can drift. |
+| **12 · SEED** | Re-roll. |
+
+Cutouts come from the pose apps with `TRANSPARENT PNG` on — save one, drop it in
+`ComfyUI/input/`, pick it here. The preview node shows the composite before the model sees it,
+which is the fastest way to fix a bad X/Y.
+"""
+
+
+DUO = {
+    "action": ("Wilson has just handed Seth the rack of humming servers and Seth is buckling under "
+               "the weight; Wilson watches, unbothered."),
+    "left": "wilson", "right": "seth",
+    "left_size": 0.62, "left_x": 90, "left_y": 330,
+    "right_size": 0.62, "right_x": 520, "right_y": 330,
+    "scene_plate": "cast-scene-empty-stage.png",
+    "polish": 0.35,
+}
+
+
 def main(argv):
     os.makedirs(os.path.join(HERE, "workflows"), exist_ok=True)
     os.makedirs(os.path.join(HERE, "api"), exist_ok=True)
@@ -709,6 +927,12 @@ def main(argv):
             json.dump(g.to_ui(), open(app, "w"), indent=1)
             json.dump(g.to_api(), open(api, "w"), indent=1)
             print(f"wrote {ui}\nwrote {app}\nwrote {api}")
+    g = build_duo(DUO)
+    for path, blob in ((os.path.join(HERE, "workflows", "duo-panel.json"), g.to_ui()),
+                       (os.path.join(HERE, "workflows", "duo-panel.app.json"), g.to_ui()),
+                       (os.path.join(HERE, "api", "duo-panel.api.json"), g.to_api())):
+        json.dump(blob, open(path, "w"), indent=1)
+        print(f"wrote {path}")
 
 
 if __name__ == "__main__":
