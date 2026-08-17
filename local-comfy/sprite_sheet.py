@@ -189,11 +189,14 @@ def pose_extremes(frames, count, cycle=True):
         period, score = find_cycle(sils)
         # A loose match means the move genuinely is not periodic (a jump, a bow) — fall through.
         if period and score < 0.09:
-            start = max(range(len(frames) - period),
-                        key=lambda t: float(np.abs(sils[t] - sils[t + 1]).mean()))
-            picks = [start + int(round(period * i / count)) for i in range(count)]
-            picks = [sharpest_near(frames, min(p, len(frames) - 1)) for p in picks]
-            return picks, period
+            # Where the cycle STARTS decides whether it loops. Picking the busiest frame reads
+            # well but says nothing about the seam, and the walk came back with a wrap step twice
+            # the size of every other step. Start instead on the frame whose pose the cycle
+            # returns to most exactly — that IS the seam, so minimising it closes the loop.
+            start = min(range(len(frames) - period),
+                        key=lambda t: float(np.abs(sils[t] - sils[t + period]).mean()))
+            raw = [start + int(round(period * i / count)) for i in range(count)]
+            return _snap(frames, raw), period
     energy = [0.0]
     prev = np.asarray(frames[0]).astype(np.float32)
     for f in frames[1:]:
@@ -206,7 +209,31 @@ def pose_extremes(frames, count, cycle=True):
         return list(np.linspace(0, len(frames) - 1, count).astype(int)), None
     targets = np.linspace(0, cum[-1], count, endpoint=False)
     picks = [int(np.searchsorted(cum, t)) for t in targets]
-    return [sharpest_near(frames, p) for p in picks], None
+    return _snap(frames, picks), None
+
+
+def _snap(frames, raw):
+    """Nudge every pick to a sharp frame WITHOUT letting two picks land on the same one.
+
+    `sharpest_near` searches a couple of frames either side. When the cells are closely spaced —
+    ten cells across a 23-frame gait period is 2.3 frames apart — that search window is wider than
+    the gap, so neighbouring picks collapse onto the same frame. The walk sheet came back with four
+    duplicate cells and a loop that jumped, because the cycle was really only six drawings.
+
+    So the window is derived from the actual spacing, and any pick that still collides falls back
+    to its unsnapped position. Distinct cells matter more than a marginally sharper one.
+    """
+    n = len(frames)
+    gaps = [b - a for a, b in zip(raw, raw[1:])] or [3]
+    window = max(0, min(2, (min(gaps) - 1) // 2))
+    picks = []
+    for p in raw:
+        p = min(p, n - 1)
+        q = sharpest_near(frames, p, window) if window else p
+        if q in picks:
+            q = p if p not in picks else q
+        picks.append(q)
+    return picks
 
 
 def sharpness(rgba):

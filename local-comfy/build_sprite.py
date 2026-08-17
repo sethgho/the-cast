@@ -55,6 +55,15 @@ SPRITE_LOCK = (
 
 WHO_LEAD = "The character is"
 
+# Restated at the very END of the prompt. A long move line pushes the staging clause out of
+# effective range and H3 quietly swaps the keying screen for aged paper — which the packer then
+# cannot key at all. Whatever must not be lost goes last.
+STAGE_RESTATE = (
+    "Throughout the whole clip the background behind him stays one completely flat, evenly filled "
+    "bright magenta screen of a single solid colour, covering every part of the picture behind and "
+    "around him, with no paper texture, no floor, no shadow and nothing else drawn on it."
+)
+
 # ---------------------------------------------------------------- the move library
 
 MOVES = {
@@ -83,8 +92,14 @@ MOVES = {
         "he plants one foot, swings the other leg up in a high kick to the right, holds the "
         "extension, and sets the foot back down"),
     "block": (
-        "he brings both arms up in front of himself into a braced blocking guard, holds it, and "
-        "lowers them again"),
+        # H3 read the first version as walking forward with his hands up. "Braced" and "guard"
+        # both imply advancing, so the planted feet have to be stated as the loudest thing in
+        # the line, twice, before the arms are mentioned at all.
+        "he stands still on one spot with both feet planted flat on the ground and never takes a "
+        "step, never walks and never moves across the screen; standing exactly where he is, he "
+        "crosses both forearms up in front of his face and chest to shield himself, hunches his "
+        "shoulders and tucks his head down behind his arms, holds that braced position, then "
+        "lowers his arms back to his sides, his feet staying in the same place the whole time"),
     "wave": (
         "he raises one arm and waves broadly twice, then lowers the arm back to his side"),
     "take-a-bow": (

@@ -51,7 +51,11 @@ CELL = 512
 # move -> (clip, cells, fps, loop, hold, unify_height)
 MOVES = {
     "walk":   ("/tmp/seth-walk-cycle-832-20.mp4",   10, 14, True,  False, True),
-    "idle":   ("/tmp/seth-idle-breathe-832-20.mp4",  8, 14, True,  False, True),
+    # Idle is a breath. More cells does NOT buy more subtlety: asked for 16, the repaint returned
+    # only 8 distinct drawings, because a locked seed maps two near-identical source frames onto
+    # the same output. The extra cells became uneven holds, which reads as a stutter. So: 8 real
+    # drawings, played slowly.
+    "idle":   ("/tmp/seth-idle-breathe-832-20.mp4",   8,  8, True,  False, True),
     "punch":  ("/tmp/seth-punch-832-20.mp4",         8, 16, False, False, False),
     "kick":   ("/tmp/seth-kick-832-20.mp4",          8, 16, False, False, False),
     "jump":   ("/tmp/seth-jump-832-20.mp4",          8, 16, False, False, False),
@@ -139,6 +143,50 @@ def pick_frames(move, clip, n_cells):
     return [paths[i] for i in prep["picks"]]
 
 
+def trim_to_peak(paths):
+    """For a HOLD move, drop the recovery tail.
+
+    The clip is written to return to neutral — block raises the guard, holds, then lowers it — so
+    the last cell is arms-down. A hold move freezes on its last cell while the key is down, which
+    means it would freeze on the recovery instead of the guard. Cutting at the pose furthest from
+    the opening one leaves the extreme as the final cell, which is what holding should show.
+    """
+    import numpy as np
+    from PIL import Image
+    sils = []
+    for p in paths:
+        a = np.asarray(SS.key_out(p))[:, :, 3]
+        sils.append(np.asarray(Image.fromarray((a > 8).astype(np.uint8) * 255)
+                               .resize((48, 48))).astype(np.float32) / 255.0)
+    peak = max(range(len(sils)), key=lambda i: float(np.abs(sils[i] - sils[0]).mean()))
+    return paths[:peak + 1] if peak >= 2 else paths
+
+
+def match_palette(prep):
+    """Pull every cell in a move onto the same colours.
+
+    Each cell is an independent generation, so the ink and the flats drift a few percent between
+    them — one jump cell came back with grey trousers among seven sepia ones, which flashes badly
+    at 16fps. Inside the silhouette, each cell's per-channel mean is scaled to the set median.
+    That corrects a global cast without touching the drawing.
+    """
+    import numpy as np
+    from PIL import Image
+    picks = prep["picks"]
+    means = []
+    for i in picks:
+        a = np.asarray(prep["rgba"][i]).astype(np.float32)
+        m = a[:, :, 3] > 128
+        means.append(a[:, :, :3][m].mean(axis=0) if m.sum() > 100 else np.array([1.0, 1.0, 1.0]))
+    target = np.median(np.stack(means), axis=0)
+    for i, mean in zip(picks, means):
+        gain = np.clip(target / np.maximum(mean, 1.0), 0.85, 1.18)
+        a = np.asarray(prep["rgba"][i]).astype(np.float32)
+        rgb = np.clip(a[:, :, :3] * gain, 0, 255)
+        prep["rgba"][i] = Image.fromarray(
+            np.dstack([rgb.astype(np.uint8), a[:, :, 3].astype(np.uint8)]), "RGBA")
+
+
 def main():
     cid = sys.argv[1] if len(sys.argv) > 1 else "seth"
     wanted = sys.argv[2:] or list(MOVES)
@@ -151,13 +199,19 @@ def main():
         picks = pick_frames(move, clip, n)
         out_paths = []
         for i, src in enumerate(picks, start=1):
-            dst = os.path.join(REPAINT_DIR, f"{cid}-{move}-{i:02d}.png")
+            # Keyed by the source frame, so changing how cells are chosen only pays for the cells
+            # that actually changed — and never serves a stale repaint of a different pose.
+            stem = os.path.basename(src).replace(".png", "")
+            dst = os.path.join(REPAINT_DIR, f"{cid}-{move}-{stem}.png")
             if not os.path.exists(dst):
                 repaint(src, dst)
             out_paths.append(dst)
             print(f"  {cid}-{move} cell {i}/{len(picks)}  {time.time()-t0:.0f}s", flush=True)
         SS.CEL_CLEAN = False                   # repaints are drawn, not decoded
+        if hold:
+            out_paths = trim_to_peak(out_paths)
         prep = SS._prepare_stills(out_paths, smooth=True)
+        match_palette(prep)
         prepared.append((f"{cid}-{move}", prep, fps, loop, hold, unify))
 
     # One scale across the whole set, or he changes size when the state machine switches move.
