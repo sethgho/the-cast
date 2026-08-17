@@ -16,6 +16,7 @@ Measured on the RTX 3080 Ti (12GB): **~48s at 8 steps**, **~25s at 4 steps**, 10
 | `plates/` | The reference images the workflows expect in `ComfyUI/input/`. |
 | `build_workflows.py` | Generates every file from one character spec. Edit here, not the JSON. |
 | `smoke_test.py` | Runs the API graph through all four switch combinations. |
+| `plates/cast-cutout-*.png` | Transparent cutouts the two-hander loads by default. |
 
 Both kinds carry the same `SCENE` / `TRANSPARENT PNG` / size / seed controls, numbered after
 their own fields.
@@ -59,8 +60,8 @@ The workflow ships with `extra.linearMode: true`, so opening it drops you straig
 ComfyUI's [App Mode](https://docs.comfy.org/interface/app-mode) — a plain form, no graph. The
 form is defined by `extra.linearData` and is generated from the same script:
 
-    1 · YOUR SHOT   2 · SCENE   3 · YOUR SCENE   4 · SCENE PLATE
-    5 · TRANSPARENT PNG   6 · OUTPUT SIZE (w/h)   7 · SEED + STEPS  →  RESULT
+    1 · YOUR SHOT   2 · SCENE   3 · YOUR SCENE
+    4 · TRANSPARENT PNG   5 · OUTPUT SIZE (w/h)   6 · SEED + STEPS  →  RESULT
 
 Field labels are the `label` on each promoted widget's input slot — the same field the UI's
 right-click → Rename writes. Two traps when authoring them by hand:
@@ -71,8 +72,8 @@ right-click → Rename writes. Two traps when authoring them by hand:
   close the tab and reopen it, or the old label-less copy is what you see.
 
 Use the breadcrumb menu at the top to leave App Mode and see the graph. App Mode has no
-conditional fields, so `3 · YOUR SCENE` and `4 · SCENE PLATE` stay on screen even when `SCENE`
-is off — they are simply ignored. Share links are Comfy-Cloud-only; on our box App Mode is
+conditional fields, so `3 · YOUR SCENE` stays on screen even when `SCENE` is off — it is simply
+ignored. Share links are Comfy-Cloud-only; on our box App Mode is
 local-only.
 
 ## The control surface (graph view)
@@ -83,7 +84,7 @@ Three groups, colour-coded:
 - **② green — YOUR SHOT.** Two text boxes and two switches. This is the whole job.
   - `▶ YOUR SHOT` — what he is doing, one sentence.
   - `▶ YOUR SCENE` — where he is. Only read when `SCENE` is on.
-  - `SCENE` — off = flat mid-grey plate; on = the scene plate (image 2) plus your scene text.
+  - `SCENE` — off = flat mid-grey plate; on = the location you describe, drawn around him.
   - `TRANSPARENT PNG` — cuts the figure out with BiRefNet and saves RGBA.
 - **③ amber — OUTPUT.** Size lives on `OUTPUT SIZE`; seed and steps on the sampler.
 
@@ -116,17 +117,16 @@ claim the card), and `sudo systemctl stop comfyui` to hand the GPU back.
 
 ## Two rules learned the hard way
 
-1. **Never wire a second character plate into `image2`.** Qwen treats every reference as a
-   *subject*, not a style — two character plates get merged into one creature. `image2` is for
-   a scene, nothing else.
+1. **Never wire a second character into `image2`.** Qwen treats every reference as a *subject*,
+   not a style or a setting — two character plates get merged into one creature. The one reference
+   image is the character; everything else is words.
 2. **State the style, and the colours, in words.** With only a reference image the palette
    drifts modern — Seth's near-black t-shirt came back mid-teal until the lock said
    "very dark olive charcoal, near-black". Positive phrasing works; "never bright green" does not.
 
-**The first field is restated at the end of the prompt on purpose.** A second reference image
-(SCENE mode) pulls the model back toward image 1's face: with the expression stated only once,
-mid-prompt, `weary` and `amped` both came back as the reference grin. The `RESTATEMENT` node in
-the blue group is what fixes that. Expression control is still strongest with SCENE off.
+**The first field is restated at the end of the prompt on purpose.** Stated only once, mid-prompt,
+the expression lost to the reference face — `weary` and `amped` both came back as the plate's grin.
+The `RESTATEMENT` node in the blue group is what fixes that.
 
 **Some characters can't be framed by prompting at all.** Wilson has no head, so however tightly the
 crop is described — and even from a pre-cropped reference plate — the model re-completes the whole
@@ -135,9 +135,9 @@ figure. A character spec can therefore carry `headshot_crop: [x, y, w, h]`, whic
 of being asked for. The box is in pixels at the default 1024×1024, so it needs re-tuning if you
 change the output size.
 
-On headshots, **SCENE only works if `FRAMING` leaves room** — at a tight crop the scene has
-nowhere to go and comes back as speckled paper. "head and shoulders with room to breathe, the
-place visible behind his shoulders" puts the auditorium in.
+On headshots, **SCENE only works if `FRAMING` leaves room** — at a tight crop the location has
+nowhere to go. "head and shoulders with room to breathe, the place visible behind his shoulders"
+gives it somewhere to land.
 
 A third, smaller one: `JoinImageWithAlpha` inverts its mask (ComfyUI's convention is 1 = masked
 out), so `RemoveBackground` needs an `InvertMask` after it or the *figure* goes transparent.
