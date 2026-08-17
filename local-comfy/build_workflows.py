@@ -499,8 +499,8 @@ def main(ids):
     os.makedirs(os.path.join(HERE, "api"), exist_ok=True)
     for cid in ids:
         g = build(cid, CHARACTERS[cid])
-        ui = os.path.join(HERE, "workflows", f"{cid}-pose-and-scene.json")
-        api = os.path.join(HERE, "api", f"{cid}-pose-and-scene.api.json")
+        ui = os.path.join(HERE, "workflows", f"{cid}-pose.json")
+        api = os.path.join(HERE, "api", f"{cid}-pose.api.json")
         json.dump(g.to_ui(), open(ui, "w"), indent=1)
         json.dump(g.to_api(), open(api, "w"), indent=1)
         print(f"wrote {ui}\nwrote {api}")

@@ -55,7 +55,7 @@ def run(graph, label, outdir):
 
 def main(cid, outdir):
     os.makedirs(outdir, exist_ok=True)
-    base = json.load(open(os.path.join(HERE, "api", f"{cid}-pose-and-scene.api.json")))
+    base = json.load(open(os.path.join(HERE, "api", f"{cid}-pose.api.json")))
     scene_id = find(base, "▶ 2 · SCENE")
     alpha_id = find(base, "▶ 5 · TRANSPARENT")
     seed_id = find(base, "▶ 7 · SEED")

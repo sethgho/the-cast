@@ -10,8 +10,8 @@ Measured on the RTX 3080 Ti (12GB): **~48s at 8 steps**, **~25s at 4 steps**, 10
 
 | Path | What it is |
 |---|---|
-| `workflows/<id>-pose-and-scene.json` | Load this in the ComfyUI builder. |
-| `api/<id>-pose-and-scene.api.json` | Same graph, API format — for scripts and CI. |
+| `workflows/<id>-pose.json` | Load this in the ComfyUI builder. |
+| `api/<id>-pose.api.json` | Same graph, API format — for scripts and CI. |
 | `plates/` | The reference images the workflow expects in `ComfyUI/input/`. |
 | `build_workflows.py` | Generates both files from one character spec. Edit here, not the JSON. |
 | `smoke_test.py` | Runs the API graph through all four switch combinations. |
