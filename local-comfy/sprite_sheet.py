@@ -159,7 +159,8 @@ def pose_extremes(frames, count, cycle=True):
             start = max(range(len(frames) - period),
                         key=lambda t: float(np.abs(sils[t] - sils[t + 1]).mean()))
             picks = [start + int(round(period * i / count)) for i in range(count)]
-            return [min(p, len(frames) - 1) for p in picks], period
+            picks = [sharpest_near(frames, min(p, len(frames) - 1)) for p in picks]
+            return picks, period
     energy = [0.0]
     prev = np.asarray(frames[0]).astype(np.float32)
     for f in frames[1:]:
@@ -171,7 +172,31 @@ def pose_extremes(frames, count, cycle=True):
     if cum[-1] <= 0:
         return list(np.linspace(0, len(frames) - 1, count).astype(int)), None
     targets = np.linspace(0, cum[-1], count, endpoint=False)
-    return [int(np.searchsorted(cum, t)) for t in targets], None
+    picks = [int(np.searchsorted(cum, t)) for t in targets]
+    return [sharpest_near(frames, p) for p in picks], None
+
+
+def sharpness(rgba):
+    """Mean gradient inside the silhouette — high means crisp ink, low means motion blur."""
+    a = np.asarray(rgba).astype(np.float32)
+    lum = a[:, :, :3].mean(axis=2)
+    mask = a[:, :, 3] > 128
+    if mask.sum() < 100:
+        return 0.0
+    gx = np.abs(np.diff(lum, axis=1))
+    m = mask[:, :-1] & mask[:, 1:]
+    return float(gx[m].mean()) if m.any() else 0.0
+
+
+def sharpest_near(frames, index, window=2):
+    """Nudge a pick to the crispest frame within a couple of frames.
+
+    H3 motion-blurs a limb that is travelling fast, and the beat we want often lands on one of
+    those. The neighbouring frames are the same pose a few milliseconds either side, so taking the
+    sharpest of them costs nothing in timing and buys a clean drawing.
+    """
+    lo, hi = max(0, index - window), min(len(frames) - 1, index + window)
+    return max(range(lo, hi + 1), key=lambda i: sharpness(frames[i]))
 
 
 def median3(values):

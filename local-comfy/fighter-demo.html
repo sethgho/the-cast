@@ -29,10 +29,10 @@
 </style>
 <main>
   <h1>Seth, playable</h1>
-  <p class="lede">Seven moves, 33 drawings, every one a <b>still</b> rendered at 1024 from a written
-  pose beat — "front leg stretched forward, heel just touching down, opposite arms swung" — then
-  keyed off its magenta screen and packed into a normalised atlas. All on gpu-worker, no cloud
-  credits. <b>Click the screen, then use the keys.</b></p>
+  <p class="lede">Seven moves, each one a MiniMax H3 clip rendered on a magenta stage at
+  <b>832×832, 20 steps</b> — the character filling the frame — then keyed, cut to its pose extremes
+  and packed into a normalised atlas. All on gpu-worker, no cloud credits.
+  <b>Click the screen, then use the keys.</b></p>
 
   <div class="screen" id="screen" tabindex="0">
     <canvas id="c" width="1280" height="720"></canvas>
@@ -57,27 +57,16 @@
     <tr><td>block · crouch</td><td>3</td><td>5</td><td>once, holds on the last cell</td></tr>
   </table>
 
-  <div class="note"><b>Stills, not video — and that was the whole fix.</b> The first version cut
-  these cells out of MiniMax H3 clips. H3 draws the character about 240px tall inside a soft 512
-  render, so blown up to sprite size it read blurry, and the packer was not to blame: source
-  sharpness 2.47, packed cell 2.61. Re-rendering an H3 frame with the image model came back crisp
-  but <i>re-posed</i> — a reference image is an identity reference, not a pose reference — and an
-  img2img refine at partial denoise made mush, because the Lightning LoRA needs a full denoise.
-  <br><br>So the pose is written instead: one sentence per drawing, one still per sentence, at 1024.
-  Same beats, same plate, same seed, same sheet — repeatable.
-  <br><br><b>Two normalisations make it fluid.</b> Every frame is aligned on the bottom centre of
-  its own silhouette, so his feet stay planted; and looping moves are scaled per frame to the set's
-  median height, because independently generated stills vary a few percent and a walk cycle that
-  breathes in size looks broken. Crouch and jump deliberately skip that — their height change is
-  the move.
-  <br><br><b>The in-betweens are interpolated, not drawn.</b> Eight drawings at 12fps reads as a
-  flip-book, and paying 48s a drawing for 24 of them is silly. The beats go through RIFE
-  (<code>FrameInterpolate</code>, local) at ×3 — 24 walk cells for six seconds of GPU. Two things
-  that needed care: the in-betweens are made <i>before</i> keying, while everything is still on the
-  magenta screen, so an interpolated frame gets matted exactly like a drawn one; and RIFE smears
-  the screen colour into fast limbs, which the despill now removes by testing for blue-above-green
-  — the character's browns are all blue-below-green, so it can run at full strength on the smears
-  without touching the drawing.
+  <div class="note"><b>The blur was draft settings, not the method.</b> The first version rendered
+  512×512 at 10 steps, which draws the character about 240px tall in a soft frame — and then the
+  demo magnified him 2.4×. At 832×832 and 20 steps he fills the frame at roughly 600px, so the
+  packer is scaling <i>down</i> rather than up, which is where crispness comes from. Cost: 170s a
+  move instead of 50.
+  <br><br><b>Three things the packer does with those clips.</b> It keys the magenta against the
+  colour it measures in the frame rather than a constant; it aligns every cell on the bottom centre
+  of the character's own silhouette, so his feet stay planted; and it nudges each pick to the
+  sharpest frame within a couple either side, because H3 motion-blurs a limb that is travelling
+  fast and the beat often lands on one of those.
   <br><br>Back to the <a href="cast-local-comfy.html">apps and how they were built</a>.</div>
 </main>
 <script>
@@ -94,9 +83,20 @@ async function loadMoves() {
     sheets[name] = img;
   })));
 }
-const CELL = 256;
+const CELL = 512;
 
 const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+// Match the backing store to the displayed size. A 1280-wide canvas shown at 900 CSS px
+// resamples every sprite on the way to the screen, which is where the last of the crispness
+// was going — the cells were already scaled down once by the packer.
+function fitCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const r = cv.getBoundingClientRect();
+  cv.width = Math.round(r.width * dpr);
+  cv.height = Math.round(r.height * dpr);
+}
+addEventListener("resize", fitCanvas);
+fitCanvas();
 const stateEl = document.getElementById("state"), moveEl = document.getElementById("move");
 const keys = new Set();
 // A quick tap can start and finish inside one animation frame, so edges are latched here and
@@ -104,7 +104,7 @@ const keys = new Set();
 const tapped = new Set();
 let state = "idle", frame = 0, acc = 0, x = 640, facing = 1, y = 0, vy = 0, locked = null;
 
-const GROUND = 690, SCALE = 2.4, WALK_SPEED = 210, GRAVITY = 2100, JUMP_V = 780;
+const GROUND = 690, SCALE = 1.0, WALK_SPEED = 210, GRAVITY = 2100, JUMP_V = 780;
 
 function setState(next) {
   if (state === next) return;
@@ -184,15 +184,17 @@ function tick(now) {
 function draw() {
   ctx.clearRect(0, 0, cv.width, cv.height);
   // stage: a paper floor line, so the ground contact reads
-  ctx.strokeStyle = "#c9bfa6"; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(60, GROUND + 4); ctx.lineTo(1220, GROUND + 4); ctx.stroke();
+  const u = cv.height / 720;
+  ctx.strokeStyle = "#c9bfa6"; ctx.lineWidth = 3 * u;
+  ctx.beginPath(); ctx.moveTo(60 * u, (GROUND + 4) * u); ctx.lineTo(cv.width - 60 * u, (GROUND + 4) * u); ctx.stroke();
 
   const m = MOVES[locked || state], img = sheets[locked || state];
+  const unit = cv.height / 720;
   moveEl.textContent = `${m.file}.png · cell ${frame + 1}/${m.frames}`;
   if (!img || !img.complete) return;
-  const w = CELL * SCALE, h = CELL * SCALE;
+  const w = CELL * SCALE * unit, h = CELL * SCALE * unit;
   ctx.save();
-  ctx.translate(x, GROUND + y);
+  ctx.translate(x * unit, (GROUND + y) * unit);
   ctx.scale(facing, 1);
   // cells are anchored at the feet, 94% down the cell — line that up with the floor
   ctx.drawImage(img, frame * CELL, 0, CELL, CELL, -w / 2, -h * 0.94, w, h);
