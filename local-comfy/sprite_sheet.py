@@ -54,7 +54,7 @@ def extract_frames(clip, tmp):
     return sorted(os.path.join(tmp, f) for f in os.listdir(tmp) if f.startswith("f_"))
 
 
-def despill(rgb):
+def despill(rgb, edge=None):
     """Magenta bleeds into every anti-aliased edge pixel and reads as a red fringe.
 
     Magenta is high red + high blue, low green. Where a pixel's red/blue average sits above its
@@ -64,25 +64,48 @@ def despill(rgb):
     """
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     spill = np.maximum((r + b) * 0.5 - g, 0.0)
+    if edge is not None:
+        # ONLY the anti-aliased edge. Applied to solid pixels this rule strips every warm colour
+        # in the drawing — brown hair, tan skin and khaki trousers all have red above green — and
+        # the character comes out bleached.
+        spill = spill * edge
     out = rgb.copy()
     out[..., 0] = np.clip(r - spill, 0, 255)
     out[..., 2] = np.clip(b - spill, 0, 255)
     return out
 
 
+def measure_key(im):
+    """Take the key colour from the picture, not from a constant.
+
+    The model does not paint pure #FF00FF — a punch still measured (238, 51, 163), which is 107
+    units from the constant. Keyed against the constant that whole screen came back ~20% opaque:
+    a translucent halo that also inflated every bounding box and shrank the packed character.
+    The four corners are always screen, so their median IS the key.
+    """
+    h, w, _ = im.shape
+    p = 12
+    corners = np.concatenate([im[:p, :p].reshape(-1, 3), im[:p, -p:].reshape(-1, 3),
+                              im[-p:, :p].reshape(-1, 3), im[-p:, -p:].reshape(-1, 3)])
+    return np.median(corners, axis=0)
+
+
 def key_out(path):
-    """Magenta -> soft alpha, plus despill. Colour distance, not an exact match: the codec moves it."""
+    """Screen -> soft alpha, plus despill. Colour distance, not an exact match: the codec moves it."""
     # float32, not int16: squaring a 230-unit channel difference overflows int16 and the
     # key silently eats most of the character.
     im = np.asarray(Image.open(path).convert("RGB")).astype(np.float32)
-    dist = np.sqrt(((im - KEY) ** 2).sum(axis=2))
+    key = measure_key(im)
+    dist = np.sqrt(((im - key) ** 2).sum(axis=2))
     # A soft ramp, not a hard threshold: a binary matte stair-steps every outline.
     alpha = np.clip((dist - SOFT_IN) / (SOFT_OUT - SOFT_IN), 0.0, 1.0)
     if EDGE_ERODE:
         from PIL import ImageFilter
         a8 = Image.fromarray((alpha * 255).astype(np.uint8))
         alpha = np.asarray(a8.filter(ImageFilter.MinFilter(2 * EDGE_ERODE + 1))).astype(np.float32) / 255.0
-    rgba = np.dstack([despill(im).astype(np.uint8), (alpha * 255).astype(np.uint8)])
+    # edge weight: 1 in the transition band, 0 on solid pixels and on the screen itself
+    edge = np.clip(1.0 - np.abs(alpha * 2.0 - 1.0), 0.0, 1.0)
+    rgba = np.dstack([despill(im, edge).astype(np.uint8), (alpha * 255).astype(np.uint8)])
     return Image.fromarray(rgba, "RGBA")
 
 
@@ -213,18 +236,56 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
             "natural": natural, "period": period, "clip": clip}
 
 
-def _emit(name, prep, cell, outdir, anchor, scale):
+def _prepare_stills(paths, smooth=True):
+    """Same measurement pass as _prepare, but every still IS a cell — no picking, no cycle hunt.
+
+    Stills come from sprite_poses.py: one render per pose beat, so the frame order is the
+    playback order and there is nothing to select.
+    """
+    rgba = [key_out(p) for p in paths]
+    boxes = [bbox(r) for r in rgba]
+    picks = [i for i, b in enumerate(boxes) if b]
+    if not picks:
+        raise SystemExit("every still keyed to nothing — are they on magenta?")
+    anchors = []
+    for i in picks:
+        x0, y0, x1, y1 = boxes[i]
+        anchors.append(((x0 + x1) // 2, y1))
+    if smooth and len(anchors) > 2:
+        anchors = list(zip(median3([a[0] for a in anchors]), median3([a[1] for a in anchors])))
+    spans = []
+    for (i, (ax, ay)) in zip(picks, anchors):
+        x0, y0, x1, y1 = boxes[i]
+        spans.append((ax - x0, x1 - ax, ay - y0, y1 - ay))
+    # Scale off HEIGHT, with width only allowed to veto if it would overflow the cell. A wide
+    # pose — a kick at full extension — would otherwise shrink every other move to match it.
+    tall = max(s[2] for s in spans) + max(s[3] for s in spans)
+    wide = max(s[0] for s in spans) + max(s[1] for s in spans)
+    natural = max(tall, wide * 0.8)
+    return {"rgba": rgba, "boxes": boxes, "picks": picks, "anchors": anchors,
+            "natural": natural, "period": None, "clip": paths[0]}
+
+
+def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
     """Write the atlas, the cells, the JSON, the CSS and the preview at the given scale."""
     rgba, boxes, picks, anchors = prep["rgba"], prep["boxes"], prep["picks"], prep["anchors"]
     frames_dir = os.path.join(outdir, f"{name}-frames")
     os.makedirs(frames_dir, exist_ok=True)
+    # Per-frame height normalisation. Every still is generated independently, so the character
+    # comes out a few percent bigger or smaller each time and a looping sprite "breathes". For a
+    # cycle that has to be seamless, each frame is scaled so its silhouette height matches the
+    # set's median. Moves whose height genuinely changes — crouch, jump — must NOT use this.
+    heights = [boxes[i][3] - boxes[i][1] for i in picks]
+    median_h = sorted(heights)[len(heights) // 2]
+
     cells, table = [], []
     for (i, (ax, ay)) in zip(picks, anchors):
         src = rgba[i]
         canvas = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
         w, h = src.size
-        sized = src.resize((max(1, int(w * scale)), max(1, int(h * scale))), Image.LANCZOS)
-        sax, say = ax * scale, ay * scale
+        f_scale = scale * (median_h / (boxes[i][3] - boxes[i][1])) if unify_height else scale
+        sized = src.resize((max(1, int(w * f_scale)), max(1, int(h * f_scale))), Image.LANCZOS)
+        sax, say = ax * f_scale, ay * f_scale
         target = (cell // 2, int(cell * 0.94) if anchor == "feet" else cell // 2)
         canvas.paste(sized, (int(target[0] - sax), int(target[1] - say)), sized)
         cells.append(canvas)

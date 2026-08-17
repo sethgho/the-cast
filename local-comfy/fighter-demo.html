@@ -29,10 +29,10 @@
 </style>
 <main>
   <h1>Seth, playable</h1>
-  <p class="lede">Seven moves, each one a MiniMax H3 clip rendered on a magenta stage by the
-  <code>sprite-clip</code> app and packed into a normalised atlas by <code>sprite_sheet.py</code> —
-  all on gpu-worker, no cloud credits. Nothing here is video: it is seven PNGs and a state machine.
-  <b>Click the screen, then use the keys.</b></p>
+  <p class="lede">Seven moves, 33 drawings, every one a <b>still</b> rendered at 1024 from a written
+  pose beat — "front leg stretched forward, heel just touching down, opposite arms swung" — then
+  keyed off its magenta screen and packed into a normalised atlas. All on gpu-worker, no cloud
+  credits. <b>Click the screen, then use the keys.</b></p>
 
   <div class="screen" id="screen" tabindex="0">
     <canvas id="c" width="1280" height="720"></canvas>
@@ -49,27 +49,38 @@
   </div>
 
   <table>
-    <tr><th>Move</th><th>Cells</th><th>Loops</th><th>Source</th></tr>
-    <tr><td>idle-breathe</td><td>8</td><td>yes</td><td>H3 clip, 61 frames</td></tr>
-    <tr><td>walk-cycle</td><td>8</td><td>yes — 24-frame gait period</td><td>H3 clip, 61 frames</td></tr>
-    <tr><td>jump · punch · kick · block · crouch</td><td>6 each</td><td>no — play once</td><td>H3 clip, 61 frames</td></tr>
+    <tr><th>Move</th><th>Cells</th><th>Plays</th><th>Height normalised</th></tr>
+    <tr><td>idle</td><td>4</td><td>loops</td><td>yes</td></tr>
+    <tr><td>walk</td><td>8 — the full contact/down/passing/up cycle, both legs</td><td>loops</td><td>yes</td></tr>
+    <tr><td>punch · kick</td><td>5 each — guard, wind, half, extension, recovery</td><td>once</td><td>no</td></tr>
+    <tr><td>jump</td><td>5 — crouch, launch, apex, descent, land</td><td>once</td><td>no</td></tr>
+    <tr><td>block · crouch</td><td>3 each</td><td>once, holds on the last cell</td><td>no</td></tr>
   </table>
 
-  <div class="note"><b>Why this works at all.</b> Every cell is the same size and every frame is
-  aligned on the bottom centre of the character's own silhouette, so the state machine can cut
-  between moves mid-stride without him jumping around. That is the whole point of normalising:
-  a sheet you can swap into a state machine, not a video you can only play.
+  <div class="note"><b>Stills, not video — and that was the whole fix.</b> The first version cut
+  these cells out of MiniMax H3 clips. H3 draws the character about 240px tall inside a soft 512
+  render, so blown up to sprite size it read blurry, and the packer was not to blame: source
+  sharpness 2.47, packed cell 2.61. Re-rendering an H3 frame with the image model came back crisp
+  but <i>re-posed</i> — a reference image is an identity reference, not a pose reference — and an
+  img2img refine at partial denoise made mush, because the Lightning LoRA needs a full denoise.
+  <br><br>So the pose is written instead: one sentence per drawing, one still per sentence, at 1024.
+  Same beats, same plate, same seed, same sheet — repeatable.
+  <br><br><b>Two normalisations make it fluid.</b> Every frame is aligned on the bottom centre of
+  its own silhouette, so his feet stay planted; and looping moves are scaled per frame to the set's
+  median height, because independently generated stills vary a few percent and a walk cycle that
+  breathes in size looks broken. Crouch and jump deliberately skip that — their height change is
+  the move.
   <br><br>Back to the <a href="cast-local-comfy.html">apps and how they were built</a>.</div>
 </main>
 <script>
 const MOVES = {
-  idle:   { file: "seth-idle-breathe", frames: 8, fps: 8,  loop: true },
-  walk:   { file: "seth-walk-cycle",   frames: 8, fps: 12, loop: true },
-  jump:   { file: "seth-jump",         frames: 6, fps: 10, loop: false },
-  punch:  { file: "seth-punch",        frames: 6, fps: 14, loop: false },
-  kick:   { file: "seth-kick",         frames: 6, fps: 12, loop: false },
-  block:  { file: "seth-block",        frames: 6, fps: 12, loop: false, hold: true },
-  crouch: { file: "seth-crouch",       frames: 6, fps: 12, loop: false, hold: true },
+  idle:   { file: "seth-idle",   frames: 4, fps: 6,  loop: true },
+  walk:   { file: "seth-walk",   frames: 8, fps: 12, loop: true },
+  jump:   { file: "seth-jump",   frames: 5, fps: 10, loop: false },
+  punch:  { file: "seth-punch",  frames: 5, fps: 14, loop: false },
+  kick:   { file: "seth-kick",   frames: 5, fps: 12, loop: false },
+  block:  { file: "seth-block",  frames: 3, fps: 14, loop: false, hold: true },
+  crouch: { file: "seth-crouch", frames: 3, fps: 14, loop: false, hold: true },
 };
 const CELL = 256;
 const sheets = {};
@@ -87,7 +98,7 @@ const keys = new Set();
 const tapped = new Set();
 let state = "idle", frame = 0, acc = 0, x = 640, facing = 1, y = 0, vy = 0, locked = null;
 
-const GROUND = 660, SCALE = 1.7, WALK_SPEED = 210, GRAVITY = 2100, JUMP_V = 780;
+const GROUND = 690, SCALE = 2.4, WALK_SPEED = 210, GRAVITY = 2100, JUMP_V = 780;
 
 function setState(next) {
   if (state === next) return;
