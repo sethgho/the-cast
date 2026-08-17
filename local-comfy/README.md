@@ -58,6 +58,18 @@ words for everything else:
   variants at one seed, a border in all six. Cropping it cut into the figures and discarded framing
   the model had composed, so the render ships whole. Trim it downstream if a particular use needs to.
 
+## Recasting beats restyling
+
+`style-transfer` asks the model to **replace** every person with a rubber-hose cartoon character
+in the same place, pose and size — not to "redraw the picture in the house style". Qwen-Edit is
+structurally faithful: told to restyle, it returns a filtered photograph with a realistic face, and
+no amount of style description fixes that. Told to replace, it redesigns the body plan and keeps
+the glasses, the hair and the room.
+
+The redesign then eats the prompt's weight and the source photo's colour wins, so the two-ink rule
+is restated in a `PALETTE RESTATEMENT` node at the very end of the chain. Same shape of fix as the
+expression restatement in the headshot app.
+
 ## App Mode
 
 The workflow ships with `extra.linearMode: true`, so opening it drops you straight into

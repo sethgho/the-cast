@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 27,
- "last_link_id": 29,
+ "last_node_id": 29,
+ "last_link_id": 31,
  "nodes": [
   {
    "id": 1,
@@ -25,7 +25,7 @@
     "Node name for S&R": "MarkdownNote"
    },
    "widgets_values": [
-    "# Style transfer\n\n**Any photo or sketch in, a house-style drawing out.**\n\nPoint it at a photo of the real fence, the real rack, a real room, and get something that sits\nnext to the cast without describing it from scratch.\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 YOUR PICTURE** | Upload the photo. Anything ComfyUI can load. |\n| **2 \u00b7 WHAT IT IS** | Say what the picture shows. The model reads the image, but naming the subject stops it inventing. |\n| **3 \u00b7 KEEP** | The parts that must survive \u2014 layout, specific objects, the lettering on a sign. |\n| **4 \u00b7 TRANSPARENT PNG** | Cuts the subject out. Useful when the photo is of one object. |\n| **5 \u00b7 WIDTH / HEIGHT** | Match the source aspect or the composition gets squeezed. |\n| **6 \u00b7 SEED + STEPS** | Re-roll here. |\n\nIt is one reference image and words \u2014 never add a second image hoping for style, Qwen reads every\nreference as a subject and will merge them.\n"
+    "# Style transfer\n\n**Any photo or sketch in, a house-style drawing out.**\n\nPoint it at a photo of the real fence, the real rack, a real room, and get something that sits\nnext to the cast without describing it from scratch.\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 YOUR PICTURE** | Upload the photo. Anything ComfyUI can load. |\n| **2 \u00b7 WHAT IT IS** | Say what the picture shows. The model reads the image, but naming the subject stops it inventing. |\n| | *People are **replaced** with rubber-hose cartoon characters, not merely re-inked \u2014 that is the only phrasing that redesigns a real face.* |\n| **3 \u00b7 KEEP** | The parts that must survive \u2014 layout, specific objects, the lettering on a sign. |\n| **4 \u00b7 TRANSPARENT PNG** | Cuts the subject out. Useful when the photo is of one object. |\n| **5 \u00b7 WIDTH / HEIGHT** | Match the source aspect or the composition gets squeezed. |\n| **6 \u00b7 SEED + STEPS** | Re-roll here. |\n\nIt is one reference image and words \u2014 never add a second image hoping for style, Qwen reads every\nreference as a subject and will merge them.\n"
    ]
   },
   {
@@ -68,7 +68,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      12
+      14
      ]
     },
     {
@@ -207,7 +207,7 @@
      "name": "BOOLEAN",
      "type": "BOOLEAN",
      "links": [
-      28
+      30
      ]
     }
    ],
@@ -271,7 +271,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      18
+      20
      ]
     }
    ],
@@ -318,7 +318,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "Redraw the picture in image 1 as a hand-inked 1933 newspaper comic-strip drawing. Keep its layout, its perspective and every object in it where they are, and convert photographic tone into flat ink: confident smooth outlines of even weight, soft halftone dots for shading, and the whole picture in warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. The picture shows:"
+    "Replace every person in image 1 with a 1933 Fleischer-era rubber-hose cartoon character in exactly the same place, the same pose and the same size in the frame: a big round head much larger than a real head on a small rounded body, huge white cartoon eyes with round dark pupils, a little button nose, a wide simple curved mouth, bendy noodle arms and legs with no elbows or knees, and oversized rounded cartoon hands. Each one keeps whatever makes them recognisable \u2014 their hair, their glasses, their moustache, the cut and colour of their clothes. Redraw the room and every object around them in the same hand: simple bold cartoon shapes, confident smooth outlines of even weight, shaded only with soft halftone dots, in warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. Keep the layout and the perspective of image 1 \u2014 who is where, and what is behind them. The picture shows:"
    ],
    "color": "#223",
    "bgcolor": "#335"
@@ -354,7 +354,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "These parts of it must survive the redraw exactly:"
+    "These things stay recognisable through the redraw, drawn as cartoon shapes rather than copied:"
    ],
    "color": "#223",
    "bgcolor": "#335"
@@ -593,7 +593,96 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      13
+      9
+     ]
+    }
+   ],
+   "title": "+ style lock",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 14,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    1240,
+    -298
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 14,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "title": "PALETTE RESTATEMENT \u2014 leave alone",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Finally, the finished picture is printed in two muted inks only: a warm dark sepia brown for the outlines and the halftone shading, and the pale cream of aged newsprint for the light areas. Every colour in it \u2014 clothes, books, walls, skin \u2014 is a desaturated brown, cream or grey, as faded as old newspaper printing."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 15,
+   "type": "StringConcatenate",
+   "pos": [
+    1240,
+    -252
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 9,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 10,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      15
      ]
     }
    ],
@@ -608,7 +697,7 @@
    ]
   },
   {
-   "id": 14,
+   "id": 16,
    "type": "UnetLoaderGGUF",
    "pos": [
     1240,
@@ -621,7 +710,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 14,
+   "order": 16,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -629,7 +718,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      9
+      11
      ]
     }
    ],
@@ -644,7 +733,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 15,
+   "id": 17,
    "type": "LoraLoaderModelOnly",
    "pos": [
     1240,
@@ -657,13 +746,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 15,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 9
+     "link": 11
     }
    ],
    "outputs": [
@@ -671,7 +760,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      15
+      17
      ]
     }
    ],
@@ -687,7 +776,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 16,
+   "id": 18,
    "type": "CLIPLoader",
    "pos": [
     1240,
@@ -700,7 +789,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 16,
+   "order": 18,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -708,8 +797,8 @@
      "name": "CLIP",
      "type": "CLIP",
      "links": [
-      10,
-      14
+      12,
+      16
      ]
     }
    ],
@@ -726,7 +815,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 17,
+   "id": 19,
    "type": "VAELoader",
    "pos": [
     1240,
@@ -739,7 +828,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 17,
+   "order": 19,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -747,8 +836,8 @@
      "name": "VAE",
      "type": "VAE",
      "links": [
-      11,
-      20
+      13,
+      22
      ]
     }
    ],
@@ -763,7 +852,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 18,
+   "id": 20,
    "type": "LoadBackgroundRemovalModel",
    "pos": [
     1240,
@@ -776,7 +865,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 18,
+   "order": 20,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -784,7 +873,7 @@
      "name": "BACKGROUND_REMOVAL",
      "type": "BACKGROUND_REMOVAL",
      "links": [
-      21
+      23
      ]
     }
    ],
@@ -799,7 +888,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 19,
+   "id": 21,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1240,
@@ -812,28 +901,28 @@
    "flags": {
     "collapsed": true
    },
-   "order": 19,
+   "order": 21,
    "mode": 0,
    "inputs": [
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 10
+     "link": 12
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 11
+     "link": 13
     },
     {
      "name": "image1",
      "type": "IMAGE",
-     "link": 12
+     "link": 14
     },
     {
      "name": "prompt",
      "type": "STRING",
-     "link": 13,
+     "link": 15,
      "widget": {
       "name": "prompt"
      }
@@ -844,7 +933,7 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      16
+      18
      ]
     }
    ],
@@ -857,7 +946,7 @@
    ]
   },
   {
-   "id": 20,
+   "id": 22,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1240,
@@ -870,13 +959,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 20,
+   "order": 22,
    "mode": 0,
    "inputs": [
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 14
+     "link": 16
     }
    ],
    "outputs": [
@@ -884,7 +973,7 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      17
+      19
      ]
     }
    ],
@@ -899,7 +988,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 21,
+   "id": 23,
    "type": "KSampler",
    "pos": [
     520,
@@ -910,28 +999,28 @@
     270
    ],
    "flags": {},
-   "order": 21,
+   "order": 23,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 15
+     "link": 17
     },
     {
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 16
+     "link": 18
     },
     {
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 17
+     "link": 19
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 18
+     "link": 20
     },
     {
      "name": "seed",
@@ -995,7 +1084,7 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      19
+      21
      ]
     }
    ],
@@ -1014,7 +1103,7 @@
    ]
   },
   {
-   "id": 22,
+   "id": 24,
    "type": "VAEDecode",
    "pos": [
     520,
@@ -1027,18 +1116,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 22,
+   "order": 24,
    "mode": 0,
    "inputs": [
     {
      "name": "samples",
      "type": "LATENT",
-     "link": 19
+     "link": 21
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 20
+     "link": 22
     }
    ],
    "outputs": [
@@ -1046,9 +1135,9 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      22,
       24,
-      26
+      26,
+      28
      ]
     }
    ],
@@ -1059,7 +1148,7 @@
    "widgets_values": []
   },
   {
-   "id": 23,
+   "id": 25,
    "type": "RemoveBackground",
    "pos": [
     520,
@@ -1072,18 +1161,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 23,
+   "order": 25,
    "mode": 0,
    "inputs": [
     {
      "name": "bg_removal_model",
      "type": "BACKGROUND_REMOVAL",
-     "link": 21
+     "link": 23
     },
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 22
+     "link": 24
     }
    ],
    "outputs": [
@@ -1091,7 +1180,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      23
+      25
      ]
     }
    ],
@@ -1102,7 +1191,7 @@
    "widgets_values": []
   },
   {
-   "id": 24,
+   "id": 26,
    "type": "InvertMask",
    "pos": [
     520,
@@ -1115,13 +1204,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 24,
+   "order": 26,
    "mode": 0,
    "inputs": [
     {
      "name": "mask",
      "type": "MASK",
-     "link": 23
+     "link": 25
     }
    ],
    "outputs": [
@@ -1129,7 +1218,7 @@
      "name": "MASK",
      "type": "MASK",
      "links": [
-      25
+      27
      ]
     }
    ],
@@ -1140,7 +1229,7 @@
    "widgets_values": []
   },
   {
-   "id": 25,
+   "id": 27,
    "type": "JoinImageWithAlpha",
    "pos": [
     520,
@@ -1153,18 +1242,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 25,
+   "order": 27,
    "mode": 0,
    "inputs": [
     {
      "name": "image",
      "type": "IMAGE",
-     "link": 24
+     "link": 26
     },
     {
      "name": "alpha",
      "type": "MASK",
-     "link": 25
+     "link": 27
     }
    ],
    "outputs": [
@@ -1172,7 +1261,7 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      27
+      29
      ]
     }
    ],
@@ -1183,7 +1272,7 @@
    "widgets_values": []
   },
   {
-   "id": 26,
+   "id": 28,
    "type": "ComfySwitchNode",
    "pos": [
     520,
@@ -1196,23 +1285,23 @@
    "flags": {
     "collapsed": true
    },
-   "order": 26,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "name": "on_false",
      "type": "IMAGE",
-     "link": 26
+     "link": 28
     },
     {
      "name": "on_true",
      "type": "IMAGE",
-     "link": 27
+     "link": 29
     },
     {
      "name": "switch",
      "type": "BOOLEAN",
-     "link": 28,
+     "link": 30,
      "widget": {
       "name": "switch"
      }
@@ -1223,7 +1312,7 @@
      "name": "output",
      "type": "IMAGE",
      "links": [
-      29
+      31
      ]
     }
    ],
@@ -1236,7 +1325,7 @@
    ]
   },
   {
-   "id": 27,
+   "id": 29,
    "type": "SaveImage",
    "pos": [
     520,
@@ -1247,13 +1336,13 @@
     1200
    ],
    "flags": {},
-   "order": 27,
+   "order": 29,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 29
+     "link": 31
     }
    ],
    "outputs": [],
@@ -1333,169 +1422,185 @@
   ],
   [
    9,
+   13,
+   0,
+   15,
+   0,
+   "STRING"
+  ],
+  [
+   10,
    14,
    0,
    15,
+   1,
+   "STRING"
+  ],
+  [
+   11,
+   16,
+   0,
+   17,
    0,
    "MODEL"
   ],
   [
-   10,
-   16,
+   12,
+   18,
    0,
-   19,
+   21,
    0,
    "CLIP"
   ],
   [
-   11,
-   17,
-   0,
+   13,
    19,
+   0,
+   21,
    1,
    "VAE"
   ],
   [
-   12,
+   14,
    2,
    0,
-   19,
+   21,
    2,
    "IMAGE"
   ],
   [
-   13,
-   13,
+   15,
+   15,
    0,
-   19,
+   21,
    3,
    "STRING"
   ],
   [
-   14,
    16,
+   18,
    0,
-   20,
+   22,
    0,
    "CLIP"
   ],
   [
-   15,
-   15,
+   17,
+   17,
    0,
-   21,
+   23,
    0,
    "MODEL"
   ],
   [
-   16,
-   19,
-   0,
+   18,
    21,
+   0,
+   23,
    1,
    "CONDITIONING"
   ],
   [
-   17,
-   20,
+   19,
+   22,
    0,
-   21,
+   23,
    2,
    "CONDITIONING"
   ],
   [
-   18,
+   20,
    6,
    0,
-   21,
+   23,
    3,
    "LATENT"
   ],
   [
-   19,
    21,
+   23,
    0,
-   22,
+   24,
    0,
    "LATENT"
   ],
   [
-   20,
-   17,
-   0,
    22,
+   19,
+   0,
+   24,
    1,
    "VAE"
   ],
   [
-   21,
-   18,
-   0,
    23,
+   20,
+   0,
+   25,
    0,
    "BACKGROUND_REMOVAL"
   ],
   [
-   22,
-   22,
-   0,
-   23,
-   1,
-   "IMAGE"
-  ],
-  [
-   23,
-   23,
-   0,
    24,
-   0,
-   "MASK"
-  ],
-  [
-   24,
-   22,
-   0,
-   25,
-   0,
-   "IMAGE"
-  ],
-  [
-   25,
    24,
    0,
    25,
    1,
+   "IMAGE"
+  ],
+  [
+   25,
+   25,
+   0,
+   26,
+   0,
    "MASK"
   ],
   [
    26,
-   22,
+   24,
    0,
-   26,
+   27,
    0,
    "IMAGE"
   ],
   [
    27,
-   25,
-   0,
    26,
+   0,
+   27,
+   1,
+   "MASK"
+  ],
+  [
+   28,
+   24,
+   0,
+   28,
+   0,
+   "IMAGE"
+  ],
+  [
+   29,
+   27,
+   0,
+   28,
    1,
    "IMAGE"
   ],
   [
-   28,
+   30,
    5,
    0,
-   26,
+   28,
    2,
    "BOOLEAN"
   ],
   [
-   29,
-   26,
+   31,
+   28,
    0,
-   27,
+   29,
    0,
    "IMAGE"
   ]
@@ -1521,7 +1626,7 @@
     1210,
     -690,
     480,
-    412
+    504
    ],
    "color": "#3f789e",
    "font_size": 24,
@@ -1591,16 +1696,16 @@
      "height"
     ],
     [
-     "21",
+     "23",
      "seed"
     ],
     [
-     "21",
+     "23",
      "steps"
     ]
    ],
    "outputs": [
-    "27"
+    "29"
    ]
   }
  },

@@ -41,14 +41,31 @@ PROP_LOCK = (
     "old printing. The object is:"
 )
 
+# "Redraw this in the house style" gets a filtered photograph: Qwen-Edit is structurally faithful,
+# so a real person stays a real person however the style is described. REPLACING the person is the
+# instruction that redesigns them — same seat, same pose, same size, new body plan.
 RESTYLE_LOCK = (
-    "Redraw the picture in image 1 as a hand-inked 1933 newspaper comic-strip drawing. Keep its "
-    "layout, its perspective and every object in it where they are, and convert photographic tone "
-    "into flat ink: confident smooth outlines of even weight, soft halftone dots for shading, and "
-    "the whole picture in warm sepia duotone on aged grey-brown newsprint, every colour muted and "
-    "desaturated as faded printing. The picture shows:"
+    "Replace every person in image 1 with a 1933 Fleischer-era rubber-hose cartoon character in "
+    "exactly the same place, the same pose and the same size in the frame: a big round head much "
+    "larger than a real head on a small rounded body, huge white cartoon eyes with round dark "
+    "pupils, a little button nose, a wide simple curved mouth, bendy noodle arms and legs with no "
+    "elbows or knees, and oversized rounded cartoon hands. Each one keeps whatever makes them "
+    "recognisable — their hair, their glasses, their moustache, the cut and colour of their "
+    "clothes. Redraw the room and every object around them in the same hand: simple bold cartoon "
+    "shapes, confident smooth outlines of even weight, shaded only with soft halftone dots, in warm "
+    "sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded "
+    "printing. Keep the layout and the perspective of image 1 — who is where, and what is behind "
+    "them. The picture shows:"
 )
-KEEP_LEAD_IN = "These parts of it must survive the redraw exactly:"
+
+PALETTE_RESTATE = (
+    "Finally, the finished picture is printed in two muted inks only: a warm dark sepia brown for "
+    "the outlines and the halftone shading, and the pale cream of aged newsprint for the light "
+    "areas. Every colour in it — clothes, books, walls, skin — is a desaturated brown, cream or "
+    "grey, as faded as old newspaper printing."
+)
+
+KEEP_LEAD_IN = ("These things stay recognisable through the redraw, drawn as cartoon shapes rather than copied:")
 
 KEYFRAME_LOCK = (
     "Redraw the picture in image 1 as the next frame of the same drawing, for a short looping "
@@ -225,6 +242,7 @@ next to the cast without describing it from scratch.
 |---|---|
 | **1 · YOUR PICTURE** | Upload the photo. Anything ComfyUI can load. |
 | **2 · WHAT IT IS** | Say what the picture shows. The model reads the image, but naming the subject stops it inventing. |
+| | *People are **replaced** with rubber-hose cartoon characters, not merely re-inked — that is the only phrasing that redesigns a real face.* |
 | **3 · KEEP** | The parts that must survive — layout, specific objects, the lettering on a sign. |
 | **4 · TRANSPARENT PNG** | Cuts the subject out. Useful when the photo is of one object. |
 | **5 · WIDTH / HEIGHT** | Match the source aspect or the composition gets squeezed. |
@@ -293,12 +311,22 @@ def build_style():
                  links={"string_a": (cat2, 0, "STRING", True),
                         "string_b": (keep, 0, "STRING", True)},
                  outputs=[("STRING", "STRING")], collapsed=True)
+    cat4 = g.add("StringConcatenate", "+ style lock", (LX, LY + 6 * DY), (330, 150),
+                 {"delimiter": " "},
+                 links={"string_a": (cat3, 0, "STRING", True),
+                        "string_b": (style_lock, 0, "STRING", True)},
+                 outputs=[("STRING", "STRING")], collapsed=True)
+    # The character redesign eats the prompt's weight and the source photo's colour wins, so the
+    # two-ink rule is restated at the very end — same trick as the expression restatement.
+    palette = g.add("PrimitiveStringMultiline", "PALETTE RESTATEMENT — leave alone",
+                    (LX, LY + 7 * DY), (430, 190), {"value": PALETTE_RESTATE},
+                    outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
     prompt = g.add("StringConcatenate", "FINAL PROMPT — expand to read what the model got",
-                   (LX, LY + 6 * DY), (330, 150), {"delimiter": " "},
-                   links={"string_a": (cat3, 0, "STRING", True),
-                          "string_b": (style_lock, 0, "STRING", True)},
+                   (LX, LY + 8 * DY), (330, 150), {"delimiter": " "},
+                   links={"string_a": (cat4, 0, "STRING", True),
+                          "string_b": (palette, 0, "STRING", True)},
                    outputs=[("STRING", "STRING")], collapsed=True)
-    g.group("② RESTYLE & STYLE LOCK · leave alone", (LX - 30, LY - 70, 480, 7 * DY + 90), GROUP_LOCK)
+    g.group("② RESTYLE & STYLE LOCK · leave alone", (LX - 30, LY - 70, 480, 9 * DY + 90), GROUP_LOCK)
 
     E = engine(g, LX, LY + 8 * DY)
     pos = g.add("TextEncodeQwenImageEditPlus", "encode (your picture + the prompt)",

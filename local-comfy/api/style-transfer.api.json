@@ -49,7 +49,7 @@
  "7": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "Redraw the picture in image 1 as a hand-inked 1933 newspaper comic-strip drawing. Keep its layout, its perspective and every object in it where they are, and convert photographic tone into flat ink: confident smooth outlines of even weight, soft halftone dots for shading, and the whole picture in warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. The picture shows:"
+   "value": "Replace every person in image 1 with a 1933 Fleischer-era rubber-hose cartoon character in exactly the same place, the same pose and the same size in the frame: a big round head much larger than a real head on a small rounded body, huge white cartoon eyes with round dark pupils, a little button nose, a wide simple curved mouth, bendy noodle arms and legs with no elbows or knees, and oversized rounded cartoon hands. Each one keeps whatever makes them recognisable \u2014 their hair, their glasses, their moustache, the cut and colour of their clothes. Redraw the room and every object around them in the same hand: simple bold cartoon shapes, confident smooth outlines of even weight, shaded only with soft halftone dots, in warm sepia duotone on aged grey-brown newsprint, every colour muted and desaturated as faded printing. Keep the layout and the perspective of image 1 \u2014 who is where, and what is behind them. The picture shows:"
   },
   "_meta": {
    "title": "RESTYLE LOCK \u2014 how the redraw is asked for"
@@ -58,7 +58,7 @@
  "8": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "These parts of it must survive the redraw exactly:"
+   "value": "These things stay recognisable through the redraw, drawn as cartoon shapes rather than copied:"
   },
   "_meta": {
    "title": "KEEP LEAD-IN \u2014 leave alone"
@@ -138,10 +138,36 @@
    ]
   },
   "_meta": {
-   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+   "title": "+ style lock"
   }
  },
  "14": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Finally, the finished picture is printed in two muted inks only: a warm dark sepia brown for the outlines and the halftone shading, and the pale cream of aged newsprint for the light areas. Every colour in it \u2014 clothes, books, walls, skin \u2014 is a desaturated brown, cream or grey, as faded as old newspaper printing."
+  },
+  "_meta": {
+   "title": "PALETTE RESTATEMENT \u2014 leave alone"
+  }
+ },
+ "15": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "13",
+    0
+   ],
+   "string_b": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "16": {
   "class_type": "UnetLoaderGGUF",
   "inputs": {
    "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
@@ -150,13 +176,13 @@
    "title": "diffusion model"
   }
  },
- "15": {
+ "17": {
   "class_type": "LoraLoaderModelOnly",
   "inputs": {
    "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
    "strength_model": 1.0,
    "model": [
-    "14",
+    "16",
     0
    ]
   },
@@ -164,7 +190,7 @@
    "title": "Lightning LoRA (8 steps)"
   }
  },
- "16": {
+ "18": {
   "class_type": "CLIPLoader",
   "inputs": {
    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
@@ -175,7 +201,7 @@
    "title": "text encoder"
   }
  },
- "17": {
+ "19": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "qwen_image_vae.safetensors"
@@ -184,7 +210,7 @@
    "title": "VAE"
   }
  },
- "18": {
+ "20": {
   "class_type": "LoadBackgroundRemovalModel",
   "inputs": {
    "bg_removal_name": "birefnet.safetensors"
@@ -193,19 +219,19 @@
    "title": "BiRefNet (for TRANSPARENT PNG)"
   }
  },
- "19": {
+ "21": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": [
-    "13",
+    "15",
     0
    ],
    "clip": [
-    "16",
+    "18",
     0
    ],
    "vae": [
-    "17",
+    "19",
     0
    ],
    "image1": [
@@ -217,12 +243,12 @@
    "title": "encode (your picture + the prompt)"
   }
  },
- "20": {
+ "22": {
   "class_type": "TextEncodeQwenImageEditPlus",
   "inputs": {
    "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
    "clip": [
-    "16",
+    "18",
     0
    ]
   },
@@ -230,7 +256,7 @@
    "title": "negative (only bites when cfg > 1)"
   }
  },
- "21": {
+ "23": {
   "class_type": "KSampler",
   "inputs": {
    "seed": 1,
@@ -240,15 +266,15 @@
    "scheduler": "simple",
    "denoise": 1.0,
    "model": [
-    "15",
+    "17",
     0
    ],
    "positive": [
-    "19",
+    "21",
     0
    ],
    "negative": [
-    "20",
+    "22",
     0
    ],
    "latent_image": [
@@ -260,15 +286,15 @@
    "title": "\u25b6 6 \u00b7 SEED + STEPS"
   }
  },
- "22": {
+ "24": {
   "class_type": "VAEDecode",
   "inputs": {
    "samples": [
-    "21",
+    "23",
     0
    ],
    "vae": [
-    "17",
+    "19",
     0
    ]
   },
@@ -276,15 +302,15 @@
    "title": "decode"
   }
  },
- "23": {
+ "25": {
   "class_type": "RemoveBackground",
   "inputs": {
    "bg_removal_model": [
-    "18",
+    "20",
     0
    ],
    "image": [
-    "22",
+    "24",
     0
    ]
   },
@@ -292,11 +318,11 @@
    "title": "cut the subject out"
   }
  },
- "24": {
+ "26": {
   "class_type": "InvertMask",
   "inputs": {
    "mask": [
-    "23",
+    "25",
     0
    ]
   },
@@ -304,15 +330,15 @@
    "title": "flip to ComfyUI mask convention"
   }
  },
- "25": {
+ "27": {
   "class_type": "JoinImageWithAlpha",
   "inputs": {
    "image": [
-    "22",
+    "24",
     0
    ],
    "alpha": [
-    "24",
+    "26",
     0
    ]
   },
@@ -320,7 +346,7 @@
    "title": "make it RGBA"
   }
  },
- "26": {
+ "28": {
   "class_type": "ComfySwitchNode",
   "inputs": {
    "switch": [
@@ -328,11 +354,11 @@
     0
    ],
    "on_false": [
-    "22",
+    "24",
     0
    ],
    "on_true": [
-    "25",
+    "27",
     0
    ]
   },
@@ -340,12 +366,12 @@
    "title": "transparent switch"
   }
  },
- "27": {
+ "29": {
   "class_type": "SaveImage",
   "inputs": {
    "filename_prefix": "cast/restyle",
    "images": [
-    "26",
+    "28",
     0
    ]
   },
