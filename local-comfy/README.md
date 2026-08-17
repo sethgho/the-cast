@@ -13,7 +13,6 @@ Measured on the RTX 3080 Ti (12GB): **~48s at 8 steps**, **~25s at 4 steps**, 10
 | `workflows/<id>-<kind>.json` | Load this in the ComfyUI builder. |
 | `workflows/<id>-<kind>.app.json` | The same file under the name the Apps list reads. |
 | `api/<id>-<kind>.api.json` | Same graph, API format — for scripts and CI. |
-
 | `plates/` | The reference images the workflows expect in `ComfyUI/input/`. |
 | `build_workflows.py` | Generates every file from one character spec. Edit here, not the JSON. |
 | `smoke_test.py` | Runs the API graph through all four switch combinations. |
