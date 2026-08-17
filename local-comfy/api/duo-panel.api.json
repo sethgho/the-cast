@@ -20,7 +20,7 @@
  "4": {
   "class_type": "PrimitiveFloat",
   "inputs": {
-   "value": 0.62
+   "value": 0.6
   },
   "_meta": {
    "title": "\u25b6 3 \u00b7 LEFT SIZE"
@@ -29,7 +29,7 @@
  "5": {
   "class_type": "PrimitiveInt",
   "inputs": {
-   "value": 90
+   "value": 180
   },
   "_meta": {
    "title": "\u25b6 4 \u00b7 LEFT X"
@@ -38,7 +38,7 @@
  "6": {
   "class_type": "PrimitiveInt",
   "inputs": {
-   "value": 330
+   "value": 360
   },
   "_meta": {
    "title": "\u25b6 5 \u00b7 LEFT Y"
@@ -56,7 +56,7 @@
  "8": {
   "class_type": "PrimitiveFloat",
   "inputs": {
-   "value": 0.62
+   "value": 0.66
   },
   "_meta": {
    "title": "\u25b6 7 \u00b7 RIGHT SIZE"
@@ -65,7 +65,7 @@
  "9": {
   "class_type": "PrimitiveInt",
   "inputs": {
-   "value": 520
+   "value": 470
   },
   "_meta": {
    "title": "\u25b6 8 \u00b7 RIGHT X"
@@ -304,7 +304,7 @@
  "25": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "This is a single panel from the 1933 newspaper comic strip. Both characters are already drawn in place in image 1 \u2014 keep each character's design, size and position exactly as it is, keep the location behind them exactly as it is, and keep them as two separate characters who never merge or swap parts. Redraw the whole picture as one unified drawing: a single ink weight, a single paper, one consistent light, with soft contact shadows where each figure meets the ground so neither looks pasted on. What is happening in the panel:"
+   "value": "This is a single panel from the 1933 newspaper comic strip. Keep each character's identity, costume and proportions exactly as they are in image 1, and keep them as two separate characters who never merge or swap parts. Draw them INTO the location rather than on top of it: their weight on the same floor at the same perspective, one light direction across the whole picture, a soft cast shadow pooling on the floor beneath each of them, and the ink weight and paper grain of the figures identical to the room. What is happening in the panel:"
   },
   "_meta": {
    "title": "PANEL LOCK \u2014 how the redraw is asked for"
@@ -453,11 +453,11 @@
   "class_type": "KSampler",
   "inputs": {
    "seed": 1,
-   "steps": 8,
+   "steps": 20,
    "cfg": 1.0,
    "sampler_name": "euler",
    "scheduler": "simple",
-   "denoise": 0.35,
+   "denoise": 0.45,
    "model": [
     "30",
     0
@@ -476,7 +476,7 @@
    ]
   },
   "_meta": {
-   "title": "\u25b6 11 \u00b7 POLISH + SEED"
+   "title": "\u25b6 11-13 \u00b7 POLISH, STEPS, SEED"
   }
  },
  "37": {

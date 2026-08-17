@@ -705,12 +705,12 @@ def build(cid, spec, kind_id):
 
 
 PANEL_LOCK = (
-    "This is a single panel from the 1933 newspaper comic strip. Both characters are already drawn "
-    "in place in image 1 — keep each character's design, size and position exactly as it is, keep "
-    "the location behind them exactly as it is, and keep them as two separate characters who never "
-    "merge or swap parts. Redraw the whole picture as one unified drawing: a single ink weight, a "
-    "single paper, one consistent light, with soft contact shadows where each figure meets the "
-    "ground so neither looks pasted on. What is happening in the panel:"
+    "This is a single panel from the 1933 newspaper comic strip. Keep each character's identity, "
+    "costume and proportions exactly as they are in image 1, and keep them as two separate characters "
+    "who never merge or swap parts. Draw them INTO the location rather than on top of it: their weight "
+    "on the same floor at the same perspective, one light direction across the whole picture, a soft "
+    "cast shadow pooling on the floor beneath each of them, and the ink weight and paper grain of the "
+    "figures identical to the room. What is happening in the panel:"
 )
 
 
@@ -855,16 +855,18 @@ def build_duo(spec):
                    outputs=[("LATENT", "LATENT")], collapsed=True)
     g.group("engine · don't touch", (EX - 30, EY - 70, 480, 7 * DY + 90), GROUP_ENGINE)
 
-    sampler = g.add("KSampler", "▶ 11 · POLISH + SEED", (560, 640), (460, 270),
-                    {"seed": 1, "control_after_generate": "randomize", "steps": STEPS, "cfg": 1.0,
-                     "sampler_name": "euler", "scheduler": "simple", "denoise": spec["polish"]},
+    sampler = g.add("KSampler", "▶ 11-13 · POLISH, STEPS, SEED", (560, 640), (460, 270),
+                    {"seed": 1, "control_after_generate": "randomize", "steps": spec["steps"],
+                     "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple",
+                     "denoise": spec["polish"]},
                     links={"model": (lora, 0, "MODEL", False),
                            "positive": (pos, 0, "CONDITIONING", False),
                            "negative": (neg, 0, "CONDITIONING", False),
                            "latent_image": (latent, 0, "LATENT", False)},
                     outputs=[("LATENT", "LATENT")])
-    g.app_input(sampler, "denoise", "seed",
-                denoise="11 · POLISH (0.2 keeps the paste, 0.5 redraws it)", seed="12 · SEED")
+    g.app_input(sampler, "denoise", "steps", "seed",
+                denoise="11 · POLISH (0.45 blends, 0.6 starts inventing)",
+                steps="12 · STEPS (20 for a panel)", seed="13 · SEED")
     decode = g.add("VAEDecode", "decode", (560, 950), (400, 80),
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (vae, 0, "VAE", False)},
@@ -895,6 +897,21 @@ denoise.
 | **11 · POLISH** | Denoise. 0.2 keeps the paste almost exactly; 0.5 redraws freely and can drift. |
 | **12 · SEED** | Re-roll. |
 
+## Stage the cutouts, or it looks pasted on
+
+This is the whole craft of the app. Two front-facing library poses dropped side by side read as
+two stickers on a photo, and no amount of denoise fixes it — the model will not re-pose them.
+Generate the cutouts already playing the scene:
+
+- **Turn them toward each other.** "turned three-quarters to his right, holding the servers out at
+  arm's length toward someone beside him" and "turned three-quarters to his left, both arms out to
+  receive a heavy object".
+- **Put them close, and overlap slightly.** Two figures with a corridor of empty floor between them
+  are two portraits, not a panel.
+- **Give them different sizes.** The nearer one a little bigger — 0.66 against 0.60 — buys depth for
+  free.
+- Then `POLISH` 0.45 at 20 steps blends the ink, drops the shadows and lands the contact.
+
 Cutouts come from the pose apps with `TRANSPARENT PNG` on — save one, drop it in
 `ComfyUI/input/`, pick it here. The preview node shows the composite before the model sees it,
 which is the fastest way to fix a bad X/Y.
@@ -905,10 +922,10 @@ DUO = {
     "action": ("Wilson has just handed Seth the rack of humming servers and Seth is buckling under "
                "the weight; Wilson watches, unbothered."),
     "left": "wilson", "right": "seth",
-    "left_size": 0.62, "left_x": 90, "left_y": 330,
-    "right_size": 0.62, "right_x": 520, "right_y": 330,
+    "left_size": 0.60, "left_x": 180, "left_y": 360,
+    "right_size": 0.66, "right_x": 470, "right_y": 330,
     "scene_plate": "cast-scene-empty-stage.png",
-    "polish": 0.35,
+    "polish": 0.45, "steps": 20,
 }
 
 
