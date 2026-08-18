@@ -138,8 +138,8 @@ the whole design.
 ### What cannot move
 
 The packer is numpy and PIL. The repaint drives ComfyUI on gpu-worker. Both read files
-under `/tmp` and `/home/wilson/artifacts`. None of that runs in V8, so porting
-`sprite_editor.py` to a Worker is not an option and never will be.
+under `/tmp` and `/home/wilson/artifacts`. None of that runs in V8, so porting the whole
+editor to a Worker is not an option and never will be. That half is `sprite_agent.py`.
 
 ### What celld is genuinely right for
 

@@ -341,7 +341,7 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth, stop=False):
     boxes = [bbox(r) for r in rgba]
     keep = [i for i, b in enumerate(boxes) if b]
     if not keep:
-        # RuntimeError, not SystemExit: this runs as a library call from sprite_editor's worker
+        # RuntimeError, not SystemExit: this runs as a library call from the sprite agent's worker
         # thread. SystemExit is a BaseException and slips past a bare `except Exception`,
         # silently killing the worker thread and stalling every job queued behind it.
         raise RuntimeError(f"{name}: every frame keyed to nothing — is the clip actually on magenta?")
@@ -385,7 +385,7 @@ def _prepare_stills(paths, smooth=True, unify="none"):
     picks = [i for i, b in enumerate(boxes) if b]
     if not picks:
         # RuntimeError, not SystemExit: see _prepare() above — this is a library function, and
-        # a BaseException here would silently kill sprite_editor's worker thread.
+        # a BaseException here would silently kill the sprite agent's worker thread.
         raise RuntimeError("every still keyed to nothing — are they on magenta?")
     if len(picks) != len(paths):
         # A dropped index must be loud: `picks` still carries each surviving cell's ORIGINAL

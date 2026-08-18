@@ -9,12 +9,12 @@ that logic could quietly disagree with the packer's about the same cell.
 This is NOT the character manifest (`sheets/<cid>.json`, read only through
 `repaint_cells.load_character_manifest` / `save_character_manifest`). The manifest says which
 drawings a tag is made of and is mutated by the editor; the atlas table is read-only build output
--- `sprite_editor.py`'s own `sheet()` already `json.load`s it directly, and this module does the
+-- `sprite_files.py`'s own `sheet()` already `json.load`s it directly, and this module does the
 same.
 
 Frame naming is stable and derivable everywhere: `<cid>-<tag>-<n>`, `n` starting at 1 within its
 tag, in atlas order (`_frame_entries`). Every exporter with an animation concept orders and
-repeats frames the same way `sprite_editor.py`'s embedded `steps()` plays them back:
+repeats frames the same way the editor page's own `steps()` plays them back:
 `forward` = as recorded, `reverse` = recorded order reversed, `pingpong` = forward then back down
 to (not including) the first and last cell. That shared logic lives in `_direction_order` /
 `_play_sequence` so every format agrees with the demo page and with each other.
@@ -97,9 +97,9 @@ def _by_tag(entries):
 def _direction_order(tag_entries, direction):
     """`tag_entries` reordered for playback -- no hold expansion, no duplicate references.
 
-    Mirrors the embedded `steps()` in sprite_editor.py's PAGE: `reverse` walks the recorded list
-    back to front; `pingpong` walks forward then back down to (not including) the first and last
-    cell, so a loop does not visibly pause on either end.
+    Mirrors `steps()` in the editor page (celld-editor/public/index.html): `reverse` walks the
+    recorded list back to front; `pingpong` walks forward then back down to (not including) the
+    first and last cell, so a loop does not visibly pause on either end.
     """
     n = len(tag_entries)
     if direction == "reverse":
@@ -329,6 +329,17 @@ def _sweep_eligible(ordered, tag):
     return all(b["x"] - a["x"] == stride for a, b in zip(ordered, ordered[1:]))
 
 
+def _bg(x, y):
+    """A `background-position` declaration value for the atlas cell at (x, y).
+
+    The negation is done in Python instead of writing a literal `-` before the number, because a
+    negative coordinate then emits `--512px`, and ONE invalid declaration drops the whole rule --
+    the animation silently stops existing. It is reachable: a `reverse` tag whose last cell sits
+    in column 0 used to compute a terminal x of one negative stride.
+    """
+    return f"{-x}px {-y}px"
+
+
 def _css_rule_shell(cid, cls, cell, body_decl):
     return (
         f".{cls} {{\n"
@@ -340,22 +351,36 @@ def _css_rule_shell(cid, cls, cell, body_decl):
 
 
 def _css_sweep(cid, cls, tag, ordered, cell):
+    """Two keyframes and a step function -- `to` is the LAST cell, never one stride past it.
+
+    `steps(n)` is `jump-end`: it lands on n values across `from -> to` but reaches `to` itself
+    only at progress exactly 1. Sweeping to one stride PAST the last cell therefore reads
+    correctly while the animation plays and then, under `animation-fill-mode: forwards`, rests
+    forever on the cell AFTER the tag -- a finished `block` displayed the first crouch drawing.
+    Five of the seven tags are non-loop, so that was most of the sheet.
+
+    `steps(n, jump-none)` instead spreads n landings inclusively from `from` to `to`, so `to` is
+    the last played cell and the resting value IS that cell. Playback is unchanged: the n cells
+    still divide the duration evenly, one beat each.
+    """
     n = len(ordered)
     y = ordered[0]["y"]
     stride = ordered[1]["x"] - ordered[0]["x"]
     x0 = ordered[0]["x"]
-    x1 = x0 + n * stride
+    x_last = x0 + (n - 1) * stride
     dur = n / tag["fps"]
     iter_count = "infinite" if tag["loop"] else "1"
     fill = "" if tag["loop"] else " forwards"
     note = f"/* {cls}: single row, hold==1 throughout -- background-position sweep. */"
     keyframes = (
         f"@keyframes {cls} {{\n"
-        f"  from {{ background-position: -{x0}px -{y}px; }}\n"
-        f"  to {{ background-position: -{x1}px -{y}px; }}\n"
+        f"  from {{ background-position: {_bg(x0, y)}; }}\n"
+        f"  to {{ background-position: {_bg(x_last, y)}; }}\n"
         f"}}"
     )
-    rule = _css_rule_shell(cid, cls, cell, f"animation: {cls} {dur:.4f}s steps({n}) {iter_count}{fill};")
+    rule = _css_rule_shell(
+        cid, cls, cell,
+        f"animation: {cls} {dur:.4f}s steps({n}, jump-none) {iter_count}{fill};")
     return f"{note}\n{keyframes}\n{rule}"
 
 
@@ -367,6 +392,13 @@ def _css_explicit(cid, cls, tag, tag_entries, cell):
     diagonal slide across two rows (or blending toward a held duplicate). This is the only
     technique that can express a tag straddling an atlas row at all, since `background-position`
     has no way to sweep two axes with one `from -> to` pair.
+
+    The closing `100%` keyframe is load-bearing and is NOT a duplicate of the one before it. With
+    no keyframe at 100%, the browser synthesises one from the element's underlying value, and the
+    rule shell declares no `background-position` at all -- so the implicit end value is the
+    initial `0% 0%`, and under `animation-fill-mode: forwards` a finished `punch` rested on the
+    first cell of the atlas (walk cell 1). Pinning 100% to the last played cell costs no timing
+    change, because `step-end` already held that cell from the previous keyframe to the end.
     """
     ordered = _direction_order(tag_entries, tag["direction"])
     rows = sorted({e["y"] // cell for e in ordered})
@@ -384,8 +416,11 @@ def _css_explicit(cid, cls, tag, tag_entries, cell):
     lines = [note, f"@keyframes {cls} {{"]
     for k, e in enumerate(seq):
         pct = 0.0 if total <= 1 else (k * 100.0) / total
-        lines.append(f"  {pct:.4f}% {{ background-position: -{e['x']}px -{e['y']}px; "
+        lines.append(f"  {pct:.4f}% {{ background-position: {_bg(e['x'], e['y'])}; "
                       "animation-timing-function: step-end; }")
+    last = seq[-1]
+    lines.append(f"  100% {{ background-position: {_bg(last['x'], last['y'])}; "
+                  "animation-timing-function: step-end; }")
     lines.append("}")
     rule = _css_rule_shell(cid, cls, cell, f"animation: {cls} {dur:.4f}s step-end {iter_count}{fill};")
     return "\n".join(lines) + "\n" + rule

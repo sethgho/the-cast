@@ -1,0 +1,37 @@
+{
+  // The sprite editor's manifest and job queue, as one Durable Object per character.
+  // Deploys to self-hosted celld (see DESIGN-editor.md stage 6), never to Cloudflare.
+  //
+  // No `vars` block on purpose: celld's manifest vars are plaintext in git, and the
+  // agent token would be in it. It arrives instead as CELLD_VAR_AGENT_TOKEN from
+  // /etc/celld/sprites.env (mode 600), which celld merges over the manifest.
+  "name": "sprites",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-01",
+
+  "durable_objects": {
+    "bindings": [
+      {
+        // One cell per character. The manifest, its edits and its single job slot
+        // all live here, so two browsers cannot splice the same frame list at once.
+        "name": "CHARACTER",
+        "class_name": "CharacterDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["CharacterDO"]
+    }
+  ],
+
+  // "none" because there is exactly one page and the Worker maps / to it; celld
+  // hard-404s "/" under this setting, and auto-trailing-slash would 307 nothing
+  // useful here.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "html_handling": "none"
+  }
+}

@@ -169,7 +169,7 @@ def repaint(src, dst, seed=SEED):
     st = hist[pid]["status"]
     if st.get("status_str") != "success":
         # RuntimeError, not SystemExit: this is a library function called from a worker thread
-        # (sprite_editor.worker()). SystemExit is a BaseException, which used to slip past a
+        # (sprite_agent.runner()). SystemExit is a BaseException, which used to slip past a
         # bare `except Exception` in the worker and silently kill the thread — the job stayed
         # "running" forever and every job queued after it never ran.
         raise RuntimeError(f"{src}: FAILED {st}")
@@ -438,7 +438,7 @@ def main():
     SS.CEL_CLEAN = False
     # One atlas, one JSON, and nothing else. The per-move atlases and the `<cid>-moves.json` that
     # stitched them back together are gone: both consumers -- cast-fighter.html and
-    # sprite_editor.py -- read the tagged sheet now, and a second copy of the same cells is only
+    # sprite_files.py -- read the tagged sheet now, and a second copy of the same cells is only
     # somewhere for the two to disagree.
     SS._emit_sheet(cid, prepared, CELL, OUT, scale, tuple(man["pivot"]))
 
