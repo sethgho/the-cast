@@ -1,0 +1,51 @@
+{
+ "character": "cadbury",
+ "move": "kick",
+ "cells": [
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0009.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0018.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0026.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0030.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0039.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0052.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0052.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0060.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0060.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0068.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0068.png"
+  }
+ ],
+ "fps": 16,
+ "loop": false,
+ "hold": false,
+ "unify": false,
+ "clip": "/tmp/cadbury-kick-832-20.mp4"
+}

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Repaint the chosen sprite cells as drawings, instead of shipping video frames.
 
-    python3 repaint_cells.py seth                 # every move
-    python3 repaint_cells.py seth punch walk      # just these
+    python3 repaint_cells.py seth       # every move; cached cells are free
 
 ## Why
 
@@ -29,6 +28,7 @@ where the height IS the animation — jump, crouch — must not use it.
 
 Cost: ~48s a cell. The seven-move set is 54 cells, about 45 minutes.
 """
+import json
 import os
 import subprocess
 import sys
@@ -92,7 +92,7 @@ NEG = ("blurry, smeared, soft focus, video artifacts, photographic, different po
        "resized, cropped")
 
 
-def graph(image_name):
+def graph(image_name, seed=SEED):
     return {
         "unet": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": UNET}},
         "lora": {"class_type": "LoraLoaderModelOnly",
@@ -110,7 +110,7 @@ def graph(image_name):
         "lat": {"class_type": "VAEEncode", "inputs": {"pixels": ["img", 0], "vae": ["vae", 0]}},
         "k": {"class_type": "KSampler",
               "inputs": {"model": ["lora", 0], "positive": ["pos", 0], "negative": ["neg", 0],
-                         "latent_image": ["lat", 0], "seed": SEED, "steps": STEPS, "cfg": 1.0,
+                         "latent_image": ["lat", 0], "seed": seed, "steps": STEPS, "cfg": 1.0,
                          "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0}},
         "dec": {"class_type": "VAEDecode", "inputs": {"samples": ["k", 0], "vae": ["vae", 0]}},
         "RESULT": {"class_type": "SaveImage",
@@ -147,10 +147,10 @@ def pad_for_repaint(src, dst):
     return dst
 
 
-def repaint(src, dst):
+def repaint(src, dst, seed=SEED):
     import run as R
     padded = pad_for_repaint(src, dst.replace(".png", "-padded.png"))
-    g = graph(R.upload(padded))
+    g = graph(R.upload(padded), seed)
     for node in g.values():
         node.setdefault("_meta", {"title": "node"})
     pid = S.api("/prompt", {"prompt": g, "client_id": "repaint"})["prompt_id"]
@@ -209,27 +209,75 @@ def match_palette(prep):
             np.dstack([rgb.astype(np.uint8), a[:, :, 3].astype(np.uint8)]), "RGBA")
 
 
+MANIFEST_DIR = "/home/wilson/dev/the-cast/local-comfy/sheets"
+
+
+def manifest_path(cid, move):
+    return os.path.join(MANIFEST_DIR, f"{cid}-{move}.json")
+
+
+def load_manifest(cid, move):
+    """The cell list, once chosen, is an ARTEFACT -- not something recomputed every run.
+
+    Automatic choice gets a move to about 90%: the right gait period, the right extremes, the
+    sharpest frame of each. The last 10% is always per-cell and always a judgement call -- this
+    repaint garbled a hand, that one drifted in scale, this pose reads better two frames later.
+    Recomputing the picks on every run threw those judgements away, so a single bad cell cost a
+    full re-pick and re-repaint of the whole move.
+
+    So the picks are written down. `sheets/<cid>-<move>.json` lists, per cell, the source frame it
+    came from and the seed it was painted with. If that file exists it wins; the editor edits it;
+    the pipeline only chooses when there is nothing there yet.
+    """
+    p = manifest_path(cid, move)
+    return json.load(open(p)) if os.path.exists(p) else None
+
+
+def save_manifest(cid, move, cells, meta):
+    os.makedirs(MANIFEST_DIR, exist_ok=True)
+    json.dump({"character": cid, "move": move, "cells": cells, **meta},
+              open(manifest_path(cid, move), "w"), indent=1)
+
+
+def repaint_path(cid, move, src, seed):
+    """One file per (source frame, seed), so a re-roll never overwrites the cell it replaces."""
+    stem = os.path.basename(src).replace(".png", "")
+    tag = "" if seed == SEED else f"-s{seed}"
+    return os.path.join(REPAINT_DIR, f"{cid}-{move}-{stem}{tag}.png")
+
+
 def main():
     cid = sys.argv[1] if len(sys.argv) > 1 else "seth"
-    wanted = sys.argv[2:] or list(MOVES)
+    # Always every move, never a subset. The cell scale is shared across the whole set -- that is
+    # what stops the character resizing when the state machine switches move -- so packing one move
+    # on its own would silently rescale it against itself. Repaints are cached, so the moves you
+    # did not touch cost nothing.
+    wanted = list(MOVES)
     os.makedirs(REPAINT_DIR, exist_ok=True)
 
     prepared = []
     for move in wanted:
         _, n, fps, loop, hold, unify = MOVES[move]
-        clip = clip_path(cid, move)
         t0 = time.time()
-        picks = pick_frames(cid, move, clip, n)
+        man = load_manifest(cid, move)
+        if man:
+            cells = man["cells"]
+            print(f"  {cid}-{move}: {len(cells)} cells from the manifest", flush=True)
+        else:
+            cells = [{"src": p, "seed": SEED} for p in pick_frames(cid, move, clip_path(cid, move), n)]
+
         out_paths = []
-        for i, src in enumerate(picks, start=1):
-            # Keyed by the source frame, so changing how cells are chosen only pays for the cells
-            # that actually changed — and never serves a stale repaint of a different pose.
-            stem = os.path.basename(src).replace(".png", "")
-            dst = os.path.join(REPAINT_DIR, f"{cid}-{move}-{stem}.png")
+        for i, c in enumerate(cells, start=1):
+            dst = repaint_path(cid, move, c["src"], c["seed"])
             if not os.path.exists(dst):
-                repaint(src, dst)
+                repaint(c["src"], dst, seed=c["seed"])
+            c["png"] = dst
             out_paths.append(dst)
-            print(f"  {cid}-{move} cell {i}/{len(picks)}  {time.time()-t0:.0f}s", flush=True)
+            print(f"  {cid}-{move} cell {i}/{len(cells)}  {time.time()-t0:.0f}s", flush=True)
+
+        save_manifest(cid, move, cells,
+                      {"fps": fps, "loop": loop, "hold": hold, "unify": unify,
+                       "clip": clip_path(cid, move)})
         SS.CEL_CLEAN = False                   # repaints are drawn, not decoded
         prep = SS._prepare_stills(out_paths, smooth=True, unify=unify)
         match_palette(prep)
@@ -248,11 +296,9 @@ def main():
         meta[move] = {"file": name, "frames": len(prep["picks"]), "fps": fps,
                       "loop": loop, "hold": hold}
 
-    if len(wanted) == len(MOVES):
-        import json
-        path = os.path.join(OUT, f"{cid}-moves.json")
-        json.dump(meta, open(path, "w"), indent=1)
-        print("wrote", path)
+    path = os.path.join(OUT, f"{cid}-moves.json")
+    json.dump(meta, open(path, "w"), indent=1)
+    print("wrote", path)
 
 
 if __name__ == "__main__":

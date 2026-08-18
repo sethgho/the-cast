@@ -1,0 +1,41 @@
+{
+ "character": "seth",
+ "move": "block",
+ "cells": [
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0009.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0017.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0017.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0026.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0030.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0043.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0043.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0052.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0052.png"
+  }
+ ],
+ "fps": 16,
+ "loop": false,
+ "hold": true,
+ "unify": false,
+ "clip": "/tmp/seth-block-832-20.mp4"
+}

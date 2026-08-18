@@ -1,0 +1,51 @@
+{
+ "character": "seth",
+ "move": "jump",
+ "cells": [
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0007.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0023.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0031.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0031.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0033.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0033.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0037.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0037.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0045.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0045.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0047.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0050.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0050.png"
+  }
+ ],
+ "fps": 16,
+ "loop": false,
+ "hold": false,
+ "unify": false,
+ "clip": "/tmp/seth-jump-832-20.mp4"
+}

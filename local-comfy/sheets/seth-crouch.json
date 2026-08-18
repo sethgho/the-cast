@@ -1,0 +1,41 @@
+{
+ "character": "seth",
+ "move": "crouch",
+ "cells": [
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0007.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0019.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0019.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0020.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0020.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0021.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0021.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0023.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0025.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0025.png"
+  }
+ ],
+ "fps": 16,
+ "loop": false,
+ "hold": true,
+ "unify": false,
+ "clip": "/tmp/seth-crouch-832-20.mp4"
+}

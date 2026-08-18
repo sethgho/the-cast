@@ -1,0 +1,51 @@
+{
+ "character": "seth",
+ "move": "kick",
+ "cells": [
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0007.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0021.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0021.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0027.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0027.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0029.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0039.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0055.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0055.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0061.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0061.png"
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0065.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0065.png"
+  }
+ ],
+ "fps": 16,
+ "loop": false,
+ "hold": false,
+ "unify": false,
+ "clip": "/tmp/seth-kick-832-20.mp4"
+}
