@@ -105,6 +105,28 @@ def cell_metrics(path):
     return m
 
 
+def variants(cid, move, src):
+    """Every repaint that already exists on disk for this source frame.
+
+    A re-roll used to feel destructive: the previous drawing vanished from the sheet with no way
+    back, and getting it back meant remembering the seed. But nothing is ever deleted -- each
+    (source frame, seed) pair has its own file. So list them, and let a click swap between them.
+    Switching to one that already exists costs no GPU at all.
+    """
+    stem = os.path.basename(src).replace(".png", "")
+    prefix = f"{cid}-{move}-{stem}"
+    out = []
+    for n in sorted(os.listdir(RC.REPAINT_DIR)):
+        if not n.startswith(prefix + "-s") and n != prefix + ".png":
+            continue
+        if n.endswith("-padded.png") or not n.endswith(".png"):
+            continue
+        tail = n[len(prefix):-4]
+        out.append({"png": os.path.join(RC.REPAINT_DIR, n),
+                    "seed": int(tail[2:]) if tail.startswith("-s") else RC.SEED})
+    return out
+
+
 def state(cid):
     moves = {}
     for move in RC.MOVES:
@@ -115,7 +137,8 @@ def state(cid):
             png = cell_png(cid, move, i)
             cells.append({"index": i, "src": c["src"], "seed": c["seed"],
                           "png": c.get("png"), "cell": png if os.path.exists(png) else None,
-                          "metrics": cell_metrics(png)})
+                          "metrics": cell_metrics(png),
+                          "variants": variants(cid, move, c["src"])})
         moves[move] = {
             "cells": cells,
             "fps": (man or {}).get("fps", fps),
@@ -126,7 +149,7 @@ def state(cid):
             "n_source_frames": len(source_frames(cid, move)),
         }
     return {"character": cid, "characters": CHARACTERS, "moves": moves,
-            "ground": GROUND_Y, "cell": RC.CELL}
+            "ground": GROUND_Y, "cell": RC.CELL, "outdir": RC.OUT}
 
 
 # --- the job queue -------------------------------------------------------------------------
@@ -137,11 +160,11 @@ JOBS_LOCK = threading.Lock()
 WORK = queue.Queue()
 
 
-def submit(label, fn):
+def submit(label, fn, generates=True):
     jid = hashlib.sha1(f"{label}{time.time()}{random.random()}".encode()).hexdigest()[:12]
     with JOBS_LOCK:
         JOBS[jid] = {"state": "queued", "message": f"queued: {label}"}
-    WORK.put((jid, label, fn))
+    WORK.put((jid, label, fn, generates))
     return jid
 
 
@@ -152,8 +175,12 @@ def set_job(jid, st, message):
 
 def worker():
     while True:
-        jid, label, fn = WORK.get()
-        set_job(jid, "running", f"{label} — repainting and repacking, ~45s per new cell")
+        jid, label, fn, generates = WORK.get()
+        # Reordering and dropping do not draw anything. Saying "repainting" for them made a
+        # two-second repack look like a 45-second generation, which is how the tool earned its
+        # reputation for doing things nobody asked for.
+        set_job(jid, "running", f"{label} — painting a new cell, ~45s" if generates
+                else f"{label} — repacking, a few seconds")
         try:
             fn(lambda msg: set_job(jid, "running", msg))
             set_job(jid, "done", f"{label} — done")
@@ -224,7 +251,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             elif u.path == "/api/frames":
                 self.json(200, {"frames": source_frames(one("cid", "seth"), one("move", "walk"))})
             elif u.path == "/img":
-                self.serve_image(one("path", ""), one("w"))
+                self.serve_image(one("path", ""), one("w"), one("dl") == "1")
             elif u.path.startswith("/api/job/"):
                 jid = u.path.rsplit("/", 1)[-1]
                 with JOBS_LOCK:
@@ -236,15 +263,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
             traceback.print_exc()
             self.json(500, {"error": f"{type(e).__name__}: {e}"})
 
-    def serve_image(self, path, width):
+    # The atlas is only half the deliverable: the frame table and the CSS ship with it, so they
+    # have to be downloadable too, or the sheet reads as something that only exists inside this page.
+    TYPES = {".png": "image/png", ".json": "application/json",
+             ".css": "text/css", ".webp": "image/webp"}
+
+    def serve_image(self, path, width, download=False):
         real = os.path.realpath(path)
-        if not real.startswith(ALLOWED_ROOTS) or not real.endswith(".png"):
+        ext = os.path.splitext(real)[1]
+        if not real.startswith(ALLOWED_ROOTS) or ext not in self.TYPES:
             self.json(403, {"error": "path not allowed"})
             return
         if not os.path.exists(real):
             self.json(404, {"error": "no such file"})
             return
-        if width:
+        if width and ext == ".png":
             # The re-pick strip is 60+ full 832px frames. Sending them whole makes the strip take
             # tens of seconds to appear, which is long enough that you stop using the feature.
             from PIL import Image
@@ -256,7 +289,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             body = buf.getvalue()
         else:
             body = open(real, "rb").read()
-        self.send(200, body, "image/png")
+        extra = ({"Content-Disposition": f'attachment; filename="{os.path.basename(real)}"'}
+                 if download else None)
+        self.send(200, body, self.TYPES[ext], extra)
 
     def do_POST(self):
         u = urllib.parse.urlparse(self.path)
@@ -267,7 +302,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if cid not in CHARACTERS or move not in RC.MOVES:
                 raise ValueError("unknown character or move")
             handler = {"/api/reroll": self.reroll, "/api/repick": self.repick,
-                       "/api/drop": self.drop, "/api/reorder": self.reorder}.get(u.path)
+                       "/api/drop": self.drop, "/api/reorder": self.reorder,
+                       "/api/use": self.use}.get(u.path)
             if not handler:
                 self.json(404, {"error": "not found"})
                 return
@@ -276,13 +312,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
             traceback.print_exc()
             self.json(400, {"error": f"{type(e).__name__}: {e}"})
 
-    def queue_edit(self, label, cid, move, mutate):
+    def queue_edit(self, label, cid, move, mutate, generates=True):
         # The manifest edit itself runs on the worker too, so a queued edit always sees the cell
         # list the edit before it left behind, not the one it was submitted against.
         def run(_progress):
             edit_manifest(cid, move, mutate)
             repack(cid)
-        return submit(label, run)
+        return submit(label, run, generates)
 
     def reroll(self, cid, move, req):
         i, seed = int(req["index"]), req.get("seed")
@@ -309,6 +345,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return cells
         return self.queue_edit(f"{cid}-{move} cell {i + 1} re-pick", cid, move, mutate)
 
+    def use(self, cid, move, req):
+        """Point a cell at a repaint that already exists. Repack only -- nothing to generate."""
+        i, png = int(req["index"]), req["png"]
+
+        def mutate(cells):
+            c = cells[i]
+            if png not in [v["png"] for v in variants(cid, move, c["src"])]:
+                raise ValueError("that is not a variant of this cell's source frame")
+            c["png"] = png
+            stem = os.path.basename(png)[:-4].split("-s")
+            c["seed"] = int(stem[-1]) if len(stem) > 1 else RC.SEED
+            return cells
+        return self.queue_edit(f"{cid}-{move} cell {i + 1} use variant", cid, move, mutate,
+                               generates=False)
+
     def drop(self, cid, move, req):
         i = int(req["index"])
 
@@ -317,7 +368,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 raise ValueError("refusing to drop the last cell of a move")
             del cells[i]
             return cells
-        return self.queue_edit(f"{cid}-{move} drop cell {i + 1}", cid, move, mutate)
+        return self.queue_edit(f"{cid}-{move} drop cell {i + 1}", cid, move, mutate,
+                               generates=False)
 
     def reorder(self, cid, move, req):
         order = [int(x) for x in req["order"]]
@@ -326,7 +378,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if sorted(order) != list(range(len(cells))):
                 raise ValueError("order must be a permutation of the current cell indices")
             return [cells[i] for i in order]
-        return self.queue_edit(f"{cid}-{move} reorder", cid, move, mutate)
+        return self.queue_edit(f"{cid}-{move} reorder", cid, move, mutate, generates=False)
 
 
 PAGE = r"""<!doctype html>
@@ -368,6 +420,10 @@ PAGE = r"""<!doctype html>
   .pane .cap { font: 600 .72rem/1.6 ui-monospace, monospace; color: #6b6152; letter-spacing: .06em; }
   .facts { font: .82rem/1.7 ui-monospace, monospace; color: #c9bfae; }
   .facts b { color: #d8a657; font-weight: 700; }
+  .out { margin-top: 1.6rem; }
+  .dl { font: 600 .85rem/1 ui-monospace, monospace; color: #e8e2d8; background: #241f19;
+        border: 1px solid #4a4136; border-radius: 6px; padding: .55rem .7rem; text-decoration: none; }
+  .dl:hover { border-color: #d8a657; color: #d8a657; }
   .picker { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .5rem;
             display: flex; gap: .3rem; overflow-x: auto; max-width: 100%; }
   .picker figure { margin: 0; cursor: pointer; border: 2px solid transparent; border-radius: 4px; }
@@ -397,6 +453,13 @@ PAGE = r"""<!doctype html>
     </div>
   </div>
 
+  <div class="out">
+    <h2>Where this ends up</h2>
+    <p class="muted">Every edit rewrites these files on disk. They are the deliverable — the demo
+    page just reads them.</p>
+    <div class="keys" id="downloads"></div>
+  </div>
+
   <div id="sel" hidden>
     <h2>Selected cell</h2>
     <div class="pair">
@@ -413,6 +476,9 @@ PAGE = r"""<!doctype html>
         </div>
       </div>
     </div>
+    <h2>Versions of this cell <span class="muted">— every seed already painted for this source frame; clicking one is instant and costs no GPU</span></h2>
+    <div class="picker" id="variants"></div>
+
     <div id="pickwrap" hidden>
       <h2>Re-pick source frame <span class="muted" id="pickcount"></span></h2>
       <div class="picker" id="picker"></div>
@@ -452,6 +518,7 @@ async function load() {
 }
 
 function render() {
+  if (ST.outdir) renderDownloads();
   buttons(el("chars"), ST.characters, cid, (c) => { cid = c; sel = 0; el("pickwrap").hidden = true; load(); });
   buttons(el("moves"), MOVES, move, (m) => { move = m; sel = 0; el("pickwrap").hidden = true; load(); });
   const mv = ST.moves[move], cells = mv.cells;
@@ -503,6 +570,17 @@ function playPreview(mv) {
 function renderSelected(c, n) {
   el("sel").hidden = !c;
   if (!c) return;
+  const vs = c.variants || [];
+  el("variants").innerHTML = "";
+  for (const v of vs) {
+    const b = document.createElement("button");
+    b.className = "thumb" + (v.png === c.png ? " on" : "");
+    b.innerHTML = '<img src="' + img(v.png, 150) + '"><span>seed ' +
+                  (v.seed === 77 ? "77 (first)" : v.seed) + "</span>";
+    b.disabled = busy || v.png === c.png;
+    b.onclick = () => post("/api/use", {index: c.index, png: v.png}, "use seed " + v.seed);
+    el("variants").appendChild(b);
+  }
   el("bigcell").src = c.cell ? img(c.cell) : "";
   el("bigcap").textContent = "cell " + (c.index + 1) + " — packed, seed " + c.seed;
   el("bigsrc").src = img(c.src);
@@ -517,6 +595,24 @@ function renderSelected(c, n) {
                            ["b-left", c.index === 0], ["b-right", c.index === n - 1]]) {
     el(id).disabled = busy || off;
   }
+}
+
+function renderDownloads() {
+  const m = ST.moves[move], box = el("downloads");
+  const base = ST.outdir + "/" + cid + "-" + move;
+  const files = [[base + ".png", "atlas PNG"], [base + ".json", "frame table JSON"],
+                 [base + ".css", "CSS steps()"], [base + "-preview.webp", "animated preview"]];
+  box.innerHTML = '<div class="muted" style="width:100%">' + ST.outdir + "</div>";
+  for (const [path, label] of files) {
+    const a = document.createElement("a");
+    a.className = "dl"; a.href = "/img?path=" + encodeURIComponent(path) + "&dl=1";
+    a.download = path.split("/").pop(); a.textContent = "\u2193 " + label;
+    box.appendChild(a);
+  }
+  const demo = document.createElement("a");
+  demo.className = "dl"; demo.href = "http://wilson/cast-fighter.html"; demo.target = "_blank";
+  demo.textContent = "\u2197 play it in the demo";
+  box.appendChild(demo);
 }
 
 async function post(url, body, label) {
