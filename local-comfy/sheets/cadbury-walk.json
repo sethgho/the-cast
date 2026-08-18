@@ -3,14 +3,14 @@
  "move": "walk",
  "cells": [
   {
-   "src": "/tmp/sprite-cadbury-walk-pick/f_0035.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-walk-f_0035.png"
-  },
-  {
    "src": "/tmp/sprite-cadbury-walk-pick/f_0038.png",
    "seed": 77,
    "png": "/tmp/repaint/cadbury-walk-f_0038.png"
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0035.png",
+   "seed": 576867989,
+   "png": "/tmp/repaint/cadbury-walk-f_0035-s576867989.png"
   },
   {
    "src": "/tmp/sprite-cadbury-walk-pick/f_0041.png",
@@ -29,8 +29,8 @@
   },
   {
    "src": "/tmp/sprite-cadbury-walk-pick/f_0047.png",
-   "seed": 2039821513,
-   "png": "/tmp/repaint/cadbury-walk-f_0047-s2039821513.png"
+   "seed": 1738028730,
+   "png": "/tmp/repaint/cadbury-walk-f_0047-s1738028730.png"
   },
   {
    "src": "/tmp/sprite-cadbury-walk-pick/f_0052.png",
