@@ -1,0 +1,629 @@
+{
+ "character": "seth",
+ "cell": 512,
+ "pivot": [
+  256,
+  481
+ ],
+ "tags": [
+  {
+   "name": "walk",
+   "from": 0,
+   "to": 9,
+   "fps": 14,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": "head",
+   "clip": "/tmp/seth-walk-cycle-832-20.mp4"
+  },
+  {
+   "name": "idle",
+   "from": 10,
+   "to": 17,
+   "fps": 8,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": true,
+   "clip": "/tmp/seth-idle-breathe-832-20.mp4"
+  },
+  {
+   "name": "punch",
+   "from": 18,
+   "to": 25,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/seth-punch-832-20.mp4"
+  },
+  {
+   "name": "kick",
+   "from": 26,
+   "to": 33,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/seth-kick-832-20.mp4"
+  },
+  {
+   "name": "jump",
+   "from": 34,
+   "to": 41,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/seth-jump-832-20.mp4"
+  },
+  {
+   "name": "block",
+   "from": 42,
+   "to": 47,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/seth-block-832-20.mp4"
+  },
+  {
+   "name": "crouch",
+   "from": 48,
+   "to": 53,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/seth-crouch-832-20.mp4"
+  }
+ ],
+ "frames": [
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0029.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0031.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0031.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0034.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0034.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0036.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0036.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0038.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0038.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0041.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0041.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0043.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0043.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0045.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0045.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0047.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-walk-pick/f_0050.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-walk-f_0050.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0011.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0011.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0012.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0012.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0013.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0013.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0013.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0013.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0014.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0014.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0015.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0015.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0015.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0015.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-idle-pick/f_0016.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-idle-f_0016.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0008.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0008.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0017.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0017.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0022.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0022.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0030.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0052.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0052.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-punch-pick/f_0060.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-punch-f_0060.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0021.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0021.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0027.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0027.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0029.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0055.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0055.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0061.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0061.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-kick-pick/f_0065.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-kick-f_0065.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0023.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0031.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0031.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0033.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0033.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0037.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0037.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0045.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0045.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0047.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-jump-pick/f_0050.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-jump-f_0050.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0017.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0017.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0030.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0043.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0043.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-block-pick/f_0052.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-block-f_0052.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0019.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0019.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0020.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0020.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0021.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0021.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0023.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-crouch-pick/f_0025.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-crouch-f_0025.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  }
+ ]
+}

@@ -48,7 +48,13 @@ SEED = 77          # one seed for every cell, so the drawing itself does not wan
 STEPS = 8
 CELL = 512
 
-# move -> (clip recipe in build_sprite.MOVES, cells, fps, loop, hold, unify)
+# move -> (clip recipe in build_sprite.MOVES, cells, fps, loop, hold_key, unify)
+#
+# NOT seed values that stop mattering once a manifest exists. clip_path(), pick_frames() and
+# sprite_editor.state() all read MOVES at runtime, keyed by move name, for the clip recipe and the
+# fields bootstrap_manifest() would give a move that has never had a manifest entry. Renaming a
+# tag here therefore still breaks clip_path() for that move, even though the tag itself carries
+# its own `clip` field once written — the two are independent copies of the same fact.
 #
 # The recipe name is not always the move name: a sprite "walk" comes from the `walk-cycle` clip,
 # which for a character with no legs reads as a roll instead. The clip path is derived from the
@@ -212,31 +218,196 @@ def match_palette(prep):
 MANIFEST_DIR = "/home/wilson/dev/the-cast/local-comfy/sheets"
 
 
-def manifest_path(cid, move):
-    return os.path.join(MANIFEST_DIR, f"{cid}-{move}.json")
+def manifest_path(cid):
+    return os.path.join(MANIFEST_DIR, f"{cid}.json")
+
+
+def sheet_pivot():
+    """The packer's feet line, seeded into the manifest as the sheet-level pivot."""
+    return list(SS.cell_pivot(CELL, "feet"))
+
+
+def _frame(src, seed, png=None, hold=1, pivot_nudge=(0, 0)):
+    """One cell record, always the same shape and the same key order.
+
+    `hold` is a DURATION multiplier over its tag's fps -- 2 means this drawing is on screen for
+    two beats, which is how an animator sits on an extreme. It is not the tag's `hold_key`, which
+    is the game's freeze-on-the-last-cell behaviour. The two were one word for a week and the
+    words are now different on purpose.
+    """
+    f = {"src": src, "seed": seed}
+    if png:
+        f["png"] = png
+    f["hold"] = int(hold)
+    f["pivot_nudge"] = list(pivot_nudge)
+    return f
+
+
+def _migrated(cid):
+    """Fold whatever `sheets/<cid>-<move>.json` files exist into one character manifest.
+
+    A move is not a file: it is a NAMED RANGE of frames, which every sprite tool has called a tag
+    for twenty years. The seven-way split also split the things that MUST agree across moves --
+    one cell size, one pivot, one scale -- across seven files free to contradict each other.
+
+    Frame order follows MOVES order, which is the order the packer already packed in, so nothing
+    a cell was judged by moves under it.
+
+    Returns (manifest_or_None, folded) where `folded` lists the moves actually folded in. A move
+    whose file fails to parse is skipped, not fatal to the rest -- and it is NOT in `folded`, so
+    the caller knows not to delete a file it never actually got the picks out of.
+    """
+    frames, tags, folded = [], [], []
+    for move in MOVES:
+        old = os.path.join(MANIFEST_DIR, f"{cid}-{move}.json")
+        if not os.path.exists(old):
+            continue
+        try:
+            man = json.load(open(old))
+            new_frames = [_frame(c["src"], c["seed"], c.get("png")) for c in man["cells"]]
+            start = len(frames)
+            tag = {"name": move, "from": start, "to": start + len(new_frames) - 1,
+                   "fps": man["fps"], "direction": "forward", "loop": man["loop"],
+                   # The old per-move `hold` was the game semantic; it becomes `hold_key`.
+                   "hold_key": man["hold"], "unify": man["unify"], "clip": man["clip"]}
+        except (KeyError, ValueError) as e:
+            print(f"  {cid}-{move}: {old} did not fold cleanly ({e}) -- leaving it on disk")
+            continue
+        frames.extend(new_frames)
+        tags.append(tag)
+        folded.append(move)
+    man = {"character": cid, "cell": CELL, "pivot": sheet_pivot(), "tags": tags,
+           "frames": frames} if tags else None
+    return man, folded
+
+
+def _backfill_missing_moves(cid, man):
+    """Give every move in MOVES a tag, even one a partial migration or an older MOVES never wrote.
+
+    `bootstrap_manifest` only runs when there is NO manifest at all, so a manifest that migrated
+    from 3 of 7 per-move files -- or was written before an eighth move existed -- had no path back
+    to the other four: they were gone the moment migration deleted the originals, and every run
+    after that packed a permanently amputated character. This tops up whatever's missing the same
+    way bootstrap would have built it from scratch. Returns True if it changed anything, so the
+    caller only re-saves the manifest when there was something to add.
+    """
+    changed = False
+    for move, (_, n, fps, loop, hold_key, unify) in MOVES.items():
+        if _tag_index(man, move) is not None:
+            continue
+        start = len(man["frames"])
+        for p in pick_frames(cid, move, clip_path(cid, move), n):
+            man["frames"].append(_frame(p, SEED))
+        man["tags"].append({"name": move, "from": start, "to": len(man["frames"]) - 1, "fps": fps,
+                            "direction": "forward", "loop": loop, "hold_key": hold_key,
+                            "unify": unify, "clip": clip_path(cid, move)})
+        changed = True
+    return changed
+
+
+def load_character_manifest(cid):
+    """The whole character in one file: `sheets/<cid>.json`.
+
+    The cell list, once chosen, is an ARTEFACT -- not something recomputed every run. Automatic
+    choice gets a move to about 90%: the right gait period, the right extremes, the sharpest frame
+    of each. The last 10% is always per-cell and always a judgement -- this repaint garbled a hand,
+    that one drifted in scale, this pose reads better two frames later. Recomputing the picks on
+    every run threw those judgements away, so one bad cell cost a full re-pick and re-repaint.
+
+    So the picks are written down, and the file wins over the picker whenever it exists. Every
+    return path still runs through `_backfill_missing_moves` -- a manifest is never allowed to be
+    permanently short a move that MOVES says should exist.
+    """
+    p = manifest_path(cid)
+    if os.path.exists(p):
+        man = json.load(open(p))
+    else:
+        man, folded = _migrated(cid)
+        if not man:
+            return None
+        save_character_manifest(cid, man)
+        # Only after the new file is on disk, and only the files that actually made it in: until
+        # then, and for anything that didn't fold, the old file is the only copy of those picks.
+        for move in folded:
+            old = os.path.join(MANIFEST_DIR, f"{cid}-{move}.json")
+            if os.path.exists(old):
+                os.remove(old)
+    if _backfill_missing_moves(cid, man):
+        save_character_manifest(cid, man)
+    return man
+
+
+def save_character_manifest(cid, man):
+    """Write `sheets/<cid>.json` atomically.
+
+    This is the one file of record for a character: migration deletes the per-move originals once
+    it lands, so a kill mid-write here truncates the only copy and every later run dies in
+    json.load on the character for good. Serialise to a temp file in the same directory, so a
+    partial write or a mid-serialise exception never touches the real path, then os.replace() it
+    in -- a rename on the same filesystem is atomic, a partially-written file never is.
+    """
+    os.makedirs(MANIFEST_DIR, exist_ok=True)
+    p = manifest_path(cid)
+    tmp = f"{p}.tmp{os.getpid()}"
+    try:
+        with open(tmp, "w") as f:
+            json.dump(man, f, indent=1)
+        os.replace(tmp, p)
+    except Exception:
+        # A mid-serialise failure (e.g. a bad value slipped into `man`) must not leave a stray
+        # half-written file next to the real manifest for the next run to trip over.
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+
+
+def _tag_index(man, move):
+    for i, t in enumerate(man["tags"]):
+        if t["name"] == move:
+            return i
+    return None
 
 
 def load_manifest(cid, move):
-    """The cell list, once chosen, is an ARTEFACT -- not something recomputed every run.
+    """One tag, in the per-move shape sprite_editor.py still asks for.
 
-    Automatic choice gets a move to about 90%: the right gait period, the right extremes, the
-    sharpest frame of each. The last 10% is always per-cell and always a judgement call -- this
-    repaint garbled a hand, that one drifted in scale, this pose reads better two frames later.
-    Recomputing the picks on every run threw those judgements away, so a single bad cell cost a
-    full re-pick and re-repaint of the whole move.
-
-    So the picks are written down. `sheets/<cid>-<move>.json` lists, per cell, the source frame it
-    came from and the seed it was painted with. If that file exists it wins; the editor edits it;
-    the pipeline only chooses when there is nothing there yet.
+    A VIEW of the character manifest, never a second store: there is one file on disk. The editor
+    is rewritten against tags in a later stage, and it must not stop working in the meantime.
     """
-    p = manifest_path(cid, move)
-    return json.load(open(p)) if os.path.exists(p) else None
+    man = load_character_manifest(cid)
+    i = _tag_index(man, move) if man else None
+    if i is None:
+        return None
+    tag = man["tags"][i]
+    return {"character": cid, "move": move,
+            "cells": [dict(f) for f in man["frames"][tag["from"]:tag["to"] + 1]],
+            "fps": tag["fps"], "loop": tag["loop"], "hold": tag["hold_key"],
+            "unify": tag["unify"], "clip": tag["clip"]}
 
 
 def save_manifest(cid, move, cells, meta):
-    os.makedirs(MANIFEST_DIR, exist_ok=True)
-    json.dump({"character": cid, "move": move, "cells": cells, **meta},
-              open(manifest_path(cid, move), "w"), indent=1)
+    """Splice an edited move back in. Dropping or adding a cell moves every later tag, so the
+    ranges after it are renumbered here -- a tag range left stale points at another move's cells.
+    """
+    man = load_character_manifest(cid)
+    i = _tag_index(man, move) if man else None
+    if i is None:
+        raise SystemExit(f"{cid}: no {move} tag to write")
+    tag = man["tags"][i]
+    new = [_frame(c["src"], c["seed"], c.get("png"), c.get("hold", 1),
+                  c.get("pivot_nudge", (0, 0))) for c in cells]
+    shift = len(new) - (tag["to"] + 1 - tag["from"])
+    man["frames"][tag["from"]:tag["to"] + 1] = new
+    tag["to"] += shift
+    for later in man["tags"][i + 1:]:
+        later["from"] += shift
+        later["to"] += shift
+    for k in ("fps", "loop", "unify", "clip"):
+        if k in meta:
+            tag[k] = meta[k]
+    if "hold" in meta:
+        tag["hold_key"] = meta["hold"]
+    save_character_manifest(cid, man)
 
 
 def repaint_path(cid, move, src, seed):
@@ -246,59 +417,77 @@ def repaint_path(cid, move, src, seed):
     return os.path.join(REPAINT_DIR, f"{cid}-{move}-{stem}{tag}.png")
 
 
+def bootstrap_manifest(cid):
+    """A character with no manifest yet: choose every move's cells off its clip, in MOVES order.
+
+    This is the only path that reads MOVES for anything but a clip path. Once the file exists the
+    manifest is the truth and MOVES cannot silently overrule an edit.
+    """
+    frames, tags = [], []
+    for move, (_, n, fps, loop, hold_key, unify) in MOVES.items():
+        start = len(frames)
+        for p in pick_frames(cid, move, clip_path(cid, move), n):
+            frames.append(_frame(p, SEED))
+        tags.append({"name": move, "from": start, "to": len(frames) - 1, "fps": fps,
+                     "direction": "forward", "loop": loop, "hold_key": hold_key,
+                     "unify": unify, "clip": clip_path(cid, move)})
+    return {"character": cid, "cell": CELL, "pivot": sheet_pivot(), "tags": tags, "frames": frames}
+
+
 def main():
     cid = sys.argv[1] if len(sys.argv) > 1 else "seth"
-    # Always every move, never a subset. The cell scale is shared across the whole set -- that is
-    # what stops the character resizing when the state machine switches move -- so packing one move
+    os.makedirs(REPAINT_DIR, exist_ok=True)
+    # Always every tag, never a subset. The cell scale is shared across the whole set -- that is
+    # what stops the character resizing when the state machine switches move -- so packing one tag
     # on its own would silently rescale it against itself. Repaints are cached, so the moves you
     # did not touch cost nothing.
-    wanted = list(MOVES)
-    os.makedirs(REPAINT_DIR, exist_ok=True)
+    man = load_character_manifest(cid) or bootstrap_manifest(cid)
 
     prepared = []
-    for move in wanted:
-        _, n, fps, loop, hold, unify = MOVES[move]
+    for tag in man["tags"]:
         t0 = time.time()
-        man = load_manifest(cid, move)
-        if man:
-            cells = man["cells"]
-            print(f"  {cid}-{move}: {len(cells)} cells from the manifest", flush=True)
-        else:
-            cells = [{"src": p, "seed": SEED} for p in pick_frames(cid, move, clip_path(cid, move), n)]
-
-        out_paths = []
-        for i, c in enumerate(cells, start=1):
-            dst = repaint_path(cid, move, c["src"], c["seed"])
+        span = list(range(tag["from"], tag["to"] + 1))
+        print(f"  {cid}-{tag['name']}: {len(span)} cells from the manifest", flush=True)
+        for n, idx in enumerate(span, start=1):
+            f = man["frames"][idx]
+            dst = repaint_path(cid, tag["name"], f["src"], f["seed"])
             if not os.path.exists(dst):
-                repaint(c["src"], dst, seed=c["seed"])
-            c["png"] = dst
-            out_paths.append(dst)
-            print(f"  {cid}-{move} cell {i}/{len(cells)}  {time.time()-t0:.0f}s", flush=True)
+                repaint(f["src"], dst, seed=f["seed"])
+            man["frames"][idx] = _frame(f["src"], f["seed"], dst, f.get("hold", 1),
+                                        f.get("pivot_nudge", (0, 0)))
+            print(f"  {cid}-{tag['name']} cell {n}/{len(span)}  {time.time()-t0:.0f}s", flush=True)
 
-        save_manifest(cid, move, cells,
-                      {"fps": fps, "loop": loop, "hold": hold, "unify": unify,
-                       "clip": clip_path(cid, move)})
+        frames = man["frames"][tag["from"]:tag["to"] + 1]
         SS.CEL_CLEAN = False                   # repaints are drawn, not decoded
-        prep = SS._prepare_stills(out_paths, smooth=True, unify=unify)
+        prep = SS._prepare_stills([f["png"] for f in frames], smooth=True, unify=tag["unify"])
         match_palette(prep)
-        prepared.append((f"{cid}-{move}", prep, fps, loop, hold, unify))
+        prepared.append((tag, prep, frames))
+
+    # Written before anything is packed. A pack can crash or be killed; if it does, the picks and
+    # the repaint paths are still recorded and the next run costs nothing.
+    save_character_manifest(cid, man)
 
     # One scale across the whole set, or he changes size when the state machine switches move.
-    tallest = max(p["natural"] for _, p, *_ in prepared)
-    highest = max(p["up"] for _, p, *_ in prepared)
+    tallest = max(p["natural"] for _, p, _ in prepared)
+    highest = max(p["up"] for _, p, _ in prepared)
     scale = min((CELL * 0.92) / tallest, (CELL * 0.88) / highest)
 
     SS.CEL_CLEAN = False
+    # The per-move atlases are a bridge: cast-fighter.html and sprite_editor.py still load them.
+    # They come off the same prep and the same scale as the tagged sheet, so the two agree cell
+    # for cell until the consumers are moved over.
     meta = {}
-    for name, prep, fps, loop, hold, unify in prepared:
-        SS._emit(name, prep, CELL, OUT, "feet", scale, unify_height=unify)
-        move = name.split("-", 1)[1]
-        meta[move] = {"file": name, "frames": len(prep["picks"]), "fps": fps,
-                      "loop": loop, "hold": hold}
+    for tag, prep, frames in prepared:
+        name = f"{cid}-{tag['name']}"
+        SS._emit(name, prep, CELL, OUT, "feet", scale, unify_height=tag["unify"])
+        meta[tag["name"]] = {"file": name, "frames": len(prep["picks"]), "fps": tag["fps"],
+                             "loop": tag["loop"], "hold": tag["hold_key"]}
 
     path = os.path.join(OUT, f"{cid}-moves.json")
     json.dump(meta, open(path, "w"), indent=1)
     print("wrote", path)
+
+    SS._emit_sheet(cid, prepared, CELL, OUT, scale, tuple(man["pivot"]))
 
 
 if __name__ == "__main__":

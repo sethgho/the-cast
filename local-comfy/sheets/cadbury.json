@@ -1,0 +1,629 @@
+{
+ "character": "cadbury",
+ "cell": 512,
+ "pivot": [
+  256,
+  481
+ ],
+ "tags": [
+  {
+   "name": "walk",
+   "from": 0,
+   "to": 9,
+   "fps": 14,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": "head",
+   "clip": "/tmp/cadbury-walk-cycle-832-20.mp4"
+  },
+  {
+   "name": "idle",
+   "from": 10,
+   "to": 17,
+   "fps": 8,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": true,
+   "clip": "/tmp/cadbury-idle-breathe-832-20.mp4"
+  },
+  {
+   "name": "punch",
+   "from": 18,
+   "to": 25,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/cadbury-punch-832-20.mp4"
+  },
+  {
+   "name": "kick",
+   "from": 26,
+   "to": 33,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/cadbury-kick-832-20.mp4"
+  },
+  {
+   "name": "jump",
+   "from": 34,
+   "to": 41,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/cadbury-jump-832-20.mp4"
+  },
+  {
+   "name": "block",
+   "from": 42,
+   "to": 47,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/cadbury-block-832-20.mp4"
+  },
+  {
+   "name": "crouch",
+   "from": 48,
+   "to": 53,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/cadbury-crouch-832-20.mp4"
+  }
+ ],
+ "frames": [
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0038.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0038.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0035.png",
+   "seed": 576867989,
+   "png": "/tmp/repaint/cadbury-walk-f_0035-s576867989.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0041.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0041.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0044.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0044.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0049.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0049.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0047.png",
+   "seed": 1738028730,
+   "png": "/tmp/repaint/cadbury-walk-f_0047-s1738028730.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0052.png",
+   "seed": 1742824854,
+   "png": "/tmp/repaint/cadbury-walk-f_0052-s1742824854.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0055.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0055.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0058.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0058.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0061.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-walk-f_0061.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0018.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0051.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0051.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0056.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0056.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-idle-pick/f_0064.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-idle-f_0064.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0013.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0013.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0018.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0030.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0047.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0056.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0056.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-punch-pick/f_0064.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-punch-f_0064.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0018.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0030.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0052.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0052.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0060.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0060.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-kick-pick/f_0068.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-kick-f_0068.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0018.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0043.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0043.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0047.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0052.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0052.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-jump-pick/f_0060.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-jump-f_0060.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-block-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-block-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-block-pick/f_0011.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-block-f_0011.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-block-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-block-f_0018.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-block-pick/f_0022.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-block-f_0022.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-block-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-block-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-block-pick/f_0032.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-block-f_0032.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-crouch-pick/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-crouch-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-crouch-pick/f_0011.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-crouch-f_0011.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-crouch-pick/f_0013.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-crouch-f_0013.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-crouch-pick/f_0018.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-crouch-f_0018.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-crouch-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-crouch-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-cadbury-crouch-pick/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/cadbury-crouch-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  }
+ ]
+}

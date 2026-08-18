@@ -382,6 +382,12 @@ def _prepare_stills(paths, smooth=True, unify="none"):
     picks = [i for i, b in enumerate(boxes) if b]
     if not picks:
         raise SystemExit("every still keyed to nothing — are they on magenta?")
+    if len(picks) != len(paths):
+        # A dropped index must be loud: `picks` still carries each surviving cell's ORIGINAL
+        # manifest position (consumers like _emit_sheet key metadata off that, not off position in
+        # `picks`), but a silent drop shrinks the tag range by one frame with no trace in the log.
+        dropped = [i for i in range(len(paths)) if i not in picks]
+        print(f"  dropped {len(dropped)} fully-transparent frame(s) at index {dropped}: {[paths[i] for i in dropped]}")
     anchors = []
     for i in picks:
         x0, y0, x1, y1 = boxes[i]
@@ -472,6 +478,31 @@ def _unify_factors(rgba, boxes, picks, unify):
     return [max(0.94, min(1.06, med / z)) if z else 1.0 for z in sizes]
 
 
+def cell_pivot(cell, anchor):
+    """The point in the packed cell that a frame's anchor is placed on.
+
+    0.94 of the cell height is the feet line the whole set is packed against; a consumer that
+    draws a character standing on the ground draws this point on the ground.
+    """
+    return (cell // 2, int(cell * 0.94) if anchor == "feet" else cell // 2)
+
+
+def _compose(src, anchor_xy, pivot, cell, f_scale):
+    """Scale one keyed frame and place its anchor on `pivot` inside an empty cell.
+
+    Both emitters go through here on purpose. The per-move atlas and the per-character sheet show
+    the SAME cell, so the placement arithmetic — including where it truncates to whole pixels —
+    has to exist once. Two copies drift by a pixel and nobody sees it until the two outputs are
+    diffed against each other.
+    """
+    ax, ay = anchor_xy
+    canvas = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
+    w, h = src.size
+    sized = src.resize((max(1, int(w * f_scale)), max(1, int(h * f_scale))), Image.LANCZOS)
+    canvas.paste(sized, (int(pivot[0] - ax * f_scale), int(pivot[1] - ay * f_scale)), sized)
+    return canvas
+
+
 def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
     """Write the atlas, the cells, the JSON, the CSS and the preview at the given scale."""
     rgba, boxes, picks, anchors = prep["rgba"], prep["boxes"], prep["picks"], prep["anchors"]
@@ -482,17 +513,11 @@ def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
     # cycle that has to be seamless, each frame is scaled so its silhouette height matches the
     # set's median. Moves whose height genuinely changes — crouch, jump — must NOT use this.
     factors = prep.get("factors") or [1.0] * len(picks)
+    pivot = cell_pivot(cell, anchor)
 
     cells, table = [], []
     for (i, (ax, ay)) in zip(picks, anchors):
-        src = rgba[i]
-        canvas = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
-        w, h = src.size
-        f_scale = scale * factors[len(cells)]
-        sized = src.resize((max(1, int(w * f_scale)), max(1, int(h * f_scale))), Image.LANCZOS)
-        sax, say = ax * f_scale, ay * f_scale
-        target = (cell // 2, int(cell * 0.94) if anchor == "feet" else cell // 2)
-        canvas.paste(sized, (int(target[0] - sax), int(target[1] - say)), sized)
+        canvas = _compose(rgba[i], (ax, ay), pivot, cell, scale * factors[len(cells)])
         cells.append(canvas)
         canvas.save(os.path.join(frames_dir, f"{name}-{len(cells):02d}.png"))
         x0, y0, x1, y1 = boxes[i]
@@ -523,6 +548,78 @@ def _emit(name, prep, cell, outdir, anchor, scale, unify_height=False):
 """
     open(os.path.join(outdir, f"{name}.css"), "w").write(css)
     print(f"{name}: {len(cells)} frames, {cell}px cells, scale {scale:.3f} -> {atlas_path}")
+    return atlas_path
+
+
+# One row is not an option for a whole character: 54 cells x 512px is 27,648px wide, and every
+# GPU the browser runs on refuses a texture past 16,384px. A grid keeps the widest dimension at
+# 10 x 512 = 5,120px, and a consumer reads a frame's cell straight off its index.
+SHEET_COLUMNS = 10
+
+
+def _emit_sheet(cid, parts, cell, outdir, scale, pivot):
+    """Write ONE tagged atlas for a character: `<cid>.png` and `<cid>.json`.
+
+    `parts` is [(tag, prep, frames)] in playback order — a tag, the measured pass over its cells,
+    and its frame records from the character manifest. The tag ranges are recomputed here rather
+    than copied, because the sheet IS this concatenation: computing them anywhere else lets the
+    ranges and the pixels disagree.
+
+    The pivot written per frame is the CONSTANT sheet origin (see `pivot`), the same for every
+    frame regardless of that frame's `pivot_nudge`. The nudge shifts where the ARTWORK is pasted
+    inside the cell, not where the reported origin sits — recording pivot+nudge instead would make
+    the nudge invisible to a consumer that places the recorded pivot on the ground line, since the
+    art and its reported origin would then move by the same vector every time.
+    """
+    cells, frames_meta, tags_meta = [], [], []
+    for tag, prep, frames in parts:
+        rgba, picks, anchors = prep["rgba"], prep["picks"], prep["anchors"]
+        factors = prep.get("factors") or [1.0] * len(picks)
+        start = len(cells)
+        for n, (i, (ax, ay)) in enumerate(zip(picks, anchors)):
+            # `i` is the frame's position in the manifest BEFORE any transparent-frame drop, and
+            # `picks` already carries it — a dropped frame makes `i` skip ahead of the enumeration
+            # counter `n`, so indexing `frames` by `n` would pull the previous frame's hold,
+            # pivot_nudge and trim onto this cell. `factors` is exempt: it was built off `picks`
+            # itself in _unify_factors, so it is already aligned by position, not by manifest index.
+            nx, ny = frames[i].get("pivot_nudge", (0, 0))
+            # The recorded sheet pivot is the CONSTANT origin every cell shares; the nudge moves
+            # only the ARTWORK relative to it. Pasting at pivot+nudge but recording the bare pivot
+            # keeps the two independent — recording pivot+nudge here looks more "correct" but makes
+            # a consumer that draws the recorded pivot on the ground line see no effect from any
+            # nudge, since the art and its reported origin would have moved by the same amount.
+            fpivot = (pivot[0] + nx, pivot[1] + ny)
+            canvas = _compose(rgba[i], (ax, ay), fpivot, cell, scale * factors[n])
+            index = len(cells)
+            cells.append(canvas)
+            box = bbox(canvas)
+            x0, y0, x1, y1 = box if box else (0, 0, 0, 0)
+            frames_meta.append({
+                "x": (index % SHEET_COLUMNS) * cell, "y": (index // SHEET_COLUMNS) * cell,
+                "hold": int(frames[i].get("hold", 1)), "pivot": [pivot[0], pivot[1]],
+                # Trim is the opaque rect INSIDE the cell. The cells stay full-size — trimming the
+                # atlas itself would break the constant frame stride — so this is the margin a
+                # consumer may skip, not a translation it must undo.
+                "trim": {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0}})
+        tags_meta.append({"name": tag["name"], "from": start, "to": len(cells) - 1,
+                          "fps": tag["fps"], "direction": tag["direction"],
+                          "loop": tag["loop"], "hold_key": tag["hold_key"]})
+
+    rows = (len(cells) + SHEET_COLUMNS - 1) // SHEET_COLUMNS
+    atlas = Image.new("RGBA", (cell * min(SHEET_COLUMNS, len(cells)), cell * rows), (0, 0, 0, 0))
+    for f, c in zip(frames_meta, cells):
+        # Copied, not composited. Pasting a cell through its own alpha as a mask squares that
+        # alpha (a*a/255), so soft ink edges land in the atlas fainter than in the cell they came
+        # from and the recorded trim no longer describes the pixels a consumer samples. The cells
+        # never overlap, so there is nothing to composite against anyway.
+        atlas.paste(c, (f["x"], f["y"]))
+    atlas_path = os.path.join(outdir, f"{cid}.png")
+    atlas.save(atlas_path)
+
+    json.dump({"cell": cell, "columns": SHEET_COLUMNS, "frames": frames_meta, "tags": tags_meta},
+              open(os.path.join(outdir, f"{cid}.json"), "w"), indent=1)
+    print(f"{cid}: {len(cells)} frames in {len(tags_meta)} tags, "
+          f"{atlas.width}x{atlas.height} -> {atlas_path}")
     return atlas_path
 
 
