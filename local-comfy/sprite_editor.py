@@ -681,155 +681,231 @@ PAGE = r"""<!doctype html>
   p.lede { color: #b3a894; margin: 0 0 1.2rem; max-width: 68ch; }
   h2 { font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; color: #c9bfae;
        margin: 1.8rem 0 .5rem; }
-  .keys { display: flex; gap: .4rem; flex-wrap: wrap; margin: 0 0 .7rem; }
+  .keys { display: flex; gap: .4rem; flex-wrap: wrap; margin: 0 0 .7rem; align-items: center; }
   button { font: 600 .85rem/1 ui-monospace, monospace; color: #e8e2d8; background: #241f19;
            border: 1px solid #4a4136; border-radius: 6px; padding: .55rem .7rem; cursor: pointer; }
   button.on { background: #d8a657; color: #1a1610; }
   button:disabled { opacity: .38; cursor: not-allowed; }
   .row { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
-  .strip { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .6rem;
-           display: flex; gap: .4rem; flex-wrap: wrap; flex: 1 1 620px; }
-  .cellbox { border: 2px solid transparent; border-radius: 6px; padding: 2px; cursor: pointer;
-             background: #efe9d8; }
-  .cellbox.sel { border-color: #b4462f; }
-  .cellbox img { display: block; width: 96px; height: 96px; }
-  .cellbox .n { font: 700 .72rem/1.4 ui-monospace, monospace; color: #6b6152; text-align: center; }
-  .cellbox .m { font: .66rem/1.35 ui-monospace, monospace; color: #6b6152; text-align: center;
-                white-space: pre; }
-  .preview { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .6rem;
-             text-align: center; }
-  .preview canvas { display: block; width: 240px; height: 240px; }
-  .preview .cap { font: 600 .72rem/1.6 ui-monospace, monospace; color: #6b6152; letter-spacing: .06em; }
-  .pair { display: flex; gap: 1rem; flex-wrap: wrap; }
   .pane { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .6rem; }
   .pane img { display: block; width: 260px; height: 260px; object-fit: contain; }
-  .pane canvas { display: block; width: 260px; height: 260px; cursor: grab; touch-action: none; }
-  .pane canvas:active { cursor: grabbing; }
+  .pane canvas { display: block; width: 300px; height: 300px; }
+  #bigcell { cursor: grab; touch-action: none; }
+  #bigcell:active { cursor: grabbing; }
+  .pane .cap { font: 600 .72rem/1.6 ui-monospace, monospace; color: #6b6152; letter-spacing: .06em;
+               max-width: 300px; }
   .ctl { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: 0 0 .7rem;
          font: .82rem/1.7 ui-monospace, monospace; color: #c9bfae; }
+  .pane .ctl { color: #6b6152; margin: .5rem 0 0; }
   input, select { font: 600 .85rem/1 ui-monospace, monospace; color: #e8e2d8; background: #241f19;
                   border: 1px solid #4a4136; border-radius: 6px; padding: .45rem .5rem; }
   input[type=number] { width: 4.6rem; }
   input:disabled, select:disabled { opacity: .38; }
-  .pane .cap { font: 600 .72rem/1.6 ui-monospace, monospace; color: #6b6152; letter-spacing: .06em; }
   .facts { font: .82rem/1.7 ui-monospace, monospace; color: #c9bfae; }
   .facts b { color: #d8a657; font-weight: 700; }
-  .out { margin-top: 1.6rem; }
   .dl { font: 600 .85rem/1 ui-monospace, monospace; color: #e8e2d8; background: #241f19;
         border: 1px solid #4a4136; border-radius: 6px; padding: .55rem .7rem; text-decoration: none; }
   .dl:hover { border-color: #d8a657; color: #d8a657; }
+
+  /* --- filmstrip ------------------------------------------------------------------------- */
+  /* Tag bands line up with their frames BY CONSTRUCTION: each tag is a column whose width is
+     set by the row of frames above the band. Absolutely positioning the bands over a single
+     flat row looked identical until a hold made one frame wider, and then every band was off. */
+  .film { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .6rem;
+          display: flex; gap: .5rem; overflow-x: auto; align-items: flex-start; }
+  .tgroup { display: flex; flex-direction: column; gap: .3rem; }
+  .frames { display: flex; gap: .25rem; }
+  .band { border-radius: 4px; padding: .18rem .4rem; cursor: pointer; opacity: .5;
+          font: 700 .68rem/1.5 ui-monospace, monospace; color: #1a1610; white-space: nowrap;
+          overflow: hidden; text-overflow: ellipsis; border: 2px solid transparent; }
+  .band.cur { opacity: 1; border-color: #3a332a; }
+  .fbox { position: relative; border: 2px solid transparent; border-radius: 6px; padding: 2px 0 0;
+          cursor: pointer; background: #efe9d8; box-sizing: border-box; flex: none; }
+  .fbox.sel { border-color: #b4462f; }
+  .fbox .n { font: 700 .7rem/1.3 ui-monospace, monospace; color: #6b6152; text-align: center; }
+  .fbox .art { display: flex; align-items: stretch; }
+  .fbox img, .fbox .empty { display: block; width: 72px; height: 72px; flex: none; }
+  .fbox .empty { font: .6rem/1.2 ui-monospace, monospace; color: #6b6152; text-align: center;
+                 padding-top: 26px; box-sizing: border-box; }
+  /* The extra width IS the hold. The stripes make it read as duration rather than as a wider
+     drawing, which a plain stretched thumbnail did not. */
+  .fbox .held { flex: 1 1 auto; border-radius: 0 3px 3px 0;
+                background: repeating-linear-gradient(135deg, #d8c9a4 0 6px, #efe9d8 6px 12px); }
+  .fbox .m { font: .62rem/1.3 ui-monospace, monospace; color: #6b6152; text-align: center;
+             white-space: pre; }
+  .fbox .grip { position: absolute; top: 18px; right: 0; width: 7px; bottom: 20px;
+                border-radius: 0 4px 4px 0; cursor: ew-resize; touch-action: none;
+                background: linear-gradient(#d6cbb0, #b09a6d); border-left: 1px solid #efe9d8; }
+  .fbox .grip:hover { background: #b4462f; }
+
+  /* --- transport ------------------------------------------------------------------------- */
+  .transport { display: flex; gap: .3rem; align-items: center; margin-top: .5rem; }
+  .transport button { padding: .4rem .5rem; }
+  .transport input[type=range] { flex: 1 1 auto; width: 100%; min-width: 0; accent-color: #b4462f; }
+
   .picker { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .5rem;
             display: flex; gap: .3rem; overflow-x: auto; max-width: 100%; }
   .picker figure { margin: 0; cursor: pointer; border: 2px solid transparent; border-radius: 4px; }
   .picker figure.cur { border-color: #b4462f; }
   .picker img { display: block; width: 76px; height: 76px; }
   .picker figcaption { font: .62rem/1.4 ui-monospace, monospace; color: #6b6152; text-align: center; }
+  button.thumb { padding: .25rem; display: flex; flex-direction: column; align-items: center;
+                 gap: .2rem; background: #efe9d8; }
+  button.thumb img { display: block; width: 74px; height: 74px; }
+  button.thumb span { font: .62rem/1.3 ui-monospace, monospace; color: #6b6152; }
+  button.thumb.on { background: #d8a657; }
   #status { border-left: 3px solid #d8a657; padding: .35rem 0 .35rem .9rem; margin: 1rem 0;
             color: #c9bfae; font: .85rem/1.5 ui-monospace, monospace; min-height: 1.5em; }
   #status.err { border-color: #b4462f; color: #e6a394; }
   .muted { color: #8d8371; }
+  kbd { font: 600 .75rem/1 ui-monospace, monospace; border: 1px solid #4a4136; border-radius: 4px;
+        padding: .15rem .3rem; color: #c9bfae; }
 </style>
 <main>
   <h1>Sprite cell editor</h1>
-  <p class="lede">Every cell of every tag, as it ships. Pick a cell to see it next to the source
-  frame it was painted from — a bad drawing wants a new seed, a bad pose wants a different frame.
-  Drag the crosshair to move an origin: <b>this cell</b> shifts one drawing against the ground
-  line, <b>whole sheet</b> moves the ground line every cell is packed against. Each edit writes
-  <code>sheets/&lt;cid&gt;.json</code> and repacks the whole character.</p>
+  <p class="lede">One filmstrip per character: every frame in order, with a tag band under the
+  range it covers. Click a frame to select it, drag its right edge to hold it longer, click a band
+  to make that tag current. The onion skin ghosts the neighbouring frames on the same canvas as the
+  ground line and the pivot crosshair — that is how a scale drift or a slipping foot becomes
+  visible. Each edit writes <code>sheets/&lt;cid&gt;.json</code> and repacks the whole character.
+  <span class="muted"><kbd>←</kbd><kbd>→</kbd> step frames · <kbd>space</kbd> play/pause</span></p>
 
   <div class="keys" id="chars"></div>
-  <div class="keys" id="tags"></div>
-  <div class="ctl">
-    <label>fps <input id="fps" type="number" min="1" step="1"></label>
-    <label>direction <select id="direction">
-      <option value="forward">forward</option>
-      <option value="reverse">reverse</option>
-      <option value="pingpong">pingpong</option>
-    </select></label>
-    <span class="muted">— the whole tag, in the manifest and in the game</span>
-  </div>
   <div id="status">ready</div>
 
-  <div class="row">
-    <div class="strip" id="strip"></div>
-    <div class="preview">
-      <canvas id="pv" width="512" height="512"></canvas>
-      <div class="cap" id="pvcap"></div>
-    </div>
-  </div>
+  <h2>Filmstrip</h2>
+  <div class="film" id="film"></div>
 
-  <div class="out">
-    <h2>Where this ends up</h2>
-    <p class="muted">Every edit rewrites these two files on disk. They are the deliverable — the
-    demo page just reads them.</p>
-    <div class="keys" id="downloads"></div>
+  <div class="row" style="margin-top:1rem">
+    <div class="pane">
+      <canvas id="bigcell" width="512" height="512"></canvas>
+      <div class="cap" id="bigcap"></div>
+      <div class="keys" style="margin-top:.5rem" id="pivotmode"></div>
+      <div class="cap" id="pivotcap"></div>
+      <div class="keys" style="margin-top:.5rem" id="onionkeys"></div>
+      <div class="keys" id="onionmode"></div>
+      <div class="cap" id="onioncap"></div>
+    </div>
+    <div class="pane">
+      <canvas id="pv" width="512" height="512"></canvas>
+      <div class="transport">
+        <button id="t-first" title="first frame">|&#9664;</button>
+        <button id="t-prev" title="step back">&#9664;</button>
+        <button id="t-play" title="play / pause">&#9654;</button>
+        <button id="t-next" title="step forward">&#9654;</button>
+        <button id="t-last" title="last frame">&#9654;|</button>
+      </div>
+      <div class="transport"><input id="scrub" type="range" min="0" max="0" step="1" value="0"></div>
+      <div class="cap" id="pvcap"></div>
+      <div class="ctl">
+        <label>fps <input id="fps" type="number" min="1" step="1"></label>
+        <label>direction <select id="direction">
+          <option value="forward">forward</option>
+          <option value="reverse">reverse</option>
+          <option value="pingpong">pingpong</option>
+        </select></label>
+      </div>
+    </div>
+    <div style="flex: 1 1 300px">
+      <div class="facts" id="facts"></div>
+      <div class="ctl" style="margin-top:.8rem">
+        <label>hold <input id="hold" type="number" min="1" step="1"></label>
+        <span class="muted">beats at this tag's fps</span>
+      </div>
+      <div class="keys" style="margin-top:.8rem">
+        <button id="b-reroll">Re-roll</button>
+        <button id="b-repick">Re-pick&#8230;</button>
+        <button id="b-drop">Drop</button>
+        <button id="b-left">&#9664; move left</button>
+        <button id="b-right">move right &#9654;</button>
+      </div>
+    </div>
   </div>
 
   <div id="sel" hidden>
-    <h2>Selected cell</h2>
-    <div class="pair">
-      <div class="pane">
-        <canvas id="bigcell" width="512" height="512"></canvas>
-        <div class="cap" id="bigcap"></div>
-        <div class="keys" style="margin-top:.5rem" id="pivotmode"></div>
-        <div class="cap" id="pivotcap"></div>
-      </div>
+    <h2>Source frame <span class="muted">&mdash; the drawing above was painted from this</span></h2>
+    <div class="row">
       <div class="pane"><img id="bigsrc" alt="source frame"><div class="cap" id="srccap"></div></div>
-      <div>
-        <div class="facts" id="facts"></div>
-        <div class="ctl" style="margin-top:.8rem">
-          <label>hold <input id="hold" type="number" min="1" step="1"></label>
-          <span class="muted">beats at this tag's fps</span>
-        </div>
-        <div class="keys" style="margin-top:.8rem">
-          <button id="b-reroll">Re-roll</button>
-          <button id="b-repick">Re-pick…</button>
-          <button id="b-drop">Drop</button>
-          <button id="b-left">◀ move left</button>
-          <button id="b-right">move right ▶</button>
-        </div>
+      <div style="flex:1 1 380px">
+        <h2 style="margin-top:0">Versions of this cell <span class="muted">&mdash; every seed already painted for this source frame; clicking one is instant and costs no GPU</span></h2>
+        <div class="picker" id="variants"></div>
       </div>
     </div>
-    <h2>Versions of this cell <span class="muted">— every seed already painted for this source frame; clicking one is instant and costs no GPU</span></h2>
-    <div class="picker" id="variants"></div>
 
     <div id="pickwrap" hidden>
       <h2>Re-pick source frame <span class="muted" id="pickcount"></span></h2>
       <div class="picker" id="picker"></div>
     </div>
   </div>
+
+  <div class="out">
+    <h2>Where this ends up</h2>
+    <p class="muted">The atlas and its frame table are the deliverable; every preset below is a
+    template over that same table, generated fresh on each click.</p>
+    <div class="keys" id="downloads"></div>
+    <div class="keys" id="exports"></div>
+  </div>
 </main>
 <script>
 // The tag list is not hard-coded here: it comes off the character manifest, so a tag added or
 // renamed in `sheets/<cid>.json` appears without touching this page.
-let cid = "seth", tagName = "walk", ST = null, sel = 0, busy = false, bust = Date.now(), anim = null;
+let cid = "seth", tagName = "walk", ST = null, sel = 0, busy = false, bust = Date.now();
 // Dragging the crosshair is TWO operations, and the page makes you say which, because they are not
 // interchangeable: the sheet pivot is the ground line the whole character is packed against and
 // moving it re-seats all 54 cells, while a frame's nudge moves one drawing relative to that shared
 // line. Both are posted as the DELTA the pointer travelled, so the gesture is identical and only
 // the field it lands in differs. "this cell" is the default because it is the reversible one.
 let pivotMode = "frame", cellImg = null, drag = null;
+// Onion skin is a QA overlay here, not a drawing aid: prev on by default, because the drift this
+// catches is between a cell and the one before it.
+let onion = {prev: true, next: false, mode: "alpha"};
+const GHOST_ALPHA = 0.3;
+const PREV_INK = "#b4462f", NEXT_INK = "#3a6ea5";
+// Preview transport. `seq` is the play order for the current tag with `hold` expanded, so the
+// scrubber counts BEATS, not cells -- that is what the game plays and what the fps divides.
+let seq = [], head = 0, playing = true, timer = null, rest = 0;
+let atlasImg = null, atlasKey = "", atlasLoading = "";
+let holdDrag = null, suppressClick = false, scrubSelect = null;
+const HOLD_PX = 26;   // one extra beat widens a frame box by this much, and drag reads it back
 
 const img = (p, w) => "/img?path=" + encodeURIComponent(p) + (w ? "&w=" + w : "") + "&v=" + bust;
 const cellSrc = (i, w) => "/cell?cid=" + cid + "&i=" + i + (w ? "&w=" + w : "") + "&v=" + bust;
 const el = (id) => document.getElementById(id);
 const TAG = () => ST.tags.find(t => t.name === tagName) || ST.tags[0];
+const CELLS = () => TAG().cells;
+const CUR = () => CELLS()[sel];
 
 function status(msg, err) {
   el("status").textContent = msg;
   el("status").className = err ? "err" : "";
 }
 
-function buttons(host, items, current, pick) {
+function buttons(host, items, current, pick, live) {
   host.innerHTML = "";
   for (const it of items) {
     const b = document.createElement("button");
     b.textContent = it;
     if (it === current) b.className = "on";
-    b.disabled = busy;
+    b.disabled = busy && !live;
     b.onclick = () => pick(it);
     host.appendChild(b);
   }
+}
+
+// A tag's colour has to survive a reload and a rename of its neighbours, so it is derived from the
+// name rather than handed out by position: adding a tag must not recolour the other six.
+function tagInk(name) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return "hsl(" + h + ", 52%, 62%)";
+}
+
+// Global frame numbers run across the whole character, exactly as the manifest and the atlas
+// number them. The per-tag index is what every endpoint takes, so both are carried together.
+function flat() {
+  const out = [];
+  for (const t of ST.tags) t.cells.forEach((c, i) => out.push({tag: t, i, c}));
+  return out;
 }
 
 async function load() {
@@ -837,95 +913,276 @@ async function load() {
   ST = await r.json();
   if (ST.error) { status(ST.error, true); return; }
   tagName = TAG().name;
-  const cells = TAG().cells;
-  if (sel >= cells.length) sel = Math.max(0, cells.length - 1);
+  if (sel >= CELLS().length) sel = Math.max(0, CELLS().length - 1);
   render();
 }
 
+// Full rebuild: refetches every thumbnail, so it runs on a state load and a tag switch, never on
+// a plain selection change. Nothing here is cacheable (the atlas is overwritten in place), so a
+// rebuild per arrow key would put 54 image requests on every keystroke.
 function render() {
   renderDownloads();
-  buttons(el("chars"), ST.characters, cid, (c) => { cid = c; sel = 0; el("pickwrap").hidden = true; load(); });
-  buttons(el("tags"), ST.tags.map(t => t.name), tagName,
-          (t) => { tagName = t; sel = 0; el("pickwrap").hidden = true; render(); });
-  const tag = TAG(), cells = tag.cells;
+  buttons(el("chars"), ST.characters, cid, (c) => {
+    cid = c; sel = 0; tagName = ""; el("pickwrap").hidden = true; load();
+  });
+  renderFilm();
+  renderTagControls();
+  rebuildSequence();
+  renderSelected();
+}
+
+function renderFilm() {
+  const film = el("film");
+  film.innerHTML = "";
+  let n = 0;
+  for (const tag of ST.tags) {
+    const group = document.createElement("div");
+    group.className = "tgroup";
+    const frames = document.createElement("div");
+    frames.className = "frames";
+    tag.cells.forEach((c, i) => frames.appendChild(frameBox(tag, i, c, ++n)));
+    const band = document.createElement("div");
+    band.className = "band" + (tag.name === tagName ? " cur" : "");
+    band.style.background = tagInk(tag.name);
+    band.textContent = tag.name + " · " + tag.fps + "fps · " + tag.cells.length + "f";
+    band.title = tag.name + ", " + tag.cells.length + " frames at " + tag.fps + "fps, " +
+                 tag.direction + (tag.loop ? ", loop" : tag.hold_key ? ", hold" : ", once");
+    band.onclick = () => { if (tag.name !== tagName) selectFrame(tag.name, 0); };
+    group.appendChild(frames);
+    group.appendChild(band);
+    film.appendChild(group);
+  }
+  scrollSelectionIntoView();
+}
+
+function frameBox(tag, i, c, n) {
+  const box = document.createElement("div");
+  const chosen = tag.name === tagName && i === sel;
+  box.className = "fbox" + (chosen ? " sel" : "");
+  box.style.width = (80 + (Math.max(1, c.hold) - 1) * HOLD_PX) + "px";
+  box.dataset.tag = tag.name;
+  box.dataset.i = i;
+  const m = c.metrics;
+  box.innerHTML = '<div class="n">' + n + (c.hold > 1 ? " ×" + c.hold : "") + "</div>" +
+    '<div class="art">' +
+    (c.atlas !== null ? '<img src="' + cellSrc(c.atlas, 72) + '" alt="frame ' + n + '">'
+                      : '<div class="empty">not packed</div>') +
+    (c.hold > 1 ? '<div class="held"></div>' : "") + "</div>" +
+    '<div class="m">' + (m ? "h" + m.height + " f" + (m.feet > 0 ? "+" : "") + m.feet : "empty") +
+    (c.pivot_nudge[0] || c.pivot_nudge[1] ? " ◈" : "") + "</div>";
+  // A drag that ends off the box never produces a click, so the suppression flag is cleared on
+  // the next press as well as on the click it was raised for -- otherwise one duration drag ate
+  // the next frame selection.
+  box.addEventListener("pointerdown", () => { suppressClick = false; });
+  box.onclick = () => {
+    if (suppressClick) { suppressClick = false; return; }
+    selectFrame(tag.name, i);
+  };
+  const grip = document.createElement("div");
+  grip.className = "grip";
+  grip.title = "drag to change how long frame " + n + " is held";
+  grip.addEventListener("pointerdown", (ev) => startHoldDrag(ev, tag, i, c, box, n));
+  box.appendChild(grip);
+  return box;
+}
+
+// Duration is edited ON the strip, because the panel version made every timing change a trip
+// away from the thing being timed. The drag is applied optimistically to the box width and only
+// POSTed on release, so a drag that ends where it started costs nothing.
+function startHoldDrag(ev, tag, i, c, box, n) {
+  if (busy) return;
+  ev.stopPropagation();
+  ev.preventDefault();
+  ev.target.setPointerCapture(ev.pointerId);
+  holdDrag = {tag: tag.name, i, from: ev.clientX, start: Math.max(1, c.hold), hold: Math.max(1, c.hold), box, n};
+  const move = (e) => {
+    if (!holdDrag) return;
+    const v = Math.max(1, holdDrag.start + Math.round((e.clientX - holdDrag.from) / HOLD_PX));
+    if (v === holdDrag.hold) return;
+    holdDrag.hold = v;
+    box.style.width = (80 + (v - 1) * HOLD_PX) + "px";
+    box.querySelector(".n").textContent = n + (v > 1 ? " ×" + v : "");
+    status("frame " + n + " held for " + v + " beat" + (v === 1 ? "" : "s") + " — release to apply");
+  };
+  const up = () => {
+    ev.target.removeEventListener("pointermove", move);
+    ev.target.removeEventListener("pointerup", up);
+    ev.target.removeEventListener("pointercancel", up);
+    const d = holdDrag;
+    holdDrag = null;
+    suppressClick = true;
+    if (!d || d.hold === d.start) { status("ready"); render(); return; }
+    tagName = d.tag; sel = d.i;
+    post("/api/hold", {index: d.i, hold: d.hold}, "frame " + d.n + " held for " + d.hold);
+  };
+  ev.target.addEventListener("pointermove", move);
+  ev.target.addEventListener("pointerup", up);
+  ev.target.addEventListener("pointercancel", up);
+}
+
+function scrollSelectionIntoView() {
+  const box = el("film").querySelector(".fbox.sel");
+  if (!box) return;
+  const film = el("film");
+  const left = box.offsetLeft - film.offsetLeft;
+  // Scrolls the strip only, never the page: scrollIntoView on a 4000px-wide strip jumped the
+  // whole document every time an arrow key moved the selection.
+  if (left < film.scrollLeft) film.scrollLeft = left - 12;
+  else if (left + box.offsetWidth > film.scrollLeft + film.clientWidth)
+    film.scrollLeft = left + box.offsetWidth - film.clientWidth + 12;
+}
+
+// A selection change inside the current tag repaints the marks and the panels; a change of tag
+// rebuilds the strip's bands and the preview sequence with it.
+function selectFrame(name, i) {
+  const switching = name !== tagName;
+  tagName = name; sel = i;
+  el("pickwrap").hidden = true;
+  if (switching) {
+    render();
+  } else {
+    for (const b of el("film").querySelectorAll(".fbox"))
+      b.classList.toggle("sel", b.dataset.tag === name && +b.dataset.i === i);
+    renderSelected();
+    scrollSelectionIntoView();
+  }
+  seekToCell(i);
+}
+
+function stepSelection(delta) {
+  const all = flat();
+  const at = all.findIndex(f => f.tag.name === tagName && f.i === sel);
+  const next = all[Math.min(all.length - 1, Math.max(0, at + delta))];
+  if (next && (next.tag.name !== tagName || next.i !== sel)) selectFrame(next.tag.name, next.i);
+}
+
+function renderTagControls() {
+  const tag = TAG();
   el("fps").value = tag.fps;
   el("direction").value = tag.direction;
   el("fps").disabled = el("direction").disabled = busy;
-
-  const strip = el("strip");
-  strip.innerHTML = "";
-  cells.forEach((c, i) => {
-    const box = document.createElement("div");
-    box.className = "cellbox" + (i === sel ? " sel" : "");
-    const m = c.metrics;
-    box.innerHTML = '<div class="n">' + (i + 1) + "</div>" +
-      (c.atlas !== null ? '<img src="' + cellSrc(c.atlas, 96) + '" alt="cell ' + (i + 1) + '">'
-                        : '<div class="m" style="width:96px;height:96px">not packed</div>') +
-      '<div class="m">' + (m ? "h " + m.height + "\ntop " + m.top + "\nfeet " +
-        (m.feet > 0 ? "+" : "") + m.feet : "empty") +
-      // Hold and nudge are only shown when they are not the default, so the strip stays a
-      // silhouette report and an edited cell stands out in it.
-      (c.hold > 1 ? "\nhold " + c.hold : "") +
-      (c.pivot_nudge[0] || c.pivot_nudge[1] ? "\nnudge " + c.pivot_nudge.join(",") : "") +
-      "</div>";
-    box.onclick = () => { sel = i; el("pickwrap").hidden = true; render(); };
-    strip.appendChild(box);
-  });
-
-  el("pvcap").textContent = cells.length + " cells @ " + tag.fps + "fps " + tag.direction +
-    (tag.loop ? " loop" : tag.hold_key ? " hold" : " once");
-  playPreview(tag);
-  renderSelected(cells[sel], cells.length);
 }
 
+// --- preview transport -----------------------------------------------------------------------
 // Ping-pong follows the Aseprite convention the demo page uses: play from -> to, then back down
 // to (but not including) the first cell. Per-frame `hold` repeats a cell in the step list, which
 // is the same thing the game does with it.
-function steps(tag) {
-  const seq = [];
+function rebuildSequence() {
+  const tag = TAG(), order = [];
   if (tag.direction === "reverse") {
-    for (let i = tag.cells.length - 1; i >= 0; i--) seq.push(i);
+    for (let i = tag.cells.length - 1; i >= 0; i--) order.push(i);
   } else if (tag.direction === "pingpong") {
-    for (let i = 0; i < tag.cells.length; i++) seq.push(i);
-    for (let i = tag.cells.length - 2; i > 0; i--) seq.push(i);
+    for (let i = 0; i < tag.cells.length; i++) order.push(i);
+    for (let i = tag.cells.length - 2; i > 0; i--) order.push(i);
   } else {
-    for (let i = 0; i < tag.cells.length; i++) seq.push(i);
+    for (let i = 0; i < tag.cells.length; i++) order.push(i);
   }
-  const out = [];
-  for (const i of seq) {
+  seq = [];
+  for (const i of order) {
     const c = tag.cells[i];
     if (!c.xy) continue;
-    for (let k = 0; k < Math.max(1, c.hold); k++) out.push(c.xy);
+    for (let k = 0; k < Math.max(1, c.hold); k++) seq.push({i, xy: c.xy});
   }
-  return out;
+  const scrub = el("scrub");
+  scrub.max = String(Math.max(0, seq.length - 1));
+  scrub.disabled = seq.length < 2;
+  if (head >= seq.length) head = 0;
+  rest = 0;
+  retime();
+  seekToCell(sel);
+  drawPreview();
 }
 
-function playPreview(tag) {
-  if (anim) { clearInterval(anim); anim = null; }
+function seekToCell(i) {
+  // Already showing a beat of that cell? Leave the playhead alone. Snapping to the cell's FIRST
+  // beat here made "step back" skip every held beat of the cell it stepped into.
+  if (seq[head] && seq[head].i === i) return;
+  const at = seq.findIndex(s => s.i === i);
+  if (at >= 0) { head = at; el("scrub").value = String(head); drawPreview(); }
+}
+
+function retime() {
+  if (timer) { clearInterval(timer); timer = null; }
+  el("t-play").innerHTML = playing ? "&#10073;&#10073;" : "&#9654;";
+  el("t-play").className = playing ? "on" : "";
+  if (!playing || seq.length < 2) return;
+  timer = setInterval(advance, 1000 / TAG().fps);
+}
+
+function advance() {
+  const tag = TAG();
+  // A once-tag ends on its last cell in the game. Here it rests there and replays, because a
+  // preview frozen on the recovery pose tells you nothing about the motion.
+  if (!tag.loop && head === seq.length - 1 && rest < Math.ceil(tag.fps * 0.7)) { rest++; return; }
+  rest = 0;
+  head = (head + 1) % seq.length;
+  el("scrub").value = String(head);
+  drawPreview();
+}
+
+// Keyed on the PATH being fetched, never on `cid`. `cid` changes the instant the character
+// button is clicked, while `ST` is still the previous character until its fetch lands -- keying on
+// cid cached the outgoing character's atlas under the incoming one's name, and the preview then
+// played Seth's drawings at Cadbury's cell coordinates until the next repack.
+// One in-flight load at a time as well: the preview redraws every beat, and a 10MB atlas fetched
+// per beat starved the thumbnails on the same connection.
+function withAtlas(cb) {
+  const path = ST.atlas, key = path + ":" + bust;
+  if (atlasKey === key && atlasImg) { cb(atlasImg); return; }
+  if (atlasLoading === key) return;
+  atlasLoading = key;
+  const im = new Image();
+  im.onload = () => { atlasImg = im; atlasKey = key; atlasLoading = ""; cb(im); };
+  im.onerror = () => { atlasLoading = ""; };
+  im.src = img(path);
+}
+
+function drawPreview() {
   const cv = el("pv"), ctx = cv.getContext("2d");
+  const tag = TAG();
+  el("pvcap").textContent = tag.name + " — beat " + (seq.length ? head + 1 : 0) + "/" +
+    seq.length + " · cell " + (seq.length ? seq[head].i + 1 : 0) + "/" + tag.cells.length +
+    " · " + tag.fps + "fps " + tag.direction +
+    (tag.loop ? " loop" : tag.hold_key ? " hold" : " once");
   ctx.clearRect(0, 0, cv.width, cv.height);
-  const seq = steps(tag);
   if (!seq.length) return;
-  const sheet = new Image();
-  sheet.onload = () => {
-    const cell = ST.cell;
-    // A once-tag ends on its last cell in the game. Here it replays after a short rest instead,
-    // because a preview frozen on the recovery pose tells you nothing about the motion.
-    const total = tag.loop ? seq.length : seq.length + Math.ceil(tag.fps * 0.7);
-    let f = 0;
-    const step = () => {
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      const [x, y] = seq[Math.min(f, seq.length - 1)];
-      ctx.drawImage(sheet, x, y, cell, cell, 0, 0, cv.width, cv.height);
-      f = (f + 1) % total;
-    };
-    step();
-    anim = setInterval(step, 1000 / tag.fps);
-  };
-  sheet.src = img(ST.atlas);
+  const step = seq[head];
+  withAtlas((sheet) => {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(sheet, step.xy[0], step.xy[1], ST.cell, ST.cell, 0, 0, cv.width, cv.height);
+  });
 }
 
-function renderSelected(c, n) {
+function transport(fn) { return () => { if (!ST || !seq.length) return; fn(); }; }
+el("t-play").onclick = transport(() => { playing = !playing; retime(); });
+el("t-first").onclick = transport(() => { pause(); head = 0; syncScrub(); });
+el("t-last").onclick = transport(() => { pause(); head = seq.length - 1; syncScrub(); });
+el("t-prev").onclick = transport(() => { pause(); head = (head - 1 + seq.length) % seq.length; syncScrub(); });
+el("t-next").onclick = transport(() => { pause(); head = (head + 1) % seq.length; syncScrub(); });
+function pause() { if (playing) { playing = false; retime(); } }
+function syncScrub() {
+  el("scrub").value = String(head);
+  drawPreview();
+  // Stepping the transport moves the SELECTION with it, so the canvas, the metrics and the
+  // onion ghost describe the frame you just stepped onto. Playback deliberately does not:
+  // reselecting 12 times a second would refetch the source frame and the variants each beat.
+  if (seq[head] && seq[head].i !== sel) selectFrame(tagName, seq[head].i);
+}
+el("scrub").oninput = () => {
+  pause();
+  head = parseInt(el("scrub").value, 10) || 0;
+  drawPreview();
+  // Debounced: dragging the scrubber across 30 beats would otherwise fire 30 selection changes,
+  // each refetching a 512px cell, a source frame and the variant strip.
+  if (scrubSelect) clearTimeout(scrubSelect);
+  scrubSelect = setTimeout(() => {
+    if (seq[head] && seq[head].i !== sel) selectFrame(tagName, seq[head].i);
+  }, 150);
+};
+
+// --- the selected cell -----------------------------------------------------------------------
+function renderSelected() {
+  const c = CUR(), n = CELLS().length;
   el("sel").hidden = !c;
   if (!c) return;
   const vs = c.variants || [];
@@ -942,21 +1199,19 @@ function renderSelected(c, n) {
   cellImg = null;
   paintCell(c);
   if (c.atlas !== null) {
-    const im = new Image();
-    // Guarded on the cell still being the selected one: the atlas is 5120px wide, so a decode
-    // can easily outlive the click that started it and paint the previous cell over the new one.
-    im.onload = () => { if (TAG().cells[sel] === c) { cellImg = im; paintCell(c); } };
-    im.src = cellSrc(c.atlas);
+    withCell(c.atlas, (im) => { if (CUR() === c) { cellImg = im; paintCell(c); } });
+    for (const g of ghosts(c)) withCell(g.atlas, () => { if (CUR() === c) paintCell(c); });
   }
   buttons(el("pivotmode"), ["drag: this cell", "drag: whole sheet"],
           pivotMode === "sheet" ? "drag: whole sheet" : "drag: this cell",
-          (m) => { pivotMode = m === "drag: whole sheet" ? "sheet" : "frame"; render(); });
+          (m) => { pivotMode = m === "drag: whole sheet" ? "sheet" : "frame"; renderSelected(); });
   el("pivotcap").textContent = "pivot " + ST.pivot.join(",") + " · nudge " +
     c.pivot_nudge.map(v => (v > 0 ? "+" : "") + v).join(",");
+  renderOnionControls(c);
   el("hold").value = c.hold;
   el("hold").disabled = busy;
-  el("bigcap").textContent = "cell " + (c.index + 1) + " — packed, seed " + c.seed;
-  el("bigsrc").src = img(c.src);
+  el("bigcap").textContent = "cell " + (c.index + 1) + " of " + tagName + " — packed, seed " + c.seed;
+  el("bigsrc").src = img(c.src, 512);
   el("srccap").textContent = "source — " + c.src.split("/").pop();
   const m = c.metrics;
   el("facts").innerHTML = m
@@ -970,6 +1225,79 @@ function renderSelected(c, n) {
   }
 }
 
+// --- onion skin ------------------------------------------------------------------------------
+// The neighbours are the cells either side WITHIN the tag, not either side in the atlas: the
+// frame after the last cell of `walk` is the first of `punch`, and ghosting that compares two
+// unrelated poses.
+function ghosts(c) {
+  const cells = CELLS(), out = [];
+  if (onion.prev && sel > 0 && cells[sel - 1].atlas !== null)
+    out.push({atlas: cells[sel - 1].atlas, ink: PREV_INK, label: "prev"});
+  if (onion.next && sel < cells.length - 1 && cells[sel + 1].atlas !== null)
+    out.push({atlas: cells[sel + 1].atlas, ink: NEXT_INK, label: "next"});
+  return out;
+}
+
+// Cached by URL, so the cache can never disagree with what was fetched. A 512px cell is small,
+// but the ghost redraws on every mode toggle and every selection step, and the server sends
+// no-store -- without this each toggle refetched three cells.
+const CELL_IMGS = new Map();
+function withCell(atlasIndex, cb) {
+  const url = cellSrc(atlasIndex);
+  const hit = CELL_IMGS.get(url);
+  if (hit) { if (hit.complete && hit.naturalWidth) cb(hit); return; }
+  const im = new Image();
+  CELL_IMGS.set(url, im);
+  im.onload = () => cb(im);
+  im.src = url;
+}
+function cachedCell(atlasIndex) {
+  const im = CELL_IMGS.get(cellSrc(atlasIndex));
+  return im && im.complete && im.naturalWidth ? im : null;
+}
+
+const OUTLINES = new Map();
+// Plain alpha reads badly when both drawings are the same sepia ink on cream: two nearly aligned
+// silhouettes just look like one slightly bolder one. The outline is the silhouette's edge only,
+// which is what you actually compare when checking a foot or a shoulder for drift.
+function outlineOf(im, ink, key) {
+  const hit = OUTLINES.get(key);
+  if (hit) return hit;
+  const cell = ST.cell;
+  const cv = document.createElement("canvas");
+  cv.width = cell; cv.height = cell;
+  const ctx = cv.getContext("2d");
+  const R = 3;
+  for (const [dx, dy] of [[-R, 0], [R, 0], [0, -R], [0, R]]) ctx.drawImage(im, dx, dy, cell, cell);
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.drawImage(im, 0, 0, cell, cell);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = ink;
+  ctx.fillRect(0, 0, cell, cell);
+  OUTLINES.set(key, cv);
+  return cv;
+}
+
+function renderOnionControls(c) {
+  const keys = el("onionkeys");
+  keys.innerHTML = "";
+  for (const which of ["prev", "next"]) {
+    const b = document.createElement("button");
+    b.textContent = "ghost " + which;
+    b.style.borderColor = which === "prev" ? PREV_INK : NEXT_INK;
+    if (onion[which]) b.className = "on";
+    b.onclick = () => { onion[which] = !onion[which]; renderSelected(); };
+    keys.appendChild(b);
+  }
+  buttons(el("onionmode"), ["alpha", "outline", "difference"], onion.mode,
+          (m) => { onion.mode = m; renderSelected(); }, true);
+  const g = ghosts(c);
+  el("onioncap").textContent = g.length
+    ? "ghosting " + g.map(x => x.label).join(" + ") + " at " + onion.mode +
+      (onion.mode === "difference" ? " — black means aligned" : "")
+    : "no ghost — " + (onion.prev || onion.next ? "no neighbouring cell in this tag" : "both off");
+}
+
 // The crosshair and the ground line are drawn from the manifest, never from a constant in this
 // page: the ground line IS the sheet pivot's y, and the crosshair is where this cell's artwork is
 // actually anchored, which is pivot + this frame's nudge.
@@ -978,7 +1306,25 @@ function paintCell(c) {
   if (cv.width !== cell) { cv.width = cell; cv.height = cell; }
   const ctx = cv.getContext("2d");
   ctx.clearRect(0, 0, cell, cell);
-  if (cellImg) ctx.drawImage(cellImg, 0, 0, cell, cell);
+  const g = ghosts(c);
+  if (onion.mode === "alpha") {
+    // Under the selected cell, so the current drawing stays the one you read.
+    ctx.globalAlpha = GHOST_ALPHA;
+    for (const x of g) { const im = cachedCell(x.atlas); if (im) ctx.drawImage(im, 0, 0, cell, cell); }
+    ctx.globalAlpha = 1;
+    if (cellImg) ctx.drawImage(cellImg, 0, 0, cell, cell);
+  } else if (onion.mode === "difference") {
+    if (cellImg) ctx.drawImage(cellImg, 0, 0, cell, cell);
+    ctx.globalCompositeOperation = "difference";
+    for (const x of g) { const im = cachedCell(x.atlas); if (im) ctx.drawImage(im, 0, 0, cell, cell); }
+    ctx.globalCompositeOperation = "source-over";
+  } else {
+    if (cellImg) ctx.drawImage(cellImg, 0, 0, cell, cell);
+    for (const x of g) {
+      const im = cachedCell(x.atlas);
+      if (im) ctx.drawImage(outlineOf(im, x.ink, cellSrc(x.atlas) + ":" + x.ink), 0, 0);
+    }
+  }
   const d = drag ? drag.d : [0, 0];
   const sheet = pivotMode === "sheet" ? [ST.pivot[0] + d[0], ST.pivot[1] + d[1]] : ST.pivot;
   const nudge = pivotMode === "frame" ? [c.pivot_nudge[0] + d[0], c.pivot_nudge[1] + d[1]]
@@ -1016,7 +1362,7 @@ function cellPoint(ev) {
 }
 
 el("bigcell").addEventListener("pointerdown", (ev) => {
-  if (busy || !ST || TAG().cells[sel].atlas === null) return;
+  if (busy || !ST || CUR().atlas === null) return;
   el("bigcell").setPointerCapture(ev.pointerId);
   drag = {from: cellPoint(ev), d: [0, 0]};
 });
@@ -1024,12 +1370,12 @@ el("bigcell").addEventListener("pointermove", (ev) => {
   if (!drag) return;
   const p = cellPoint(ev);
   drag.d = [p[0] - drag.from[0], p[1] - drag.from[1]];
-  paintCell(TAG().cells[sel]);
+  paintCell(CUR());
 });
-el("bigcell").addEventListener("pointercancel", () => { drag = null; paintCell(TAG().cells[sel]); });
+el("bigcell").addEventListener("pointercancel", () => { drag = null; paintCell(CUR()); });
 el("bigcell").addEventListener("pointerup", () => {
   if (!drag) return;
-  const d = drag.d, c = TAG().cells[sel];
+  const d = drag.d, c = CUR();
   drag = null;
   if (!d[0] && !d[1]) { paintCell(c); return; }
   if (pivotMode === "sheet") {
@@ -1043,7 +1389,7 @@ el("bigcell").addEventListener("pointerup", () => {
 });
 
 el("hold").onchange = () => {
-  const c = TAG().cells[sel], v = parseInt(el("hold").value, 10);
+  const c = CUR(), v = parseInt(el("hold").value, 10);
   if (!Number.isInteger(v) || v < 1) {
     status("hold is a count of beats, so it cannot be less than 1", true);
     el("hold").value = c.hold;
@@ -1066,6 +1412,21 @@ function postTag() {
 el("fps").onchange = postTag;
 el("direction").onchange = postTag;
 
+// Arrows and space are the two shortcuts every timeline has. They are ignored while a field has
+// focus, or space would type into the fps box and an arrow would silently change its value.
+addEventListener("keydown", (ev) => {
+  if (!ST || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+  const t = ev.target, tag = t && t.tagName;
+  if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || (t && t.isContentEditable)) return;
+  if (ev.key === "ArrowLeft") { ev.preventDefault(); stepSelection(-1); }
+  else if (ev.key === "ArrowRight") { ev.preventDefault(); stepSelection(1); }
+  else if (ev.key === " " && tag !== "BUTTON") {
+    // A focused button keeps space for itself, which is what a keyboard user expects of it.
+    ev.preventDefault();
+    if (seq.length) { playing = !playing; retime(); }
+  }
+});
+
 function renderDownloads() {
   const box = el("downloads");
   const base = ST.outdir + "/" + cid;
@@ -1080,6 +1441,23 @@ function renderDownloads() {
   demo.className = "dl"; demo.href = "http://wilson/cast-fighter.html"; demo.target = "_blank";
   demo.textContent = "↗ play it in the demo";
   box.appendChild(demo);
+
+  // The server names and types each file, so these are plain links: a fetch-and-blob dance would
+  // only duplicate the Content-Disposition the endpoint already sends. The EMPTY download
+  // attribute keeps the filename the server chose while marking the click as a download rather
+  // than a navigation -- without it the browser aborts the navigation once the attachment header
+  // arrives, and every export shows up in the network log as a failed request.
+  const ex = el("exports");
+  ex.innerHTML = "";
+  for (const [fmt, label] of [["json-hash", "JSON hash"], ["json-array", "JSON array"],
+                              ["phaser3", "Phaser 3"], ["godot", "Godot SpriteFrames"],
+                              ["css", "CSS steps()"]]) {
+    const a = document.createElement("a");
+    a.className = "dl"; a.href = "/api/export?cid=" + cid + "&format=" + fmt;
+    a.download = "";
+    a.textContent = "↓ " + label;
+    ex.appendChild(a);
+  }
 }
 
 async function post(url, body, label) {
@@ -1099,6 +1477,7 @@ function poll(jid) {
     if (j.state === "done" || j.state === "error") {
       busy = false;
       bust = Date.now();          // the atlas was overwritten in place; force every img to refetch
+      atlasImg = null; CELL_IMGS.clear(); OUTLINES.clear();
       await load();
       return;
     }
@@ -1113,7 +1492,7 @@ el("b-left").onclick = () => swap(sel, sel - 1);
 el("b-right").onclick = () => swap(sel, sel + 1);
 
 function swap(a, b) {
-  const order = TAG().cells.map((c, i) => i);
+  const order = CELLS().map((c, i) => i);
   [order[a], order[b]] = [order[b], order[a]];
   sel = b;
   post("/api/reorder", {order}, "reorder");
@@ -1127,7 +1506,7 @@ el("b-repick").onclick = async () => {
   picker.innerHTML = "loading frames…";
   const r = await fetch("/api/frames?cid=" + cid + "&tag=" + tagName);
   const frames = (await r.json()).frames;
-  const cur = TAG().cells[sel].src;
+  const cur = CUR().src;
   el("pickcount").textContent = "(" + frames.length + " available)";
   picker.innerHTML = "";
   for (const f of frames) {
