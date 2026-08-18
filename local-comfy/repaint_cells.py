@@ -48,24 +48,32 @@ SEED = 77          # one seed for every cell, so the drawing itself does not wan
 STEPS = 8
 CELL = 512
 
-# move -> (clip, cells, fps, loop, hold, unify_height)
+# move -> (clip recipe in build_sprite.MOVES, cells, fps, loop, hold, unify)
+#
+# The recipe name is not always the move name: a sprite "walk" comes from the `walk-cycle` clip,
+# which for a character with no legs reads as a roll instead. The clip path is derived from the
+# character id, so nothing here is Seth-specific.
 MOVES = {
-        # unify_height is WRONG for a walk. It rescales every cell to the set median silhouette
-    # height, but a stride genuinely rises and falls -- so it scaled the up and down positions by
-    # different factors, which reads as the character growing and shrinking, and pushed one head
-    # past the top of the cell. It stays on only for moves that should not change height at all.
-    "walk":   ("/tmp/seth-walk-cycle-832-20.mp4",   10, 14, True,  False, "head"),
+    # unify="head" normalises the few percent of scale drift between independent repaints without
+    # touching the stride's real rise and fall. unify=True (total height) is only for moves that
+    # should not change height at all; jump and crouch must not unify, the height IS the animation.
+    "walk":   ("walk-cycle",   10, 14, True,  False, "head"),
     # Idle is a breath. More cells does NOT buy more subtlety: asked for 16, the repaint returned
     # only 8 distinct drawings, because a locked seed maps two near-identical source frames onto
-    # the same output. The extra cells became uneven holds, which reads as a stutter. So: 8 real
-    # drawings, played slowly.
-    "idle":   ("/tmp/seth-idle-breathe-832-20.mp4",   8,  8, True,  False, True),
-    "punch":  ("/tmp/seth-punch-832-20.mp4",         8, 16, False, False, False),
-    "kick":   ("/tmp/seth-kick-832-20.mp4",          8, 16, False, False, False),
-    "jump":   ("/tmp/seth-jump-832-20.mp4",          8, 16, False, False, False),
-    "block":  ("/tmp/seth-block-832-20.mp4",         6, 16, False, True,  False),
-    "crouch": ("/tmp/seth-crouch-832-20.mp4",        6, 16, False, True,  False),
+    # the same output. The extra cells became uneven holds, which reads as a stutter.
+    "idle":   ("idle-breathe",  8,  8, True,  False, True),
+    "punch":  ("punch",         8, 16, False, False, False),
+    "kick":   ("kick",          8, 16, False, False, False),
+    "jump":   ("jump",          8, 16, False, False, False),
+    "block":  ("block",         6, 16, False, True,  False),
+    "crouch": ("crouch",        6, 16, False, True,  False),
 }
+SIZE, CLIP_STEPS = 832, 20
+
+
+def clip_path(cid, move):
+    return f"/tmp/{cid}-{MOVES[move][0]}-{SIZE}-{CLIP_STEPS}.mp4"
+
 
 # The repaint instruction. It says "repaint" three ways on purpose: the failure mode is Qwen
 # treating the frame as inspiration and drawing a fresh pose, and every clause here exists to
@@ -161,14 +169,14 @@ def repaint(src, dst):
     return dst
 
 
-def pick_frames(move, clip, n_cells):
+def pick_frames(cid, move, clip, n_cells):
     """Let the packer choose the cells off the CLIP, then hand back their file paths.
 
     Cell choice needs the motion, so it stays on the video: gait period, pose extremes and the
     sharpest-frame nudge all read the sequence. Only the chosen frames get repainted.
     """
     SS.CEL_CLEAN = True                        # picking reads video frames, so clean them
-    name = f"seth-{move}-pick"
+    name = f"{cid}-{move}-pick"
     prep = SS._prepare(clip, name, n_cells, skip=6, cycle=MOVES[move][3], anchor="feet",
                        smooth=True)
     paths = sorted(os.listdir(f"/tmp/sprite-{name}"))
@@ -227,9 +235,10 @@ def main():
 
     prepared = []
     for move in wanted:
-        clip, n, fps, loop, hold, unify = MOVES[move]
+        _, n, fps, loop, hold, unify = MOVES[move]
+        clip = clip_path(cid, move)
         t0 = time.time()
-        picks = pick_frames(move, clip, n)
+        picks = pick_frames(cid, move, clip, n)
         out_paths = []
         for i, src in enumerate(picks, start=1):
             # Keyed by the source frame, so changing how cells are chosen only pays for the cells
