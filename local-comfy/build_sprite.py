@@ -75,8 +75,15 @@ MOVES = {
         "the body rocking slightly with the roll, ending on the pose he began with so the cycle "
         "loops — for a character with legs, read this as a smooth walk"),
     "walk-cycle": (
-        "a full walk cycle in place, striding steadily to the right through contact, down, passing "
-        "and up positions, ending on the same pose he began with so the cycle loops"),
+        # "his hands are empty" is load-bearing and also only half a fix. Cadbury's canonical
+        # plate HOLDS a serving tray, so the clause fights his own reference: it took his walk from
+        # a self-similarity of 0.150 against a 0.159 random baseline (no cycle at all) down to
+        # 0.0061 (a clean one), but the tray still flickers in about three cells in ten. A prop a
+        # character is drawn holding needs a trayless sprite plate, not a prompt clause -- the
+        # instruction and the picture cannot both win.
+        "a full walk cycle in place with his hands empty, striding steadily to the right through "
+        "contact, down, passing and up positions, ending on exactly the same pose he began with, "
+        "in the same place, so the cycle loops seamlessly"),
     "run-cycle": (
         "a fast run cycle in place, leaning forward, arms pumping, both feet leaving the ground at "
         "the stretch, ending on the pose he began with so the cycle loops"),
@@ -92,14 +99,16 @@ MOVES = {
         "he plants one foot, swings the other leg up in a high kick to the right, holds the "
         "extension, and sets the foot back down"),
     "block": (
-        # H3 read the first version as walking forward with his hands up. "Braced" and "guard"
-        # both imply advancing, so the planted feet have to be stated as the loudest thing in
-        # the line, twice, before the arms are mentioned at all.
+        # Two characters, two failure modes, both from words that imply something else. H3 read
+        # "braced guard" as walking forward with his hands up, and gave the butler a bow with a
+        # serving tray. Naming what IS true -- planted feet, empty hands, straight back -- fixes
+        # both; naming what is not would only summon it.
         "he stands still on one spot with both feet planted flat on the ground and never takes a "
-        "step, never walks and never moves across the screen; standing exactly where he is, he "
-        "crosses both forearms up in front of his face and chest to shield himself, hunches his "
-        "shoulders and tucks his head down behind his arms, holds that braced position, then "
-        "lowers his arms back to his sides, his feet staying in the same place the whole time"),
+        "step, never walks and never moves across the screen; his hands are empty and his back "
+        "stays straight and upright the whole time. Standing exactly where he is, he crosses both "
+        "forearms up in front of his face and chest to shield himself, hunches his shoulders and "
+        "tucks his head down behind his arms, holds that braced position, then lowers his arms "
+        "back to his sides, his feet staying in the same place the whole time"),
     "wave": (
         "he raises one arm and waves broadly twice, then lowers the arm back to his side"),
     "take-a-bow": (

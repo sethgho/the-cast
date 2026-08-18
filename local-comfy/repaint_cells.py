@@ -178,29 +178,10 @@ def pick_frames(cid, move, clip, n_cells):
     SS.CEL_CLEAN = True                        # picking reads video frames, so clean them
     name = f"{cid}-{move}-pick"
     prep = SS._prepare(clip, name, n_cells, skip=6, cycle=MOVES[move][3], anchor="feet",
-                       smooth=True)
+                       smooth=True, stop=MOVES[move][4])
     paths = sorted(os.listdir(f"/tmp/sprite-{name}"))
     paths = [os.path.join(f"/tmp/sprite-{name}", p) for p in paths if p.endswith(".png")][6:]
     return [paths[i] for i in prep["picks"]]
-
-
-def trim_to_peak(paths):
-    """For a HOLD move, drop the recovery tail.
-
-    The clip is written to return to neutral — block raises the guard, holds, then lowers it — so
-    the last cell is arms-down. A hold move freezes on its last cell while the key is down, which
-    means it would freeze on the recovery instead of the guard. Cutting at the pose furthest from
-    the opening one leaves the extreme as the final cell, which is what holding should show.
-    """
-    import numpy as np
-    from PIL import Image
-    sils = []
-    for p in paths:
-        a = np.asarray(SS.key_out(p))[:, :, 3]
-        sils.append(np.asarray(Image.fromarray((a > 8).astype(np.uint8) * 255)
-                               .resize((48, 48))).astype(np.float32) / 255.0)
-    peak = max(range(len(sils)), key=lambda i: float(np.abs(sils[i] - sils[0]).mean()))
-    return paths[:peak + 1] if peak >= 2 else paths
 
 
 def match_palette(prep):
@@ -250,8 +231,6 @@ def main():
             out_paths.append(dst)
             print(f"  {cid}-{move} cell {i}/{len(picks)}  {time.time()-t0:.0f}s", flush=True)
         SS.CEL_CLEAN = False                   # repaints are drawn, not decoded
-        if hold:
-            out_paths = trim_to_peak(out_paths)
         prep = SS._prepare_stills(out_paths, smooth=True, unify=unify)
         match_palette(prep)
         prepared.append((f"{cid}-{move}", prep, fps, loop, hold, unify))

@@ -44,6 +44,12 @@ from PIL import Image
 
 KEY = np.array([255, 0, 255], dtype=np.float32)   # the magenta the sprite-clip app renders on
 SOFT_IN, SOFT_OUT = 45.0, 110.0   # colour distance from the measured screen: background .. solid
+# The gate on the cycle detector, as an absolute self-similarity score. A relative version was
+# tried and is worse: a walk's own harmonics (2P, 3P) drag any within-clip baseline down, so the
+# ratio stops discriminating. And the case that motivated it turned out not to need it -- Cadbury's
+# walk scored 0.150 against a 0.159 random-pair baseline, i.e. his clip genuinely does not repeat.
+# A non-periodic cycle clip is an upstream problem to re-render, not a threshold to loosen.
+CYCLE_SCORE_MAX = 0.09
 EDGE_ERODE = 0                    # eroding eats the ink OUTLINE — the darkest pixels in the drawing
 CEL_CLEAN = True                  # off for repainted cells: they are drawn, not decoded, so there
                                   # is no codec noise to remove and the median only costs halftone
@@ -164,6 +170,38 @@ def silhouettes(frames):
     return out
 
 
+def hold_end(frames, warmup=0.25):
+    """Where a go-out-hold-come-back move REACHES its held pose.
+
+    A hold move freezes on its last cell while the key is down, so the cells must stop at the
+    extreme -- keep the recovery and the player holds a shrug. The obvious test, "furthest pose
+    from the first frame", is wrong twice over: it assumes frame one is neutral (Cadbury's crouch
+    already starts half-crouched, so it chose the STANDING recovery), and an outlier artifact
+    maximises distance-from-anything, so it actively selects a corrupted frame.
+
+    Motion energy does not have those failure modes. The move goes out, rests, and comes back, so
+    the hold is a plateau of near-zero movement after the opening. Take the quietest sustained run
+    in the middle of the clip and cut at its end.
+    """
+    sils = silhouettes(frames)
+    energy = [float(np.abs(sils[i + 1] - sils[i]).mean()) for i in range(len(sils) - 1)]
+    if not energy:
+        return len(frames) - 1
+    start = int(len(energy) * warmup)
+    win = max(3, len(energy) // 8)
+    best, best_e = None, None
+    for t in range(start, len(energy) - win):
+        e = sum(energy[t:t + win]) / win
+        if best_e is None or e < best_e:
+            best, best_e = t, e
+    # end of the plateau: the last frame before movement picks up again
+    quiet = best_e * 2.0 + 1e-6
+    end = best + win
+    while end < len(energy) and energy[end] <= quiet:
+        end += 1
+    return min(end, len(frames) - 1)
+
+
 def find_cycle(sils, min_period=6):
     """Find the gait period by self-similarity, so the sheet spans exactly one loop.
 
@@ -188,7 +226,7 @@ def pose_extremes(frames, count, cycle=True):
     if cycle and len(frames) >= 16:
         period, score = find_cycle(sils)
         # A loose match means the move genuinely is not periodic (a jump, a bow) — fall through.
-        if period and score < 0.09:
+        if period and score < CYCLE_SCORE_MAX:
             # Where the cycle STARTS decides whether it loops. Picking the busiest frame reads
             # well but says nothing about the seam, and the walk came back with a wrap step twice
             # the size of every other step. Start instead on the frame whose pose the cycle
@@ -295,7 +333,7 @@ def pack(clip, name, n_frames, cell, outdir, anchor, smooth, skip=6, cycle=True)
     return _emit(name, prep, cell, outdir, anchor, scale)
 
 
-def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
+def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth, stop=False):
     """Key, pick the cells, and work out each cell's anchor and reach. No pixels written yet."""
     tmp = f"/tmp/sprite-{name}"
     paths = extract_frames(clip, tmp)[skip:]
@@ -305,6 +343,11 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth):
     if not keep:
         raise SystemExit(f"{name}: every frame keyed to nothing — is the clip actually on magenta?")
 
+    # A HOLD move must stop at its held pose: the player freezes on the last cell, so the recovery
+    # must never be picked. hold_end reads that off the clip's own motion.
+    if stop:
+        cut = hold_end([rgba[i] for i in keep])
+        keep = keep[:cut + 1]
     picks, period = pose_extremes([rgba[i] for i in keep], n_frames, cycle)
     picks = [keep[p] for p in picks]
     print(f"  {name} cycle: {'period ' + str(period) + ' frames' if period else 'not periodic, spaced by motion'}")
