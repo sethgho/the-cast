@@ -33,7 +33,11 @@ from build_workflows import UNET, LORA, CLIP, VAE, STYLE_LOCK, STEPS  # noqa: E4
 from build_transition import TRAITS  # noqa: E402
 
 OUT_ROOT = "/tmp/poses"
-SHEET_DIR = "/home/wilson/artifacts/cast-fighter/sprites"
+# This is the older stills-based pipeline, kept for reference only. It must NOT point at
+# /home/wilson/artifacts/cast-fighter/sprites: that's the live output directory for the
+# grid-atlas pipeline (repaint_cells.py / sprite_sheet.py), and one --pack run here would
+# resurrect the 70+ legacy per-move PNGs and <cid>-moves.json files the migration deleted.
+SHEET_DIR = "/tmp/poses-sheets"
 
 # The staging every cell shares. Said the same way every time, because any variation here is
 # variation between cells, which reads as the character resizing or the camera moving.

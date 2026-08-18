@@ -22,9 +22,9 @@ gets a hard boundary and cel_clean is not needed at all.
 ## The one thing to be careful about
 
 Every cell is an independent generation, so the character comes back a few percent bigger or
-smaller each time. One locked seed keeps the drawing consistent; `unify_height` in the packer
-rescales each cell to the set median for moves whose height should not change (walk, idle). Moves
-where the height IS the animation — jump, crouch — must not use it.
+smaller each time. One locked seed keeps the drawing consistent; a tag's `unify`
+field rescales each cell to the set median for tags whose height should not change (walk, idle).
+Tags where the height IS the animation — jump, crouch — must not use it.
 
 Cost: ~48s a cell. The seven-move set is 54 cells, about 45 minutes.
 """
@@ -50,9 +50,10 @@ CELL = 512
 
 # move -> (clip recipe in build_sprite.MOVES, cells, fps, loop, hold_key, unify)
 #
-# NOT seed values that stop mattering once a manifest exists. clip_path(), pick_frames() and
-# sprite_editor.state() all read MOVES at runtime, keyed by move name, for the clip recipe and the
-# fields bootstrap_manifest() would give a move that has never had a manifest entry. Renaming a
+# NOT seed values that stop mattering once a manifest exists. clip_path() and pick_frames() read
+# MOVES at runtime, keyed by move name, for the clip recipe and the fields bootstrap_manifest()
+# would give a move that has never had a manifest entry. The editor no longer reads it at all: it
+# drives off the manifest's own tag list. Renaming a
 # tag here therefore still breaks clip_path() for that move, even though the tag itself carries
 # its own `clip` field once written — the two are independent copies of the same fact.
 #
@@ -167,7 +168,11 @@ def repaint(src, dst, seed=SEED):
         time.sleep(3)
     st = hist[pid]["status"]
     if st.get("status_str") != "success":
-        raise SystemExit(f"{src}: FAILED {st}")
+        # RuntimeError, not SystemExit: this is a library function called from a worker thread
+        # (sprite_editor.worker()). SystemExit is a BaseException, which used to slip past a
+        # bare `except Exception` in the worker and silently kill the thread — the job stayed
+        # "running" forever and every job queued after it never ran.
+        raise RuntimeError(f"{src}: FAILED {st}")
     im = hist[pid]["outputs"]["RESULT"]["images"][0]
     subprocess.run(["curl", "-s",
                     f"{S.HOST}/view?filename={im['filename']}&subfolder={im.get('subfolder','')}"
@@ -368,48 +373,6 @@ def _tag_index(man, move):
     return None
 
 
-def load_manifest(cid, move):
-    """One tag, in the per-move shape sprite_editor.py still asks for.
-
-    A VIEW of the character manifest, never a second store: there is one file on disk. The editor
-    is rewritten against tags in a later stage, and it must not stop working in the meantime.
-    """
-    man = load_character_manifest(cid)
-    i = _tag_index(man, move) if man else None
-    if i is None:
-        return None
-    tag = man["tags"][i]
-    return {"character": cid, "move": move,
-            "cells": [dict(f) for f in man["frames"][tag["from"]:tag["to"] + 1]],
-            "fps": tag["fps"], "loop": tag["loop"], "hold": tag["hold_key"],
-            "unify": tag["unify"], "clip": tag["clip"]}
-
-
-def save_manifest(cid, move, cells, meta):
-    """Splice an edited move back in. Dropping or adding a cell moves every later tag, so the
-    ranges after it are renumbered here -- a tag range left stale points at another move's cells.
-    """
-    man = load_character_manifest(cid)
-    i = _tag_index(man, move) if man else None
-    if i is None:
-        raise SystemExit(f"{cid}: no {move} tag to write")
-    tag = man["tags"][i]
-    new = [_frame(c["src"], c["seed"], c.get("png"), c.get("hold", 1),
-                  c.get("pivot_nudge", (0, 0))) for c in cells]
-    shift = len(new) - (tag["to"] + 1 - tag["from"])
-    man["frames"][tag["from"]:tag["to"] + 1] = new
-    tag["to"] += shift
-    for later in man["tags"][i + 1:]:
-        later["from"] += shift
-        later["to"] += shift
-    for k in ("fps", "loop", "unify", "clip"):
-        if k in meta:
-            tag[k] = meta[k]
-    if "hold" in meta:
-        tag["hold_key"] = meta["hold"]
-    save_character_manifest(cid, man)
-
-
 def repaint_path(cid, move, src, seed):
     """One file per (source frame, seed), so a re-roll never overwrites the cell it replaces."""
     stem = os.path.basename(src).replace(".png", "")
@@ -473,20 +436,10 @@ def main():
     scale = min((CELL * 0.92) / tallest, (CELL * 0.88) / highest)
 
     SS.CEL_CLEAN = False
-    # The per-move atlases are a bridge: cast-fighter.html and sprite_editor.py still load them.
-    # They come off the same prep and the same scale as the tagged sheet, so the two agree cell
-    # for cell until the consumers are moved over.
-    meta = {}
-    for tag, prep, frames in prepared:
-        name = f"{cid}-{tag['name']}"
-        SS._emit(name, prep, CELL, OUT, "feet", scale, unify_height=tag["unify"])
-        meta[tag["name"]] = {"file": name, "frames": len(prep["picks"]), "fps": tag["fps"],
-                             "loop": tag["loop"], "hold": tag["hold_key"]}
-
-    path = os.path.join(OUT, f"{cid}-moves.json")
-    json.dump(meta, open(path, "w"), indent=1)
-    print("wrote", path)
-
+    # One atlas, one JSON, and nothing else. The per-move atlases and the `<cid>-moves.json` that
+    # stitched them back together are gone: both consumers -- cast-fighter.html and
+    # sprite_editor.py -- read the tagged sheet now, and a second copy of the same cells is only
+    # somewhere for the two to disagree.
     SS._emit_sheet(cid, prepared, CELL, OUT, scale, tuple(man["pivot"]))
 
 

@@ -1,30 +1,35 @@
 #!/usr/bin/env python3
-"""A per-cell editor for the sprite manifests, so a bad cell costs one repaint instead of a move.
+"""A per-cell editor for the character sprite manifest, so a bad cell costs one repaint instead of
+a whole tag.
 
     python3 sprite_editor.py        # http://<host>:8811/
 
 ## Why
 
-`repaint_cells.py` gets a move to about 90% on its own, and the last 10% is always the same
+`repaint_cells.py` gets a tag to about 90% on its own, and the last 10% is always the same
 judgement: this cell's hand came back garbled, that one was picked two frames too early, this one
-drifted in scale. The manifest in `sheets/` exists so those judgements survive a rerun. Editing it
-by hand works but is blind — you cannot see which cell is cell 4, and you cannot tell a bad REPAINT
-from a bad SOURCE FRAME without opening two files in two viewers. That distinction decides the fix:
-a bad repaint wants a new seed, a bad source frame wants a different frame.
+drifted in scale. The manifest in `sheets/<cid>.json` exists so those judgements survive a rerun.
+Editing it by hand works but is blind — you cannot see which cell is cell 4, and you cannot tell a
+bad REPAINT from a bad SOURCE FRAME without opening two files in two viewers. That distinction
+decides the fix: a bad repaint wants a new seed, a bad source frame wants a different frame.
 
 So the page shows both, side by side, for the selected cell.
 
 Nothing about packing lives here. Every mutation writes the manifest and then calls
-`repaint_cells.main()`, which repaints whatever is missing and repacks ALL seven moves at one shared
-scale. Packing a single move on its own would rescale it against itself and the character would
-change size when the game switches move.
+`repaint_cells.main()`, which repaints whatever is missing and repacks the WHOLE character at one
+shared scale. Packing a single tag on its own would rescale it against itself and the character
+would change size when the game switches move.
 
-## The two rules the design is built around
+## The rules the design is built around
 
 1. One ComfyUI job at a time. A repaint is ~45s on a 12GB card and two at once means two failures,
    so every mutating request goes onto a single-worker queue and the caller gets a job id to poll.
 2. The manifest is written BEFORE the repack. A repack can crash or be killed; if it does, the edit
    is still recorded and the next run picks it up. The other order loses the edit silently.
+3. Every manifest read and write goes through `repaint_cells.load_character_manifest` /
+   `save_character_manifest` and nothing else — no `json.load` on a manifest path in this file.
+   Stage 6 of DESIGN-editor.md swaps that pair for an HTTP call to a Durable Object; a scattered
+   read means writing this server twice.
 """
 import hashlib
 import http.server
@@ -44,10 +49,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import repaint_cells as RC  # noqa: E402
+import sprite_sheet as SS  # noqa: E402
 
 PORT = 8811
 CHARACTERS = ["seth", "cadbury"]
-GROUND_Y = int(RC.CELL * 0.94)   # the feet line _emit anchors to, in packed-cell pixels
 PICK_SKIP = 6                    # settle-in frames pick_frames drops; not offerable as a re-pick
 
 # /img serves nothing outside these. The editor only ever needs source frames, repaints and the
@@ -55,57 +60,114 @@ PICK_SKIP = 6                    # settle-in frames pick_frames drops; not offer
 ALLOWED_ROOTS = ("/tmp/sprite-", RC.REPAINT_DIR + "/", os.path.realpath(RC.OUT) + "/")
 
 
-def frames_dir(cid, move):
-    return os.path.join(RC.OUT, f"{cid}-{move}-frames")
+def sheet_paths(cid):
+    return os.path.join(RC.OUT, f"{cid}.png"), os.path.join(RC.OUT, f"{cid}.json")
 
 
-def cell_png(cid, move, index):
-    """The packed 512px cell, transparent-backed. Shown instead of the raw repaint because it is
-    what actually ships, and because the metrics below are only meaningful in packed coordinates."""
-    return os.path.join(frames_dir(cid, move), f"{cid}-{move}-{index + 1:02d}.png")
+# One decoded 512px atlas is 10 x 512 wide by six rows: ~63MB of RGBA. Keeping every character's
+# would quietly cost more than the packer does, so only the last one asked for is held.
+_SHEET = {}
 
 
-def source_frames(cid, move):
-    d = f"/tmp/sprite-{cid}-{move}-pick"
-    if not os.path.isdir(d):
-        return []
-    names = sorted(n for n in os.listdir(d) if n.endswith(".png"))
-    return [os.path.join(d, n) for n in names[PICK_SKIP:]]
+def sheet(cid):
+    """The emitted atlas and its frame table, cached against the files' mtimes.
+
+    This is build OUTPUT, not the manifest. The manifest says which drawings a tag is made of; the
+    sheet says where the packer actually put them. Both are needed because a cell is no longer a
+    file of its own — it is a crop out of the one atlas.
+    """
+    png, js = sheet_paths(cid)
+    try:
+        stamp = (os.path.getmtime(png), os.path.getmtime(js))
+    except OSError:
+        return None
+    hit = _SHEET.get(cid)
+    if hit and hit[0] == stamp:
+        return hit[1]
+    from PIL import Image
+    meta = json.load(open(js))
+    meta["image"] = Image.open(png).convert("RGBA")
+    meta["metrics"] = {}
+    _SHEET.clear()
+    _SHEET[cid] = (stamp, meta)
+    return meta
 
 
-_metrics_cache = {}
+def atlas_base(sh, tag_name, n_frames):
+    """Where a manifest tag's cells landed in the atlas, or None if they cannot be located.
+
+    `_prepare_stills` DROPS a frame that keys to nothing, so the atlas can hold fewer cells than
+    the manifest tag has frames — and nothing in the emitted schema records WHICH frame went
+    missing. When the counts agree the mapping is exact. When they do not, refusing to guess is the
+    only correct answer: an off-by-one here shows the wrong drawing beside the wrong source frame,
+    which is precisely the judgement this editor exists to make.
+    """
+    for t in sh["tags"]:
+        if t["name"] == tag_name:
+            return t["from"] if t["to"] - t["from"] + 1 == n_frames else None
+    return None
 
 
-def cell_metrics(path):
+def cell_image(cid, index):
+    """The packed 512px cell, cropped out of the character atlas.
+
+    Shown instead of the raw repaint because it is what actually ships, and because the metrics
+    below are only meaningful in packed coordinates.
+    """
+    sh = sheet(cid)
+    if not sh or not 0 <= index < len(sh["frames"]):
+        return None
+    f, c = sh["frames"][index], sh["cell"]
+    return sh["image"].crop((f["x"], f["y"], f["x"] + c, f["y"] + c))
+
+
+def cell_metrics(cid, index):
     """Silhouette height, top clearance and feet offset for one packed cell.
 
     These three are the numbers that have caught every bad cell in this project. A repaint that
     came back larger shows as a small clearance; one that came back smaller shows as a short
     silhouette; a keyed-in shadow or a clipped foot shows as a feet offset away from zero, which is
     the character sliding off the ground line mid-animation.
-    """
-    try:
-        stamp = os.path.getmtime(path)
-    except OSError:
-        return None
-    hit = _metrics_cache.get(path)
-    if hit and hit[0] == stamp:
-        return hit[1]
 
+    Measured against THIS FRAME'S OWN emitted pivot (`sh["frames"][index]["pivot"]`), not the
+    manifest-level constant `man["pivot"]`. The two agree today because every frame still carries
+    the same pivot, but the demo already honours each frame's own pivot — once a later stage makes
+    pivots vary per frame, measuring against the manifest constant would silently score a correctly
+    placed cell as off the ground line. The cache hangs off the sheet, so a repack invalidates it
+    for free.
+    """
+    sh = sheet(cid)
+    if not sh:
+        return None
+    hit = sh["metrics"].get(index)
+    if hit is not None:
+        return hit[0]
+    im = cell_image(cid, index)
+    if im is None:
+        return None
+    ground = sh["frames"][index]["pivot"][1]
     import numpy as np
-    from PIL import Image
-    mask = np.asarray(Image.open(path).convert("RGBA"))[:, :, 3] > 10
+    mask = np.asarray(im)[:, :, 3] > 10
     rows = np.where(mask.any(axis=1))[0]
     m = None if len(rows) == 0 else {
         "height": int(rows[-1] - rows[0] + 1),
         "top": int(rows[0]),
-        "feet": int(rows[-1] - GROUND_Y),
+        "feet": int(rows[-1] - ground),
+        "ground": int(ground),
     }
-    _metrics_cache[path] = (stamp, m)
+    sh["metrics"][index] = (m,)
     return m
 
 
-def variants(cid, move, src):
+def source_frames(cid, tag_name):
+    d = f"/tmp/sprite-{cid}-{tag_name}-pick"
+    if not os.path.isdir(d):
+        return []
+    names = sorted(n for n in os.listdir(d) if n.endswith(".png"))
+    return [os.path.join(d, n) for n in names[PICK_SKIP:]]
+
+
+def variants(cid, tag_name, src):
     """Every repaint that already exists on disk for this source frame.
 
     A re-roll used to feel destructive: the previous drawing vanished from the sheet with no way
@@ -114,7 +176,7 @@ def variants(cid, move, src):
     Switching to one that already exists costs no GPU at all.
     """
     stem = os.path.basename(src).replace(".png", "")
-    prefix = f"{cid}-{move}-{stem}"
+    prefix = f"{cid}-{tag_name}-{stem}"
     out = []
     for n in sorted(os.listdir(RC.REPAINT_DIR)):
         if not n.startswith(prefix + "-s") and n != prefix + ".png":
@@ -128,28 +190,36 @@ def variants(cid, move, src):
 
 
 def state(cid):
-    moves = {}
-    for move in RC.MOVES:
-        man = RC.load_manifest(cid, move)
-        _, n_default, fps, loop, hold, _ = RC.MOVES[move]
+    """The whole character, as the page needs it: tags in playback order, cells within each tag.
+
+    A cell's `index` is its position WITHIN ITS TAG, because that is what the buttons act on and
+    what the user counts. `atlas` is its position in the flat emitted sheet, which is what /cell
+    crops by; the two differ by the tag's start and are never the same number.
+    """
+    man = RC.load_character_manifest(cid)
+    if not man:
+        raise ValueError(f"no manifest for {cid}")
+    sh = sheet(cid)
+    pivot = man["pivot"]
+    tags = []
+    for tag in man["tags"]:
+        span = list(range(tag["from"], tag["to"] + 1))
+        base = atlas_base(sh, tag["name"], len(span)) if sh else None
         cells = []
-        for i, c in enumerate((man or {}).get("cells", [])):
-            png = cell_png(cid, move, i)
-            cells.append({"index": i, "src": c["src"], "seed": c["seed"],
-                          "png": c.get("png"), "cell": png if os.path.exists(png) else None,
-                          "metrics": cell_metrics(png),
-                          "variants": variants(cid, move, c["src"])})
-        moves[move] = {
-            "cells": cells,
-            "fps": (man or {}).get("fps", fps),
-            "loop": (man or {}).get("loop", loop),
-            "hold": (man or {}).get("hold", hold),
-            "atlas": os.path.join(RC.OUT, f"{cid}-{move}.png"),
-            "n_default": n_default,
-            "n_source_frames": len(source_frames(cid, move)),
-        }
-    return {"character": cid, "characters": CHARACTERS, "moves": moves,
-            "ground": GROUND_Y, "cell": RC.CELL, "outdir": RC.OUT}
+        for i, fi in enumerate(span):
+            f = man["frames"][fi]
+            ai = None if base is None else base + i
+            cells.append({
+                "index": i, "src": f["src"], "seed": f["seed"], "png": f.get("png"),
+                "hold": int(f.get("hold", 1)), "atlas": ai,
+                "xy": None if ai is None else [sh["frames"][ai]["x"], sh["frames"][ai]["y"]],
+                "metrics": None if ai is None else cell_metrics(cid, ai),
+                "variants": variants(cid, tag["name"], f["src"])})
+        tags.append({"name": tag["name"], "fps": tag["fps"], "loop": tag["loop"],
+                     "direction": tag["direction"], "hold_key": tag["hold_key"], "cells": cells})
+    return {"character": cid, "characters": CHARACTERS, "tags": tags, "pivot": pivot,
+            "cell": man["cell"], "columns": (sh or {}).get("columns", SS.SHEET_COLUMNS),
+            "atlas": sheet_paths(cid)[0], "outdir": RC.OUT}
 
 
 # --- the job queue -------------------------------------------------------------------------
@@ -184,14 +254,20 @@ def worker():
         try:
             fn(lambda msg: set_job(jid, "running", msg))
             set_job(jid, "done", f"{label} — done")
-        except Exception as e:
+        except BaseException as e:
+            # BaseException, not Exception: repaint_cells.repaint() and sprite_sheet's frame-
+            # keying checks used to raise SystemExit on a failed ComfyUI job, which is a
+            # BaseException and slips straight past `except Exception`. That silently killed
+            # this thread — the job stayed "running" forever and every job queued behind it
+            # never ran, so the whole editor looked dead until someone restarted the server.
+            # gpu-worker being down is routine here, so this path is reachable on any re-roll.
             traceback.print_exc()
             set_job(jid, "error", f"{label} — {type(e).__name__}: {e}")
         WORK.task_done()
 
 
 def repack(cid):
-    """Repaint anything missing and repack every move. Never write a packer here."""
+    """Repaint anything missing and repack the character. Never write a packer here."""
     argv = sys.argv
     sys.argv = ["repaint_cells", cid]
     try:
@@ -200,17 +276,30 @@ def repack(cid):
         sys.argv = argv
 
 
-def edit_manifest(cid, move, mutate):
-    """Apply `mutate` to the cell list, write it, then repack — in that order, always."""
-    man = RC.load_manifest(cid, move)
-    if not man:
-        raise ValueError(f"no manifest for {cid}-{move}")
-    cells = [dict(c) for c in man["cells"]]
-    cells = mutate(cells)
-    if not cells:
-        raise ValueError("a move cannot have zero cells")
-    meta = {k: man[k] for k in ("fps", "loop", "hold", "unify", "clip") if k in man}
-    RC.save_manifest(cid, move, cells, meta)
+def edit_manifest(cid, tag_name, mutate):
+    """Apply `mutate` to one tag's frames, splice them back, and save — in that order, always.
+
+    Dropping or adding a frame moves every LATER tag along the flat frame list, so their ranges are
+    renumbered here. A range left stale points at the neighbouring tag's cells, and the packer then
+    emits another move's drawings under this tag's name.
+    """
+    man = RC.load_character_manifest(cid)
+    i = RC._tag_index(man, tag_name) if man else None
+    if i is None:
+        raise ValueError(f"no {tag_name} tag for {cid}")
+    tag = man["tags"][i]
+    frames = mutate([dict(f) for f in man["frames"][tag["from"]:tag["to"] + 1]])
+    if not frames:
+        raise ValueError("a tag cannot have zero frames")
+    new = [RC._frame(f["src"], f["seed"], f.get("png"), f.get("hold", 1),
+                     f.get("pivot_nudge", (0, 0))) for f in frames]
+    shift = len(new) - (tag["to"] + 1 - tag["from"])
+    man["frames"][tag["from"]:tag["to"] + 1] = new
+    tag["to"] += shift
+    for later in man["tags"][i + 1:]:
+        later["from"] += shift
+        later["to"] += shift
+    RC.save_character_manifest(cid, man)
 
 
 # --- HTTP ----------------------------------------------------------------------------------
@@ -249,7 +338,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             elif u.path == "/api/state":
                 self.json(200, state(one("cid", "seth")))
             elif u.path == "/api/frames":
-                self.json(200, {"frames": source_frames(one("cid", "seth"), one("move", "walk"))})
+                self.json(200, {"frames": source_frames(one("cid", "seth"), one("tag", "walk"))})
+            elif u.path == "/cell":
+                self.serve_cell(one("cid", ""), one("i"), one("w"))
             elif u.path == "/img":
                 self.serve_image(one("path", ""), one("w"), one("dl") == "1")
             elif u.path.startswith("/api/job/"):
@@ -263,10 +354,40 @@ class Handler(http.server.BaseHTTPRequestHandler):
             traceback.print_exc()
             self.json(500, {"error": f"{type(e).__name__}: {e}"})
 
-    # The atlas is only half the deliverable: the frame table and the CSS ship with it, so they
-    # have to be downloadable too, or the sheet reads as something that only exists inside this page.
-    TYPES = {".png": "image/png", ".json": "application/json",
-             ".css": "text/css", ".webp": "image/webp"}
+    # The atlas is only half the deliverable: the frame table ships with it, so it has to be
+    # downloadable too, or the sheet reads as something that only exists inside this page.
+    TYPES = {".png": "image/png", ".json": "application/json"}
+
+    def png(self, im, width):
+        """PNG bytes for an image, optionally shrunk to fit `width`.
+
+        `thumbnail` mutates in place, which is safe only because every caller hands over an image
+        it just created — a crop off the cached atlas, or a freshly opened file. Never pass the
+        cached atlas itself.
+        """
+        from PIL import Image
+        if width:
+            w = max(16, min(512, int(width)))
+            im.thumbnail((w, w), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.save(buf, "PNG")
+        return buf.getvalue()
+
+    def serve_cell(self, cid, index, width):
+        """One packed cell, cropped live out of the atlas.
+
+        The cells used to be written out as `<cid>-<move>-frames/*.png` purely so this page could
+        link to them. One sheet means one file, so the crop happens here instead of on disk — the
+        editor never shows a cell the demo would not draw.
+        """
+        if cid not in CHARACTERS or index is None or not index.isdigit():
+            self.json(403, {"error": "unknown character or cell"})
+            return
+        im = cell_image(cid, int(index))
+        if im is None:
+            self.json(404, {"error": "no such cell in the atlas"})
+            return
+        self.send(200, self.png(im, width), "image/png")
 
     def serve_image(self, path, width, download=False):
         real = os.path.realpath(path)
@@ -281,12 +402,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             # The re-pick strip is 60+ full 832px frames. Sending them whole makes the strip take
             # tens of seconds to appear, which is long enough that you stop using the feature.
             from PIL import Image
-            im = Image.open(real).convert("RGBA")
-            w = max(16, min(512, int(width)))
-            im.thumbnail((w, w), Image.LANCZOS)
-            buf = io.BytesIO()
-            im.save(buf, "PNG")
-            body = buf.getvalue()
+            body = self.png(Image.open(real).convert("RGBA"), width)
         else:
             body = open(real, "rb").read()
         extra = ({"Content-Disposition": f'attachment; filename="{os.path.basename(real)}"'}
@@ -298,87 +414,93 @@ class Handler(http.server.BaseHTTPRequestHandler):
         try:
             n = int(self.headers.get("Content-Length") or 0)
             req = json.loads(self.rfile.read(n) or b"{}")
-            cid, move = req.get("cid", "seth"), req.get("move", "walk")
-            if cid not in CHARACTERS or move not in RC.MOVES:
-                raise ValueError("unknown character or move")
+            cid, tag = req.get("cid", "seth"), req.get("tag", "walk")
+            if cid not in CHARACTERS:
+                raise ValueError("unknown character")
+            # The tag list comes from the manifest, never from the MOVES table: MOVES is only the
+            # bootstrap recipe, and a tag that exists on disk must stay editable whether or not
+            # MOVES still names it.
+            man = RC.load_character_manifest(cid)
+            if not man or RC._tag_index(man, tag) is None:
+                raise ValueError(f"no {tag} tag for {cid}")
             handler = {"/api/reroll": self.reroll, "/api/repick": self.repick,
                        "/api/drop": self.drop, "/api/reorder": self.reorder,
                        "/api/use": self.use}.get(u.path)
             if not handler:
                 self.json(404, {"error": "not found"})
                 return
-            self.json(200, {"job": handler(cid, move, req)})
+            self.json(200, {"job": handler(cid, tag, req)})
         except Exception as e:
             traceback.print_exc()
             self.json(400, {"error": f"{type(e).__name__}: {e}"})
 
-    def queue_edit(self, label, cid, move, mutate, generates=True):
-        # The manifest edit itself runs on the worker too, so a queued edit always sees the cell
+    def queue_edit(self, label, cid, tag, mutate, generates=True):
+        # The manifest edit itself runs on the worker too, so a queued edit always sees the frame
         # list the edit before it left behind, not the one it was submitted against.
         def run(_progress):
-            edit_manifest(cid, move, mutate)
+            edit_manifest(cid, tag, mutate)
             repack(cid)
         return submit(label, run, generates)
 
-    def reroll(self, cid, move, req):
+    def reroll(self, cid, tag, req):
         i, seed = int(req["index"]), req.get("seed")
 
-        def mutate(cells):
-            c = cells[i]
+        def mutate(frames):
+            f = frames[i]
             new = int(seed) if seed is not None else random.randint(1, 2 ** 31 - 1)
-            if new == c["seed"]:
+            if new == f["seed"]:
                 raise ValueError("that is the seed the cell already has")
-            c["seed"] = new
-            c["png"] = RC.repaint_path(cid, move, c["src"], new)
-            return cells
-        return self.queue_edit(f"{cid}-{move} cell {i + 1} re-roll", cid, move, mutate)
+            f["seed"] = new
+            f["png"] = RC.repaint_path(cid, tag, f["src"], new)
+            return frames
+        return self.queue_edit(f"{cid}-{tag} cell {i + 1} re-roll", cid, tag, mutate)
 
-    def repick(self, cid, move, req):
+    def repick(self, cid, tag, req):
         i, src = int(req["index"]), req["src"]
-        if src not in source_frames(cid, move):
-            raise ValueError("that source frame is not in this move's pick directory")
+        if src not in source_frames(cid, tag):
+            raise ValueError("that source frame is not in this tag's pick directory")
 
-        def mutate(cells):
-            c = cells[i]
-            c["src"] = src
-            c["png"] = RC.repaint_path(cid, move, src, c["seed"])
-            return cells
-        return self.queue_edit(f"{cid}-{move} cell {i + 1} re-pick", cid, move, mutate)
+        def mutate(frames):
+            f = frames[i]
+            f["src"] = src
+            f["png"] = RC.repaint_path(cid, tag, src, f["seed"])
+            return frames
+        return self.queue_edit(f"{cid}-{tag} cell {i + 1} re-pick", cid, tag, mutate)
 
-    def use(self, cid, move, req):
+    def use(self, cid, tag, req):
         """Point a cell at a repaint that already exists. Repack only -- nothing to generate."""
         i, png = int(req["index"]), req["png"]
 
-        def mutate(cells):
-            c = cells[i]
-            if png not in [v["png"] for v in variants(cid, move, c["src"])]:
+        def mutate(frames):
+            f = frames[i]
+            if png not in [v["png"] for v in variants(cid, tag, f["src"])]:
                 raise ValueError("that is not a variant of this cell's source frame")
-            c["png"] = png
+            f["png"] = png
             stem = os.path.basename(png)[:-4].split("-s")
-            c["seed"] = int(stem[-1]) if len(stem) > 1 else RC.SEED
-            return cells
-        return self.queue_edit(f"{cid}-{move} cell {i + 1} use variant", cid, move, mutate,
+            f["seed"] = int(stem[-1]) if len(stem) > 1 else RC.SEED
+            return frames
+        return self.queue_edit(f"{cid}-{tag} cell {i + 1} use variant", cid, tag, mutate,
                                generates=False)
 
-    def drop(self, cid, move, req):
+    def drop(self, cid, tag, req):
         i = int(req["index"])
 
-        def mutate(cells):
-            if len(cells) <= 1:
-                raise ValueError("refusing to drop the last cell of a move")
-            del cells[i]
-            return cells
-        return self.queue_edit(f"{cid}-{move} drop cell {i + 1}", cid, move, mutate,
+        def mutate(frames):
+            if len(frames) <= 1:
+                raise ValueError("refusing to drop the last cell of a tag")
+            del frames[i]
+            return frames
+        return self.queue_edit(f"{cid}-{tag} drop cell {i + 1}", cid, tag, mutate,
                                generates=False)
 
-    def reorder(self, cid, move, req):
+    def reorder(self, cid, tag, req):
         order = [int(x) for x in req["order"]]
 
-        def mutate(cells):
-            if sorted(order) != list(range(len(cells))):
+        def mutate(frames):
+            if sorted(order) != list(range(len(frames))):
                 raise ValueError("order must be a permutation of the current cell indices")
-            return [cells[i] for i in order]
-        return self.queue_edit(f"{cid}-{move} reorder", cid, move, mutate, generates=False)
+            return [frames[i] for i in order]
+        return self.queue_edit(f"{cid}-{tag} reorder", cid, tag, mutate, generates=False)
 
 
 PAGE = r"""<!doctype html>
@@ -437,12 +559,12 @@ PAGE = r"""<!doctype html>
 </style>
 <main>
   <h1>Sprite cell editor</h1>
-  <p class="lede">Every cell of every move, as it ships. Pick a cell to see it next to the source
+  <p class="lede">Every cell of every tag, as it ships. Pick a cell to see it next to the source
   frame it was painted from — a bad drawing wants a new seed, a bad pose wants a different frame.
-  Each edit writes <code>sheets/&lt;cid&gt;-&lt;move&gt;.json</code> and repacks all seven moves.</p>
+  Each edit writes <code>sheets/&lt;cid&gt;.json</code> and repacks the whole character.</p>
 
   <div class="keys" id="chars"></div>
-  <div class="keys" id="moves"></div>
+  <div class="keys" id="tags"></div>
   <div id="status">ready</div>
 
   <div class="row">
@@ -455,8 +577,8 @@ PAGE = r"""<!doctype html>
 
   <div class="out">
     <h2>Where this ends up</h2>
-    <p class="muted">Every edit rewrites these files on disk. They are the deliverable — the demo
-    page just reads them.</p>
+    <p class="muted">Every edit rewrites these two files on disk. They are the deliverable — the
+    demo page just reads them.</p>
     <div class="keys" id="downloads"></div>
   </div>
 
@@ -486,11 +608,14 @@ PAGE = r"""<!doctype html>
   </div>
 </main>
 <script>
-const MOVES = ["walk","idle","punch","kick","jump","block","crouch"];
-let cid = "seth", move = "walk", ST = null, sel = 0, busy = false, bust = Date.now(), anim = null;
+// The tag list is not hard-coded here: it comes off the character manifest, so a tag added or
+// renamed in `sheets/<cid>.json` appears without touching this page.
+let cid = "seth", tagName = "walk", ST = null, sel = 0, busy = false, bust = Date.now(), anim = null;
 
 const img = (p, w) => "/img?path=" + encodeURIComponent(p) + (w ? "&w=" + w : "") + "&v=" + bust;
+const cellSrc = (i, w) => "/cell?cid=" + cid + "&i=" + i + (w ? "&w=" + w : "") + "&v=" + bust;
 const el = (id) => document.getElementById(id);
+const TAG = () => ST.tags.find(t => t.name === tagName) || ST.tags[0];
 
 function status(msg, err) {
   el("status").textContent = msg;
@@ -512,16 +637,19 @@ function buttons(host, items, current, pick) {
 async function load() {
   const r = await fetch("/api/state?cid=" + cid + "&v=" + Date.now());
   ST = await r.json();
-  const cells = ST.moves[move].cells;
+  if (ST.error) { status(ST.error, true); return; }
+  tagName = TAG().name;
+  const cells = TAG().cells;
   if (sel >= cells.length) sel = Math.max(0, cells.length - 1);
   render();
 }
 
 function render() {
-  if (ST.outdir) renderDownloads();
+  renderDownloads();
   buttons(el("chars"), ST.characters, cid, (c) => { cid = c; sel = 0; el("pickwrap").hidden = true; load(); });
-  buttons(el("moves"), MOVES, move, (m) => { move = m; sel = 0; el("pickwrap").hidden = true; load(); });
-  const mv = ST.moves[move], cells = mv.cells;
+  buttons(el("tags"), ST.tags.map(t => t.name), tagName,
+          (t) => { tagName = t; sel = 0; el("pickwrap").hidden = true; render(); });
+  const tag = TAG(), cells = tag.cells;
 
   const strip = el("strip");
   strip.innerHTML = "";
@@ -530,41 +658,65 @@ function render() {
     box.className = "cellbox" + (i === sel ? " sel" : "");
     const m = c.metrics;
     box.innerHTML = '<div class="n">' + (i + 1) + "</div>" +
-      (c.cell ? '<img src="' + img(c.cell) + '" alt="cell ' + (i + 1) + '">'
-              : '<div class="m" style="width:96px;height:96px">not packed</div>') +
+      (c.atlas !== null ? '<img src="' + cellSrc(c.atlas, 96) + '" alt="cell ' + (i + 1) + '">'
+                        : '<div class="m" style="width:96px;height:96px">not packed</div>') +
       '<div class="m">' + (m ? "h " + m.height + "\ntop " + m.top + "\nfeet " +
         (m.feet > 0 ? "+" : "") + m.feet : "empty") + "</div>";
     box.onclick = () => { sel = i; el("pickwrap").hidden = true; render(); };
     strip.appendChild(box);
   });
 
-  el("pvcap").textContent = mv.cells.length + " cells @ " + mv.fps + "fps" +
-    (mv.loop ? " loop" : mv.hold ? " hold" : " once");
-  playPreview(mv);
+  el("pvcap").textContent = cells.length + " cells @ " + tag.fps + "fps " + tag.direction +
+    (tag.loop ? " loop" : tag.hold_key ? " hold" : " once");
+  playPreview(tag);
   renderSelected(cells[sel], cells.length);
 }
 
-function playPreview(mv) {
+// Ping-pong follows the Aseprite convention the demo page uses: play from -> to, then back down
+// to (but not including) the first cell. Per-frame `hold` repeats a cell in the step list, which
+// is the same thing the game does with it.
+function steps(tag) {
+  const seq = [];
+  if (tag.direction === "reverse") {
+    for (let i = tag.cells.length - 1; i >= 0; i--) seq.push(i);
+  } else if (tag.direction === "pingpong") {
+    for (let i = 0; i < tag.cells.length; i++) seq.push(i);
+    for (let i = tag.cells.length - 2; i > 0; i--) seq.push(i);
+  } else {
+    for (let i = 0; i < tag.cells.length; i++) seq.push(i);
+  }
+  const out = [];
+  for (const i of seq) {
+    const c = tag.cells[i];
+    if (!c.xy) continue;
+    for (let k = 0; k < Math.max(1, c.hold); k++) out.push(c.xy);
+  }
+  return out;
+}
+
+function playPreview(tag) {
   if (anim) { clearInterval(anim); anim = null; }
   const cv = el("pv"), ctx = cv.getContext("2d");
-  ctx.clearRect(0, 0, 512, 512);
-  if (!mv.cells.length) return;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  const seq = steps(tag);
+  if (!seq.length) return;
   const sheet = new Image();
   sheet.onload = () => {
-    const n = Math.round(sheet.width / ST.cell), cell = ST.cell;
-    // A once-move ends on its last cell in the game. Here it replays after a short rest instead,
+    const cell = ST.cell;
+    // A once-tag ends on its last cell in the game. Here it replays after a short rest instead,
     // because a preview frozen on the recovery pose tells you nothing about the motion.
-    const total = mv.loop ? n : n + Math.ceil(mv.fps * 0.7);
+    const total = tag.loop ? seq.length : seq.length + Math.ceil(tag.fps * 0.7);
     let f = 0;
     const step = () => {
       ctx.clearRect(0, 0, cv.width, cv.height);
-      ctx.drawImage(sheet, Math.min(f, n - 1) * cell, 0, cell, cell, 0, 0, cv.width, cv.height);
+      const [x, y] = seq[Math.min(f, seq.length - 1)];
+      ctx.drawImage(sheet, x, y, cell, cell, 0, 0, cv.width, cv.height);
       f = (f + 1) % total;
     };
     step();
-    anim = setInterval(step, 1000 / mv.fps);
+    anim = setInterval(step, 1000 / tag.fps);
   };
-  sheet.src = img(mv.atlas);
+  sheet.src = img(ST.atlas);
 }
 
 function renderSelected(c, n) {
@@ -581,7 +733,7 @@ function renderSelected(c, n) {
     b.onclick = () => post("/api/use", {index: c.index, png: v.png}, "use seed " + v.seed);
     el("variants").appendChild(b);
   }
-  el("bigcell").src = c.cell ? img(c.cell) : "";
+  el("bigcell").src = c.atlas !== null ? cellSrc(c.atlas) : "";
   el("bigcap").textContent = "cell " + (c.index + 1) + " — packed, seed " + c.seed;
   el("bigsrc").src = img(c.src);
   el("srccap").textContent = "source — " + c.src.split("/").pop();
@@ -589,8 +741,8 @@ function renderSelected(c, n) {
   el("facts").innerHTML = m
     ? "silhouette height <b>" + m.height + "</b>px<br>top clearance <b>" + m.top +
       "</b>px<br>feet offset <b>" + (m.feet > 0 ? "+" : "") + m.feet +
-      "</b>px from the ground line (y=" + ST.ground + ")<br>seed <b>" + c.seed + "</b>"
-    : "no packed cell on disk yet";
+      "</b>px from the ground line (y=" + m.ground + ")<br>seed <b>" + c.seed + "</b>"
+    : "no packed cell in the atlas yet";
   for (const [id, off] of [["b-reroll", false], ["b-repick", false], ["b-drop", n <= 1],
                            ["b-left", c.index === 0], ["b-right", c.index === n - 1]]) {
     el(id).disabled = busy || off;
@@ -598,27 +750,25 @@ function renderSelected(c, n) {
 }
 
 function renderDownloads() {
-  const m = ST.moves[move], box = el("downloads");
-  const base = ST.outdir + "/" + cid + "-" + move;
-  const files = [[base + ".png", "atlas PNG"], [base + ".json", "frame table JSON"],
-                 [base + ".css", "CSS steps()"], [base + "-preview.webp", "animated preview"]];
+  const box = el("downloads");
+  const base = ST.outdir + "/" + cid;
   box.innerHTML = '<div class="muted" style="width:100%">' + ST.outdir + "</div>";
-  for (const [path, label] of files) {
+  for (const [path, label] of [[base + ".png", "atlas PNG"], [base + ".json", "frame table JSON"]]) {
     const a = document.createElement("a");
     a.className = "dl"; a.href = "/img?path=" + encodeURIComponent(path) + "&dl=1";
-    a.download = path.split("/").pop(); a.textContent = "\u2193 " + label;
+    a.download = path.split("/").pop(); a.textContent = "↓ " + label;
     box.appendChild(a);
   }
   const demo = document.createElement("a");
   demo.className = "dl"; demo.href = "http://wilson/cast-fighter.html"; demo.target = "_blank";
-  demo.textContent = "\u2197 play it in the demo";
+  demo.textContent = "↗ play it in the demo";
   box.appendChild(demo);
 }
 
 async function post(url, body, label) {
   busy = true; render(); status(label + " — queued…");
   const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"},
-                             body: JSON.stringify(Object.assign({cid, move}, body))});
+                             body: JSON.stringify(Object.assign({cid, tag: tagName}, body))});
   const j = await r.json();
   if (!r.ok || j.error) { busy = false; status(j.error || "request failed", true); render(); return; }
   poll(j.job);
@@ -631,7 +781,7 @@ function poll(jid) {
     status(j.message, j.state === "error");
     if (j.state === "done" || j.state === "error") {
       busy = false;
-      bust = Date.now();          // the files were overwritten in place; force every img to refetch
+      bust = Date.now();          // the atlas was overwritten in place; force every img to refetch
       await load();
       return;
     }
@@ -646,7 +796,7 @@ el("b-left").onclick = () => swap(sel, sel - 1);
 el("b-right").onclick = () => swap(sel, sel + 1);
 
 function swap(a, b) {
-  const order = ST.moves[move].cells.map((c, i) => i);
+  const order = TAG().cells.map((c, i) => i);
   [order[a], order[b]] = [order[b], order[a]];
   sel = b;
   post("/api/reorder", {order}, "reorder");
@@ -658,9 +808,9 @@ el("b-repick").onclick = async () => {
   wrap.hidden = false;
   const picker = el("picker");
   picker.innerHTML = "loading frames…";
-  const r = await fetch("/api/frames?cid=" + cid + "&move=" + move);
+  const r = await fetch("/api/frames?cid=" + cid + "&tag=" + tagName);
   const frames = (await r.json()).frames;
-  const cur = ST.moves[move].cells[sel].src;
+  const cur = TAG().cells[sel].src;
   el("pickcount").textContent = "(" + frames.length + " available)";
   picker.innerHTML = "";
   for (const f of frames) {

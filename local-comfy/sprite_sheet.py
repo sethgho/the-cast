@@ -341,7 +341,10 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth, stop=False):
     boxes = [bbox(r) for r in rgba]
     keep = [i for i, b in enumerate(boxes) if b]
     if not keep:
-        raise SystemExit(f"{name}: every frame keyed to nothing — is the clip actually on magenta?")
+        # RuntimeError, not SystemExit: this runs as a library call from sprite_editor's worker
+        # thread. SystemExit is a BaseException and slips past a bare `except Exception`,
+        # silently killing the worker thread and stalling every job queued behind it.
+        raise RuntimeError(f"{name}: every frame keyed to nothing — is the clip actually on magenta?")
 
     # A HOLD move must stop at its held pose: the player freezes on the last cell, so the recovery
     # must never be picked. hold_end reads that off the clip's own motion.
@@ -381,7 +384,9 @@ def _prepare_stills(paths, smooth=True, unify="none"):
     boxes = [bbox(r) for r in rgba]
     picks = [i for i, b in enumerate(boxes) if b]
     if not picks:
-        raise SystemExit("every still keyed to nothing — are they on magenta?")
+        # RuntimeError, not SystemExit: see _prepare() above — this is a library function, and
+        # a BaseException here would silently kill sprite_editor's worker thread.
+        raise RuntimeError("every still keyed to nothing — are they on magenta?")
     if len(picks) != len(paths):
         # A dropped index must be loud: `picks` still carries each surviving cell's ORIGINAL
         # manifest position (consumers like _emit_sheet key metadata off that, not off position in

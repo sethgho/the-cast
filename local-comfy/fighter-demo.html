@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Deployed copy: /home/wilson/artifacts/cast-fighter.html — this file (local-comfy/fighter-demo.html) is the source; keep them identical after editing here and redeploy by copying. -->
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,17 +27,41 @@
   th { color: #c9bfae; }
   code { background: #241f19; border: 1px solid #3a332a; border-radius: 4px; padding: .06em .35em; font-size: .88em; }
   .note { border-left: 3px solid #d8a657; padding: .3rem 0 .3rem .9rem; margin: 1.2rem 0; color: #c9bfae; }
+
+  h2 { font-size: 1.05rem; letter-spacing: .04em; text-transform: uppercase; color: #c9bfae;
+       margin: 2.4rem 0 .2rem; }
+  .flow { display: grid; gap: .6rem; margin: 1rem 0 0; }
+  .lane { border: 1px solid #3a332a; border-radius: 10px; background: #1b1814; padding: .9rem 1rem 1rem; }
+  .lane > h3 { margin: 0 0 .1rem; font: 700 .8rem/1.3 ui-monospace, monospace; letter-spacing: .1em;
+               color: #d8a657; text-transform: uppercase; }
+  .lane > .where { margin: 0 0 .8rem; font-size: .8rem; color: #8d8371; }
+  .step { display: grid; grid-template-columns: 1.6rem 1fr; gap: .1rem .6rem; padding: .5rem 0;
+          border-top: 1px solid #2d2822; }
+  .step:first-of-type { border-top: 0; }
+  .step .n { grid-row: span 2; font: 700 .8rem/1.6 ui-monospace, monospace; color: #1a1610;
+             background: #d8a657; border-radius: 50%; width: 1.6rem; height: 1.6rem; text-align: center; }
+  .step .what { font-weight: 600; }
+  .step .why { color: #9d9280; font-size: .85rem; }
+  .step .why code { font-size: .82em; }
+  .arrow { text-align: center; color: #4a4136; font-size: 1.1rem; line-height: 1; }
+  .arrow span { color: #8d8371; font-size: .78rem; font-family: ui-monospace, monospace; }
 </style>
 <main>
-  <h1>Seth, playable</h1>
-  <p class="lede">Seven moves, each one a MiniMax H3 clip rendered on a magenta stage at
-  <b>832×832, 20 steps</b> — the character filling the frame — then keyed, cut to its pose extremes
-  and packed into a normalised atlas. All on gpu-worker, no cloud credits.
+  <h1>Seth and Cadbury, playable</h1>
+  <p class="lede">Two characters, seven moves each. Cadbury's sheets came out of the <b>same
+  pipeline with no tuning changes</b> — same constants, same packer — which was the real test.
+  A MiniMax H3 clip supplies the <i>motion</i>; every cell it chooses is
+  then <b>repainted as a drawing</b> by Qwen-Image-Edit before packing, so nothing that ships is a
+  video frame. All on gpu-worker, no cloud credits.
   <b>Click the screen, then use the keys.</b></p>
 
   <div class="screen" id="screen" tabindex="0">
     <canvas id="c" width="1280" height="720"></canvas>
     <div class="hud"><span id="state">IDLE</span><span id="move"></span></div>
+  </div>
+  <div class="keys cast">
+    <button data-cid="seth" class="on">Seth</button>
+    <button data-cid="cadbury">Cadbury</button>
   </div>
   <div class="keys">
     <button data-k="ArrowLeft">← walk</button>
@@ -49,41 +74,143 @@
   </div>
 
   <table>
-    <tr><th>Move</th><th>Drawn beats</th><th>Cells after RIFE</th><th>Plays at</th></tr>
-    <tr><td>walk</td><td>8 — contact/down/passing/up, both legs</td><td>24</td><td>24 fps, loops</td></tr>
-    <tr><td>idle</td><td>4</td><td>12</td><td>18 fps, loops</td></tr>
-    <tr><td>punch · kick</td><td>5 — guard, wind, half, extension, recovery</td><td>9</td><td>22–24 fps, once</td></tr>
-    <tr><td>jump</td><td>5 — crouch, launch, apex, descent, land</td><td>9</td><td>18 fps, once</td></tr>
-    <tr><td>block · crouch</td><td>3</td><td>5</td><td>once, holds on the last cell</td></tr>
+    <tr><th>Move</th><th>Cells kept</th><th>Plays at</th></tr>
+    <tr><td>walk</td><td>10 — one full gait period</td><td>14 fps, loops</td></tr>
+    <tr><td>idle</td><td>8</td><td>14 fps, loops</td></tr>
+    <tr><td>punch · kick</td><td>8 — guard, wind, half, extension, recovery</td><td>16 fps, once</td></tr>
+    <tr><td>jump</td><td>8 — crouch, launch, apex, descent, land</td><td>16 fps, once</td></tr>
+    <tr><td>block · crouch</td><td>6</td><td>16 fps, once, holds on the last cell</td></tr>
   </table>
 
-  <div class="note"><b>The blur was draft settings, not the method.</b> The first version rendered
-  512×512 at 10 steps, which draws the character about 240px tall in a soft frame — and then the
-  demo magnified him 2.4×. At 832×832 and 20 steps he fills the frame at roughly 600px, so the
-  packer is scaling <i>down</i> rather than up, which is where crispness comes from. Cost: 170s a
-  move instead of 50.
-  <br><br><b>Three things the packer does with those clips.</b> It keys the magenta against the
-  colour it measures in the frame rather than a constant; it aligns every cell on the bottom centre
-  of the character's own silhouette, so his feet stay planted; and it nudges each pick to the
-  sharpest frame within a couple either side, because H3 motion-blurs a limb that is travelling
-  fast and the beat often lands on one of those.
+  <h2>How a move gets made</h2>
+  <p class="lede">Top to bottom in time. The clip is a pose source, not artwork — it is the only
+  thing that knows how a punch moves, and the only thing that cannot draw.</p>
+
+  <div class="flow">
+    <div class="lane">
+      <h3>1 · Render</h3>
+      <p class="where">gpu-worker · ComfyUI · ~170s per move · <code>hires_sprite.py</code></p>
+      <div class="step"><span class="n">1</span><span class="what">The character's reference plate</span>
+        <span class="why">One nano-banana original. It is the identity reference for every move, so
+        the character cannot drift between them.</span></div>
+      <div class="step"><span class="n">2</span><span class="what">Stage lock + move recipe</span>
+        <span class="why"><code>SPRITE_LOCK</code> fixes the flat magenta screen, the locked-off side
+        view and the ground line; the recipe adds only the movement. Anything that varies here reads
+        later as the camera moving.</span></div>
+      <div class="step"><span class="n">3</span><span class="what">MiniMax H3, 832² · 20 steps · 61 frames</span>
+        <span class="why">Frame 1 is pinned to a magenta plate so the clip starts on the stage. At
+        832 he fills the frame at ~600px, which is why the packer scales <i>down</i>.</span></div>
+    </div>
+
+    <div class="arrow">↓ <span>an .mp4 on a magenta screen — 61 frames of motion</span></div>
+
+    <div class="lane">
+      <h3>2 · Choose &amp; repaint</h3>
+      <p class="where">CPU picks, GPU redraws · ~30s per cell · <code>repaint_cells.py</code></p>
+      <div class="step"><span class="n">4</span><span class="what">Pick the cells, not every frame</span>
+        <span class="why">Finds the gait period by self-similarity, keeps the pose extremes where
+        motion energy peaks, then nudges each pick to the sharpest frame within two either side.
+        Choosing has to happen on the video, because only the sequence knows where the motion is.
+        6 to 10 cells survive out of 61 frames.</span></div>
+      <div class="step"><span class="n">5</span><span class="what">Repaint each cell as a drawing</span>
+        <span class="why">Each chosen frame goes back through Qwen-Image-Edit as an <b>edit of
+        itself</b> — "this is a repaint, the pose is already correct". That distinction is the whole
+        trick: hand the same frame over as a <i>reference</i> image and Qwen re-poses the character,
+        because a reference is an identity reference. Measured edge sharpness 8.8 → 14.9, and one
+        locked seed keeps the drawing from wandering between cells.</span></div>
+    </div>
+
+    <div class="arrow">↓ <span>clean drawings on flat magenta</span></div>
+
+    <div class="lane">
+      <h3>3 · Pack</h3>
+      <p class="where">CPU · seconds · <code>sprite_sheet.py</code></p>
+      <div class="step"><span class="n">6</span><span class="what">Key the magenta out</span>
+        <span class="why">Soft distance ramp against the screen colour measured from the corners,
+        plus a despill on blue-above-green. The de-noising pass the video frames needed is switched
+        off here — a repaint has no codec noise, and the median only cost halftone dots.</span></div>
+      <div class="step"><span class="n">7</span><span class="what">Anchor on the feet</span>
+        <span class="why">Bottom centre of each silhouette, median-smoothed over three cells. This is
+        the origin a game engine expects, and it is what stops him swimming in the cell.</span></div>
+      <div class="step"><span class="n">8</span><span class="what">One scale for all seven moves</span>
+        <span class="why">Measures every move first, then packs them all at the same pixels-per-character
+        — against the tallest silhouette <em>and</em> the highest reach, because the feet line sits at
+        94% of the cell, so fitting the cell is not the same as fitting above the feet.</span></div>
+      <div class="step"><span class="n">9</span><span class="what">Emit the atlas</span>
+        <span class="why"><code>seth-walk.png</code> + <code>.json</code> + a ready-made CSS
+        <code>steps()</code> animation. Uniform cells, transparent background, interchangeable.</span></div>
+    </div>
+
+    <div class="arrow">↓ <span>one atlas + seth.json</span></div>
+
+    <div class="lane">
+      <h3>4 · Play</h3>
+      <p class="where">this page · <code>&lt;canvas&gt;</code>, no engine</p>
+      <div class="step"><span class="n">10</span><span class="what">The sheet describes itself</span>
+        <span class="why">The page reads the flat frame list and its named tags — fps, loop,
+        direction, hold_key, per-frame hold and pivot — straight out of the JSON, so a repack
+        never leaves it stale.</span></div>
+      <div class="step"><span class="n">11</span><span class="what">State machine</span>
+        <span class="why">Loops (idle, walk) advance freely; one-shots lock the character until the
+        last cell plays. Hold moves then stay on that cell while the key is down — snapping straight
+        to it is what made crouch flash a single frame.</span></div>
+      <div class="step"><span class="n">12</span><span class="what">Draw</span>
+        <span class="why">Canvas backing store matched to device pixels, cell drawn with its pivot
+        on the floor line, and the sprite mirrored for facing. Every extra resample here costs
+        crispness the packer already paid for.</span></div>
+    </div>
+  </div>
+
+  <div class="note"><b>Two failed ideas worth not repeating.</b> Refining an H3 frame with partial
+  denoise makes mush, because the Lightning LoRA needs cfg 1.0 and a full denoise. And feeding an H3
+  frame to Qwen as a <i>reference</i> image comes back crisp but re-posed — a reference image is an
+  identity reference, not a pose reference. Editing the frame in place is the version that works,
+  and it was the last thing tried rather than the first.
+  <br><br><b>Render size still mattered.</b> The original 512×512 / 10-step clips drew the character
+  about 240px tall in a soft frame; at 832×832 and 20 steps he fills it at roughly 600px, which is
+  enough for the cell picker to tell a sharp frame from a blurred one. The repaint fixes the
+  drawing, not the choosing.
   <br><br>Back to the <a href="cast-local-comfy.html">apps and how they were built</a>.</div>
 </main>
 <script>
-// The sheets describe themselves: sprite_poses.py writes seth-moves.json next to the atlases
-// with the frame count and the playback rate for every move, so this page never goes stale.
-let MOVES = {};
-const sheets = {};
-async function loadMoves() {
-  MOVES = await (await fetch("cast-fighter/sprites/seth-moves.json")).json();
-  await Promise.all(Object.entries(MOVES).map(([name, m]) => new Promise(res => {
-    const img = new Image();
-    img.onload = img.onerror = res;
-    img.src = `cast-fighter/sprites/${m.file}.png`;
-    sheets[name] = img;
-  })));
+// The sheet describes itself: sprite_poses.py writes <cid>.json next to <cid>.png, one flat
+// frame list (10-column grid of 512px cells) sliced into named tags — walk, idle, punch, kick,
+// jump, block, crouch — each with its own fps, loop flag, playback direction and whether the
+// game should hold on the tag's last cell while a key is down (hold_key). Per-frame `hold` is a
+// duration multiplier (an animator holding an extreme) — a different knob from hold_key, not to
+// be confused with it. Two characters, one loader; both JSON files have the same shape, so the
+// state machine below does not know which one it is driving.
+let CELL = 512, FRAMES = [], TAGS = {};
+let atlasImg = null;
+const CAST = { seth: "Seth", cadbury: "Cadbury" };
+let who = "seth";
+
+// Ping-pong follows the Aseprite convention: play from -> to, then back down to (but not
+// including) `from`, then loop back to `from`. Endpoint cells are shown once per direction
+// reversal — never held twice in a row.
+function buildSteps(tag, frames) {
+  const seq = [];
+  if (tag.direction === "reverse") {
+    for (let i = tag.to; i >= tag.from; i--) seq.push(i);
+  } else if (tag.direction === "pingpong") {
+    for (let i = tag.from; i <= tag.to; i++) seq.push(i);
+    for (let i = tag.to - 1; i > tag.from; i--) seq.push(i);
+  } else {
+    for (let i = tag.from; i <= tag.to; i++) seq.push(i);
+  }
+  return seq.map(idx => ({ idx, hold: Math.max(1, frames[idx].hold || 1) }));
 }
-const CELL = 512;
+
+async function loadCast(cid) {
+  const data = await (await fetch(`cast-fighter/sprites/${cid}.json`)).json();
+  const img = new Image();
+  await new Promise(res => { img.onload = img.onerror = res; img.src = `cast-fighter/sprites/${cid}.png`; });
+  CELL = data.cell; FRAMES = data.frames; atlasImg = img; who = cid;
+  TAGS = {};
+  for (const t of data.tags) TAGS[t.name] = { ...t, steps: buildSteps(t, FRAMES) };
+  locked = null;
+  resetState("idle");
+}
 
 const cv = document.getElementById("c"), ctx = cv.getContext("2d");
 // Match the backing store to the displayed size. A 1280-wide canvas shown at 900 CSS px
@@ -102,14 +229,32 @@ const keys = new Set();
 // A quick tap can start and finish inside one animation frame, so edges are latched here and
 // consumed by the state machine rather than read live off `keys`.
 const tapped = new Set();
-let state = "idle", frame = 0, acc = 0, x = 640, facing = 1, y = 0, vy = 0, locked = null;
+let state = "idle", cur = null, acc = 0, x = 640, facing = 1, y = 0, vy = 0, locked = null;
 
 const GROUND = 690, SCALE = 1.0, WALK_SPEED = 210, GRAVITY = 2100, JUMP_V = 780;
 
+// Always rebuilds the playback cursor, even when the tag name repeats — a character switch
+// needs a fresh `cur` pointing at the new cast member's steps even though the tag is still "idle".
+function resetState(next) {
+  state = next;
+  const tag = TAGS[next];
+  cur = { tag, stepIdx: 0, holdLeft: tag.steps[0].hold, done: false };
+  acc = 0;
+  stateEl.textContent = next.toUpperCase();
+}
 function setState(next) {
   if (state === next) return;
-  state = next; frame = 0; acc = 0;
-  stateEl.textContent = next.toUpperCase();
+  resetState(next);
+}
+function advanceStep(anim) {
+  anim.holdLeft--;
+  if (anim.holdLeft > 0) return;
+  anim.stepIdx++;
+  if (anim.stepIdx >= anim.tag.steps.length) {
+    if (anim.tag.loop) anim.stepIdx = 0;
+    else { anim.stepIdx = anim.tag.steps.length - 1; anim.done = true; }
+  }
+  anim.holdLeft = anim.tag.steps[anim.stepIdx].hold;
 }
 
 addEventListener("keydown", e => {
@@ -134,15 +279,14 @@ function tick(now) {
 
   // one-shot moves own the character until their last cell plays out
   if (locked) {
-    const m = MOVES[locked];
-    // Play the move through, THEN hold on its last cell while the key is down. Snapping straight
-    // to the last cell is why crouch looked like a single flashed frame.
-    const holdKey = locked === "block" ? "l" : "ArrowDown";
+    const tag = cur.tag;
     acc += dt;
-    if (acc >= 1 / m.fps) { acc = 0; frame++; }
-    if (frame >= m.frames) {
-      frame = m.frames - 1;
-      if (!m.hold || !keys.has(holdKey)) locked = null;
+    if (acc >= 1 / tag.fps) { acc -= 1 / tag.fps; if (!cur.done) advanceStep(cur); }
+    if (cur.done) {
+      // Play the move through, THEN hold on its last cell while the key is down (hold_key).
+      // Snapping straight to the last cell is why crouch looked like a single flashed frame.
+      const holdKey = locked === "block" ? "l" : "ArrowDown";
+      if (!tag.hold_key || !keys.has(holdKey)) locked = null;
     }
   }
 
@@ -167,14 +311,11 @@ function tick(now) {
   if (!locked && y === 0) setState(moving ? "walk" : "idle");
   if (y < 0) setState("jump");
 
-  // advance looping states
+  // advance looping states (and non-locked one-shots, e.g. jump, which just freeze on land)
   if (!locked) {
-    const m = MOVES[state];
+    const tag = cur.tag;
     acc += dt;
-    if (acc >= 1 / m.fps) {
-      acc = 0;
-      frame = m.loop ? (frame + 1) % m.frames : Math.min(frame + 1, m.frames - 1);
-    }
+    if (acc >= 1 / tag.fps) { acc -= 1 / tag.fps; if (!cur.done) advanceStep(cur); }
   }
 
   tapped.clear();
@@ -189,18 +330,27 @@ function draw() {
   ctx.strokeStyle = "#c9bfa6"; ctx.lineWidth = 3 * u;
   ctx.beginPath(); ctx.moveTo(60 * u, (GROUND + 4) * u); ctx.lineTo(cv.width - 60 * u, (GROUND + 4) * u); ctx.stroke();
 
-  const m = MOVES[locked || state], img = sheets[locked || state];
+  const s = cur.tag.steps[cur.stepIdx], f = FRAMES[s.idx];
   const unit = cv.height / 720;
-  moveEl.textContent = `${m.file}.png · cell ${frame + 1}/${m.frames}`;
-  if (!img || !img.complete) return;
+  moveEl.textContent = `${who}.png · ${state} cell ${cur.stepIdx + 1}/${cur.tag.steps.length}`;
+  if (!atlasImg || !atlasImg.complete) return;
   const w = CELL * SCALE * unit, h = CELL * SCALE * unit;
   ctx.save();
   ctx.translate(x * unit, (GROUND + y) * unit);
   ctx.scale(facing, 1);
-  // cells are anchored at the feet, 94% down the cell — line that up with the floor
-  ctx.drawImage(img, frame * CELL, 0, CELL, CELL, -w / 2, -h * 0.94, w, h);
+  // pivot is the character's origin inside the cell — draw so it lands on the world position.
+  // Replaces the old hard-coded h * 0.94 feet line.
+  ctx.drawImage(atlasImg, f.x, f.y, CELL, CELL, -f.pivot[0] * SCALE * unit, -f.pivot[1] * SCALE * unit, w, h);
   ctx.restore();
 }
-loadMoves().then(() => requestAnimationFrame(tick));
+for (const b of document.querySelectorAll(".cast button")) {
+  b.addEventListener("click", async () => {
+    for (const o of document.querySelectorAll(".cast button")) o.classList.remove("on");
+    b.classList.add("on");
+    await loadCast(b.dataset.cid);
+    document.getElementById("screen").focus();
+  });
+}
+loadCast("seth").then(() => requestAnimationFrame(tick));
 </script>
 </html>
