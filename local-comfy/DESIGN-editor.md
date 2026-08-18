@@ -110,6 +110,12 @@ over the same data.
 
 The data model comes first, because everything else hangs off it.
 
+0. **Constraint on everything below:** manifest reads and writes go behind a narrow
+   interface — `load_character_manifest` / `save_character_manifest` and nothing else. No
+   `json.load` on a manifest path anywhere else in the codebase. Stage 6 replaces that
+   interface with an HTTP call to a Durable Object; if the calls are scattered, the
+   editor gets rewritten twice.
+
 1. **Tags and per-frame duration** — one manifest per character, tags replacing the
    seven-way split, `hold` per frame. Migrate the existing `sheets/*.json`.
 2. **Pivot as data** — sheet pivot plus per-frame nudge, dragged on canvas, with the
@@ -121,3 +127,60 @@ The data model comes first, because everything else hangs off it.
 
 Nothing here changes how a cell is generated. The pipeline stays exactly as it is; this
 is all downstream of the atlas.
+
+
+## Stage 6 — deploy as a private service on celld
+
+The editor should run as a service on the cluster, not as a script someone remembers to
+start. celld is the right host for **half** of it, and being precise about which half is
+the whole design.
+
+### What cannot move
+
+The packer is numpy and PIL. The repaint drives ComfyUI on gpu-worker. Both read files
+under `/tmp` and `/home/wilson/artifacts`. None of that runs in V8, so porting
+`sprite_editor.py` to a Worker is not an option and never will be.
+
+### What celld is genuinely right for
+
+**The manifest, as one Durable Object per character.** Single-threaded, consistent, and
+its state lives in the bucket, so it survives a node restart and a container reboot —
+both measured. Every edit stages 2 through 4 add (retag, per-frame hold, pivot, reorder)
+is pure state manipulation with no filesystem, which is exactly the shape celld's docs
+describe as its sweet spot: many small, independent, persistent state machines.
+
+The DO also owns the **job queue**, which fixes something the Python server cannot: two
+browsers can currently both submit the same 45-second GPU job. A DO is the natural lock.
+
+### The split
+
+```
+  browser ──► celld Worker (assets: the editor page)
+                 └─► CharacterDO  — manifest, job queue, cost accounting
+                        ▲
+                        │ long-poll for work, post results
+                 wilson agent  — repaint (ComfyUI on gpu-worker), pack (numpy/PIL)
+                        │
+                        └─► images stay on wilson's artifact server, served over the LAN
+```
+
+Images stay where they are. celld's assets are per-deploy and not writable at runtime,
+so pushing 5120x3072 atlases through the bucket would mean S3 signing inside the Worker
+for no benefit.
+
+### Private means no ingress
+
+Skip the tunnel and the DNS record — those steps exist to publish a fleet. This one is
+LAN only: a bucket, a scoped MinIO user, a systemd unit on the next free port (8087,
+internal 18087) on CT 113, reachable at `192.168.0.19:8087` or a split-horizon
+`sprites.gholson.lan`. Budget ~42 MB idle for the fleet.
+
+### Two things that will bite
+
+- **A deploy takes the DO route down briefly** (~10s on v0.2.1, ~25s on v0.1.0) while the
+  asset path keeps answering 200. So health-check a DO-backed route, never `/`, and pick
+  one that returns 5xx rather than 404 when routing is broken — `celld-release` counts a
+  404 as healthy.
+- **workerd extensions are missing from celld.** `Response.redirect()` and
+  `crypto.subtle.timingSafeEqual` do not exist; both have broken a live fleet here.
+  A test suite running on workerd cannot catch either.
