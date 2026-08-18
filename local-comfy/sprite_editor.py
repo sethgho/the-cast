@@ -48,12 +48,24 @@ import urllib.parse
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+import exports as EX  # noqa: E402
 import repaint_cells as RC  # noqa: E402
 import sprite_sheet as SS  # noqa: E402
 
 PORT = 8811
 CHARACTERS = ["seth", "cadbury"]
 PICK_SKIP = 6                    # settle-in frames pick_frames drops; not offerable as a re-pick
+
+# /api/export?cid=&format= -- each value is (builder, content-type, filename(cid)). The builder
+# is a pure function of the atlas table (`exports.load_atlas`), so this list is the entire
+# contract with exports.py; nothing else in this file needs to know the export formats exist.
+EXPORT_FORMATS = {
+    "json-hash": (EX.export_json_hash, "application/json", lambda cid: f"{cid}-atlas-hash.json"),
+    "json-array": (EX.export_json_array, "application/json", lambda cid: f"{cid}-atlas-array.json"),
+    "phaser3": (EX.export_phaser3, "application/json", lambda cid: f"{cid}-phaser3.json"),
+    "godot": (EX.export_godot, "text/plain; charset=utf-8", lambda cid: f"{cid}-frames.tres"),
+    "css": (EX.export_css, "text/css; charset=utf-8", lambda cid: f"{cid}-sprite.css"),
+}
 
 # /img serves nothing outside these. The editor only ever needs source frames, repaints and the
 # packed output, and an unrestricted path parameter on a LAN-bound server is a file-read hole.
@@ -211,7 +223,11 @@ def state(cid):
             ai = None if base is None else base + i
             cells.append({
                 "index": i, "src": f["src"], "seed": f["seed"], "png": f.get("png"),
-                "hold": int(f.get("hold", 1)), "atlas": ai,
+                "hold": int(f.get("hold", 1)),
+                # The nudge is an OFFSET from the sheet pivot, never an absolute point: the page
+                # draws the crosshair at pivot+nudge and posts the offset back, so a later change
+                # to the sheet pivot carries every nudged cell with it.
+                "pivot_nudge": [int(v) for v in f.get("pivot_nudge", (0, 0))], "atlas": ai,
                 "xy": None if ai is None else [sh["frames"][ai]["x"], sh["frames"][ai]["y"]],
                 "metrics": None if ai is None else cell_metrics(cid, ai),
                 "variants": variants(cid, tag["name"], f["src"])})
@@ -302,6 +318,54 @@ def edit_manifest(cid, tag_name, mutate):
     RC.save_character_manifest(cid, man)
 
 
+def edit_character(cid, mutate):
+    """Apply `mutate` to the whole manifest and save it.
+
+    The sheet pivot and a tag's fps and direction sit OUTSIDE any frame range, so `edit_manifest`
+    -- which exists to splice one tag's frame list and renumber the tags after it -- cannot express
+    them. Same order as every other mutation here: read, mutate, write, and only then repack.
+    """
+    man = RC.load_character_manifest(cid)
+    if not man:
+        raise ValueError(f"no manifest for {cid}")
+    mutate(man)
+    RC.save_character_manifest(cid, man)
+
+
+# --- validation ----------------------------------------------------------------------------
+# Every one of these refuses with a sentence rather than writing a value the packer would then
+# have to survive. A pivot off the cell pastes the artwork outside its own cell in the atlas, and
+# an fps of 0 divides by zero in both consumers -- neither fails where it was caused.
+
+
+def _whole(value, what):
+    """A JSON whole number. `bool` is an `int` in Python, and `true` is not a coordinate."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{what} must be a whole number, not {value!r}")
+    return value
+
+
+def _xy(value, what):
+    if not isinstance(value, list) or len(value) != 2:
+        raise ValueError(f"{what} must be a pair [x, y]")
+    return _whole(value[0], f"{what} x"), _whole(value[1], f"{what} y")
+
+
+def _in_cell(x, y, cell, what):
+    if not (0 <= x < cell and 0 <= y < cell):
+        raise ValueError(f"{what} {x},{y} is outside the {cell}px cell")
+
+
+def _cell_index(man, tag_name, req):
+    """A cell's position WITHIN ITS TAG, checked against the tag that is actually on disk."""
+    tag = man["tags"][RC._tag_index(man, tag_name)]
+    n = tag["to"] - tag["from"] + 1
+    i = _whole(req.get("index"), "index")
+    if not 0 <= i < n:
+        raise ValueError(f"cell {i + 1} is not in the {tag_name} tag — it has {n}")
+    return i
+
+
 # --- HTTP ----------------------------------------------------------------------------------
 
 
@@ -343,6 +407,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.serve_cell(one("cid", ""), one("i"), one("w"))
             elif u.path == "/img":
                 self.serve_image(one("path", ""), one("w"), one("dl") == "1")
+            elif u.path == "/api/export":
+                self.serve_export(one("cid", "seth"), one("format", ""))
             elif u.path.startswith("/api/job/"):
                 jid = u.path.rsplit("/", 1)[-1]
                 with JOBS_LOCK:
@@ -409,6 +475,31 @@ class Handler(http.server.BaseHTTPRequestHandler):
                  if download else None)
         self.send(200, body, self.TYPES[ext], extra)
 
+    def serve_export(self, cid, fmt):
+        """One export preset (`exports.py`), generated fresh on every request.
+
+        Never cached, for the same reason `/img` never is: a repack overwrites `<cid>.json` on
+        disk in place, and a stale export would describe cells that no longer match the atlas a
+        moment later.
+        """
+        if cid not in CHARACTERS:
+            self.json(404, {"error": f"unknown character: {cid}"})
+            return
+        entry = EXPORT_FORMATS.get(fmt)
+        if entry is None:
+            self.json(400, {"error": f"unknown format {fmt!r}; choose one of "
+                                      f"{', '.join(sorted(EXPORT_FORMATS))}"})
+            return
+        builder, ctype, name_for = entry
+        try:
+            atlas = EX.load_atlas(cid)
+        except OSError:
+            self.json(404, {"error": f"no emitted atlas for {cid} -- run the packer first"})
+            return
+        body = builder(atlas, cid)
+        self.send(200, body, ctype,
+                  {"Content-Disposition": f'attachment; filename="{name_for(cid)}"'})
+
     def do_POST(self):
         u = urllib.parse.urlparse(self.path)
         try:
@@ -425,7 +516,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 raise ValueError(f"no {tag} tag for {cid}")
             handler = {"/api/reroll": self.reroll, "/api/repick": self.repick,
                        "/api/drop": self.drop, "/api/reorder": self.reorder,
-                       "/api/use": self.use}.get(u.path)
+                       "/api/use": self.use, "/api/pivot": self.pivot,
+                       "/api/hold": self.hold, "/api/tag": self.tag_settings}.get(u.path)
             if not handler:
                 self.json(404, {"error": "not found"})
                 return
@@ -502,6 +594,78 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return [frames[i] for i in order]
         return self.queue_edit(f"{cid}-{tag} reorder", cid, tag, mutate, generates=False)
 
+    def queue_character(self, label, cid, mutate):
+        """Queue a whole-manifest edit. Never generates: no cell's drawing changes, only its
+        placement or its timing, so the repack costs the pack alone and every repaint is a cache
+        hit."""
+        def run(_progress):
+            edit_character(cid, mutate)
+            repack(cid)
+        return submit(label, run, generates=False)
+
+    def pivot(self, cid, tag, req):
+        """Move an origin. `scope` says WHICH origin, because the two are different operations.
+
+        `sheet` moves the origin of every cell in the character at once — it is the ground line the
+        whole set is packed against. `frame` moves one cell's artwork relative to that shared
+        origin and touches nothing else. Folding them into one "drag the pivot" action would mean
+        a fix for one bad cell silently re-seated all 54.
+        """
+        man = RC.load_character_manifest(cid)
+        cell = man["cell"]
+        scope = req.get("scope")
+        if scope == "sheet":
+            x, y = _xy(req.get("pivot"), "pivot")
+            _in_cell(x, y, cell, "pivot")
+            return self.queue_character(f"{cid} sheet pivot -> {x},{y}", cid,
+                                        lambda m: m.__setitem__("pivot", [x, y]))
+        if scope == "frame":
+            i = _cell_index(man, tag, req)
+            dx, dy = _xy(req.get("pivot_nudge"), "pivot_nudge")
+            px, py = man["pivot"]
+            # The nudge is an offset, so it is the RESULT that must land inside the cell: the
+            # artwork is pasted at pivot+nudge, and a nudge past the edge paints it into a
+            # neighbouring cell of the atlas.
+            _in_cell(px + dx, py + dy, cell, "nudged pivot")
+
+            def mutate(frames):
+                frames[i]["pivot_nudge"] = [dx, dy]
+                return frames
+            return self.queue_edit(f"{cid}-{tag} cell {i + 1} nudge {dx:+d},{dy:+d}",
+                                   cid, tag, mutate, generates=False)
+        raise ValueError('scope must be "sheet" or "frame"')
+
+    def hold(self, cid, tag, req):
+        """One cell's duration multiplier over its tag's fps — an animator sitting on an extreme.
+
+        Not the tag's `hold_key`, which is the game freezing on the last cell while a key is down.
+        """
+        i = _cell_index(RC.load_character_manifest(cid), tag, req)
+        beats = _whole(req.get("hold"), "hold")
+        if beats < 1:
+            raise ValueError("hold is a count of beats, so it cannot be less than 1")
+
+        def mutate(frames):
+            frames[i]["hold"] = beats
+            return frames
+        return self.queue_edit(f"{cid}-{tag} cell {i + 1} hold {beats}", cid, tag, mutate,
+                               generates=False)
+
+    DIRECTIONS = ("forward", "reverse", "pingpong")
+
+    def tag_settings(self, cid, tag, req):
+        fps = _whole(req.get("fps"), "fps")
+        if fps <= 0:
+            raise ValueError("fps must be greater than zero — both consumers divide by it")
+        direction = req.get("direction")
+        if direction not in self.DIRECTIONS:
+            raise ValueError(f"direction must be one of {', '.join(self.DIRECTIONS)}")
+
+        def mutate(man):
+            t = man["tags"][RC._tag_index(man, tag)]
+            t["fps"], t["direction"] = fps, direction
+        return self.queue_character(f"{cid}-{tag} {fps}fps {direction}", cid, mutate)
+
 
 PAGE = r"""<!doctype html>
 <html lang="en">
@@ -539,6 +703,14 @@ PAGE = r"""<!doctype html>
   .pair { display: flex; gap: 1rem; flex-wrap: wrap; }
   .pane { background: #efe9d8; border: 1px solid #3a332a; border-radius: 10px; padding: .6rem; }
   .pane img { display: block; width: 260px; height: 260px; object-fit: contain; }
+  .pane canvas { display: block; width: 260px; height: 260px; cursor: grab; touch-action: none; }
+  .pane canvas:active { cursor: grabbing; }
+  .ctl { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: 0 0 .7rem;
+         font: .82rem/1.7 ui-monospace, monospace; color: #c9bfae; }
+  input, select { font: 600 .85rem/1 ui-monospace, monospace; color: #e8e2d8; background: #241f19;
+                  border: 1px solid #4a4136; border-radius: 6px; padding: .45rem .5rem; }
+  input[type=number] { width: 4.6rem; }
+  input:disabled, select:disabled { opacity: .38; }
   .pane .cap { font: 600 .72rem/1.6 ui-monospace, monospace; color: #6b6152; letter-spacing: .06em; }
   .facts { font: .82rem/1.7 ui-monospace, monospace; color: #c9bfae; }
   .facts b { color: #d8a657; font-weight: 700; }
@@ -561,10 +733,21 @@ PAGE = r"""<!doctype html>
   <h1>Sprite cell editor</h1>
   <p class="lede">Every cell of every tag, as it ships. Pick a cell to see it next to the source
   frame it was painted from — a bad drawing wants a new seed, a bad pose wants a different frame.
-  Each edit writes <code>sheets/&lt;cid&gt;.json</code> and repacks the whole character.</p>
+  Drag the crosshair to move an origin: <b>this cell</b> shifts one drawing against the ground
+  line, <b>whole sheet</b> moves the ground line every cell is packed against. Each edit writes
+  <code>sheets/&lt;cid&gt;.json</code> and repacks the whole character.</p>
 
   <div class="keys" id="chars"></div>
   <div class="keys" id="tags"></div>
+  <div class="ctl">
+    <label>fps <input id="fps" type="number" min="1" step="1"></label>
+    <label>direction <select id="direction">
+      <option value="forward">forward</option>
+      <option value="reverse">reverse</option>
+      <option value="pingpong">pingpong</option>
+    </select></label>
+    <span class="muted">— the whole tag, in the manifest and in the game</span>
+  </div>
   <div id="status">ready</div>
 
   <div class="row">
@@ -585,10 +768,19 @@ PAGE = r"""<!doctype html>
   <div id="sel" hidden>
     <h2>Selected cell</h2>
     <div class="pair">
-      <div class="pane"><img id="bigcell" alt="packed cell"><div class="cap" id="bigcap"></div></div>
+      <div class="pane">
+        <canvas id="bigcell" width="512" height="512"></canvas>
+        <div class="cap" id="bigcap"></div>
+        <div class="keys" style="margin-top:.5rem" id="pivotmode"></div>
+        <div class="cap" id="pivotcap"></div>
+      </div>
       <div class="pane"><img id="bigsrc" alt="source frame"><div class="cap" id="srccap"></div></div>
       <div>
         <div class="facts" id="facts"></div>
+        <div class="ctl" style="margin-top:.8rem">
+          <label>hold <input id="hold" type="number" min="1" step="1"></label>
+          <span class="muted">beats at this tag's fps</span>
+        </div>
         <div class="keys" style="margin-top:.8rem">
           <button id="b-reroll">Re-roll</button>
           <button id="b-repick">Re-pick…</button>
@@ -611,6 +803,12 @@ PAGE = r"""<!doctype html>
 // The tag list is not hard-coded here: it comes off the character manifest, so a tag added or
 // renamed in `sheets/<cid>.json` appears without touching this page.
 let cid = "seth", tagName = "walk", ST = null, sel = 0, busy = false, bust = Date.now(), anim = null;
+// Dragging the crosshair is TWO operations, and the page makes you say which, because they are not
+// interchangeable: the sheet pivot is the ground line the whole character is packed against and
+// moving it re-seats all 54 cells, while a frame's nudge moves one drawing relative to that shared
+// line. Both are posted as the DELTA the pointer travelled, so the gesture is identical and only
+// the field it lands in differs. "this cell" is the default because it is the reversible one.
+let pivotMode = "frame", cellImg = null, drag = null;
 
 const img = (p, w) => "/img?path=" + encodeURIComponent(p) + (w ? "&w=" + w : "") + "&v=" + bust;
 const cellSrc = (i, w) => "/cell?cid=" + cid + "&i=" + i + (w ? "&w=" + w : "") + "&v=" + bust;
@@ -650,6 +848,9 @@ function render() {
   buttons(el("tags"), ST.tags.map(t => t.name), tagName,
           (t) => { tagName = t; sel = 0; el("pickwrap").hidden = true; render(); });
   const tag = TAG(), cells = tag.cells;
+  el("fps").value = tag.fps;
+  el("direction").value = tag.direction;
+  el("fps").disabled = el("direction").disabled = busy;
 
   const strip = el("strip");
   strip.innerHTML = "";
@@ -661,7 +862,12 @@ function render() {
       (c.atlas !== null ? '<img src="' + cellSrc(c.atlas, 96) + '" alt="cell ' + (i + 1) + '">'
                         : '<div class="m" style="width:96px;height:96px">not packed</div>') +
       '<div class="m">' + (m ? "h " + m.height + "\ntop " + m.top + "\nfeet " +
-        (m.feet > 0 ? "+" : "") + m.feet : "empty") + "</div>";
+        (m.feet > 0 ? "+" : "") + m.feet : "empty") +
+      // Hold and nudge are only shown when they are not the default, so the strip stays a
+      // silhouette report and an edited cell stands out in it.
+      (c.hold > 1 ? "\nhold " + c.hold : "") +
+      (c.pivot_nudge[0] || c.pivot_nudge[1] ? "\nnudge " + c.pivot_nudge.join(",") : "") +
+      "</div>";
     box.onclick = () => { sel = i; el("pickwrap").hidden = true; render(); };
     strip.appendChild(box);
   });
@@ -733,7 +939,22 @@ function renderSelected(c, n) {
     b.onclick = () => post("/api/use", {index: c.index, png: v.png}, "use seed " + v.seed);
     el("variants").appendChild(b);
   }
-  el("bigcell").src = c.atlas !== null ? cellSrc(c.atlas) : "";
+  cellImg = null;
+  paintCell(c);
+  if (c.atlas !== null) {
+    const im = new Image();
+    // Guarded on the cell still being the selected one: the atlas is 5120px wide, so a decode
+    // can easily outlive the click that started it and paint the previous cell over the new one.
+    im.onload = () => { if (TAG().cells[sel] === c) { cellImg = im; paintCell(c); } };
+    im.src = cellSrc(c.atlas);
+  }
+  buttons(el("pivotmode"), ["drag: this cell", "drag: whole sheet"],
+          pivotMode === "sheet" ? "drag: whole sheet" : "drag: this cell",
+          (m) => { pivotMode = m === "drag: whole sheet" ? "sheet" : "frame"; render(); });
+  el("pivotcap").textContent = "pivot " + ST.pivot.join(",") + " · nudge " +
+    c.pivot_nudge.map(v => (v > 0 ? "+" : "") + v).join(",");
+  el("hold").value = c.hold;
+  el("hold").disabled = busy;
   el("bigcap").textContent = "cell " + (c.index + 1) + " — packed, seed " + c.seed;
   el("bigsrc").src = img(c.src);
   el("srccap").textContent = "source — " + c.src.split("/").pop();
@@ -748,6 +969,102 @@ function renderSelected(c, n) {
     el(id).disabled = busy || off;
   }
 }
+
+// The crosshair and the ground line are drawn from the manifest, never from a constant in this
+// page: the ground line IS the sheet pivot's y, and the crosshair is where this cell's artwork is
+// actually anchored, which is pivot + this frame's nudge.
+function paintCell(c) {
+  const cv = el("bigcell"), cell = ST.cell;
+  if (cv.width !== cell) { cv.width = cell; cv.height = cell; }
+  const ctx = cv.getContext("2d");
+  ctx.clearRect(0, 0, cell, cell);
+  if (cellImg) ctx.drawImage(cellImg, 0, 0, cell, cell);
+  const d = drag ? drag.d : [0, 0];
+  const sheet = pivotMode === "sheet" ? [ST.pivot[0] + d[0], ST.pivot[1] + d[1]] : ST.pivot;
+  const nudge = pivotMode === "frame" ? [c.pivot_nudge[0] + d[0], c.pivot_nudge[1] + d[1]]
+                                      : c.pivot_nudge;
+  const art = [sheet[0] + nudge[0], sheet[1] + nudge[1]];
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#b4462f";
+  ctx.setLineDash([9, 7]);
+  ctx.beginPath(); ctx.moveTo(0, sheet[1]); ctx.lineTo(cell, sheet[1]); ctx.stroke();
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath(); ctx.moveTo(sheet[0], 0); ctx.lineTo(sheet[0], cell); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = "#14120f";
+  ctx.lineWidth = 5;
+  for (let pass = 0; pass < 2; pass++) {
+    // Drawn twice, dark then gold: a thin gold crosshair vanishes against the cream cell and the
+    // sepia ink both, and this is the one thing on the canvas that has to be seen exactly.
+    ctx.beginPath();
+    ctx.moveTo(art[0] - 22, art[1]); ctx.lineTo(art[0] + 22, art[1]);
+    ctx.moveTo(art[0], art[1] - 22); ctx.lineTo(art[0], art[1] + 22);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(art[0], art[1], 11, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = "#d8a657";
+    ctx.lineWidth = 2;
+  }
+}
+
+function cellPoint(ev) {
+  const r = el("bigcell").getBoundingClientRect();
+  return [Math.round((ev.clientX - r.left) * ST.cell / r.width),
+          Math.round((ev.clientY - r.top) * ST.cell / r.height)];
+}
+
+el("bigcell").addEventListener("pointerdown", (ev) => {
+  if (busy || !ST || TAG().cells[sel].atlas === null) return;
+  el("bigcell").setPointerCapture(ev.pointerId);
+  drag = {from: cellPoint(ev), d: [0, 0]};
+});
+el("bigcell").addEventListener("pointermove", (ev) => {
+  if (!drag) return;
+  const p = cellPoint(ev);
+  drag.d = [p[0] - drag.from[0], p[1] - drag.from[1]];
+  paintCell(TAG().cells[sel]);
+});
+el("bigcell").addEventListener("pointercancel", () => { drag = null; paintCell(TAG().cells[sel]); });
+el("bigcell").addEventListener("pointerup", () => {
+  if (!drag) return;
+  const d = drag.d, c = TAG().cells[sel];
+  drag = null;
+  if (!d[0] && !d[1]) { paintCell(c); return; }
+  if (pivotMode === "sheet") {
+    post("/api/pivot", {scope: "sheet", pivot: [ST.pivot[0] + d[0], ST.pivot[1] + d[1]]},
+         "sheet pivot — every cell of " + cid);
+  } else {
+    post("/api/pivot", {scope: "frame", index: c.index,
+                        pivot_nudge: [c.pivot_nudge[0] + d[0], c.pivot_nudge[1] + d[1]]},
+         "nudge cell " + (c.index + 1) + " only");
+  }
+});
+
+el("hold").onchange = () => {
+  const c = TAG().cells[sel], v = parseInt(el("hold").value, 10);
+  if (!Number.isInteger(v) || v < 1) {
+    status("hold is a count of beats, so it cannot be less than 1", true);
+    el("hold").value = c.hold;
+    return;
+  }
+  if (v === c.hold) return;
+  post("/api/hold", {index: c.index, hold: v}, "cell " + (c.index + 1) + " held for " + v);
+};
+
+function postTag() {
+  const tag = TAG(), fps = parseInt(el("fps").value, 10), direction = el("direction").value;
+  if (!Number.isInteger(fps) || fps < 1) {
+    status("fps must be a whole number greater than zero", true);
+    el("fps").value = tag.fps;
+    return;
+  }
+  if (fps === tag.fps && direction === tag.direction) return;
+  post("/api/tag", {fps, direction}, tagName + " at " + fps + "fps " + direction);
+}
+el("fps").onchange = postTag;
+el("direction").onchange = postTag;
 
 function renderDownloads() {
   const box = el("downloads");
