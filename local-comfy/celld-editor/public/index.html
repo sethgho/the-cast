@@ -1,0 +1,1617 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprite cell editor</title>
+<style>
+  /* An EDITOR shell, not a document: the viewport is the frame, nothing outside it scrolls, and
+     the centre stage is the only region that takes the slack. Spacing is on a 4/8px rhythm. */
+  :root {
+    color-scheme: dark;
+    --bg: #14120f; --ink: #e8e2d8; --dim: #8d8371; --faint: #6b6152;
+    --gold: #d8a657; --rust: #b4462f; --cream: #efe9d8;
+    --panel: #1a1713; --sunk: #221d17; --line: #332e27;
+    --insp: 320px;
+    --strip: 128px;
+  }
+  * { box-sizing: border-box; }
+  /* Author rules beat the UA stylesheet whatever the specificity, so `canvas { display: block }`
+     silently defeated the `hidden` attribute on the compare canvas. */
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { background: var(--bg); color: var(--ink);
+         font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  body.noinsp { --insp: 0px; }
+
+  #app { height: 100%; display: grid;
+         grid-template-columns: minmax(0, 1fr) var(--insp);
+         grid-template-rows: 48px auto minmax(0, 1fr); }
+
+  /* --- top bar ---------------------------------------------------------------------------- */
+  #topbar { grid-column: 1 / 3; display: flex; align-items: center; gap: 8px;
+            padding: 0 8px; background: var(--panel); border-bottom: 1px solid var(--line);
+            min-width: 0; }
+  .rail { display: flex; gap: 4px; align-items: center; flex: none; }
+  .sep { width: 1px; height: 24px; background: var(--line); flex: none; }
+  .grow { flex: 1 1 auto; min-width: 0; }
+
+  button, .btn { font: 600 11px/1 ui-monospace, monospace; color: var(--ink);
+                 background: var(--sunk); border: 1px solid var(--line); border-radius: 4px;
+                 padding: 6px 8px; cursor: pointer; text-decoration: none; display: inline-block; }
+  button:hover:not(:disabled), .btn:hover { border-color: var(--gold); }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  button.on { background: var(--gold); color: #1a1610; border-color: var(--gold); }
+  button:disabled { opacity: .34; cursor: not-allowed; }
+  /* Rust is reserved for money. A rust border means this click costs GPU time. */
+  button.cost { border-color: var(--rust); }
+  button.cost:hover:not(:disabled) { background: var(--rust); color: #fff; }
+  .price { color: var(--rust); font-weight: 400; }
+
+  .tagchip { display: flex; align-items: center; gap: 5px; padding: 5px 7px; }
+  .tagchip i { width: 8px; height: 8px; border-radius: 2px; display: block; }
+  .tagchip.on { background: var(--gold); color: #1a1610; }
+
+  #queue { display: flex; align-items: center; gap: 6px; min-width: 168px; justify-content: center;
+           white-space: nowrap; overflow: hidden; }
+  #queue.busy { border-color: var(--gold); color: var(--gold); }
+  #queue.bad { border-color: var(--rust); color: #e6a394; }
+  #ticker { color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            padding-left: 4px; }
+  #ticker.err { color: #e6a394; }
+
+  /* --- filmstrip -------------------------------------------------------------------------- */
+  /* The strip IS the timeline, so the scrubber docks to it rather than living beside a preview. */
+  #striprow { grid-column: 1 / 3; background: var(--panel); border-bottom: 1px solid var(--line); }
+  #strip { display: flex; align-items: stretch; height: var(--strip); }
+  .stub { width: 22px; flex: none; border: 0; border-radius: 0; background: var(--sunk);
+          writing-mode: vertical-rl; text-orientation: mixed; padding: 4px 0;
+          font: 700 10px/1 ui-monospace, monospace; color: #1a1610; letter-spacing: .08em;
+          overflow: hidden; }
+  #film { flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden;
+          display: flex; gap: 4px; padding: 4px; background: var(--cream); }
+  #film.shimmer { animation: shimmer .9s ease-in-out infinite; }
+  @keyframes shimmer {
+    0%, 100% { box-shadow: inset 0 0 0 0 rgba(216, 166, 87, 0); }
+    50% { box-shadow: inset 0 0 40px 0 rgba(216, 166, 87, .55); }
+  }
+
+  .fbox { position: relative; flex: none; border: 2px solid transparent; border-radius: 4px;
+          background: var(--cream); cursor: pointer; }
+  .fbox.sel { border-color: var(--gold); }
+  .fbox.queued { border-color: var(--rust); }
+  .fbox .n { font: 700 10px/13px ui-monospace, monospace; color: var(--faint); text-align: center; }
+  .fbox .art { display: flex; align-items: stretch; height: 76px; }
+  .fbox img, .fbox .empty { display: block; width: 76px; height: 76px; flex: none; }
+  .fbox .empty { font: 9px/1.2 ui-monospace, monospace; color: var(--faint); text-align: center;
+                 padding-top: 30px; }
+  /* The extra width IS the hold. Stripes make it read as duration, not as a wider drawing. */
+  .fbox .held { flex: 1 1 auto; border-radius: 0 2px 2px 0;
+                background: repeating-linear-gradient(135deg, #d8c9a4 0 6px, #efe9d8 6px 12px); }
+  .fbox .m { font: 9px/12px ui-monospace, monospace; color: var(--faint); text-align: center;
+             white-space: pre; }
+  .fbox .grip { position: absolute; top: 13px; right: 0; width: 7px; height: 76px;
+                border-radius: 0 3px 3px 0; cursor: ew-resize; touch-action: none;
+                background: linear-gradient(#d6cbb0, #b09a6d); border-left: 1px solid var(--cream); }
+  .fbox .grip:hover { background: var(--rust); }
+  .fbox .pos { position: absolute; top: 14px; left: 0; background: var(--rust); color: #fff;
+               font: 700 9px/1 ui-monospace, monospace; padding: 2px 3px; border-radius: 0 0 2px 0; }
+  /* Painting: the OLD drawing stays visible under the stripes. You are looking at what is about
+     to be replaced, which is the whole point of committing the edit before the paint. */
+  .fbox .paint { position: absolute; top: 13px; left: 0; right: 0; height: 76px;
+                 background: repeating-linear-gradient(45deg,
+                   rgba(180, 70, 47, .45) 0 7px, rgba(180, 70, 47, 0) 7px 14px);
+                 background-size: 28px 100%; animation: crawl 1s linear infinite; }
+  @keyframes crawl { from { background-position: 0 0; } to { background-position: 28px 0; } }
+  /* A gradient triangle rather than a border one: a border triangle is drawn OUTSIDE a
+     zero-sized box, so there is no box left to put the `!` in and it landed off the badge. */
+  .fbox .bang { position: absolute; top: 13px; right: 0; width: 22px; height: 22px;
+                background: linear-gradient(to bottom left, var(--rust) 0 50%, transparent 50%);
+                color: #fff; font: 700 12px/1 ui-monospace, monospace; text-align: right;
+                padding: 3px 4px 0 0; }
+  .fbox.fresh { animation: fresh .9s ease-out 1; }
+  @keyframes fresh {
+    from { box-shadow: 0 0 0 4px var(--gold); }
+    to { box-shadow: 0 0 0 0 rgba(216, 166, 87, 0); }
+  }
+  .fbox.drag { opacity: .4; }
+  .fbox.dropzone { border-color: var(--gold); border-style: dashed; }
+
+  #transport { display: flex; align-items: center; gap: 6px; padding: 4px 8px; }
+  #transport button { padding: 5px 7px; }
+  #scrub { flex: 1 1 auto; min-width: 0; accent-color: var(--gold); }
+  #transport label { color: var(--dim); display: flex; align-items: center; gap: 4px; }
+  input, select { font: 600 11px/1 ui-monospace, monospace; color: var(--ink);
+                  background: var(--sunk); border: 1px solid var(--line); border-radius: 4px;
+                  padding: 5px; }
+  input[type=number] { width: 48px; }
+  #beatcap { color: var(--faint); white-space: nowrap; }
+
+  /* --- stage ------------------------------------------------------------------------------ */
+  #stage { grid-column: 1; min-width: 0; min-height: 0; position: relative;
+           display: flex; gap: 8px; padding: 8px; }
+  .pane { background: var(--cream); border: 1px solid var(--line); border-radius: 6px;
+          display: flex; flex-direction: column; min-width: 0; min-height: 0; flex: 1 1 50%; }
+  .art { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center;
+         padding: 4px; }
+  canvas { max-width: 100%; max-height: 100%; display: block; }
+  #cellcv { cursor: grab; touch-action: none; }
+  #cellcv:active { cursor: grabbing; }
+  .foot { border-top: 1px solid #d5cbb4; padding: 4px 6px; display: flex; gap: 4px;
+          align-items: center; flex-wrap: wrap; color: var(--faint); min-height: 28px; }
+  .foot button { background: #e2dac6; border-color: #c3b795; color: #3a332a; padding: 4px 6px; }
+  .foot button.on { background: var(--gold); border-color: #a9803d; color: #1a1610; }
+  .foot .txt { color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Narrow: Preview never leaves, it becomes a picture-in-picture. The running loop is the
+     ambient QA signal, and an editor that hides it is how a drift ships. */
+  body.pip #right { position: absolute; right: 16px; bottom: 16px; width: 208px; height: 236px;
+                    flex: none; z-index: 5; box-shadow: 0 6px 20px rgba(0, 0, 0, .55); }
+  body.pip #cellpane { flex: 1 1 100%; }
+
+  /* --- inspector -------------------------------------------------------------------------- */
+  #inspector { grid-column: 2; min-height: 0; overflow-y: auto; overflow-x: hidden;
+               background: var(--panel); border-left: 1px solid var(--line); padding: 8px; }
+  body.noinsp #inspector { display: none; }
+  .grp { margin-bottom: 12px; }
+  .lbl { font: 700 9px/1 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase;
+         color: var(--faint); margin-bottom: 6px; }
+  /* Capped, not sized to the column: at 1280x760 a full-width source frame pushed the Actions
+     below the fold, and an editor whose primary buttons need a scroll is not an editor. */
+  #srcimg { display: block; width: 100%; height: 128px; object-fit: contain;
+            background: var(--cream); border-radius: 4px; }
+  .facts { color: var(--dim); line-height: 1.6; margin-top: 6px; }
+  .facts b { color: var(--gold); font-weight: 700; }
+  #variants { display: flex; gap: 4px; flex-wrap: wrap; }
+  .vthumb { padding: 2px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+            background: var(--cream); }
+  .vthumb img { display: block; width: 66px; height: 66px; }
+  .vthumb span { font: 9px/1.2 ui-monospace, monospace; color: var(--faint); }
+  .vthumb.on { background: var(--gold); }
+  #actions { display: flex; flex-direction: column; gap: 4px; }
+  #actions button { text-align: left; }
+
+  /* --- overlays --------------------------------------------------------------------------- */
+  #queuepop { position: fixed; top: 52px; right: 8px; width: 400px; max-height: 62vh;
+              overflow-y: auto; padding: 8px; z-index: 40;
+              background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, .6); }
+  .job { border-top: 1px solid var(--line); padding: 6px 0; display: flex; gap: 6px;
+         align-items: flex-start; }
+  .job:first-child { border-top: 0; }
+  .job .who { flex: 1 1 auto; min-width: 0; }
+  .job .who b { color: var(--ink); font-weight: 700; display: block; }
+  .job .who span { color: var(--dim); }
+  .job.failed .who b { color: #e6a394; }
+  #scrim { position: fixed; inset: 0; background: rgba(10, 9, 7, .78); z-index: 50;
+           display: flex; align-items: center; justify-content: center; }
+  #modal { background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+           padding: 12px; max-width: min(1100px, 92vw); max-height: 86vh; overflow-y: auto; }
+  #modal h3 { font: 700 11px/1 ui-monospace, monospace; letter-spacing: .1em;
+              text-transform: uppercase; color: var(--gold); margin: 0 0 8px; }
+  .picks { display: flex; flex-wrap: wrap; gap: 4px; }
+  .picks figure { margin: 0; cursor: pointer; border: 2px solid transparent; border-radius: 4px;
+                  background: var(--cream); }
+  .picks figure.cur { border-color: var(--gold); }
+  .picks img { display: block; width: 92px; height: 92px; }
+  .picks figcaption { font: 9px/1.3 ui-monospace, monospace; color: var(--faint); text-align: center; }
+  .keys { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 5px 10px; align-items: center; }
+  .keys kbd { font: 700 10px/1 ui-monospace, monospace; border: 1px solid var(--line);
+              border-radius: 3px; padding: 3px 5px; color: var(--gold); background: var(--sunk);
+              white-space: nowrap; }
+  .keys span { color: var(--dim); }
+  .dls { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+</style>
+
+<div id="app">
+  <header id="topbar">
+    <div class="rail" id="chars"></div>
+    <div class="sep"></div>
+    <div class="rail" id="tags"></div>
+    <div class="sep"></div>
+    <div class="grow"><div id="ticker">loading…</div></div>
+    <button id="queue" title="the job queue — click to expand · X cancels the newest queued job"></button>
+    <button id="b-export" title="export presets (Ctrl/Cmd+E)">&#8595; Export</button>
+    <button id="b-help" title="every shortcut (?)">?</button>
+    <button id="insptoggle" title="inspector (\)">\</button>
+  </header>
+
+  <section id="striprow">
+    <div id="strip">
+      <button class="stub" id="prevtag"></button>
+      <div id="film"></div>
+      <button class="stub" id="nexttag"></button>
+    </div>
+    <div id="transport">
+      <button id="t-first" title="first cell (Home)">|&#9664;</button>
+      <button id="t-prev" title="step back (&larr; or ,)">&#9664;</button>
+      <button id="t-play" title="play / pause (Space) · play from start (Enter)">&#9654;</button>
+      <button id="t-next" title="step forward (&rarr; or .)">&#9654;</button>
+      <button id="t-last" title="last cell (End)">&#9654;|</button>
+      <input id="scrub" type="range" min="0" max="0" step="1" value="0" title="scrub this tag">
+      <label title="frames per second for this tag">fps <input id="fps" type="number" min="1" step="1"></label>
+      <label title="loop direction for this tag">dir <select id="direction">
+        <option value="forward">forward</option>
+        <option value="reverse">reverse</option>
+        <option value="pingpong">pingpong</option>
+      </select></label>
+      <span id="beatcap"></span>
+    </div>
+  </section>
+
+  <section id="stage">
+    <div class="pane" id="cellpane">
+      <div class="art"><canvas id="cellcv" width="512" height="512"></canvas></div>
+      <div class="foot">
+        <span class="txt" id="cellcap"></span>
+        <span class="grow"></span>
+        <button id="o-on" title="onion skin on/off (O)">onion</button>
+        <button id="o-prev" title="ghost the previous cell (G)">prev</button>
+        <button id="o-next" title="ghost the next cell (Shift+G)">next</button>
+        <button id="o-mode" title="alpha / outline / difference (Shift+O)">alpha</button>
+      </div>
+    </div>
+    <div class="pane" id="right">
+      <div class="art">
+        <canvas id="pv" width="512" height="512"></canvas>
+        <canvas id="cmp" width="512" height="512" hidden></canvas>
+      </div>
+      <div class="foot">
+        <span class="txt" id="rightcap"></span>
+        <span class="grow"></span>
+        <button id="b-pin" title="pin the selected cell as the A side (Shift+C)" hidden>pin</button>
+        <button id="b-compare" title="compare against a pinned cell (C)">compare</button>
+      </div>
+    </div>
+  </section>
+
+  <aside id="inspector">
+    <div class="grp">
+      <div class="lbl" title="the H3 frame this drawing was painted from, and what the packer measures">Provenance</div>
+      <img id="srcimg" alt="source frame">
+      <div class="facts" id="facts"></div>
+    </div>
+    <div class="grp">
+      <div class="lbl" title="every seed already painted for this source frame — switching is free">Variants</div>
+      <div id="variants"></div>
+    </div>
+    <div class="grp">
+      <div class="lbl" title="rust means the click costs GPU time">Actions</div>
+      <div id="actions">
+        <button id="b-reroll" class="cost" title="paint this cell again on a new seed (R)">R Re-roll <span class="price">· ~45s GPU</span></button>
+        <button id="b-repick" class="cost" title="choose a different source frame, then paint it (P)">P Re-pick… <span class="price">· ~45s GPU</span></button>
+        <button id="b-drop" title="remove this cell from the tag (Shift+Delete)">&#8679;&#9003; Drop · ~4s</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="queuepop" hidden></div>
+<div id="scrim" hidden><div id="modal"></div></div>
+
+<script>
+// Two origins, and the split is the point. This page and every mutation come from celld, which
+// owns the manifest and the job queue; every PIXEL comes from the wilson agent, because the
+// cells, the source frames and the atlas are files on the machine with the GPU and are far too
+// big to push through the fleet's bucket. `AGENT` is handed over by the Worker, never hard-coded.
+let AGENT = "";
+
+let cid = "seth", tagName = "", sel = 0;
+let ST = null;                        // manifest state merged with the agent's derived facts
+let JOBS = [], revision = -1, seenRevision = -1;
+
+// What THIS page asked for, keyed by the job id the DO handed back. The job list alone cannot
+// answer two questions a good queue has to: which cells a coalesced repack touched (it reports
+// one index for any number of edits), and how to retry a failure (the op is not in the view).
+const OWN = new Map();                // id -> {scope, tag, indices:Set, requests:[…]}
+// A failure outlives its job: the DO drops finished jobs after about thirty seconds, and a rust
+// badge that disappears on its own is a failure nobody saw.
+const FAILS = new Map();              // cellKey -> {error, jobId, label}
+
+const LIVE = ["queued", "claimed", "running"];
+const HOLD_PX = 24;                   // one extra beat widens a frame box by this much
+const GHOST_ALPHA = 0.3;
+const PREV_INK = "#b4462f", NEXT_INK = "#3a6ea5";
+const PRICE = {reroll: "~45s GPU", repick: "~45s GPU"};
+
+let onion = {on: true, prev: true, next: false, mode: "alpha"};
+let seq = [], head = 0, playing = true, timer = null, rest = 0;
+let compare = false, pinned = null;   // {tag, i}
+let drag = null, holdDrag = null, gesture = false, suppressClick = false;
+let sheetDragKey = false;             // S held during a pivot drag targets the SHEET pivot
+let scrubSelect = null, overlay = null, queueOpen = false, handCollapse = false;
+let atlasImg = null, atlasKey = "", atlasLoading = "", atlasVer = 0;
+let lastUi = "";
+
+// Cache-busting is per cell, not global. The old page bumped one token on every job and threw
+// away every image and every atlas crop it held — fifty-four cells refetched because one changed.
+const VER = new Map();                // cellKey -> integer, bumped only when the ART moved
+
+const el = (id) => document.getElementById(id);
+const TAG = () => ST.tags.find((t) => t.name === tagName) || ST.tags[0];
+const CELLS = () => TAG().cells;
+const CUR = () => CELLS()[sel];
+const key = (tag, i) => cid + "|" + tag + "|" + i;
+const ver = (tag, i) => VER.get(key(tag, i)) || 0;
+
+const imgUrl = (p, w) => AGENT + "/img?path=" + encodeURIComponent(p) + (w ? "&w=" + w : "");
+const cellUrl = (tag, i, atlas, w) =>
+  AGENT + "/cell?cid=" + cid + "&i=" + atlas + (w ? "&w=" + w : "") + "&v=" + ver(tag, i);
+
+function tick(msg, err) {
+  el("ticker").textContent = msg;
+  el("ticker").className = err ? "err" : "";
+}
+
+// A tag's colour survives a reload and a rename of its neighbours because it is derived from the
+// name rather than handed out by position: adding a tag must not recolour the other six.
+function tagInk(name) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return "hsl(" + h + ", 52%, 62%)";
+}
+
+// --- data --------------------------------------------------------------------------------------
+// The manifest comes from the character's Durable Object; where the packer actually put each cell,
+// what it measures and which repaints exist on disk all come from the agent, because all three
+// are answers about files. Merged by tag name and cell index, which is the only pairing both
+// sides agree on — the atlas index is the agent's alone.
+async function fetchState(forCid) {
+  const r = await fetch("/api/state?cid=" + forCid);
+  const st = await r.json();
+  if (st.error) throw new Error(st.error);
+  AGENT = st.agent;
+  let derived = null;
+  try {
+    const d = await fetch(AGENT + "/derived?cid=" + forCid);
+    const got = await d.json();
+    if (got.error) throw new Error(got.error);
+    derived = got;
+  } catch (e) {
+    tick("the wilson agent is unreachable at " + AGENT + " — no cells, no atlas, no variants", true);
+  }
+  st.atlas = derived ? derived.atlas : null;
+  st.outdir = derived ? derived.outdir : "";
+  for (const tag of st.tags) {
+    const dt = derived && derived.tags[tag.name];
+    tag.cells.forEach((c, i) => {
+      const dc = dt && dt.cells[i];
+      c.atlas = dc ? dc.atlas : null;
+      c.xy = dc ? dc.xy : null;
+      c.metrics = dc ? dc.metrics : null;
+      c.variants = dc ? dc.variants : [];
+    });
+  }
+  return st;
+}
+
+// What the cell's CROP looks like. Only a change here needs a new image off the agent; a new seed
+// or a longer hold changes the manifest and not one pixel of the atlas that is already packed.
+function artSig(c) {
+  const m = c.metrics;
+  return [c.atlas, c.xy && c.xy.join(","), m && m.height, m && m.top, m && m.feet].join("|");
+}
+// What the cell's ROW looks like. A change here is worth a gold flash even when the crop is the
+// same file — a variant switch, a hold, a nudge.
+function uiSig(c) {
+  return [artSig(c), c.png, c.seed, c.src, c.hold, c.pivot_nudge.join(","),
+          (c.variants || []).length].join("|");
+}
+
+// Adopt new state, bump the version of every cell whose ART moved, and hand back the keys worth
+// flashing. Selection and playhead are never touched here.
+function adopt(st, forced) {
+  const flash = new Set(forced || []), bump = new Set(forced || []);
+  if (ST && ST.character === st.character) {
+    for (const tag of st.tags) {
+      const was = ST.tags.find((t) => t.name === tag.name);
+      if (!was) continue;
+      // The tag grew or shrank, so every cell from the splice on is a different drawing under an
+      // index it did not have before. Half of them would otherwise keep a neighbour's crop.
+      const spliced = was.cells.length !== tag.cells.length;
+      const n = Math.max(was.cells.length, tag.cells.length);
+      for (let i = 0; i < n; i++) {
+        const now = tag.cells[i], before = was.cells[i];
+        const k = cid + "|" + tag.name + "|" + i;
+        if (spliced) { flash.add(k); bump.add(k); continue; }
+        if (uiSig(before) !== uiSig(now)) flash.add(k);
+        if (artSig(before) !== artSig(now)) bump.add(k);
+      }
+    }
+  }
+  ST = st;
+  for (const k of bump) VER.set(k, (VER.get(k) || 0) + 1);
+  return flash;
+}
+
+async function reload(forced, doFlash) {
+  const st = await fetchState(cid);
+  const flash = adopt(st, forced);
+  if (!ST.tags.some((t) => t.name === tagName)) tagName = ST.tags[0].name;
+  if (sel >= CELLS().length) sel = Math.max(0, CELLS().length - 1);
+  seenRevision = ST.revision;
+  paint(doFlash ? flash : null);
+}
+
+// --- render ------------------------------------------------------------------------------------
+// `paint` rebuilds the chrome for the CURRENT TAG only — ten boxes whose image URLs are unchanged
+// unless `adopt` bumped their version, so the browser serves them from cache and nothing
+// flickers. This is deliberately not the old "bust everything, reload everything": the network
+// cost of a repaint is exactly the set of cells whose drawing moved.
+function paint(flash) {
+  renderChars();
+  renderTags();
+  renderStrip(flash);
+  renderTagControls();
+  rebuildSequence();
+  renderStage();
+  renderInspector();
+  renderQueue();
+  lastUi = uiFingerprint();
+}
+
+function renderChars() {
+  const host = el("chars");
+  host.innerHTML = "";
+  for (const c of ST.characters) {
+    const b = document.createElement("button");
+    b.textContent = c;
+    b.title = "switch character (Tab)";
+    if (c === cid) b.className = "on";
+    b.onclick = () => switchCharacter(c);
+    host.appendChild(b);
+  }
+}
+
+function renderTags() {
+  const host = el("tags");
+  host.innerHTML = "";
+  ST.tags.forEach((t, n) => {
+    const b = document.createElement("button");
+    b.className = "tagchip" + (t.name === tagName ? " on" : "");
+    b.title = t.name + " — " + t.cells.length + " cells at " + t.fps + "fps, " + t.direction +
+              (t.loop ? ", loop" : t.hold_key ? ", hold" : ", once") + " (" + (n + 1) + ")";
+    const dot = document.createElement("i");
+    dot.style.background = tagInk(t.name);
+    b.appendChild(dot);
+    b.appendChild(document.createTextNode(t.name));
+    b.onclick = () => selectTag(t.name);
+    host.appendChild(b);
+  });
+}
+
+// Which cells a live job is about to replace. The API answers for one index per job; OWN fills in
+// the rest, because a coalesced repack carries every edit that joined it.
+function pendingCells() {
+  const m = new Map();
+  for (const j of JOBS) {
+    if (!LIVE.includes(j.state)) continue;
+    const own = OWN.get(j.id);
+    if (own && own.scope === "sheet") {
+      for (const t of ST.tags) t.cells.forEach((_, i) => m.set(cid + "|" + t.name + "|" + i, j));
+    } else if (own && own.scope === "tag") {
+      const t = ST.tags.find((x) => x.name === own.tag);
+      if (t) t.cells.forEach((_, i) => m.set(cid + "|" + own.tag + "|" + i, j));
+    } else if (own) {
+      for (const i of own.indices) m.set(cid + "|" + own.tag + "|" + i, j);
+    }
+    if (j.tag && j.index !== null) m.set(cid + "|" + j.tag + "|" + j.index, j);
+  }
+  return m;
+}
+
+const lockedHere = () => pendingCells().has(key(tagName, sel));
+
+// Everything the strip and the inspector draw that is NOT the manifest: job states, queue
+// positions, failures. Polling compares this rather than re-rendering blind, because rebuilding
+// the strip every 1.5s reset its horizontal scroll under the cursor.
+function uiFingerprint() {
+  const parts = [tagName, sel, cid, FAILS.size];
+  for (const [k, j] of pendingCells()) parts.push(k + ":" + j.state + ":" + j.queuePos);
+  for (const k of FAILS.keys()) parts.push("!" + k);
+  return parts.join(",");
+}
+
+function renderStrip(flash) {
+  // A gesture owns the strip's DOM while it runs: rebuilding it mid-drag drops the captured
+  // pointer and the drag ends where nobody asked it to.
+  if (gesture) return;
+  const film = el("film");
+  const tag = TAG(), pend = pendingCells();
+  const at = ST.tags.findIndex((t) => t.name === tag.name);
+  const prev = ST.tags[(at - 1 + ST.tags.length) % ST.tags.length];
+  const next = ST.tags[(at + 1) % ST.tags.length];
+  for (const [b, t, txt] of [[el("prevtag"), prev, "‹ " + prev.name],
+                             [el("nexttag"), next, next.name + " ›"]]) {
+    b.textContent = txt;
+    b.style.background = tagInk(t.name);
+    b.title = "go to the " + t.name + " tag";
+    b.onclick = () => selectTag(t.name);
+  }
+  const keepScroll = film.scrollLeft;
+  film.innerHTML = "";
+  // A repack in flight means every crop on the strip is provisional — the atlas is being rebuilt
+  // underneath them — so the shimmer belongs to the strip and not to any one cell.
+  film.classList.toggle("shimmer", JOBS.some((j) => j.state === "running" && !j.generates));
+  tag.cells.forEach((c, i) => film.appendChild(frameBox(tag, i, c, pend, flash)));
+  film.scrollLeft = keepScroll;
+  scrollSelectionIntoView();
+}
+
+function frameBox(tag, i, c, pend, flash) {
+  const k = key(tag.name, i);
+  const job = pend.get(k), fail = FAILS.get(k), m = c.metrics;
+  const box = document.createElement("div");
+  box.className = "fbox" + (i === sel ? " sel" : "") +
+                  (job && job.state === "queued" ? " queued" : "") +
+                  (flash && flash.has(k) ? " fresh" : "");
+  box.style.width = (80 + (Math.max(1, c.hold) - 1) * HOLD_PX) + "px";
+  box.dataset.i = i;
+  box.title = "cell " + (i + 1) + " of " + tag.name + " — seed " + c.seed +
+              (c.hold > 1 ? ", held " + c.hold + " beats" : "") + (fail ? "\n" + fail.error : "");
+  box.innerHTML = '<div class="n">' + (i + 1) + (c.hold > 1 ? " ×" + c.hold : "") + "</div>" +
+    '<div class="art">' +
+    (c.atlas !== null
+      ? '<img src="' + cellUrl(tag.name, i, c.atlas, 76) + '" alt="cell ' + (i + 1) + '">'
+      : '<div class="empty">not packed</div>') +
+    (c.hold > 1 ? '<div class="held"></div>' : "") + "</div>" +
+    '<div class="m">' + (m ? "h" + m.height + " f" + (m.feet > 0 ? "+" : "") + m.feet : "empty") +
+    (c.pivot_nudge[0] || c.pivot_nudge[1] ? " ◈" : "") + "</div>";
+  if (job && job.state === "queued") {
+    const pos = document.createElement("div");
+    pos.className = "pos";
+    pos.textContent = String((job.queuePos || 0) + 1);
+    box.appendChild(pos);
+  } else if (job) {
+    const p = document.createElement("div");
+    p.className = "paint";
+    box.appendChild(p);
+  }
+  if (fail) {
+    const bang = document.createElement("div");
+    bang.className = "bang";
+    bang.textContent = "!";
+    box.appendChild(bang);
+  }
+  // A drag that ends off the box never produces a click, so the suppression flag is cleared on
+  // the next press as well as on the click it was raised for — otherwise one drag ate the next
+  // cell selection.
+  box.addEventListener("pointerdown", (ev) => {
+    suppressClick = false;
+    startOrderDrag(ev, i, box);
+  });
+  box.onclick = () => {
+    if (suppressClick) { suppressClick = false; return; }
+    selectCell(i);
+  };
+  const grip = document.createElement("div");
+  grip.className = "grip";
+  grip.title = "drag to hold cell " + (i + 1) + " longer (+ / -)";
+  grip.addEventListener("pointerdown", (ev) => startHoldDrag(ev, i, c, box));
+  box.appendChild(grip);
+  return box;
+}
+
+function scrollSelectionIntoView() {
+  const film = el("film"), box = film.querySelector(".fbox.sel");
+  if (!box) return;
+  const left = box.offsetLeft - film.offsetLeft;
+  // Scrolls the strip only. There is no page scroll in an editor shell, and there must not be.
+  if (left < film.scrollLeft) film.scrollLeft = left - 12;
+  else if (left + box.offsetWidth > film.scrollLeft + film.clientWidth)
+    film.scrollLeft = left + box.offsetWidth - film.clientWidth + 12;
+}
+
+function renderTagControls() {
+  const tag = TAG();
+  el("fps").value = tag.fps;
+  el("direction").value = tag.direction;
+}
+
+// --- selection ---------------------------------------------------------------------------------
+function selectCell(i) {
+  if (i === sel || i < 0 || i >= CELLS().length) return;
+  sel = i;
+  for (const b of el("film").querySelectorAll(".fbox")) b.classList.toggle("sel", +b.dataset.i === i);
+  scrollSelectionIntoView();
+  renderStage();
+  renderInspector();
+  seekToCell(i);
+  lastUi = uiFingerprint();
+}
+
+function selectTag(name) {
+  if (name === tagName || !ST.tags.some((t) => t.name === name)) return;
+  tagName = name;
+  sel = 0;
+  head = 0;
+  paint(null);
+}
+
+async function switchCharacter(c) {
+  if (c === cid || !ST.characters.includes(c)) return;
+  cid = c;
+  sel = 0;
+  tagName = "";
+  ST = null;
+  pinned = null;
+  atlasImg = null;
+  atlasKey = "";
+  tick("loading " + c + "…");
+  await reload(null, false);
+  tick("ready");
+}
+
+const stepSelection = (d) => selectCell(Math.min(CELLS().length - 1, Math.max(0, sel + d)));
+
+// --- transport ---------------------------------------------------------------------------------
+// Ping-pong follows the Aseprite convention: play from -> to, then back down to (but not
+// including) the first cell. Per-cell `hold` repeats a cell in the step list, which is exactly
+// what the game does with it, so the scrubber counts BEATS and not cells.
+function rebuildSequence() {
+  const tag = TAG(), order = [];
+  if (tag.direction === "reverse") for (let i = tag.cells.length - 1; i >= 0; i--) order.push(i);
+  else if (tag.direction === "pingpong") {
+    for (let i = 0; i < tag.cells.length; i++) order.push(i);
+    for (let i = tag.cells.length - 2; i > 0; i--) order.push(i);
+  } else for (let i = 0; i < tag.cells.length; i++) order.push(i);
+
+  const wasOn = seq.length && seq[head] ? seq[head].i : sel;
+  seq = [];
+  for (const i of order) {
+    const c = tag.cells[i];
+    if (!c.xy) continue;
+    for (let k = 0; k < Math.max(1, c.hold); k++) seq.push({i, xy: c.xy});
+  }
+  // The playhead stays on the CELL it was on. A hold typed while the preview runs must not
+  // restart the loop, and a repack landing must not either.
+  if (!(seq[head] && seq[head].i === wasOn)) {
+    const at = seq.findIndex((s) => s.i === wasOn);
+    head = at >= 0 ? at : 0;
+  }
+  const scrub = el("scrub");
+  scrub.max = String(Math.max(0, seq.length - 1));
+  scrub.value = String(head);
+  scrub.disabled = seq.length < 2;
+  rest = 0;
+  retime();
+  drawPreview();
+}
+
+function seekToCell(i) {
+  // Already showing a beat of that cell? Leave the playhead alone. Snapping to the cell's FIRST
+  // beat made "step back" skip every held beat of the cell it stepped into.
+  if (seq[head] && seq[head].i === i) return;
+  const at = seq.findIndex((s) => s.i === i);
+  if (at >= 0) { head = at; el("scrub").value = String(head); drawPreview(); }
+}
+
+function retime() {
+  if (timer) { clearInterval(timer); timer = null; }
+  el("t-play").innerHTML = playing ? "&#10073;&#10073;" : "&#9654;";
+  el("t-play").className = playing ? "on" : "";
+  if (!playing || seq.length < 2) return;
+  timer = setInterval(advance, 1000 / TAG().fps);
+}
+
+function advance() {
+  const tag = TAG();
+  // A once-tag ends on its last cell in the game. Here it rests there and replays, because a
+  // preview frozen on the recovery pose tells you nothing about the motion.
+  if (!tag.loop && head === seq.length - 1 && rest < Math.ceil(tag.fps * 0.7)) { rest++; return; }
+  rest = 0;
+  head = (head + 1) % seq.length;
+  el("scrub").value = String(head);
+  drawPreview();
+}
+
+function pause() { if (playing) { playing = false; retime(); } }
+function syncScrub() {
+  el("scrub").value = String(head);
+  drawPreview();
+  // Stepping the transport moves the SELECTION with it, so the canvas, the metrics and the onion
+  // ghost describe the cell you just stepped onto. Playback deliberately does not: reselecting
+  // twelve times a second would refetch the source frame and the variant strip on every beat.
+  if (seq[head] && seq[head].i !== sel) selectCell(seq[head].i);
+}
+const transport = (fn) => () => { if (ST && seq.length) fn(); };
+el("t-play").onclick = transport(() => { playing = !playing; retime(); });
+el("t-first").onclick = transport(() => { pause(); head = 0; syncScrub(); });
+el("t-last").onclick = transport(() => { pause(); head = seq.length - 1; syncScrub(); });
+el("t-prev").onclick = transport(() => { pause(); head = (head - 1 + seq.length) % seq.length; syncScrub(); });
+el("t-next").onclick = transport(() => { pause(); head = (head + 1) % seq.length; syncScrub(); });
+el("scrub").oninput = () => {
+  pause();
+  head = parseInt(el("scrub").value, 10) || 0;
+  drawPreview();
+  // Debounced: dragging across thirty beats would otherwise fire thirty selection changes, each
+  // refetching a 512px cell, a source frame and the variant strip.
+  if (scrubSelect) clearTimeout(scrubSelect);
+  scrubSelect = setTimeout(() => { if (seq[head]) selectCell(seq[head].i); }, 150);
+};
+
+// --- images ------------------------------------------------------------------------------------
+// Keyed on the URL being fetched, never on `cid`: `cid` changes the instant the character button
+// is clicked while `ST` is still the previous character, and keying on cid cached the outgoing
+// character's atlas under the incoming one's name.
+function withAtlas(cb) {
+  if (!ST.atlas) return;
+  const k = ST.atlas + ":" + atlasVer;
+  if (atlasKey === k && atlasImg) { cb(atlasImg); return; }
+  if (atlasLoading === k) return;
+  atlasLoading = k;
+  const im = new Image();
+  im.onload = () => { atlasImg = im; atlasKey = k; atlasLoading = ""; cb(im); };
+  im.onerror = () => { atlasLoading = ""; };
+  im.src = imgUrl(ST.atlas) + "&v=" + atlasVer;
+}
+
+const IMGS = new Map();
+function withCell(url, cb) {
+  const hit = IMGS.get(url);
+  if (hit) { if (hit.complete && hit.naturalWidth) cb(hit); return; }
+  // Bounded on purpose: every version bump mints a new URL, so an hour of re-rolls would
+  // otherwise hold on to every drawing the session ever saw.
+  if (IMGS.size > 160) IMGS.clear();
+  const im = new Image();
+  IMGS.set(url, im);
+  im.onload = () => cb(im);
+  im.onerror = () => IMGS.delete(url);
+  im.src = url;
+}
+function cached(url) {
+  const im = IMGS.get(url);
+  return im && im.complete && im.naturalWidth ? im : null;
+}
+
+// --- the stage ---------------------------------------------------------------------------------
+function renderStage() {
+  const c = CUR();
+  el("cellcap").textContent = c
+    ? "cell " + (sel + 1) + "/" + CELLS().length + " · seed " + c.seed + " · pivot " +
+      ST.pivot.join(",") +
+      (c.pivot_nudge[0] || c.pivot_nudge[1]
+        ? " nudge " + c.pivot_nudge.map((v) => (v > 0 ? "+" : "") + v).join(",") : "")
+    : "no cell";
+  el("o-on").className = onion.on ? "on" : "";
+  el("o-prev").className = onion.on && onion.prev ? "on" : "";
+  el("o-next").className = onion.on && onion.next ? "on" : "";
+  el("o-mode").textContent = onion.mode;
+  el("b-compare").className = compare ? "on" : "";
+  el("b-pin").hidden = !compare;
+  el("pv").hidden = compare;
+  el("cmp").hidden = !compare;
+  if (!c) return;
+  paintCell(c);
+  if (c.atlas !== null) {
+    withCell(cellUrl(tagName, sel, c.atlas), () => { if (CUR() === c) paintCell(c); });
+    for (const g of ghosts()) withCell(g.url, () => { if (CUR() === c) paintCell(c); });
+  }
+  if (compare) drawCompare(); else drawPreview();
+}
+
+// The neighbours are the cells either side WITHIN the tag, never either side in the atlas: the
+// frame after the last cell of `walk` is the first of `punch`, and ghosting that compares two
+// unrelated poses.
+function ghosts() {
+  const cells = CELLS(), out = [];
+  if (!onion.on) return out;
+  if (onion.prev && sel > 0 && cells[sel - 1].atlas !== null)
+    out.push({url: cellUrl(tagName, sel - 1, cells[sel - 1].atlas), ink: PREV_INK});
+  if (onion.next && sel < cells.length - 1 && cells[sel + 1].atlas !== null)
+    out.push({url: cellUrl(tagName, sel + 1, cells[sel + 1].atlas), ink: NEXT_INK});
+  return out;
+}
+
+const OUTLINES = new Map();
+// Plain alpha reads badly when both drawings are the same sepia ink on cream: two nearly aligned
+// silhouettes just look like one slightly bolder one. The outline is the silhouette's edge only,
+// which is what you actually compare when checking a foot or a shoulder for drift.
+function outlineOf(im, ink, k) {
+  const hit = OUTLINES.get(k);
+  if (hit) return hit;
+  const cell = ST.cell, cv = document.createElement("canvas");
+  cv.width = cell;
+  cv.height = cell;
+  const ctx = cv.getContext("2d"), R = 3;
+  for (const [dx, dy] of [[-R, 0], [R, 0], [0, -R], [0, R]]) ctx.drawImage(im, dx, dy, cell, cell);
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.drawImage(im, 0, 0, cell, cell);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = ink;
+  ctx.fillRect(0, 0, cell, cell);
+  if (OUTLINES.size > 60) OUTLINES.clear();
+  OUTLINES.set(k, cv);
+  return cv;
+}
+
+// The crosshair and the ground line come from the manifest, never from a constant in this page:
+// the ground line IS the sheet pivot's y, and the crosshair is where this cell's artwork is
+// anchored, which is pivot + this cell's nudge.
+function paintCell(c) {
+  const cv = el("cellcv"), cell = ST.cell;
+  if (cv.width !== cell) { cv.width = cell; cv.height = cell; }
+  const ctx = cv.getContext("2d");
+  ctx.clearRect(0, 0, cell, cell);
+  const me = c.atlas === null ? null : cached(cellUrl(tagName, sel, c.atlas));
+  const g = ghosts();
+  if (onion.mode === "alpha") {
+    // Under the selected cell, so the current drawing stays the one you read.
+    ctx.globalAlpha = GHOST_ALPHA;
+    for (const x of g) { const im = cached(x.url); if (im) ctx.drawImage(im, 0, 0, cell, cell); }
+    ctx.globalAlpha = 1;
+    if (me) ctx.drawImage(me, 0, 0, cell, cell);
+  } else if (onion.mode === "difference") {
+    if (me) ctx.drawImage(me, 0, 0, cell, cell);
+    ctx.globalCompositeOperation = "difference";
+    for (const x of g) { const im = cached(x.url); if (im) ctx.drawImage(im, 0, 0, cell, cell); }
+    ctx.globalCompositeOperation = "source-over";
+  } else {
+    if (me) ctx.drawImage(me, 0, 0, cell, cell);
+    for (const x of g) {
+      const im = cached(x.url);
+      if (im) ctx.drawImage(outlineOf(im, x.ink, x.url + ":" + x.ink), 0, 0);
+    }
+  }
+  const d = drag ? drag.d : [0, 0];
+  const toSheet = drag ? drag.sheet : false;
+  const sheet = toSheet ? [ST.pivot[0] + d[0], ST.pivot[1] + d[1]] : ST.pivot;
+  const nudge = toSheet ? c.pivot_nudge : [c.pivot_nudge[0] + d[0], c.pivot_nudge[1] + d[1]];
+  const art = [sheet[0] + nudge[0], sheet[1] + nudge[1]];
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#b4462f";
+  ctx.setLineDash([9, 7]);
+  ctx.beginPath();
+  ctx.moveTo(0, sheet[1]);
+  ctx.lineTo(cell, sheet[1]);
+  ctx.stroke();
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.moveTo(sheet[0], 0);
+  ctx.lineTo(sheet[0], cell);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.setLineDash([]);
+  ctx.strokeStyle = "#14120f";
+  ctx.lineWidth = 5;
+  for (let pass = 0; pass < 2; pass++) {
+    // Drawn twice, dark then gold: a thin gold crosshair vanishes against the cream cell and the
+    // sepia ink both, and this is the one thing on the canvas that has to be seen exactly.
+    ctx.beginPath();
+    ctx.moveTo(art[0] - 22, art[1]);
+    ctx.lineTo(art[0] + 22, art[1]);
+    ctx.moveTo(art[0], art[1] - 22);
+    ctx.lineTo(art[0], art[1] + 22);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(art[0], art[1], 11, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = "#d8a657";
+    ctx.lineWidth = 2;
+  }
+}
+
+function drawPreview() {
+  if (!ST) return;
+  const tag = TAG();
+  el("beatcap").textContent = "beat " + (seq.length ? head + 1 : 0) + "/" + seq.length +
+    " · cell " + (seq.length && seq[head] ? seq[head].i + 1 : 0) + "/" + tag.cells.length;
+  if (compare) return;
+  const cv = el("pv"), ctx = cv.getContext("2d");
+  if (cv.width !== ST.cell) { cv.width = ST.cell; cv.height = ST.cell; }
+  el("rightcap").textContent = "preview — " + tag.name + " " + tag.fps + "fps " + tag.direction +
+    (tag.loop ? " loop" : tag.hold_key ? " hold" : " once");
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!seq.length || !seq[head]) return;
+  const step = seq[head];
+  withAtlas((sheet) => {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(sheet, step.xy[0], step.xy[1], ST.cell, ST.cell, 0, 0, cv.width, cv.height);
+  });
+}
+
+// Compare answers what onion skinning cannot: drift between two cells that are NOT neighbours.
+// The ghost only ever shows the cell either side.
+function drawCompare() {
+  const cv = el("cmp"), ctx = cv.getContext("2d");
+  if (cv.width !== ST.cell) { cv.width = ST.cell; cv.height = ST.cell; }
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!pinned) { el("rightcap").textContent = "compare — nothing pinned"; return; }
+  const tag = ST.tags.find((t) => t.name === pinned.tag);
+  const c = tag && tag.cells[pinned.i];
+  el("rightcap").textContent = "compare — " + pinned.tag + " cell " + (pinned.i + 1) +
+    (c ? " · seed " + c.seed : " · gone");
+  if (!c || c.atlas === null) return;
+  const url = cellUrl(pinned.tag, pinned.i, c.atlas);
+  const im = cached(url);
+  if (im) ctx.drawImage(im, 0, 0, cv.width, cv.height);
+  else withCell(url, () => { if (compare) drawCompare(); });
+}
+
+el("o-on").onclick = () => { onion.on = !onion.on; renderStage(); };
+el("o-prev").onclick = () => { onion.prev = !onion.prev; onion.on = true; renderStage(); };
+el("o-next").onclick = () => { onion.next = !onion.next; onion.on = true; renderStage(); };
+el("o-mode").onclick = () => cycleOnionMode();
+function cycleOnionMode() {
+  const modes = ["alpha", "outline", "difference"];
+  onion.mode = modes[(modes.indexOf(onion.mode) + 1) % modes.length];
+  renderStage();
+}
+function toggleCompare() {
+  compare = !compare;
+  if (compare && !pinned) pinned = {tag: tagName, i: sel};
+  renderStage();
+}
+function pinHere() {
+  pinned = {tag: tagName, i: sel};
+  if (compare) drawCompare();
+  tick("pinned " + pinned.tag + " cell " + (pinned.i + 1) + " for compare");
+}
+el("b-compare").onclick = toggleCompare;
+el("b-pin").onclick = pinHere;
+
+// --- inspector ---------------------------------------------------------------------------------
+function renderInspector() {
+  const c = CUR();
+  if (!c) return;
+  const pend = lockedHere(), fail = FAILS.get(key(tagName, sel));
+  el("srcimg").src = imgUrl(c.src, 300);
+  const m = c.metrics;
+  el("facts").innerHTML =
+    "source <b>" + c.src.split("/").pop() + "</b><br>seed <b>" + c.seed + "</b><br>" +
+    (m ? "silhouette height <b>" + m.height + "</b>px<br>top clearance <b>" + m.top +
+         "</b>px<br>feet <b>" + (m.feet > 0 ? "+" : "") + m.feet + "</b>px from ground (y=" +
+         m.ground + ")"
+       : "no packed cell in the atlas yet") +
+    (fail ? '<br><span style="color:#e6a394">' + fail.error + "</span>" : "");
+
+  const vs = c.variants || [], host = el("variants");
+  host.innerHTML = "";
+  for (const v of vs) {
+    const b = document.createElement("button");
+    b.className = "vthumb" + (v.png === c.png ? " on" : "");
+    b.title = "use seed " + v.seed + " — free, no GPU ([ and ] step through these)";
+    b.innerHTML = '<img src="' + imgUrl(v.png, 132) + '"><span>' +
+                  (v.seed === 77 ? "77 first" : v.seed) + "</span>";
+    b.disabled = pend || v.png === c.png;
+    b.onclick = () => useVariant(v);
+    host.appendChild(b);
+  }
+  if (!vs.length) {
+    host.innerHTML = '<span style="color:var(--faint)">no repaints on disk for this source yet</span>';
+  }
+
+  // ONLY this cell's own mutations lock. Everything else — navigation, playback, onion, compare,
+  // another cell's re-roll, the character switch — stays live while a job runs. That is the
+  // difference between a queue and the modal wait this replaced.
+  el("b-reroll").disabled = pend;
+  el("b-repick").disabled = pend;
+  el("b-drop").disabled = pend || CELLS().length <= 1;
+}
+
+// --- mutations ---------------------------------------------------------------------------------
+// Every mutation commits to the manifest before it answers, so this returns in about 200ms and
+// the job that follows is reconciliation. Nothing here waits for a paint.
+async function mutate(url, body, label, scope, indices) {
+  const op = url.slice(5);
+  tick(label + " — committing…");
+  let j;
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(Object.assign({cid, tag: tagName}, body)),
+    });
+    j = await r.json();
+    if (!r.ok || j.error) { tick(j.error || "the request was refused", true); return null; }
+  } catch (e) {
+    tick("could not reach the editor service: " + e.message, true);
+    return null;
+  }
+  const id = j.job.id;
+  const own = OWN.get(id) || {scope: "cells", tag: tagName, indices: new Set(), requests: []};
+  // A coalesced repack carries several edits and the widest scope among them wins: one reorder in
+  // the batch makes every cell of that tag provisional until the atlas is rebuilt.
+  if (scope === "sheet" || (scope === "tag" && own.scope !== "sheet")) own.scope = scope;
+  own.tag = tagName;
+  for (const i of indices || []) own.indices.add(i);
+  own.requests.push({url, body, label, scope, indices});
+  OWN.set(id, own);
+  JOBS = JOBS.filter((x) => x.id !== id).concat([j.job]);
+  revision = j.revision;
+  tick(label + " — " + (PRICE[op] ? "painting, " + PRICE[op] : "queued for the next repack"));
+  // Re-read the manifest, not the images: the edit is already in it, and the drawing that follows
+  // from it does not exist until the job reports. The cells stay on the art they have, under the
+  // pending treatment — which is what "you are looking at what will be replaced" means.
+  await reload(null, false);
+  return j.job;
+}
+
+function reroll() {
+  if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
+  mutate("/api/reroll", {index: sel}, "re-roll cell " + (sel + 1), "cells", [sel]);
+}
+function dropCell() {
+  if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
+  if (CELLS().length <= 1) { tick("a tag cannot have zero cells", true); return; }
+  mutate("/api/drop", {index: sel}, "drop cell " + (sel + 1), "tag", [sel]);
+}
+function useVariant(v) {
+  const c = CUR();
+  if (v.png === c.png || lockedHere()) return;
+  mutate("/api/use", {index: sel, png: v.png}, "cell " + (sel + 1) + " on seed " + v.seed,
+         "cells", [sel]);
+}
+function stepVariant(d) {
+  const c = CUR(), vs = c.variants || [];
+  if (vs.length < 2) { tick("this cell has only one painted seed", true); return; }
+  const at = vs.findIndex((v) => v.png === c.png);
+  useVariant(vs[(Math.max(0, at) + d + vs.length) % vs.length]);
+}
+function setHold(v) {
+  const c = CUR();
+  if (v < 1 || v === c.hold) return;
+  if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
+  mutate("/api/hold", {index: sel, hold: v}, "cell " + (sel + 1) + " held " + v, "cells", [sel]);
+}
+function moveCell(d) {
+  const from = sel, to = sel + d;
+  if (to < 0 || to >= CELLS().length) return;
+  if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
+  const order = CELLS().map((_, i) => i);
+  [order[from], order[to]] = [order[to], order[from]];
+  sel = to;
+  mutate("/api/reorder", {order}, "move cell " + (from + 1) + " to " + (to + 1), "tag", [to]);
+}
+function nudge(dx, dy) {
+  const c = CUR();
+  if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
+  mutate("/api/pivot",
+         {scope: "frame", index: sel, pivot_nudge: [c.pivot_nudge[0] + dx, c.pivot_nudge[1] + dy]},
+         "nudge cell " + (sel + 1) + " by " + dx + "," + dy, "cells", [sel]);
+}
+el("b-reroll").onclick = reroll;
+el("b-drop").onclick = dropCell;
+el("b-repick").onclick = () => openRepick();
+
+function postTagTiming() {
+  const tag = TAG(), fps = parseInt(el("fps").value, 10), direction = el("direction").value;
+  if (!Number.isInteger(fps) || fps < 1) {
+    tick("fps must be a whole number greater than zero", true);
+    el("fps").value = tag.fps;
+    return;
+  }
+  if (fps === tag.fps && direction === tag.direction) return;
+  mutate("/api/tag", {fps, direction}, tagName + " at " + fps + "fps " + direction, "tag", []);
+}
+el("fps").onchange = postTagTiming;
+el("direction").onchange = postTagTiming;
+
+// --- gestures on the strip -----------------------------------------------------------------------
+// Duration is edited ON the strip, because a panel version made every timing change a trip away
+// from the thing being timed. The width is optimistic and the mutation only fires on release, so
+// a drag that ends where it started costs nothing.
+function startHoldDrag(ev, i, c, box) {
+  ev.stopPropagation();
+  ev.preventDefault();
+  ev.target.setPointerCapture(ev.pointerId);
+  gesture = true;
+  holdDrag = {i, from: ev.clientX, start: Math.max(1, c.hold), hold: Math.max(1, c.hold)};
+  const move = (e) => {
+    if (!holdDrag) return;
+    const v = Math.max(1, holdDrag.start + Math.round((e.clientX - holdDrag.from) / HOLD_PX));
+    if (v === holdDrag.hold) return;
+    holdDrag.hold = v;
+    box.style.width = (80 + (v - 1) * HOLD_PX) + "px";
+    box.querySelector(".n").textContent = (i + 1) + (v > 1 ? " ×" + v : "");
+    tick("cell " + (i + 1) + " held " + v + " beat" + (v === 1 ? "" : "s") + " — release to apply");
+  };
+  const up = () => {
+    ev.target.removeEventListener("pointermove", move);
+    ev.target.removeEventListener("pointerup", up);
+    ev.target.removeEventListener("pointercancel", up);
+    const d = holdDrag;
+    holdDrag = null;
+    gesture = false;
+    suppressClick = true;
+    if (!d || d.hold === d.start) { tick("ready"); renderStrip(null); return; }
+    sel = d.i;
+    setHold(d.hold);
+  };
+  ev.target.addEventListener("pointermove", move);
+  ev.target.addEventListener("pointerup", up);
+  ev.target.addEventListener("pointercancel", up);
+}
+
+// Reordering is a drag on the strip rather than the pair of move buttons it replaces: those could
+// only ever move one place, and the keyboard does that better (Ctrl+arrows).
+function startOrderDrag(ev, i, box) {
+  if (ev.target.classList.contains("grip")) return;
+  const from = ev.clientX;
+  let armed = false;
+  const boxes = () => Array.from(el("film").querySelectorAll(".fbox"));
+  const overAt = (x) => boxes().find((b) => {
+    const r = b.getBoundingClientRect();
+    return x >= r.left && x <= r.right;
+  });
+  const move = (e) => {
+    if (!armed && Math.abs(e.clientX - from) < 8) return;
+    if (!armed) {
+      armed = true;
+      gesture = true;
+      box.classList.add("drag");
+      box.setPointerCapture(ev.pointerId);
+    }
+    const over = overAt(e.clientX);
+    for (const b of boxes()) b.classList.toggle("dropzone", b === over && b !== box);
+  };
+  const up = (e) => {
+    box.removeEventListener("pointermove", move);
+    box.removeEventListener("pointerup", up);
+    box.removeEventListener("pointercancel", up);
+    if (!armed) return;
+    gesture = false;
+    suppressClick = true;
+    for (const b of boxes()) b.classList.remove("drag", "dropzone");
+    const over = overAt(e.clientX);
+    const to = over ? +over.dataset.i : i;
+    if (to === i) { renderStrip(null); return; }
+    if (lockedHere()) { tick("that cell already has a job in flight", true); renderStrip(null); return; }
+    const order = CELLS().map((_, k) => k);
+    order.splice(i, 1);
+    order.splice(to, 0, i);
+    sel = to;
+    mutate("/api/reorder", {order}, "move cell " + (i + 1) + " to " + (to + 1), "tag", [to]);
+  };
+  box.addEventListener("pointermove", move);
+  box.addEventListener("pointerup", up);
+  box.addEventListener("pointercancel", up);
+}
+
+// --- dragging the pivot --------------------------------------------------------------------------
+// One gesture, two operations, and a modifier says which — the two-button mode toggle this
+// replaces charged a click for the common case, which is nudging one cell. Hold S for the SHEET
+// pivot, the ground line the whole character is packed against.
+function cellPoint(ev) {
+  const r = el("cellcv").getBoundingClientRect();
+  return [Math.round((ev.clientX - r.left) * ST.cell / r.width),
+          Math.round((ev.clientY - r.top) * ST.cell / r.height)];
+}
+el("cellcv").addEventListener("pointerdown", (ev) => {
+  if (!ST || !CUR() || CUR().atlas === null) return;
+  el("cellcv").setPointerCapture(ev.pointerId);
+  drag = {from: cellPoint(ev), d: [0, 0], sheet: sheetDragKey};
+  tick(drag.sheet ? "dragging the SHEET pivot — every cell of " + cid
+                  : "nudging cell " + (sel + 1) + " only — hold S for the sheet pivot");
+});
+el("cellcv").addEventListener("pointermove", (ev) => {
+  if (!drag) return;
+  const p = cellPoint(ev);
+  drag.d = [p[0] - drag.from[0], p[1] - drag.from[1]];
+  paintCell(CUR());
+});
+el("cellcv").addEventListener("pointercancel", () => { drag = null; paintCell(CUR()); });
+el("cellcv").addEventListener("pointerup", () => {
+  if (!drag) return;
+  const d = drag.d, sheet = drag.sheet, c = CUR();
+  drag = null;
+  if (!d[0] && !d[1]) { paintCell(c); tick("ready"); return; }
+  if (sheet) {
+    mutate("/api/pivot", {scope: "sheet", pivot: [ST.pivot[0] + d[0], ST.pivot[1] + d[1]]},
+           "sheet pivot — every cell of " + cid, "sheet", []);
+  } else {
+    nudge(d[0], d[1]);
+  }
+});
+
+// --- the queue ------------------------------------------------------------------------------------
+const liveJobs = () => JOBS.filter((j) => LIVE.includes(j.state));
+
+function renderQueue() {
+  const chip = el("queue"), live = liveJobs();
+  const running = live.find((j) => j.state === "running" || j.state === "claimed");
+  chip.className = FAILS.size ? "bad" : live.length ? "busy" : "";
+  if (FAILS.size) {
+    chip.textContent = "✖ " + FAILS.values().next().value.error;
+  } else if (running) {
+    const queued = live.length - 1;
+    chip.textContent = "▶ " + running.label + (queued ? " · " + queued + " queued" : "");
+  } else if (live.length) {
+    chip.textContent = "● " + live.length + " queued";
+  } else {
+    chip.textContent = "queue idle";
+  }
+  if (queueOpen) renderQueuePop();
+}
+
+function renderQueuePop() {
+  const pop = el("queuepop");
+  pop.hidden = false;
+  pop.innerHTML = "";
+  const rows = JOBS.slice();
+  // A failure is kept per CELL but is still one job, and the DO has already forgotten it.
+  const seen = new Set(rows.map((j) => j.id));
+  for (const [k, f] of FAILS) {
+    if (seen.has(f.jobId)) continue;
+    seen.add(f.jobId);
+    rows.push({id: f.jobId, label: f.label, state: "failed", error: f.error, queuePos: null,
+               elapsedMs: null, generates: false, failKey: k});
+  }
+  if (!rows.length) {
+    pop.innerHTML = '<div style="color:var(--faint)">nothing queued — every edit is already in ' +
+                    "the manifest</div>";
+    return;
+  }
+  for (const j of rows) pop.appendChild(jobRow(j));
+}
+
+function jobRow(j) {
+  const row = document.createElement("div");
+  row.className = "job" + (j.state === "failed" ? " failed" : "");
+  const who = document.createElement("div");
+  who.className = "who";
+  const secs = j.elapsedMs === null || j.elapsedMs === undefined
+    ? "" : " · " + Math.round(j.elapsedMs / 1000) + "s";
+  who.innerHTML = "<b></b><span></span>";
+  who.querySelector("b").textContent = j.label;
+  who.querySelector("span").textContent = j.state +
+    (j.queuePos === null || j.queuePos === undefined ? "" : " #" + (j.queuePos + 1)) + secs +
+    (j.generates ? " · GPU" : "") + (j.error ? " · " + j.error : "");
+  row.appendChild(who);
+  if (j.state === "failed") {
+    if (OWN.has(j.id)) {
+      const retry = document.createElement("button");
+      retry.className = "cost";
+      retry.textContent = "Retry";
+      retry.title = "run the same edits again";
+      retry.onclick = () => retryJob(j.id);
+      row.appendChild(retry);
+    }
+    const dismiss = document.createElement("button");
+    dismiss.textContent = "Cancel";
+    dismiss.title = "clear the badge and leave the manifest as it is";
+    dismiss.onclick = () => forgetFailure(j.id);
+    row.appendChild(dismiss);
+  } else if (LIVE.includes(j.state)) {
+    const b = document.createElement("button");
+    b.textContent = "Cancel";
+    b.title = j.state === "queued" ? "remove it and put the manifest back (X)"
+                                   : "ask the agent to stop at its next heartbeat";
+    b.onclick = () => cancelJob(j.id);
+    row.appendChild(b);
+  }
+  return row;
+}
+
+function forgetFailure(id) {
+  for (const [k, f] of [...FAILS]) if (f.jobId === id) FAILS.delete(k);
+  OWN.delete(id);
+  JOBS = JOBS.filter((x) => x.id !== id);
+  paint(null);
+}
+
+async function cancelJob(id) {
+  let j;
+  try {
+    const r = await fetch("/api/job/" + id + "/cancel?cid=" + cid, {method: "POST"});
+    j = await r.json();
+    if (!r.ok || j.error) { tick(j.error || "the cancel was refused", true); return; }
+  } catch (e) {
+    tick("could not reach the editor service: " + e.message, true);
+    return;
+  }
+  tick(j.reverted ? "cancelled — the manifest went back" : "asked the agent to stop");
+  OWN.delete(id);
+  JOBS = JOBS.filter((x) => x.id !== id);
+  await reload(null, true);
+}
+
+function cancelNewestQueued() {
+  const q = liveJobs().filter((j) => j.state === "queued");
+  if (!q.length) { tick("nothing queued to cancel", true); return; }
+  cancelJob(q[q.length - 1].id);
+}
+
+async function retryJob(id) {
+  const own = OWN.get(id);
+  if (!own) return;
+  const requests = own.requests;
+  forgetFailure(id);
+  for (const req of requests) await mutate(req.url, req.body, "retry: " + req.label, req.scope, req.indices);
+}
+
+el("queue").onclick = () => {
+  queueOpen = !queueOpen;
+  el("queuepop").hidden = !queueOpen;
+  if (queueOpen) renderQueuePop();
+};
+
+// --- polling ---------------------------------------------------------------------------------
+// 1.5s, no websockets. The DO keeps a finished job visible for about thirty seconds, which is
+// what makes a completion something you SEE rather than something you infer from a redraw.
+async function pollJobs() {
+  let got;
+  try {
+    const r = await fetch("/api/jobs?cid=" + cid);
+    got = await r.json();
+    if (got.error) return;
+  } catch (e) {
+    return;
+  }
+  const before = new Map(JOBS.map((j) => [j.id, j.state]));
+  JOBS = got.jobs;
+  revision = got.revision;
+  const finished = JOBS.filter((j) => {
+    const was = before.get(j.id);
+    return was && LIVE.includes(was) && !LIVE.includes(j.state);
+  });
+  const forced = [];
+  for (const j of finished) {
+    const own = OWN.get(j.id);
+    const tag = own ? own.tag : j.tag;
+    // A repack that reordered or dropped re-seats every cell after the splice, so the whole tag's
+    // crops are new even though one index was reported.
+    if (own && own.scope === "sheet") {
+      for (const t of ST.tags) t.cells.forEach((_, i) => forced.push(cid + "|" + t.name + "|" + i));
+    } else if (own && own.scope === "tag") {
+      const t = ST.tags.find((x) => x.name === tag);
+      if (t) t.cells.forEach((_, i) => forced.push(cid + "|" + tag + "|" + i));
+    } else if (own) {
+      for (const i of own.indices) forced.push(cid + "|" + tag + "|" + i);
+    }
+    if (j.tag && j.index !== null) forced.push(cid + "|" + j.tag + "|" + j.index);
+
+    if (j.state === "failed") {
+      const rec = {error: j.error || "the job failed", jobId: j.id, label: j.label};
+      // The badge is per CELL, so a failure is visible where the work was going to land and not
+      // only in a chip at the other end of the screen.
+      const cells = own ? [...own.indices] : (j.index === null ? [] : [j.index]);
+      if (cells.length) for (const i of cells) FAILS.set(cid + "|" + tag + "|" + i, rec);
+      else if (tag) FAILS.set(cid + "|" + tag + "|0", rec);
+      tick(j.label + " failed — " + rec.error, true);
+    } else {
+      if (j.state === "done") tick(j.label + " — done");
+      OWN.delete(j.id);
+    }
+  }
+  if (finished.length) {
+    // The atlas is overwritten in place by the packer, so it is the one image that must be
+    // refetched on every completion. The cells are not: `adopt` bumps only the ones that moved.
+    atlasVer++;
+    await reload(forced, true);
+  } else if (revision > seenRevision) {
+    // Somebody else edited this character — another browser, or a cancel that put the manifest
+    // back. Take the new manifest without disturbing anything on this screen.
+    await reload(null, true);
+  } else {
+    const fp = uiFingerprint();
+    if (fp !== lastUi) {
+      lastUi = fp;
+      renderStrip(null);
+      renderInspector();
+    }
+    renderQueue();
+  }
+}
+
+// --- overlays ---------------------------------------------------------------------------------
+function openOverlay(title, build) {
+  overlay = title;
+  const modal = el("modal");
+  modal.innerHTML = "<h3></h3>";
+  modal.querySelector("h3").textContent = title;
+  build(modal);
+  el("scrim").hidden = false;
+}
+function closeOverlay() {
+  overlay = null;
+  el("scrim").hidden = true;
+  el("modal").innerHTML = "";
+}
+el("scrim").onclick = (ev) => { if (ev.target === el("scrim")) closeOverlay(); };
+
+// Re-pick is a modal because the source directory holds hundreds of frames: inline, it pushed
+// every other control off the screen the moment it opened.
+function openRepick() {
+  if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
+  const cur = CUR().src, at = sel;
+  openOverlay("Re-pick the source frame · ~45s GPU", (host) => {
+    const box = document.createElement("div");
+    box.className = "picks";
+    box.textContent = "loading source frames…";
+    host.appendChild(box);
+    fetch(AGENT + "/frames?cid=" + cid + "&tag=" + tagName)
+      .then((r) => r.json())
+      .then((d) => {
+        box.textContent = "";
+        for (const f of d.frames) {
+          const fig = document.createElement("figure");
+          if (f === cur) fig.className = "cur";
+          fig.innerHTML = '<img loading="lazy" src="' + imgUrl(f, 96) + '"><figcaption></figcaption>';
+          fig.querySelector("figcaption").textContent =
+            f.split("/").pop().replace(".png", "").replace("f_", "");
+          fig.onclick = () => {
+            closeOverlay();
+            mutate("/api/repick", {index: at, src: f}, "re-pick cell " + (at + 1), "cells", [at]);
+          };
+          box.appendChild(fig);
+        }
+      })
+      .catch((e) => { box.textContent = "could not list the source frames: " + e.message; });
+  });
+}
+
+function openExport() {
+  openOverlay("Export", (host) => {
+    const box = document.createElement("div");
+    box.className = "dls";
+    const base = ST.outdir + "/" + cid;
+    for (const [path, label] of [[base + ".png", "atlas PNG"], [base + ".json", "frame table JSON"]]) {
+      const a = document.createElement("a");
+      a.className = "btn";
+      a.href = imgUrl(path) + "&dl=1";
+      a.download = path.split("/").pop();
+      a.textContent = "↓ " + label;
+      box.appendChild(a);
+    }
+    // The server names and types each file, so these are plain links. The EMPTY download
+    // attribute keeps the filename the server chose while marking the click as a download —
+    // without it the browser aborts the navigation once the attachment header arrives, and every
+    // export shows up in the network log as a failed request.
+    for (const [fmt, label] of [["json-hash", "JSON hash"], ["json-array", "JSON array"],
+                                ["phaser3", "Phaser 3"], ["godot", "Godot SpriteFrames"],
+                                ["css", "CSS steps()"]]) {
+      const a = document.createElement("a");
+      a.className = "btn";
+      a.href = AGENT + "/export?cid=" + cid + "&format=" + fmt;
+      a.download = "";
+      a.textContent = "↓ " + label;
+      box.appendChild(a);
+    }
+    const demo = document.createElement("a");
+    demo.className = "btn";
+    demo.href = "http://wilson/cast-fighter.html";
+    demo.target = "_blank";
+    demo.textContent = "↗ play it in the demo";
+    box.appendChild(demo);
+    host.appendChild(box);
+  });
+}
+
+const SHORTCUTS = [
+  ["← →  ,  .", "step cell"], ["Home / End", "first / last cell"],
+  ["1 … 7", "tag"], ["Tab", "character"],
+  ["Space", "play / pause"], ["Enter", "play from the start"],
+  ["[  ]", "previous / next variant"], ["+  -", "hold ±1"],
+  ["Ctrl+← →", "move the cell"], ["Alt+arrows", "nudge the pivot 1px"],
+  ["Shift+Alt+arrows", "nudge the pivot 10px"], ["S + drag", "drag the SHEET pivot"],
+  ["O", "onion skin"], ["Shift+O", "alpha / outline / difference"],
+  ["G / Shift+G", "ghost previous / next"], ["C", "compare"], ["Shift+C", "pin the compare cell"],
+  ["R", "re-roll · ~45s GPU"], ["P", "re-pick · ~45s GPU"],
+  ["Shift+Delete", "drop the cell"], ["X", "cancel the newest queued job"],
+  ["\\", "inspector"], ["Ctrl/Cmd+E", "export"], ["Esc", "close, then cancel, then stop"],
+  ["?", "this list"],
+];
+function openHelp() {
+  openOverlay("Shortcuts", (host) => {
+    const g = document.createElement("div");
+    g.className = "keys";
+    for (const [k, what] of SHORTCUTS) {
+      const kb = document.createElement("kbd");
+      kb.textContent = k;
+      const s = document.createElement("span");
+      s.textContent = what;
+      g.appendChild(kb);
+      g.appendChild(s);
+    }
+    host.appendChild(g);
+  });
+}
+el("b-export").onclick = openExport;
+el("b-help").onclick = openHelp;
+el("insptoggle").onclick = () => toggleInspector();
+function toggleInspector() {
+  handCollapse = !document.body.classList.contains("noinsp");
+  document.body.classList.toggle("noinsp", handCollapse);
+}
+
+// --- keyboard ----------------------------------------------------------------------------------
+// Nothing fires while a field has focus, or Space would type into the fps box and an arrow would
+// silently change its value.
+function typing(t) {
+  return !!t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA" ||
+                 t.isContentEditable);
+}
+addEventListener("keyup", (ev) => { if (ev.key === "s" || ev.key === "S") sheetDragKey = false; });
+addEventListener("keydown", (ev) => {
+  if (typing(ev.target)) return;
+  if (ev.key === "s" || ev.key === "S") { sheetDragKey = true; return; }
+  if (ev.key === "Escape") {
+    ev.preventDefault();
+    // In order: whatever is on top, then the gesture in progress, then the loop. Any other order
+    // and Esc stops playback while a modal is still covering the screen.
+    if (overlay) closeOverlay();
+    else if (queueOpen) { queueOpen = false; el("queuepop").hidden = true; }
+    else if (drag || holdDrag) { drag = null; holdDrag = null; gesture = false; paint(null); }
+    else pause();
+    return;
+  }
+  if (!ST) return;
+  const mod = ev.ctrlKey || ev.metaKey;
+  if (mod && (ev.key === "e" || ev.key === "E")) { ev.preventDefault(); openExport(); return; }
+  if (mod && ev.key === "ArrowLeft") { ev.preventDefault(); moveCell(-1); return; }
+  if (mod && ev.key === "ArrowRight") { ev.preventDefault(); moveCell(1); return; }
+  if (mod) return;
+  if (ev.altKey) {
+    const step = ev.shiftKey ? 10 : 1;
+    const d = {ArrowLeft: [-step, 0], ArrowRight: [step, 0],
+               ArrowUp: [0, -step], ArrowDown: [0, step]}[ev.key];
+    if (d) { ev.preventDefault(); nudge(d[0], d[1]); }
+    return;
+  }
+  const k = ev.key;
+  if (k === "ArrowLeft" || k === ",") { ev.preventDefault(); stepSelection(-1); }
+  else if (k === "ArrowRight" || k === ".") { ev.preventDefault(); stepSelection(1); }
+  else if (k === "Home") { ev.preventDefault(); selectCell(0); }
+  else if (k === "End") { ev.preventDefault(); selectCell(CELLS().length - 1); }
+  else if (k >= "1" && k <= "7" && ST.tags[+k - 1]) { ev.preventDefault(); selectTag(ST.tags[+k - 1].name); }
+  else if (k === "Tab") {
+    ev.preventDefault();
+    const at = ST.characters.indexOf(cid);
+    switchCharacter(ST.characters[(at + 1) % ST.characters.length]);
+  } else if (k === " ") {
+    ev.preventDefault();
+    if (seq.length) { playing = !playing; retime(); }
+  } else if (k === "Enter") {
+    ev.preventDefault();
+    head = 0;
+    playing = true;
+    retime();
+    syncScrub();
+  } else if (k === "[") { ev.preventDefault(); stepVariant(-1); }
+  else if (k === "]") { ev.preventDefault(); stepVariant(1); }
+  else if (k === "+" || k === "=") { ev.preventDefault(); setHold(CUR().hold + 1); }
+  else if (k === "-" || k === "_") { ev.preventDefault(); setHold(CUR().hold - 1); }
+  else if (k === "o") { ev.preventDefault(); onion.on = !onion.on; renderStage(); }
+  else if (k === "O") { ev.preventDefault(); cycleOnionMode(); }
+  else if (k === "g") { ev.preventDefault(); onion.prev = !onion.prev; onion.on = true; renderStage(); }
+  else if (k === "G") { ev.preventDefault(); onion.next = !onion.next; onion.on = true; renderStage(); }
+  else if (k === "c") { ev.preventDefault(); toggleCompare(); }
+  else if (k === "C") { ev.preventDefault(); pinHere(); }
+  else if (k === "r" || k === "R") { ev.preventDefault(); reroll(); }
+  else if (k === "p" || k === "P") { ev.preventDefault(); openRepick(); }
+  else if (k === "Delete" && ev.shiftKey) { ev.preventDefault(); dropCell(); }
+  else if (k === "x" || k === "X") { ev.preventDefault(); cancelNewestQueued(); }
+  else if (k === "\\") { ev.preventDefault(); toggleInspector(); }
+  else if (k === "?") { ev.preventDefault(); openHelp(); }
+});
+
+// --- fitting ----------------------------------------------------------------------------------
+// Below the minimum useful window the inspector goes first, and Preview becomes a
+// picture-in-picture rather than disappearing.
+function fit() {
+  document.body.classList.toggle("noinsp", handCollapse || innerWidth < 1180);
+  document.body.classList.toggle("pip", el("stage").clientWidth < 760);
+}
+addEventListener("resize", fit);
+new ResizeObserver(fit).observe(el("stage"));
+
+// --- boot ------------------------------------------------------------------------------------
+(async function boot() {
+  try {
+    await reload(null, false);
+    tick("ready — press ? for the shortcuts");
+  } catch (e) {
+    tick(e.message, true);
+    return;
+  }
+  fit();
+  const loop = async () => {
+    // A dropped poll costs one interval and never the page: the manifest is the record, and the
+    // next tick reads it again.
+    try { await pollJobs(); } catch (e) { tick("poll failed: " + e.message, true); }
+    setTimeout(loop, 1500);
+  };
+  loop();
+})();
+</script>
