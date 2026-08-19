@@ -1,0 +1,861 @@
+{
+ "character": "gnome",
+ "name": "Gnorbert",
+ "cell": 512,
+ "pivot": [
+  256,
+  481
+ ],
+ "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+ "plate": {
+  "source": "/tmp/sprite-uploads/src-40754422a74c51aa.png",
+  "prop": null
+ },
+ "build": {
+  "template_version": "cdae6be0a5e63c9e",
+  "clip": {
+   "size": 832,
+   "steps": 20,
+   "length": 61,
+   "seed": 77
+  },
+  "picks": {
+   "skip": 6,
+   "anchor": "feet",
+   "smooth": true
+  },
+  "repaint": {
+   "pad": 0.86,
+   "steps": 8,
+   "cfg": 1,
+   "sampler": "euler",
+   "scheduler": "simple",
+   "denoise": 1
+  },
+  "pack": {
+   "columns": 10,
+   "height_cap": 0.92,
+   "up_cap": 0.88
+  },
+  "cost_s": {
+   "plate": 20,
+   "clip": 170,
+   "frames": 10,
+   "picks": 5,
+   "repaint": 45,
+   "pack": 5,
+   "export": 0
+  }
+ },
+ "tags": [
+  {
+   "name": "walk",
+   "from": 0,
+   "to": -1,
+   "fps": 14,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": "head",
+   "clip": "/tmp/gnome-walk-cycle-832-20.mp4",
+   "recipe": "walk-cycle",
+   "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+   "cells": 10,
+   "cyclic": true
+  },
+  {
+   "name": "idle",
+   "from": 0,
+   "to": -1,
+   "fps": 8,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": true,
+   "clip": "/tmp/gnome-idle-breathe-832-20.mp4",
+   "recipe": "idle-breathe",
+   "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+   "cells": 8,
+   "cyclic": true
+  },
+  {
+   "name": "punch",
+   "from": 0,
+   "to": -1,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/gnome-punch-832-20.mp4",
+   "recipe": "punch",
+   "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "kick",
+   "from": 0,
+   "to": -1,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/gnome-kick-832-20.mp4",
+   "recipe": "kick",
+   "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "jump",
+   "from": 0,
+   "to": -1,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/gnome-jump-832-20.mp4",
+   "recipe": "jump",
+   "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "block",
+   "from": 0,
+   "to": -1,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/gnome-block-832-20.mp4",
+   "recipe": "block",
+   "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+   "cells": 6,
+   "cyclic": false
+  },
+  {
+   "name": "crouch",
+   "from": 0,
+   "to": -1,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/gnome-crouch-832-20.mp4",
+   "recipe": "crouch",
+   "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+   "cells": 6,
+   "cyclic": false
+  }
+ ],
+ "frames": [],
+ "steps": [
+  {
+   "id": "plate",
+   "kind": "plate",
+   "tag": null,
+   "params": {},
+   "inputs": [
+    {
+     "from": null,
+     "path": "/tmp/sprite-uploads/src-40754422a74c51aa.png",
+     "hash": "b083c3ddf58b18dd"
+    }
+   ],
+   "key": "e9a2aa1924ab98bb",
+   "built_key": "e9a2aa1924ab98bb",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+   "artifact_hash": "1148c2bca411caad",
+   "cost_s": 20
+  },
+  {
+   "id": "clip:walk",
+   "kind": "clip",
+   "tag": "walk",
+   "params": {
+    "recipe": "walk-cycle",
+    "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "32e212cfd6953090",
+   "built_key": null,
+   "artifact": "/tmp/gnome-walk-cycle-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:walk",
+   "kind": "frames",
+   "tag": "walk",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:walk",
+     "path": "/tmp/gnome-walk-cycle-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-walk-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:walk",
+   "kind": "picks",
+   "tag": "walk",
+   "params": {
+    "cells": 10,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:walk",
+     "path": "/tmp/sprite-gnome-walk-pick",
+     "hash": null
+    }
+   ],
+   "key": "38b70ac7e77339fb",
+   "built_key": "38b70ac7e77339fb",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:idle",
+   "kind": "clip",
+   "tag": "idle",
+   "params": {
+    "recipe": "idle-breathe",
+    "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "013b39c0079a6909",
+   "built_key": null,
+   "artifact": "/tmp/gnome-idle-breathe-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:idle",
+   "kind": "frames",
+   "tag": "idle",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:idle",
+     "path": "/tmp/gnome-idle-breathe-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-idle-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:idle",
+   "kind": "picks",
+   "tag": "idle",
+   "params": {
+    "cells": 8,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:idle",
+     "path": "/tmp/sprite-gnome-idle-pick",
+     "hash": null
+    }
+   ],
+   "key": "5429cb40e45dc85c",
+   "built_key": "5429cb40e45dc85c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:punch",
+   "kind": "clip",
+   "tag": "punch",
+   "params": {
+    "recipe": "punch",
+    "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "d31397d1bafcf4bd",
+   "built_key": null,
+   "artifact": "/tmp/gnome-punch-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:punch",
+   "kind": "frames",
+   "tag": "punch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:punch",
+     "path": "/tmp/gnome-punch-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-punch-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:punch",
+   "kind": "picks",
+   "tag": "punch",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:punch",
+     "path": "/tmp/sprite-gnome-punch-pick",
+     "hash": null
+    }
+   ],
+   "key": "a725030fda13714c",
+   "built_key": "a725030fda13714c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:kick",
+   "kind": "clip",
+   "tag": "kick",
+   "params": {
+    "recipe": "kick",
+    "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "3a6b57f0a5cdfe33",
+   "built_key": null,
+   "artifact": "/tmp/gnome-kick-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:kick",
+   "kind": "frames",
+   "tag": "kick",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:kick",
+     "path": "/tmp/gnome-kick-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-kick-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:kick",
+   "kind": "picks",
+   "tag": "kick",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:kick",
+     "path": "/tmp/sprite-gnome-kick-pick",
+     "hash": null
+    }
+   ],
+   "key": "a725030fda13714c",
+   "built_key": "a725030fda13714c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:jump",
+   "kind": "clip",
+   "tag": "jump",
+   "params": {
+    "recipe": "jump",
+    "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "bb04e022f5a4b71e",
+   "built_key": null,
+   "artifact": "/tmp/gnome-jump-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:jump",
+   "kind": "frames",
+   "tag": "jump",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:jump",
+     "path": "/tmp/gnome-jump-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-jump-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:jump",
+   "kind": "picks",
+   "tag": "jump",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:jump",
+     "path": "/tmp/sprite-gnome-jump-pick",
+     "hash": null
+    }
+   ],
+   "key": "a725030fda13714c",
+   "built_key": "a725030fda13714c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:block",
+   "kind": "clip",
+   "tag": "block",
+   "params": {
+    "recipe": "block",
+    "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "21e6d47c6c74baf4",
+   "built_key": null,
+   "artifact": "/tmp/gnome-block-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:block",
+   "kind": "frames",
+   "tag": "block",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:block",
+     "path": "/tmp/gnome-block-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-block-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:block",
+   "kind": "picks",
+   "tag": "block",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:block",
+     "path": "/tmp/sprite-gnome-block-pick",
+     "hash": null
+    }
+   ],
+   "key": "77962e840588dfc5",
+   "built_key": "77962e840588dfc5",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:crouch",
+   "kind": "clip",
+   "tag": "crouch",
+   "params": {
+    "recipe": "crouch",
+    "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+    "trait": "a short round garden gnome in a tall red pointed hat and a blue coat, with a huge white beard and heavy brown boots; he walks with short bustling steps and never runs",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-gnome.png",
+     "hash": "1148c2bca411caad"
+    }
+   ],
+   "key": "45e63478a16ca082",
+   "built_key": null,
+   "artifact": "/tmp/gnome-crouch-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:crouch",
+   "kind": "frames",
+   "tag": "crouch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:crouch",
+     "path": "/tmp/gnome-crouch-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-gnome-crouch-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:crouch",
+   "kind": "picks",
+   "tag": "crouch",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:crouch",
+     "path": "/tmp/sprite-gnome-crouch-pick",
+     "hash": null
+    }
+   ],
+   "key": "77962e840588dfc5",
+   "built_key": "77962e840588dfc5",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/gnome.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "pack",
+   "kind": "pack",
+   "tag": null,
+   "params": {
+    "cell": 512,
+    "pivot": [
+     256,
+     481
+    ],
+    "columns": 10,
+    "height_cap": 0.92,
+    "up_cap": 0.88,
+    "tags": [
+     {
+      "name": "walk",
+      "fps": 14,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": "head",
+      "cells": []
+     },
+     {
+      "name": "idle",
+      "fps": 8,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": true,
+      "cells": []
+     },
+     {
+      "name": "punch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "kick",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "jump",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "block",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "crouch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": []
+     }
+    ]
+   },
+   "inputs": [],
+   "key": "b01729636ea6023d",
+   "built_key": null,
+   "artifact": "/home/wilson/artifacts/cast-fighter/sprites/gnome.png",
+   "artifact_hash": null,
+   "cost_s": 5
+  },
+  {
+   "id": "export:css",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "css"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/gnome.png",
+     "hash": null
+    }
+   ],
+   "key": "51667e4578c08345",
+   "built_key": null,
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:godot",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "godot"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/gnome.png",
+     "hash": null
+    }
+   ],
+   "key": "fd2f6b7f26c5e945",
+   "built_key": null,
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-array",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-array"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/gnome.png",
+     "hash": null
+    }
+   ],
+   "key": "1b684f7e2e41d195",
+   "built_key": null,
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-hash",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-hash"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/gnome.png",
+     "hash": null
+    }
+   ],
+   "key": "701bb4bcf557ddbb",
+   "built_key": null,
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:phaser3",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "phaser3"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/gnome.png",
+     "hash": null
+    }
+   ],
+   "key": "388b1acc4cc82e61",
+   "built_key": null,
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  }
+ ]
+}
