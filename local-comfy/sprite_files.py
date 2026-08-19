@@ -165,8 +165,12 @@ def variants(cid, tag_name, src):
         if n.endswith("-padded.png") or not n.endswith(".png"):
             continue
         tail = n[len(prefix):-4]
-        out.append({"png": os.path.join(RC.REPAINT_DIR, n),
-                    "seed": int(tail[2:]) if tail.startswith("-s") else RC.SEED})
+        full = os.path.join(RC.REPAINT_DIR, n)
+        # WHEN it was painted, because a seed shelf is a history and a seed is a random 31-bit
+        # number: sorting by name orders the shelf by nothing a person can read. The file's mtime
+        # is the only record of the order these were drawn in -- nothing else stores it.
+        out.append({"png": full, "seed": int(tail[2:]) if tail.startswith("-s") else RC.SEED,
+                    "at": int(os.path.getmtime(full))})
     return out
 
 

@@ -2299,7 +2299,11 @@ export default {
         return await callDO(env, body.cid || cid, `/${mutation}`, post(body));
       }
 
-      if (url.pathname === "/" || url.pathname === "/index.html") {
+      // The bench lives at /c/:char/a/:anim/s/:step so that every state of it is a link and the
+      // back button walks upstream. Those paths are the PAGE, not files in the bucket, so they
+      // are answered with the one asset there is; the page reads its own location and draws the
+      // step named in it.
+      if (url.pathname === "/" || url.pathname === "/index.html" || url.pathname.startsWith("/c/")) {
         const page = new URL(url);
         page.pathname = "/index.html";
         return await env.ASSETS.fetch(new Request(page, request));

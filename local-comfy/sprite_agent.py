@@ -164,6 +164,72 @@ def defaults():
             "moves": moves, "recipes": dict(RC.BS.MOVES), "traits": dict(RC.TRAITS)}
 
 
+# --- the gait curve -------------------------------------------------------------------------
+# The picks step chooses cells INSIDE one gait period, and until now the only evidence of that
+# period was a line in a log. The workbench draws it under the picks filmstrip, so the curve and
+# the detected period have to be askable. Both are read-only measurements of files that already
+# exist: no GPU, no manifest, nothing written.
+
+# 48x48 is what `sprite_sheet.silhouettes` compares poses at, so the numbers here are the same
+# numbers `find_cycle` was tuned against.
+GAIT_SIZE = 48
+# The matte is measured on a THUMBNAIL rather than through `sprite_sheet.key_out`, which costs
+# ~140ms a frame because it also despills and cel-cleans for the packer. None of that changes a
+# silhouette, and 67 frames of it is a nine-second page hang. The threshold is the same
+# `SOFT_OUT`: a pixel further than that from the measured screen colour is solid subject.
+GAIT_THUMB = 96
+
+# One curve per (character, move), invalidated by the pick directory's own mtime. The frames only
+# change when an extraction rewrites them, and that rewrites the directory.
+_GAIT = {}
+
+
+def _silhouette(path):
+    """One frame's binary silhouette at GAIT_SIZE, keyed against its own measured screen colour."""
+    import numpy as np
+    from PIL import Image
+    im = Image.open(path).convert("RGB")
+    im.thumbnail((GAIT_THUMB, GAIT_THUMB), Image.BILINEAR)
+    a = np.asarray(im).astype(np.float32)
+    dist = np.sqrt(((a - RC.SS.measure_key(a)) ** 2).sum(axis=2))
+    solid = Image.fromarray(((dist > RC.SS.SOFT_OUT) * 255).astype("uint8"))
+    return np.asarray(solid.resize((GAIT_SIZE, GAIT_SIZE), Image.BILINEAR)).astype(np.float32) / 255.0
+
+
+def gait(cid, tag_name):
+    """Per-frame motion energy across a move's extracted frames, and the gait period if there is one.
+
+    `energy[i]` is how much of the silhouette moved between frame i-1 and frame i, normalised so
+    the busiest frame reads 1. That is the same quantity `pose_extremes` integrates when a move is
+    NOT periodic, and the period below is the same one it picks inside when a move is — so a flag
+    sitting on a trough is a cell drawn on a blurred in-between, and it now says so on the page.
+    """
+    import numpy as np
+    paths = SF.source_frames(cid, tag_name)
+    d = f"/tmp/sprite-{cid}-{tag_name}-pick"
+    stamp = (os.path.getmtime(d), len(paths)) if paths else None
+    hit = _GAIT.get((cid, tag_name))
+    if hit and hit[0] == stamp:
+        return hit[1]
+    if not paths:
+        out = {"frames": [], "energy": [], "period": None, "score": None}
+    else:
+        sils = [_silhouette(p) for p in paths]
+        energy = [0.0]
+        for a, b in zip(sils, sils[1:]):
+            energy.append(float(np.abs(b - a).mean()))
+        top = max(energy) or 1.0
+        # find_cycle needs half a clip to score a period against; below that it would be scoring
+        # one shift against two samples, which is noise with a number on it.
+        period, score = RC.SS.find_cycle(sils) if len(sils) >= 16 else (None, None)
+        if score is None or score >= RC.SS.CYCLE_SCORE_MAX:
+            period = None
+        out = {"frames": paths, "energy": [round(e / top, 4) for e in energy],
+               "period": period, "score": None if score is None else round(score, 4)}
+    _GAIT[(cid, tag_name)] = (stamp, out)
+    return out
+
+
 # The prompt TEMPLATES, read-only, so the editor can show a person the words their clips and their
 # repaints were actually briefed with. They are not in the manifest and must not be: the manifest
 # carries `template_version`, one digest over exactly these strings, and a second copy of the text
@@ -546,6 +612,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.json(200, defaults())
             elif u.path == "/frames":
                 self.json(200, {"frames": SF.source_frames(one("cid", "seth"), one("tag", "walk"))})
+            elif u.path == "/gait":
+                self.json(200, gait(one("cid", "seth"), one("tag", "walk")))
+            elif u.path == "/clip":
+                self.serve_clip(one("cid", "seth"), one("tag", "walk"))
             elif u.path == "/cell":
                 self.serve_cell(one("cid", ""), one("i"), one("w"))
             elif u.path == "/img":
@@ -605,6 +675,31 @@ class Handler(http.server.BaseHTTPRequestHandler):
         extra = ({"Content-Disposition": f'attachment; filename="{os.path.basename(real)}"'}
                  if download else None)
         self.send(200, body, self.TYPES[ext], extra)
+
+    def serve_clip(self, cid, tag_name):
+        """The mp4 one move was rendered from, named by its MOVE and never by its path.
+
+        The clip is the clip step's artifact, so the bench has to be able to play it — and it is
+        the one artifact that lives loose in /tmp rather than under a `sprite-` prefix, so `/img`'s
+        allowlist cannot reach it and must not be widened to `/tmp`. Taking the character and the
+        move instead, and reading the path out of the Durable Object's own manifest, means the
+        page names a MOVE and this side names the file: an unrestricted path parameter never
+        exists to be abused.
+        """
+        try:
+            man = fetch_manifest(cid)[0]
+        except urllib.error.HTTPError:
+            self.json(404, {"error": f"unknown character: {cid}"})
+            return
+        tag = next((t for t in man["tags"] if t["name"] == tag_name), None)
+        if tag is None:
+            self.json(404, {"error": f"no {tag_name} move for {cid}"})
+            return
+        path = tag["clip"]
+        if not os.path.exists(path):
+            self.json(404, {"error": f"no clip rendered for {cid} {tag_name} yet"})
+            return
+        self.send(200, open(path, "rb").read(), "video/mp4")
 
     def serve_export(self, cid, fmt):
         if cid not in SF.characters():
