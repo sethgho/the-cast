@@ -80,6 +80,10 @@ const GENERATES = {
   pivot: false,
   hold: false,
   tag: false,
+  // A step's own params (DESIGN-pipeline.md, "what each step exposes"). Never GPU: the edit is
+  // recorded and whatever it invalidated is drawn stale. Whether it queues a REPACK is decided
+  // by the pack's key afterwards, in `mutate` — see the norun branch there.
+  step: false,
 };
 const MUTATIONS = Object.keys(GENERATES);
 
@@ -185,6 +189,76 @@ function inCell(x, y, cell, what) {
   }
 }
 
+// Which params of which step a person may type into, and nothing else. It is a WHITELIST because
+// the alternative is a mutation that can set any key of any tag: `from`, `to` and `clip` are in
+// the same objects, and a typo in one of those does not fail, it silently packs another move's
+// drawings under this tag's name.
+//
+// Everything absent from here is either LOCKED — measured, with its reason on the chip, and
+// overriding one is a named deviation this stage deliberately does not build — or it is not
+// manifest data at all yet. `recipe`, and therefore the tag NAME, is absent on purpose: the
+// extracted-frames directory is named after the tag, so renaming one orphans it, and nothing
+// re-extracts until the stage-4 job types land.
+const STEP_EDITABLE = {
+  clip: ["recipe_text", "trait", "cyclic"],
+  picks: ["cells", "cyclic"],
+  pack: ["loop", "hold_key", "unify"],
+};
+
+// The three forms `sprite_sheet._unify_factors` actually reads. `true` is total height and is only
+// for a move that must not change height at all; `"head"` normalises drift without touching a
+// stride's rise and fall; `false` is none. A fourth spelling would silently mean "none".
+const UNIFY = [false, true, "head"];
+
+// A recipe is a paragraph, not a document. The cap is here rather than at the page because the
+// manifest is written verbatim to sheets/<cid>.json and posted to a model.
+const TEXT_MAX = 2000;
+
+function text(value, what) {
+  if (typeof value !== "string") throw new HttpError(400, `${what} must be text`);
+  const s = value.trim();
+  if (!s) throw new HttpError(400, `${what} cannot be empty`);
+  if (s.length > TEXT_MAX) {
+    throw new HttpError(400, `${what} is ${s.length} characters and the limit is ${TEXT_MAX}`);
+  }
+  // A control character survives JSON, reaches the prompt and lands in the manifest on disk,
+  // where it is invisible in every view of it.
+  if (/[\u0000-\u0008\u000b-\u001f\u007f]/.test(s)) {
+    throw new HttpError(400, `${what} contains a control character`);
+  }
+  return s;
+}
+
+function flag(value, what) {
+  if (typeof value !== "boolean") throw new HttpError(400, `${what} must be true or false`);
+  return value;
+}
+
+function stepValue(field, value) {
+  if (field === "recipe_text") return text(value, "the recipe");
+  if (field === "trait") return text(value, "the trait line");
+  if (field === "cyclic" || field === "loop" || field === "hold_key") return flag(value, field);
+  if (field === "unify") {
+    if (!UNIFY.some((u) => u === value)) {
+      throw new HttpError(400, `unify must be false, true or "head"`);
+    }
+    return value;
+  }
+  // cells. The floor is 2 because one cell is not an animation; the ceiling is what the skill
+  // measured — asked for 16, the repaint returns near-duplicates and the QC report says so.
+  const n = whole(value, "the cell count");
+  if (n < 2 || n > 24) throw new HttpError(400, "the cell count must be between 2 and 24");
+  return n;
+}
+
+// The pack's cache key, which is the only thing that decides whether a param edit owes a repack.
+// Every field the upstream keys deliberately exclude — fps, loop, hold_key, unify, the pivot,
+// every hold and nudge — lands in it, so asking it is asking "did the atlas just change".
+function packKey(man) {
+  const s = (man.steps || []).find((x) => x.id === "pack");
+  return s ? s.key : null;
+}
+
 // A cell's position WITHIN ITS TAG, which is what the page counts and what every endpoint takes.
 // The atlas index is a different number and is never accepted here.
 function cellIndex(man, tagName, req) {
@@ -278,6 +352,15 @@ function applyInverse(man, inv, rev) {
   }
   if (inv.k === "sheetPivot") {
     man.pivot = inv.pivot;
+    return;
+  }
+  // One step param, put back where it came from. Addressed by tag NAME rather than by index for
+  // the same reason a frame is addressed by `_fid`: an edit queued behind this one can have
+  // spliced the frame list, and nothing here may assume a position survived it.
+  if (inv.k === "stepParams") {
+    if (inv.field === "trait") { man.trait = inv.value; return; }
+    const at = man.tags[tagIndex(man, inv.tag)];
+    if (at) at[inv.field] = inv.value;
     return;
   }
   const t = man.tags[tagIndex(man, inv.tag)];
@@ -806,6 +889,7 @@ export class CharacterDO {
     try {
       const man = await this.manifest();
       if (!man) throw new HttpError(409, "this character has not been seeded yet");
+      const wasPack = packKey(man);
       const tagName = req.tag;
       if (tagIndex(man, tagName) < 0) {
         throw new HttpError(400, `no ${tagName} tag for ${man.character}`);
@@ -817,19 +901,35 @@ export class CharacterDO {
       await this.refreshSteps(man);
       await this.ctx.storage.put("manifest", man);
       await this.ctx.storage.put("revision", rev);
+      // An edit that only made things STALE queues nothing. Re-wording a recipe invalidates a
+      // 170-second render this fleet has no job type for, and a repack would not answer it — it
+      // would just be the one-click cascade DESIGN-pipeline.md forbids, wearing a repack's
+      // clothes. The pack's key is the test because it is where every field a pack really reads
+      // lands: unchanged means nothing runnable changed.
+      if (done.norun && packKey(man) === wasPack) {
+        await this.releaseJob(taken);
+        await this.pump();
+        return { job: null, revision: rev };
+      }
       return await this.publish(taken, done, tagName, rev);
     } catch (e) {
       // A rejected edit must not leave a job in the queue, and must not leave a repack that other
       // edits have already joined half-cancelled. `man` is a fresh copy out of storage and was
       // never written, so backing the record out drops the whole attempt.
-      await this.editJobs((jobs) => {
-        const at = jobs.findIndex((j) => j.id === taken.job.id);
-        if (at < 0) return;
-        if (taken.joined) jobs[at].state = "queued";
-        else jobs.splice(at, 1);
-      });
+      await this.releaseJob(taken);
       throw e;
     }
+  }
+
+  // Give the queue slot back, whether the edit was refused or simply owed no work. A slot this
+  // object took and then kept would be a job nobody can cancel, because it names no edit.
+  async releaseJob(taken) {
+    await this.editJobs((jobs) => {
+      const at = jobs.findIndex((j) => j.id === taken.job.id);
+      if (at < 0) return;
+      if (taken.joined) jobs[at].state = "queued";
+      else jobs.splice(at, 1);
+    });
   }
 
   async publish(taken, done, tagName, rev) {
@@ -1077,6 +1177,112 @@ export class CharacterDO {
     };
   }
 
+  // One step param. The editable column of DESIGN-pipeline.md's table, and only that column: the
+  // locked constants are shown on the chip with their measured reason and have no control here at
+  // all, because overriding one is meant to be an explicit named deviation and this stage does
+  // not build that.
+  //
+  // Validated to the last field before one byte of the manifest is touched, so a refusal cannot
+  // leave half an edit behind. `mutate` re-reads the manifest from storage on every call and only
+  // writes it after this returns, which is what makes that guarantee hold rather than hope.
+  async step(man, tagName, req, rev) {
+    const allowed = STEP_EDITABLE[req.kind];
+    if (!allowed) {
+      throw new HttpError(400, `the ${req.kind} step has no editable params`);
+    }
+    if (!allowed.includes(req.field)) {
+      throw new HttpError(
+        400,
+        `${req.field} is not editable on the ${req.kind} step — ${allowed.join(", ")} are`,
+      );
+    }
+    const value = stepValue(req.field, req.value);
+    const tag = man.tags[tagIndex(man, tagName)];
+    const now = req.field === "trait" ? man.trait : tag[req.field];
+    if (canon(now) === canon(value)) {
+      throw new HttpError(400, `that is the ${req.field} it already has`);
+    }
+    const inverse = { k: "stepParams", tag: tagName, field: req.field, value: now };
+    if (req.field === "trait") man.trait = value;
+    else tag[req.field] = value;
+    const what = typeof value === "string" && value.length > 24
+      ? `${value.slice(0, 24)}…` : JSON.stringify(value);
+    return {
+      // The trait line is the character's, not the tag's, and saying otherwise in the queue would
+      // be the one edit on this page whose blast radius is wider than it reads.
+      text: req.field === "trait"
+        ? `${man.character} trait ${what}`
+        : `${man.character}-${tagName} ${req.field} ${what}`,
+      index: null,
+      inverse,
+      norun: true,
+    };
+  }
+
+  // Run a stale step. Not a mutation: nothing in the manifest changes, so there is no inverse and
+  // no revision — this only puts work on the queue that the person has just priced and confirmed.
+  //
+  // Two kinds and no more. `clip` and `frames` have no agent job type until stage 4, and pretending
+  // otherwise would queue a job that fails 20 seconds later having taught nobody anything.
+  async run(req) {
+    const man = await this.manifest();
+    if (!man) throw new HttpError(409, "this character has not been seeded yet");
+    if (req.kind !== "repaint" && req.kind !== "pack") {
+      throw new HttpError(400,
+        `${req.kind} has no agent job type yet — clip and frames land in stage 4`);
+    }
+    const steps = man.steps || [];
+    const stale = staleness(steps);
+    const scope = steps.filter((s) =>
+      s.kind === req.kind && (req.kind === "pack" || s.tag === req.tag));
+    if (!scope.length) {
+      throw new HttpError(400, `no ${req.kind} step for ${req.tag ?? man.character}`);
+    }
+    const todo = scope.filter((s) => stale[s.id].stale);
+    if (!todo.length) throw new HttpError(409, `the ${req.kind} step is already fresh`);
+    // The agent paints a cell only when its drawing is MISSING from disk — the packer caches by
+    // file name. So a repaint that is stale for any other reason cannot be answered by running,
+    // and the count in the label says what will really be painted.
+    const paints = todo.filter((s) => s.built_key === null).length;
+    const generates = req.kind === "repaint" && paints > 0;
+    // The pack is not tag-scoped — it packs every move in one atlas, because the cell scale is
+    // shared across the set. Carrying the page's selected tag onto it would name a scope the job
+    // does not have.
+    const tag = req.kind === "repaint" ? req.tag : null;
+    const now = Date.now();
+    const job = {
+      id: shortId(),
+      label: generates
+        ? `run repaint(${tag}) — ${paints} cell${paints === 1 ? "" : "s"}`
+        : `run ${req.kind} — repack`,
+      generates,
+      tag,
+      index: null,
+      state: "queued",
+      agent: null,
+      error: null,
+      edits: [],
+      cancelRequested: false,
+      startedAt: null,
+      deadline: now + LEASE_MS,
+      finishedAt: null,
+    };
+    await this.editJobs((jobs) => {
+      const live = jobs.filter(isLive);
+      if (live.length >= MAX_PENDING) {
+        throw new HttpError(
+          409,
+          `refused — ${live.length} jobs are already queued on this character, which is the limit`,
+        );
+      }
+      jobs.push(job);
+    });
+    await this.pump();
+    const jobs = await this.jobs();
+    const at = jobs.findIndex((j) => j.id === job.id);
+    return { job: viewAll(jobs, Date.now())[at], steps: todo.length, paints };
+  }
+
   // --- the page's view -------------------------------------------------------------------
   // Only the manifest half. Where the packer actually put each cell, what it measures, and which
   // repaints exist on disk all come from the agent, because all three are answers about files.
@@ -1155,6 +1361,10 @@ export class CharacterDO {
         }
         case "/cancel":
           return json(await this.cancel(body.id));
+        case "/run":
+          // 202 like a mutation, and for the same reason: the queue has taken it and the work
+          // itself has not happened yet.
+          return json(await this.run(body), 202);
         case "/manifest": {
           const man = await this.manifest();
           if (!man) throw new HttpError(404, "not seeded");
@@ -1323,6 +1533,12 @@ export default {
           return await callDO(env, cid, `/job?id=${encodeURIComponent(id)}`);
         }
         return json({ error: "not found" }, 404);
+      }
+
+      if (url.pathname === "/api/run") {
+        if (request.method !== "POST") return json({ error: "POST only" }, 405);
+        const body = await request.json();
+        return await callDO(env, body.cid || cid, "/run", post(body));
       }
 
       const mutation = url.pathname.startsWith("/api/") ? url.pathname.slice(5) : null;

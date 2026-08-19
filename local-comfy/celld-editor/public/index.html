@@ -25,7 +25,7 @@
 
   #app { height: 100%; display: grid;
          grid-template-columns: minmax(0, 1fr) var(--insp);
-         grid-template-rows: 48px auto minmax(0, 1fr); }
+         grid-template-rows: 48px auto auto minmax(0, 1fr); }
 
   /* --- top bar ---------------------------------------------------------------------------- */
   #topbar { grid-column: 1 / 3; display: flex; align-items: center; gap: 8px;
@@ -58,6 +58,61 @@
   #ticker { color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             padding-left: 4px; }
   #ticker.err { color: #e6a394; }
+
+  /* --- the pipeline rail ------------------------------------------------------------------ */
+  /* Seven chips reading left to right, which is the order the work happens in. It is a STRIP and
+     not a graph: the wiring is fixed (DESIGN-pipeline.md), so drawing it as a canvas would be a
+     worse tool and ten times the work. */
+  #pipe { grid-column: 1 / 3; display: flex; align-items: center; gap: 2px; padding: 5px 8px;
+          background: var(--panel); border-bottom: 1px solid var(--line);
+          overflow-x: auto; scrollbar-width: none; }
+  #pipe::-webkit-scrollbar { display: none; }
+  .pchip { display: flex; align-items: center; gap: 6px; padding: 5px 8px; flex: none; }
+  .pchip .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--faint); }
+  .pchip.fresh .dot { background: #6f9a5e; }
+  .pchip.stale .dot { background: var(--rust); }
+  .pchip.running .dot { background: var(--gold); animation: beat 1s ease-in-out infinite; }
+  @keyframes beat { 50% { opacity: .2; } }
+  .pchip .ptag { font-weight: 400; color: var(--faint); }
+  .pchip.on .ptag, .pchip.on .price, .pchip.on .free { color: #4a3a18; }
+  .pchip .free { color: var(--faint); font-weight: 400; }
+  .parrow { color: var(--faint); flex: none; font-size: 13px; }
+
+  /* --- a step in the inspector ------------------------------------------------------------ */
+  .srow { margin-bottom: 8px; }
+  .srow > label { display: block; color: var(--dim); margin-bottom: 3px; }
+  .srow textarea { width: 100%; min-height: 92px; resize: vertical;
+                   font: 11px/1.4 ui-monospace, monospace; color: var(--ink);
+                   background: var(--sunk); border: 1px solid var(--line); border-radius: 4px;
+                   padding: 5px; }
+  .srow input[type=number], .srow select { width: 100%; }
+  .srow .check { display: flex; align-items: center; gap: 6px; color: var(--ink); }
+  .srow .check input { width: auto; }
+  /* Locked is not disabled-looking for decoration: there is no control here at all, because
+     overriding a measured constant is meant to be an explicit named deviation and this stage
+     does not build one. */
+  .lock { border-left: 2px solid var(--line); padding: 0 0 0 7px; margin-bottom: 8px;
+          color: var(--faint); }
+  .lock b { color: var(--dim); font-weight: 700; }
+  .lock .why { display: block; font-style: italic; margin-top: 2px; }
+  .lock .txt { display: block; margin-top: 3px; color: var(--faint); max-height: 88px;
+               overflow-y: auto; background: var(--sunk); border-radius: 3px; padding: 4px; }
+  #stepart { display: block; width: 100%; height: 132px; object-fit: contain;
+             background: var(--cream); border-radius: 4px; margin-bottom: 6px; }
+  .why0 { color: var(--faint); font-style: italic; margin-top: 4px; }
+
+  /* --- the cost receipt ------------------------------------------------------------------- */
+  #receipt { max-width: 560px; }
+  #receipt .row { display: flex; gap: 8px; border-top: 1px solid var(--line); padding: 5px 0; }
+  #receipt .row:first-of-type { border-top: 0; }
+  #receipt .row b { color: var(--ink); font-weight: 700; flex: 1 1 auto; }
+  #receipt .row span { color: var(--dim); white-space: nowrap; }
+  #receipt .tot { border-top: 1px solid var(--gold); padding-top: 6px; margin-top: 2px;
+                  color: var(--gold); font-weight: 700; }
+  #receipt .edits { margin: 8px 0; padding: 6px; background: var(--sunk); border-radius: 4px;
+                    color: var(--ink); line-height: 1.5; }
+  #receipt .no { color: #e6a394; margin: 8px 0; }
+  #receipt .go { display: flex; gap: 6px; margin-top: 10px; }
 
   /* --- filmstrip -------------------------------------------------------------------------- */
   /* The strip IS the timeline, so the scrubber docks to it rather than living beside a preview. */
@@ -276,7 +331,20 @@
     #screens button.on { background: var(--gold); color: #1a1610; }
 
     /* every region is off by default; each screen turns its own back on */
-    #striprow, #stage, #inspector, #queuepop { display: none; }
+    #striprow, #stage, #inspector, #queuepop, #pipe { display: none; }
+    /* The rail is its own screen here, and the chips stack. Seven chips and a price do not fit on
+       one phone line, and a horizontal scroller hides the two that matter most — Pack and Export
+       are at the end and are the ones a person approves from the sofa. */
+    body.ph-rail #pipe { display: flex; order: 1; flex: none; flex-direction: column;
+                         align-items: stretch; gap: 6px; padding: 8px;
+                         grid-column: auto; overflow-x: hidden; }
+    body.ph-rail .pchip { min-height: 48px; }
+    body.ph-rail .pchip .price, body.ph-rail .pchip .free { margin-left: auto; }
+    body.ph-rail .parrow { display: none; }
+    body.ph-rail #inspector { display: block; order: 2; flex: 1 1 auto; }
+    body.ph-rail #app { overflow-y: auto; }
+    body.ph-rail #g-step { order: 0; }
+    #screens button { flex: 1 1 25%; }
     #striprow { grid-column: auto; }
     #stage { grid-column: auto; padding: 6px; }
     #inspector { grid-column: auto; border-left: 0; border-top: 1px solid var(--line);
@@ -367,9 +435,12 @@
 
   <nav id="screens" aria-label="screen">
     <button data-s="preview" class="on">Preview</button>
+    <button data-s="rail">Rail</button>
     <button data-s="cells">Cells</button>
     <button data-s="queue">Queue</button>
   </nav>
+
+  <nav id="pipe" aria-label="pipeline"></nav>
 
   <section id="striprow">
     <div id="strip">
@@ -421,6 +492,10 @@
   </section>
 
   <aside id="inspector">
+    <div class="grp" id="g-step" hidden>
+      <div class="lbl" id="steplbl"></div>
+      <div id="stepbody"></div>
+    </div>
     <div class="grp" id="g-prov">
       <div class="lbl" title="the H3 frame this drawing was painted from, and what the packer measures">Provenance</div>
       <img id="srcimg" alt="source frame">
@@ -546,6 +621,7 @@ async function fetchState(forCid) {
   } catch (e) {
     tick("the wilson agent is unreachable at " + AGENT + " — no cells, no atlas, no variants", true);
   }
+  if (derived && derived.locks) LOCKS = derived.locks;
   st.atlas = derived ? derived.atlas : null;
   st.outdir = derived ? derived.outdir : "";
   for (const tag of st.tags) {
@@ -617,6 +693,7 @@ async function reload(forced, doFlash) {
 function paint(flash) {
   renderChars();
   renderTags();
+  renderRail();
   renderStrip(flash);
   renderTagControls();
   rebuildSequence();
@@ -682,7 +759,10 @@ const lockedHere = () => pendingCells().has(key(tagName, sel));
 // positions, failures. Polling compares this rather than re-rendering blind, because rebuilding
 // the strip every 1.5s reset its horizontal scroll under the cursor.
 function uiFingerprint() {
-  const parts = [tagName, sel, cid, FAILS.size];
+  const parts = [tagName, sel, cid, FAILS.size, stepOpen];
+  // A job this page RAN carries no tag or index, so `pendingCells` cannot see it and the chip
+  // would sit on "queued" until something else forced a redraw.
+  for (const j of JOBS) if (RUNS.has(j.id)) parts.push("run:" + j.id + ":" + j.state);
   for (const [k, j] of pendingCells()) parts.push(k + ":" + j.state + ":" + j.queuePos);
   for (const k of FAILS.keys()) parts.push("!" + k);
   return parts.join(",");
@@ -1152,9 +1232,596 @@ function pinHere() {
 el("b-compare").onclick = toggleCompare;
 el("b-pin").onclick = pinHere;
 
+
+// --- the pipeline rail ---------------------------------------------------------------------
+// Seven chips for seven step KINDS, in the order the work happens. Clip, frames, picks and
+// repaint are scoped to the SELECTED TAG — the tag bar is the scoping control, so switching tag
+// re-scopes four of the seven chips and nothing else moves.
+//
+// Everything drawn here is read straight off `/api/state`'s step records: their params, their
+// `key` against their `built_key`, the reason the Durable Object gives for a stale one, and the
+// price the packer wrote into the manifest. This page computes no staleness of its own — a
+// second answer would be free to disagree with the two that already exist.
+const KINDS = ["plate", "clip", "frames", "picks", "repaint", "pack", "export"];
+const SCOPED = ["clip", "frames", "picks", "repaint"];
+// The only two kinds with an agent job type. `clip` and `frames` land in stage 4; until they do,
+// their receipt is honest about it and the confirm is dead.
+const RUNNABLE = ["repaint", "pack"];
+const BASE_SEED = 77;
+
+let stepOpen = null;                  // which chip owns the inspector, or null for the cell
+let LOCKS = null;                     // the prompt templates, read-only, from the agent
+const RUNS = new Map();               // job id -> the step kind this page ran
+
+const stepsOf = (kind) => (ST.steps || []).filter(
+  (s) => s.kind === kind && (!SCOPED.includes(kind) || s.tag === tagName));
+
+// A price, not a promise: the manifest's `cost_s` is what the packer measured a step of this kind
+// to cost, and a chip covering ten repaints says so rather than pretending one number covers it.
+function priceOf(list) {
+  if (!list.length) return {text: "—", free: true};
+  const each = list[0].cost_s;
+  if (!each) return {text: "free", free: true};
+  return {text: "~" + each + "s" + (list.length > 1 ? " × " + list.length : ""), free: false};
+}
+
+// A kind is RUNNING when a live job would rebuild it. A repack rebuilds the pack whatever queued
+// it, and a generating job is a repaint, so the two read as running from any edit — not only from
+// a Run on this rail.
+function runningKind(kind) {
+  for (const j of JOBS) {
+    if (!LIVE.includes(j.state)) continue;
+    if (RUNS.get(j.id) === kind) return true;
+    if (kind === "pack" && !j.generates) return true;
+    if (kind === "repaint" && j.generates && (!j.tag || j.tag === tagName)) return true;
+  }
+  return false;
+}
+
+function renderRail() {
+  const host = el("pipe");
+  host.innerHTML = "";
+  KINDS.forEach((kind, n) => {
+    if (n) {
+      const a = document.createElement("span");
+      a.className = "parrow";
+      a.textContent = "›";
+      host.appendChild(a);
+    }
+    const list = stepsOf(kind), stale = list.filter((x) => x.stale);
+    const run = runningKind(kind), price = priceOf(list);
+    const b = document.createElement("button");
+    b.className = "pchip" + (stepOpen === kind ? " on" : "") +
+                  (run ? " running" : stale.length ? " stale" : " fresh");
+    b.innerHTML = '<i class="dot"></i><span class="who"></span>' +
+                  (SCOPED.includes(kind) ? '<span class="ptag"></span>' : "") +
+                  '<span class="' + (price.free ? "free" : "price") + '"></span>';
+    b.querySelector(".who").textContent = kind;
+    if (SCOPED.includes(kind)) b.querySelector(".ptag").textContent = tagName;
+    b.querySelector(price.free ? ".free" : ".price").textContent = price.text;
+    b.title = kind + (SCOPED.includes(kind) ? "(" + tagName + ")" : "") + " — " +
+      (run ? "running now"
+           : stale.length ? stale.length + " of " + list.length + " stale: " + stale[0].reason
+                          : "fresh") +
+      " · " + price.text + (price.free ? "" : " to re-run");
+    b.onclick = () => openStep(kind);
+    host.appendChild(b);
+  });
+}
+
+function openStep(kind) {
+  stepOpen = stepOpen === kind ? null : kind;
+  // A chip whose panel cannot be seen is a dead click. The inspector auto-collapses below 1180px,
+  // so opening a step overrides that for as long as the step is open.
+  fit();
+  renderRail();
+  renderInspector();
+  if (phone && stepOpen) setScreen("rail");
+}
+
+// --- what each step exposes ------------------------------------------------------------------
+// The locked column of DESIGN-pipeline.md's table. Every reason in quotes is lifted from the
+// cast-sprites skill's "numbers that are load-bearing" table; the few constants the skill does not
+// list carry the reason from the module that declares them. None of it is re-worded here, and
+// there is deliberately no control beside any of it: overriding a measured constant is an
+// explicit named deviation, and this stage does not build that flow.
+function lockRow(name, value, why, text) {
+  const d = document.createElement("div");
+  d.className = "lock";
+  d.innerHTML = "<b></b> <span class=v></span><span class=why></span>" +
+                (text ? "<span class=txt></span>" : "");
+  d.querySelector("b").textContent = name;
+  d.querySelector(".v").textContent = value;
+  d.querySelector(".why").textContent = why;
+  if (text) d.querySelector(".txt").textContent = text;
+  return d;
+}
+
+function row(label, control, note) {
+  const d = document.createElement("div");
+  d.className = "srow";
+  const l = document.createElement("label");
+  l.textContent = label;
+  d.appendChild(l);
+  d.appendChild(control);
+  if (note) {
+    const n = document.createElement("div");
+    n.className = "why0";
+    n.textContent = note;
+    d.appendChild(n);
+  }
+  return d;
+}
+
+// One editable param. Committed on change, never on keystroke: a recipe is a paragraph and a
+// mutation per character typed would be a revision per character typed.
+function textField(value, onSave) {
+  const t = document.createElement("textarea");
+  t.value = value;
+  t.onchange = () => { if (t.value.trim() !== value.trim()) onSave(t.value.trim()); };
+  return t;
+}
+function checkField(label, value, onSave) {
+  const w = document.createElement("div");
+  w.className = "check";
+  const i = document.createElement("input");
+  i.type = "checkbox";
+  i.checked = !!value;
+  i.onchange = () => onSave(i.checked);
+  const t = document.createElement("span");
+  t.textContent = label;
+  w.appendChild(i);
+  w.appendChild(t);
+  return w;
+}
+function numberField(value, min, max, onSave) {
+  const i = document.createElement("input");
+  i.type = "number";
+  i.min = String(min);
+  i.max = String(max);
+  i.value = String(value);
+  i.onchange = () => {
+    const v = parseInt(i.value, 10);
+    if (v === value) return;
+    if (!Number.isInteger(v) || v < min || v > max) {
+      i.value = String(value);
+      tick("that must be a whole number between " + min + " and " + max, true);
+      return;
+    }
+    onSave(v);
+  };
+  return i;
+}
+function selectField(options, value, onSave) {
+  const sel = document.createElement("select");
+  options.forEach(([v, label], i) => {
+    const o = document.createElement("option");
+    o.value = String(i);
+    o.textContent = label;
+    if (canonSame(v, value)) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.onchange = () => onSave(options[+sel.value][0]);
+  return sel;
+}
+const canonSame = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// The one mutation every editable param goes through. It is `generates: false` and it queues
+// NOTHING unless the pack's own key moved — a re-worded recipe invalidates a 170-second render
+// this fleet cannot run, and quietly repacking in answer to it would be the cascade the design
+// forbids.
+function saveParam(kind, field, value, label) {
+  mutate("/api/step", {kind, field, value}, label, "tag", []);
+}
+
+function stepArt(src) {
+  const im = document.createElement("img");
+  im.id = "stepart";
+  im.alt = "step artifact";
+  im.src = src;
+  return im;
+}
+
+function renderStep(kind) {
+  const list = stepsOf(kind), body = el("stepbody"), one = list[0];
+  const stale = list.filter((x) => x.stale);
+  const tag = TAG();
+  const price = priceOf(list);
+  el("steplbl").textContent = kind + (SCOPED.includes(kind) ? " · " + tagName : "") +
+    " — " + (stale.length ? "stale" : "fresh");
+  body.innerHTML = "";
+  if (!one) { body.textContent = "no " + kind + " step in this manifest"; return; }
+
+  const why = document.createElement("div");
+  why.className = "facts";
+  why.innerHTML = "<b></b> · <span></span>";
+  why.querySelector("b").textContent = stale.length
+    ? stale.length + " of " + list.length + " stale" : list.length + " fresh";
+  why.querySelector("span").textContent = (stale.length ? stale[0].reason + " · " : "") + price.text;
+  body.appendChild(why);
+
+  // Run sits at the TOP, under the status it acts on. Below the params it was under the fold of
+  // a panel of locked constants, which is a button nobody can reach on the screen where they have
+  // just read that the step is stale.
+  const go = document.createElement("button");
+  go.className = "cost";
+  go.style.margin = "6px 0 10px";
+  go.textContent = "Run " + kind + (SCOPED.includes(kind) ? "(" + tagName + ")" : "") + "…";
+  go.title = stale.length ? "price it first — nothing runs until the receipt is confirmed"
+                          : "every " + kind + " step there is already fresh";
+  go.disabled = !stale.length;
+  go.onclick = () => openReceipt(kind);
+  body.appendChild(go);
+
+  const p = one.params;
+  if (kind === "plate") {
+    if (one.artifact) body.appendChild(stepArt(imgUrl(one.artifact, 300)));
+    body.appendChild(lockRow("the key colour", "flat magenta",
+      "the magenta is a blank keying screen, so the packer can key it out"));
+    body.appendChild(lockRow("the compositing graph", "hidden", "not a knob on this page"));
+    const n = document.createElement("div");
+    n.className = "why0";
+    n.textContent = "a plate is uploaded, never computed. Replacing the file changes its hash, " +
+      "which marks every clip stale — that is the signal that matters.";
+    body.appendChild(n);
+  } else if (kind === "clip") {
+    // The poster frame, not the mp4. There is no <video> on this page and there must not be one:
+    // the first extracted frame is already a PNG on disk and an <img> beats an iOS mp4 seek.
+    // `has` is not `got`: the poster is claimed before it is fetched, so a null placeholder would
+    // ask the agent for path=null and log a failed request on every open.
+    if (POSTER.get(tagName)) body.appendChild(stepArt(imgUrl(POSTER.get(tagName), 300)));
+    body.appendChild(row("recipe text",
+      textField(p.recipe_text, (v) => saveParam("clip", "recipe_text", v, tagName + " recipe")),
+      "the words this move is briefed with. In the clip's cache key."));
+    body.appendChild(row("trait line",
+      textField(p.trait, (v) => saveParam("clip", "trait", v, cid + " trait")),
+      "the character's, not the tag's — editing it marks EVERY move's clip stale."));
+    body.appendChild(row("cyclic", checkField("this move ends where it began",
+      p.cyclic, (v) => saveParam("clip", "cyclic", v, tagName + " cyclic")),
+      "a cycle is left unpinned and its cells are picked by gait period."));
+    body.appendChild(lockRow("render", p.size + "² at " + p.steps + " steps",
+      "at 512²/10 the character is ~240px in a soft frame and no packing recovers it"));
+    body.appendChild(lockRow("length", p.length + " frames",
+      "the clip length every recipe is briefed against; it is in the clip's cache key"));
+    body.appendChild(lockRow("seed", String(p.seed) + ", one locked seed",
+      "independent generations otherwise wander off-model"));
+    body.appendChild(lockRow("the idle pin", "one-shots only",
+      "pinning a cycle's end measured 20x worse"));
+    if (LOCKS) {
+      body.appendChild(lockRow("SPRITE_LOCK", "assembled, read-only",
+        "the staging and identity lock every clip is briefed with", LOCKS.sprite_lock));
+      body.appendChild(lockRow("STAGE_RESTATE", "assembled, read-only",
+        "a long move line pushes the staging clause out of effective range and H3 quietly swaps " +
+        "the keying screen for aged paper", LOCKS.stage_restate));
+      body.appendChild(lockRow("SOUND_LOCK", "assembled, read-only",
+        "H3 is a joint video+audio model; a prompt with no sound clause leaves the audio head to " +
+        "invent garbled human vocalisations, which also degrades the picture", LOCKS.sound_lock));
+    }
+  } else if (kind === "frames") {
+    if (POSTER.get(tagName)) body.appendChild(stepArt(imgUrl(POSTER.get(tagName), 300)));
+    const n = document.createElement("div");
+    n.className = "why0";
+    n.textContent = "nothing here is editable. Extraction is a consequence of the clip.";
+    body.appendChild(n);
+    body.appendChild(lockRow("frame count", "set by the clip",
+      "the extraction reads the whole clip; it is not a choice"));
+    body.appendChild(lockRow("skip", String(p.skip),
+      "settle-in frames pick_frames drops; not offerable as a re-pick"));
+  } else if (kind === "picks") {
+    const c = CUR();
+    if (c) body.appendChild(stepArt(imgUrl(c.src, 300)));
+    body.appendChild(row("cell count",
+      numberField(p.cells, 2, 24, (v) => saveParam("picks", "cells", v, tagName + " cells")),
+      "how many cells the next picks run chooses. The tag has " + tag.cells.length +
+      " on disk today; changing this marks picks stale and picks nothing."));
+    body.appendChild(row("cycle", checkField("detect a gait period",
+      p.cycle, (v) => saveParam("picks", "cyclic", v, tagName + " cyclic")),
+      "the same manifest field the clip chip calls cyclic — one fact, one place."));
+    const b = document.createElement("button");
+    b.className = "cost";
+    b.innerHTML = "P Re-pick cell " + (sel + 1) + "… <span class=\"price\">· ~45s GPU</span>";
+    b.title = "the source-frame scrubber, for this one cell";
+    b.onclick = () => openRepick();
+    body.appendChild(b);
+    body.appendChild(lockRow("CYCLE_SCORE_MAX", "0.09",
+      "absolute; a relative version is worse, see references"));
+    body.appendChild(lockRow("anchor / smooth", p.anchor + " · " + p.smooth,
+      "motion-energy internals; the pick is made on the clip, not here"));
+  } else if (kind === "repaint") {
+    body.appendChild(row("seed, per cell", (() => {
+      const w = document.createElement("div");
+      w.className = "why0";
+      w.textContent = "cell " + (sel + 1) + " is on seed " + (CUR() ? CUR().seed : "—") +
+        ". Re-roll and the painted variants are below — that is the editable seed.";
+      return w;
+    })()));
+    body.appendChild(lockRow("PAD", String(p.pad),
+      "the repaint draws him LARGER than he arrived; without margin his hair clips the frame"));
+    body.appendChild(lockRow("sampler", p.steps + " steps · cfg " + p.cfg + " · " + p.sampler +
+      " · " + p.scheduler + " · denoise " + p.denoise,
+      "in every drawing's cache key; changing one re-keys the whole set"));
+    if (LOCKS) {
+      body.appendChild(lockRow("the repaint prompt", "per template, read-only",
+        "it says repaint three ways on purpose: the failure mode is Qwen treating the frame as " +
+        "inspiration and drawing a fresh pose", LOCKS.repaint));
+      body.appendChild(lockRow("the negative", "read-only",
+        "the other half of that same door", LOCKS.negative));
+    }
+  } else if (kind === "pack") {
+    body.appendChild(row("fps", (() => {
+      const i = numberField(tag.fps, 1, 60, () => {});
+      i.onchange = () => {
+        const v = parseInt(i.value, 10);
+        if (!Number.isInteger(v) || v < 1) { i.value = String(tag.fps); return; }
+        mutate("/api/tag", {fps: v, direction: tag.direction},
+               tagName + " at " + v + "fps " + tag.direction, "tag", []);
+      };
+      return i;
+    })(), "playback, so it lives in the pack's key and in no key above it."));
+    body.appendChild(row("direction", selectField(
+      [["forward", "forward"], ["reverse", "reverse"], ["pingpong", "pingpong"]], tag.direction,
+      (v) => mutate("/api/tag", {fps: tag.fps, direction: v},
+                    tagName + " at " + tag.fps + "fps " + v, "tag", []))));
+    body.appendChild(row("loop", checkField("loop this tag", tag.loop,
+      (v) => saveParam("pack", "loop", v, tagName + " loop"))));
+    body.appendChild(row("hold on the last cell", checkField("freeze while the key is down",
+      tag.hold_key, (v) => saveParam("pack", "hold_key", v, tagName + " hold_key"))));
+    body.appendChild(row("unify", selectField(
+      [[false, "none"], ["head", "head width"], [true, "total height"]], packUnify(),
+      (v) => saveParam("pack", "unify", v, tagName + " unify")),
+      "head normalises drift between independent repaints. A move whose height IS the animation " +
+      "— jump, crouch — must stay on none."));
+    body.appendChild(lockRow("pivot", ST.pivot.join(","),
+      "drag it on the cell canvas; it is the ground line the whole character is packed against"));
+    body.appendChild(lockRow("the unify clamp", "±6%",
+      "past that it is a mis-measurement, and acting on it distorts the drawing"));
+    body.appendChild(lockRow("ANCHOR_PULL", "3px",
+      "smooths matte shimmer, never enough to move a footfall"));
+    body.appendChild(lockRow("the feet line", "94% of the cell",
+      "so “fits the cell” ≠ “fits above the feet”"));
+    body.appendChild(lockRow("scale caps", p.height_cap + " tall · " + p.up_cap + " up",
+      "the tallest cell fills this much of the cell, and the highest reach fits in that much " +
+      "above the pivot"));
+    body.appendChild(lockRow("tag names", tag.name,
+      "renaming a tag orphans its extracted frames, so nothing renames one yet"));
+  } else if (kind === "export") {
+    const b = document.createElement("button");
+    b.textContent = "↓ Export…";
+    b.title = "every format, computed on request";
+    b.onclick = openExport;
+    body.appendChild(b);
+    const names = list.map((x) => x.params.format).join(", ");
+    body.appendChild(lockRow("formats", names, "each one is a pure function of the atlas"));
+    body.appendChild(lockRow("the naming rule", "<cid>-atlas-hash.json, <cid>-phaser3.json, …",
+      "the server names and types each file, so a download keeps the name it chose"));
+  }
+
+}
+
+const packUnify = () => {
+  const p = (ST.steps || []).find((x) => x.id === "pack");
+  const t = p && p.params.tags.find((x) => x.name === tagName);
+  return t ? t.unify : false;
+};
+
+// The first extracted frame of a tag, which is the clip's poster. Fetched once per tag and only
+// when a clip or frames chip is actually opened.
+const POSTER = new Map();
+function warmPoster(tag) {
+  if (POSTER.has(tag) || !AGENT) return;
+  POSTER.set(tag, null);
+  fetch(AGENT + "/frames?cid=" + cid + "&tag=" + tag)
+    .then((r) => r.json())
+    .then((d) => {
+      const f = (d.frames || [])[0];
+      if (!f) return;
+      POSTER.set(tag, f);
+      if (stepOpen === "clip" || stepOpen === "frames") renderInspector();
+    })
+    .catch(() => {});
+}
+
+// --- the cost receipt --------------------------------------------------------------------------
+// Running a stale step is never one click. This is the confirmation, and it has to answer three
+// questions before it earns one: what runs, how long it takes, and what happens to the hand edits
+// under it. The third is the one a naive cascade gets wrong.
+function downstreamOf(ids) {
+  const all = ST.steps || [], kids = new Map();
+  for (const s of all) {
+    for (const e of s.inputs) {
+      if (!e.from) continue;
+      if (!kids.has(e.from)) kids.set(e.from, []);
+      kids.get(e.from).push(s.id);
+    }
+  }
+  const seen = new Set(ids), queue = [...ids];
+  for (let i = 0; i < queue.length; i++) {
+    for (const k of kids.get(queue[i]) || []) {
+      if (!seen.has(k)) { seen.add(k); queue.push(k); }
+    }
+  }
+  return all.filter((s) => seen.has(s.id));   // manifest order IS pipeline order
+}
+
+function handEdits(tagNames) {
+  const out = {n: 0, rolls: 0, nudges: 0, holds: 0};
+  for (const t of ST.tags) {
+    if (!tagNames.includes(t.name)) continue;
+    for (const c of t.cells) {
+      let hit = false;
+      if (c.seed !== BASE_SEED) { out.rolls++; hit = true; }
+      if (c.pivot_nudge[0] || c.pivot_nudge[1]) { out.nudges++; hit = true; }
+      if (c.hold > 1) { out.holds++; hit = true; }
+      if (hit) out.n++;
+    }
+  }
+  return out;
+}
+
+function about(secs) {
+  if (secs < 90) return "about " + secs + "s";
+  return "about " + Math.round(secs / 60) + " minutes";
+}
+
+// What a re-run of this kind does to the hand edits under it. Straight out of the design's
+// "hand edits under a re-run": an edit is never deleted, it is either kept, re-matched, or
+// visibly orphaned. Which of the three depends only on the KIND being re-run.
+const FATE = {
+  plate: ["ORPHANED to the tray",
+    "a new clip is a new performance, so frame times no longer mean anything and nothing auto-matches"],
+  clip: ["ORPHANED to the tray",
+    "a new clip is a new performance, so frame times no longer mean anything and nothing auto-matches"],
+  frames: ["MATCHED by source-frame time, nearest index within ±3 frames",
+    "anything unmatched goes to the tag's orphan tray — visible and restorable, never deleted"],
+  picks: ["MATCHED by source-frame time, nearest index within ±3 frames",
+    "anything unmatched goes to the tag's orphan tray — visible and restorable, never deleted"],
+  repaint: ["KEPT",
+    "same source frame, a new drawing, so the seed, the pivot and the hold survive by construction"],
+  pack: ["SAFE", "the pack and the exports are pure functions of what is upstream"],
+  export: ["SAFE", "the pack and the exports are pure functions of what is upstream"],
+};
+
+function editFate(kind, tags) {
+  const e = handEdits(tags);
+  const where = tags.length === ST.tags.length
+    ? "across all " + tags.length + " tags" : "in " + tags.join(", ");
+  const parts = [[e.rolls, "re-roll"], [e.nudges, "nudge"], [e.holds, "hold"]]
+    .filter(([n]) => n).map(([n, w]) => n + " " + w + (n === 1 ? "" : "s")).join(", ");
+  const [verb, why] = FATE[kind];
+  if (!e.n) return "No hand edits " + where + ". A " + kind + " re-run would leave them " +
+    verb + " — " + why + ".";
+  return e.n + " hand edit" + (e.n === 1 ? " " : "s ") + where + " (" + parts + ") " +
+    (e.n === 1 ? "is " : "are ") + verb + " — " + why + ".";
+}
+
+const NOT_YET = {
+  plate: "a plate is uploaded, not computed — replace the file on wilson to change it",
+  clip: "not wired up until the clip job type lands (stage 4)",
+  frames: "not wired up until the clip job type lands (stage 4)",
+  picks: "not wired up until the clip job type lands (stage 4)",
+  export: "an export is computed on request — use ↓ Export, it costs nothing",
+};
+
+function openReceipt(kind) {
+  const list = stepsOf(kind);
+  if (!list.length) return;
+  const chain = downstreamOf(list.map((s) => s.id));
+  const tags = [...new Set(chain.map((s) => s.tag).filter(Boolean))];
+  const rows = [];
+  let total = 0;
+  for (const s of chain) {
+    const k = s.kind + (s.tag ? "(" + s.tag + ")" : "");
+    let r = rows.find((x) => x.k === k);
+    if (!r) { r = {k, n: 0, cost: 0}; rows.push(r); }
+    r.n++;
+    r.cost += s.cost_s;
+    total += s.cost_s;
+  }
+  const runnable = RUNNABLE.includes(kind);
+  const paints = kind === "repaint"
+    ? list.filter((s) => s.stale && s.built_key === null).length : 0;
+  openOverlay("Run " + kind + (SCOPED.includes(kind) ? "(" + tagName + ")" : "") + " — the cost",
+    (host) => {
+      const box = document.createElement("div");
+      box.id = "receipt";
+      for (const r of rows) {
+        const d = document.createElement("div");
+        d.className = "row";
+        d.innerHTML = "<b></b><span></span>";
+        d.querySelector("b").textContent = r.k + (r.n > 1 ? " × " + r.n : "");
+        d.querySelector("span").textContent = r.cost ? "~" + r.cost + "s" : "free";
+        box.appendChild(d);
+      }
+      const tot = document.createElement("div");
+      tot.className = "row tot";
+      tot.innerHTML = "<b>in order, end to end</b><span></span>";
+      tot.querySelector("span").textContent = about(total);
+      box.appendChild(tot);
+
+      const ed = document.createElement("div");
+      ed.className = "edits";
+      ed.textContent = editFate(kind, tags.length ? tags : ST.tags.map((t) => t.name));
+      box.appendChild(ed);
+
+      if (runnable && kind === "repaint") {
+        const n = document.createElement("div");
+        n.className = "why0";
+        n.textContent = paints + " of those cells have no drawing on disk and will be painted. " +
+          "The rest keep the drawing they have — the packer caches by file name, so a stale " +
+          "drawing that already exists needs a re-roll, not a run.";
+        box.appendChild(n);
+      }
+      if (!runnable) {
+        const n = document.createElement("div");
+        n.className = "no";
+        n.textContent = NOT_YET[kind];
+        box.appendChild(n);
+      }
+
+      const go = document.createElement("div");
+      go.className = "go";
+      const yes = document.createElement("button");
+      yes.className = "cost";
+      yes.textContent = "Run it";
+      yes.disabled = !runnable;
+      yes.title = runnable ? "queue it — one cancellable job" : NOT_YET[kind];
+      yes.onclick = () => { closeOverlay(); runStep(kind); };
+      const no = document.createElement("button");
+      no.textContent = "Cancel";
+      no.title = "change nothing";
+      no.onclick = closeOverlay;
+      go.appendChild(yes);
+      go.appendChild(no);
+      box.appendChild(go);
+      host.appendChild(box);
+    });
+}
+
+async function runStep(kind) {
+  tick("queueing " + kind + "…");
+  let j;
+  try {
+    const r = await fetch("/api/run", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({cid, kind, tag: tagName}),
+    });
+    j = await r.json();
+    if (!r.ok || j.error) { tick(j.error || "the run was refused", true); return; }
+  } catch (e) {
+    tick("could not reach the editor service: " + e.message, true);
+    return;
+  }
+  RUNS.set(j.job.id, kind);
+  JOBS = JOBS.filter((x) => x.id !== j.job.id).concat([j.job]);
+  tick(j.job.label + " — queued");
+  renderRail();
+  renderQueue();
+}
+
 // --- inspector ---------------------------------------------------------------------------------
 function renderInspector() {
   const c = CUR();
+  // A chip owns the inspector while it is open, replacing the CELL inspector — except where the
+  // step's own editable param IS a cell fact: repaint's editable param is the seed, which is the
+  // re-roll and the variant strip already on this panel, and picks needs the source frame it is
+  // choosing. Those groups are reused rather than drawn twice.
+  // The phone's Rail screen with nothing open is the rail and nothing else. The cell inspector
+  // under it would be a second subject on a screen whose whole job is choosing one.
+  const railOnly = phone && screenName === "rail" && !stepOpen;
+  const hideCell = railOnly || (!!stepOpen && stepOpen !== "repaint");
+  el("g-step").hidden = !stepOpen && !railOnly;
+  el("g-prov").hidden = hideCell;
+  el("g-var").hidden = hideCell;
+  el("g-act").hidden = hideCell;
+  if (stepOpen) {
+    if (stepOpen === "clip" || stepOpen === "frames") warmPoster(tagName);
+    renderStep(stepOpen);
+  } else if (railOnly) {
+    el("steplbl").textContent = "the pipeline";
+    el("stepbody").textContent = "tap a chip for its params, its price and what re-running it " +
+      "would do to the hand edits under it.";
+  }
   if (!c) return;
   const pend = lockedHere(), fail = FAILS.get(key(tagName, sel));
   el("srcimg").src = imgUrl(c.src, 300);
@@ -1210,6 +1877,15 @@ async function mutate(url, body, label, scope, indices) {
     tick("could not reach the editor service: " + e.message, true);
     return null;
   }
+  revision = j.revision;
+  // A param edit that owed no runnable work. The manifest has it, the steps it invalidated are
+  // drawn stale, and the queue is untouched — which is the whole of "staleness never runs
+  // anything" made visible.
+  if (!j.job) {
+    tick(label + " — recorded · what it invalidated is now stale, and nothing is queued");
+    await reload(null, false);
+    return null;
+  }
   const id = j.job.id;
   const own = OWN.get(id) || {scope: "cells", tag: tagName, indices: new Set(), requests: []};
   // A coalesced repack carries several edits and the widest scope among them wins: one reorder in
@@ -1220,7 +1896,6 @@ async function mutate(url, body, label, scope, indices) {
   own.requests.push({url, body, label, scope, indices});
   OWN.set(id, own);
   JOBS = JOBS.filter((x) => x.id !== id).concat([j.job]);
-  revision = j.revision;
   tick(label + " — " + (PRICE[op] ? "painting, " + PRICE[op] : "queued for the next repack"));
   // Re-read the manifest, not the images: the edit is already in it, and the drawing that follows
   // from it does not exist until the job reports. The cells stay on the art they have, under the
@@ -1593,6 +2268,7 @@ async function pollJobs() {
     const fp = uiFingerprint();
     if (fp !== lastUi) {
       lastUi = fp;
+      renderRail();
       renderStrip(null);
       renderInspector();
     }
@@ -1874,7 +2550,10 @@ addEventListener("keydown", (ev) => {
 // Below the minimum useful window the inspector goes first, and Preview becomes a
 // picture-in-picture rather than disappearing. Below PHONE_MAX neither of those applies: the
 // layout is not a squeezed editor, it is three screens.
-const SCREENS = ["preview", "cells", "queue"];
+// Four screens on the phone, not three. The rail is its own, which is what DESIGN-pipeline.md's
+// mobile section asks for: it is a decision surface — seven prices and a Run — and folding it into
+// Preview would put a costed button on the screen a person is using to watch a loop.
+const SCREENS = ["preview", "rail", "cells", "queue"];
 
 function setScreen(name) {
   if (!SCREENS.includes(name)) return;
@@ -1892,6 +2571,7 @@ function setScreen(name) {
   // drawn again at the size it actually got.
   if (name === "cells") { renderStrip(null); scrollSelectionIntoView(); }
   renderStage();
+  renderInspector();
 }
 for (const b of el("screens").querySelectorAll("button")) b.onclick = () => setScreen(b.dataset.s);
 
@@ -1918,7 +2598,9 @@ function fit() {
     pop.hidden = true;
     if (ST) paint(null);
   }
-  document.body.classList.toggle("noinsp", handCollapse || innerWidth < 1180);
+  // An open chip pins the inspector open: it is where the step panel is drawn, and a chip whose
+  // panel is auto-collapsed away is a dead click.
+  document.body.classList.toggle("noinsp", !stepOpen && (handCollapse || innerWidth < 1180));
   document.body.classList.toggle("pip", el("stage").clientWidth < 760);
 }
 addEventListener("resize", fit);

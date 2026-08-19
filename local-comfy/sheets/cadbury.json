@@ -151,9 +151,9 @@
  ],
  "frames": [
   {
-   "src": "/tmp/sprite-cadbury-walk-pick/f_0038.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-walk-f_0038.png",
+   "src": "/tmp/sprite-cadbury-walk-pick/f_0035.png",
+   "seed": 1642176185,
+   "png": "/tmp/repaint/cadbury-walk-f_0035-s1642176185.png",
    "hold": 1,
    "pivot_nudge": [
     0,
@@ -778,15 +778,15 @@
    "key": "1305ebcdc7a514ec",
    "built_key": "1305ebcdc7a514ec",
    "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
-   "artifact_hash": "bb84226c3c7116c3",
+   "artifact_hash": "bcbfb4a521e1ede0",
    "cost_s": 5
   },
   {
-   "id": "repaint:cadbury-walk-f_0038",
+   "id": "repaint:cadbury-walk-f_0035-s1642176185",
    "kind": "repaint",
    "tag": "walk",
    "params": {
-    "seed": 77,
+    "seed": 1642176185,
     "pad": 0.86,
     "steps": 8,
     "cfg": 1.0,
@@ -797,14 +797,14 @@
    "inputs": [
     {
      "from": "picks:walk",
-     "path": "/tmp/sprite-cadbury-walk-pick/f_0038.png",
-     "hash": "a6d515216a6061a9"
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0035.png",
+     "hash": "b8e4eb4459b6d72c"
     }
    ],
-   "key": "644f6ada4a9a413b",
-   "built_key": "644f6ada4a9a413b",
-   "artifact": "/tmp/repaint/cadbury-walk-f_0038.png",
-   "artifact_hash": "12f15946f378eeb5",
+   "key": "d6aa112bb4831512",
+   "built_key": "d6aa112bb4831512",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0035-s1642176185.png",
+   "artifact_hash": "78fa74e4ed724ee7",
    "cost_s": 45
   },
   {
@@ -3077,9 +3077,9 @@
    },
    "inputs": [
     {
-     "from": "repaint:cadbury-walk-f_0038",
-     "path": "/tmp/repaint/cadbury-walk-f_0038.png",
-     "hash": "12f15946f378eeb5"
+     "from": "repaint:cadbury-walk-f_0035-s1642176185",
+     "path": "/tmp/repaint/cadbury-walk-f_0035-s1642176185.png",
+     "hash": "78fa74e4ed724ee7"
     },
     {
      "from": "repaint:cadbury-walk-f_0035-s576867989",
@@ -3347,10 +3347,10 @@
      "hash": "a609bfd4e7acb9b2"
     }
    ],
-   "key": "09146b3d8f4df770",
-   "built_key": "09146b3d8f4df770",
+   "key": "e8e0589b2b9ea2da",
+   "built_key": "e8e0589b2b9ea2da",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-   "artifact_hash": "8093326bcae12967",
+   "artifact_hash": "28b9f38f869b5558",
    "cost_s": 5
   },
   {
@@ -3364,11 +3364,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "8093326bcae12967"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "b791aa4ddd3ead96",
-   "built_key": "b791aa4ddd3ead96",
+   "key": "8c02b31e43f4ec14",
+   "built_key": "8c02b31e43f4ec14",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3384,11 +3384,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "8093326bcae12967"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "9545e8fa0f4ced5f",
-   "built_key": "9545e8fa0f4ced5f",
+   "key": "a44aaa35475de687",
+   "built_key": "a44aaa35475de687",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3404,11 +3404,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "8093326bcae12967"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "9ecfba82adf21a1f",
-   "built_key": "9ecfba82adf21a1f",
+   "key": "a822d0d3e9fc6cff",
+   "built_key": "a822d0d3e9fc6cff",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3424,11 +3424,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "8093326bcae12967"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "2940f694c5d43787",
-   "built_key": "2940f694c5d43787",
+   "key": "99dfbfe501d3eae4",
+   "built_key": "99dfbfe501d3eae4",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3444,11 +3444,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "8093326bcae12967"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "59f764ae1c73a2b7",
-   "built_key": "59f764ae1c73a2b7",
+   "key": "35642cf4c19b3479",
+   "built_key": "35642cf4c19b3479",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0

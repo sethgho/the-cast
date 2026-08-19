@@ -130,7 +130,22 @@ def derived(cid, man):
                 "metrics": None if ai is None else SF.cell_metrics(cid, ai),
                 "variants": SF.variants(cid, tag["name"], f["src"])})
         tags[tag["name"]] = {"cells": cells}
-    return {"atlas": SF.sheet_paths(cid)[0], "outdir": RC.OUT, "tags": tags}
+    return {"atlas": SF.sheet_paths(cid)[0], "outdir": RC.OUT, "tags": tags, "locks": LOCKS}
+
+
+# The prompt TEMPLATES, read-only, so the editor can show a person the words their clips and their
+# repaints were actually briefed with. They are not in the manifest and must not be: the manifest
+# carries `template_version`, one digest over exactly these strings, and a second copy of the text
+# beside the digest would be free to disagree with it. They live on this side because this is the
+# side that imports the Python they are declared in.
+LOCKS = {
+    "sprite_lock": RC.BS.SPRITE_LOCK,
+    "who_lead": RC.BS.WHO_LEAD,
+    "stage_restate": RC.BS.STAGE_RESTATE,
+    "sound_lock": RC.BS.SOUND_LOCK,
+    "repaint": RC.REPAINT,
+    "negative": RC.NEG,
+}
 
 
 # --- the work ------------------------------------------------------------------------------

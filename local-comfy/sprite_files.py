@@ -30,9 +30,15 @@ def characters():
 
 PICK_SKIP = RC.PICK_SKIP         # settle-in frames pick_frames drops; not offerable as a re-pick
 
-# /img serves nothing outside these. The editor only ever needs source frames, repaints and the
-# packed output, and an unrestricted path parameter on a LAN-bound server is a file-read hole.
-ALLOWED_ROOTS = ("/tmp/sprite-", RC.REPAINT_DIR + "/", os.path.realpath(RC.OUT) + "/")
+# /img serves nothing outside these. The editor only ever needs source frames, repaints, the
+# packed output and the plates, and an unrestricted path parameter on a LAN-bound server is a
+# file-read hole.
+#
+# The plates joined the list for the pipeline rail's Plate chip: the plate IS that step's
+# artifact, and a step whose artifact cannot be looked at is a chip nobody can check. It is the
+# cutout directory alone, not the repo root.
+ALLOWED_ROOTS = ("/tmp/sprite-", RC.REPAINT_DIR + "/", os.path.realpath(RC.OUT) + "/",
+                 os.path.realpath(os.path.join(RC.HERE, "plates")) + "/")
 
 
 def sheet_paths(cid):
