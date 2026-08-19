@@ -191,7 +191,13 @@
   .picks { display: flex; flex-wrap: wrap; gap: 4px; }
   .picks figure { margin: 0; cursor: pointer; border: 2px solid transparent; border-radius: 4px;
                   background: var(--cream); }
-  .picks figure.cur { border-color: var(--gold); }
+  /* The current frame has to be findable among sixty-odd near-identical thumbnails, so it gets
+     three signals, not one: a solid gold border, a gold caption, and a label saying so. A 2px
+     border alone was there before and was invisible at this density. */
+  .picks figure.cur { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(216,166,87,.35); }
+  .picks figure.cur figcaption { color: var(--gold); font-weight: 700; }
+  .picks figure.cur figcaption::after { content: " · current"; }
+  .picks figure .off { color: var(--faint); }
   .picks img { display: block; width: 92px; height: 92px; }
   .picks figcaption { font: 9px/1.3 ui-monospace, monospace; color: var(--faint); text-align: center; }
   .keys { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 5px 10px; align-items: center; }
@@ -1424,18 +1430,31 @@ function openRepick() {
       .then((r) => r.json())
       .then((d) => {
         box.textContent = "";
-        for (const f of d.frames) {
+        const at0 = d.frames.indexOf(cur);
+        let curFig = null;
+        d.frames.forEach((f, i) => {
           const fig = document.createElement("figure");
-          if (f === cur) fig.className = "cur";
+          if (f === cur) { fig.className = "cur"; curFig = fig; }
           fig.innerHTML = '<img loading="lazy" src="' + imgUrl(f, 96) + '"><figcaption></figcaption>';
-          fig.querySelector("figcaption").textContent =
-            f.split("/").pop().replace(".png", "").replace("f_", "");
+          const cap = fig.querySelector("figcaption");
+          cap.textContent = f.split("/").pop().replace(".png", "").replace("f_", "");
+          // A re-pick is nearly always a step or two either side of where you are, so the
+          // distance from the current frame is more use than the absolute frame number.
+          if (at0 >= 0 && i !== at0) {
+            const off = document.createElement("span");
+            off.className = "off";
+            off.textContent = " " + (i > at0 ? "+" : "\u2212") + Math.abs(i - at0);
+            cap.appendChild(off);
+          }
           fig.onclick = () => {
             closeOverlay();
             mutate("/api/repick", {index: at, src: f}, "re-pick cell " + (at + 1), "cells", [at]);
           };
           box.appendChild(fig);
-        }
+        });
+        // Sixty-odd thumbnails wrap well past the fold, so the one you are replacing is usually
+        // off screen when the modal opens. Put it in front of the eye.
+        if (curFig) curFig.scrollIntoView({block: "center"});
       })
       .catch((e) => { box.textContent = "could not list the source frames: " + e.message; });
   });
