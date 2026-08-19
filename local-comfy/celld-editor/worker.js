@@ -92,6 +92,10 @@ const GENERATES = {
   // re-roll to it stays an explicit, priced act.
   restore: false,
   forget: false,
+  // A move is manifest DATA (DESIGN-pipeline.md, "a new move"), so creating one is an edit and
+  // not a build: it adds an empty tag whose clip has never been rendered. Never GPU — the rail
+  // then prices the seven steps that would fill it, and nobody is charged for typing a name.
+  newmove: false,
 };
 const MUTATIONS = Object.keys(GENERATES);
 
@@ -99,6 +103,10 @@ const MUTATIONS = Object.keys(GENERATES);
 // job kind is what the agent dispatches on, and the two differ for `frames`, whose job is an
 // ffmpeg re-EXTRACTION rather than a step called "frames".
 const JOB_KIND = {
+  // The plate is CUT OUT on the card now, from an uploaded image, so it is a job like any other.
+  // It stays absent for a character whose plate was made by hand: `run` refuses a step that is
+  // already fresh, and a hand-made plate is always fresh because the file IS the build.
+  plate: "plate",
   clip: "clip",
   frames: "extract",
   picks: "picks",
@@ -225,10 +233,58 @@ function inCell(x, y, cell, what) {
 // extracted-frames directory is named after the tag, so renaming one orphans it, and nothing
 // re-extracts until the stage-4 job types land.
 const STEP_EDITABLE = {
+  // The plate's one editable param is WHICH IMAGE it is cut out of. Editing it queues nothing —
+  // the cut-out is a priced run like every other step — so a new source can be swapped in and
+  // looked at before a single clip is rendered against it.
+  //
+  // `prop` is the answer to the question the plate has to be looked at to answer: is the subject
+  // DRAWN holding something. It is not a render setting and nothing keys off it — it is recorded
+  // because a prompt cannot beat the plate. Cadbury's canonical plate holds a serving tray, and
+  // "his hands are empty" took his walk from no cycle at all to a clean one while the tray still
+  // flickered in about three cells in ten. A prop the character is drawn with needs a second
+  // plate, and this is the field that lets the editor say so before an hour of GPU is spent.
+  plate: ["source", "prop"],
   clip: ["recipe_text", "trait", "cyclic"],
   picks: ["cells", "cyclic"],
   pack: ["loop", "hold_key", "unify"],
 };
+
+// Where `sprite_files.stage_upload` puts an accepted upload, and the only place a plate source may
+// point at. The agent's own allowlist is what actually stops it reading anything else; this is the
+// same answer given one hop earlier, so a typo is refused by the editor rather than by a 403 on
+// the machine with the GPU.
+const UPLOAD_DIR = "/tmp/sprite-uploads/";
+
+// Which editable params belong to the character's PLATE BLOCK rather than to the tag the page
+// happens to have selected. There is exactly one plate per character, so writing either of these
+// onto a tag would put a character-wide fact in seven places free to disagree.
+const PLATE_FIELD = ["source", "prop"];
+
+// A move name has to be safe in a file name and a URL for the same reasons a character id does:
+// it names the extracted-frames directory and every repaint of the move.
+const MOVE_NAME = /^[a-z][a-z0-9-]{0,23}$/;
+
+// THE QUESTION CREATING A MOVE HAS TO ANSWER, and the reason it is asked rather than defaulted.
+//
+// `unify` normalises the few percent of scale drift between independently repainted cells. On a
+// jump it normalises away the jump: the height IS the animation, and we shipped exactly that bug
+// and had to measure our way back out of it. There is no safe default — "none" leaves a walk
+// shimmering and "total height" flattens a crouch — so the answer is a required field, and unify
+// is DERIVED from it. A client cannot set unify directly on a new move at all, which is what
+// makes "creating a move forces the question" true of the API and not just of the form.
+const HEIGHT = {
+  changes: false,     // a jump, a crouch, a faint — the height is the animation
+  stride: "head",     // a walk or a run — normalise drift, keep the stride's rise and fall
+  fixed: true,        // an idle, a wave — he must not change height at all
+};
+
+// repaint_cells.bootstrap_clip_path(), mirrored here for the same reason `repaintPath()` is: a
+// mutation has to name the artifact it has just invented without a round trip to a machine that
+// may be asleep. The two numbers in it are read off the manifest's own build block rather than
+// restated, so this cannot drift from the render it names.
+function clipPath(man, recipe) {
+  return `/tmp/${man.character}-${recipe}-${man.build.clip.size}-${man.build.clip.steps}.mp4`;
+}
 
 // The three forms `sprite_sheet._unify_factors` actually reads. `true` is total height and is only
 // for a move that must not change height at all; `"head"` normalises drift without touching a
@@ -260,6 +316,14 @@ function flag(value, what) {
 }
 
 function stepValue(field, value) {
+  if (field === "source") {
+    const s = text(value, "the source image");
+    if (!s.startsWith(UPLOAD_DIR) || s.includes("..")) {
+      throw new HttpError(400, `a plate source has to be an upload under ${UPLOAD_DIR}`);
+    }
+    return s;
+  }
+  if (field === "prop") return flag(value, "the prop answer");
   if (field === "recipe_text") return text(value, "the recipe");
   if (field === "trait") return text(value, "the trait line");
   if (field === "cyclic" || field === "loop" || field === "hold_key") return flag(value, field);
@@ -412,6 +476,17 @@ function applyInverse(man, inv, rev, attic) {
     attic.dropRemove.push(inv.frame._fid);
     return;
   }
+  // Undo a `newmove`: drop the tag it appended. Only while it is still EMPTY — a picks run that
+  // landed between the edit and the cancel has filled it with real cells and real drawings, and
+  // deleting those to honour a cancel of the name they hang off would be the one thing this
+  // object refuses to do. The tag is appended last, so removing it moves nothing else.
+  if (inv.k === "newTag") {
+    const at = tagIndex(man, inv.tag);
+    if (at < 0) return;
+    if (man.tags[at].to >= man.tags[at].from) return;
+    man.tags.splice(at, 1);
+    return;
+  }
   if (inv.k === "order") {
     editTagFrames(
       man,
@@ -436,6 +511,7 @@ function applyInverse(man, inv, rev, attic) {
   // spliced the frame list, and nothing here may assume a position survived it.
   if (inv.k === "stepParams") {
     if (inv.field === "trait") { man.trait = inv.value; return; }
+    if (PLATE_FIELD.includes(inv.field)) { man.plate[inv.field] = inv.value; return; }
     const at = man.tags[tagIndex(man, inv.tag)];
     if (at) at[inv.field] = inv.value;
     return;
@@ -546,10 +622,25 @@ export async function buildSteps(man, prior) {
     return rec;
   };
 
+  // Two shapes, mirroring pipeline.build_steps exactly. A plate CUT OUT from an upload records
+  // the source it came from, so swapping the source re-keys it and the rail offers the cut-out
+  // again. A HAND-MADE plate records none, and then the file itself is the build — there is no job
+  // that could rebuild it, and calling it stale would be an instruction nobody can follow.
   const plate = was.get("plate");
   const plateHash = plate?.artifact_hash ?? null;
-  const plateStep = await add("plate", "plate", null, {},
-    [edge(null, plate?.artifact, plateHash)], plate?.artifact, plateHash, plateHash !== null);
+  const source = (man.plate || {}).source || null;
+  // The hash of a file this object cannot open, carried from the last report — but ONLY while the
+  // record still names the same file. Swapping the source to a different image leaves this side
+  // with no hash for it at all, which keys against null and reads "never built": exactly right,
+  // because nothing has been cut out of that image yet. Carrying the old hash across a swap would
+  // have called the plate fresh while it was still a picture of somebody else.
+  const priorSrc = plate?.inputs?.[0];
+  const plateHashIn = priorSrc && priorSrc.path === source ? (priorSrc.hash ?? null) : null;
+  const plateStep = source
+    ? await add("plate", "plate", null, {}, [edge(null, source, plateHashIn)], plate?.artifact,
+                plateHash)
+    : await add("plate", "plate", null, {},
+        [edge(null, plate?.artifact, plateHash)], plate?.artifact, plateHash, plateHash !== null);
 
   for (const tag of man.tags) {
     const move = tag.name;
@@ -1214,8 +1305,13 @@ export class CharacterDO {
       if (!man) throw new HttpError(409, "this character has not been seeded yet");
       const wasPack = packKey(man);
       const tagName = req.tag;
-      if (tagIndex(man, tagName) < 0) {
-        throw new HttpError(400, `no ${tagName} tag for ${man.character}`);
+      // `newmove` is the one mutation whose tag must NOT exist yet — it is the mutation that
+      // creates one. Every other mutation addresses a tag that already does.
+      const has = tagIndex(man, tagName) >= 0;
+      if (op === "newmove" ? has : !has) {
+        throw new HttpError(400, op === "newmove"
+          ? `${man.character} already has a move called ${tagName}`
+          : `no ${tagName} tag for ${man.character}`);
       }
       const done = await this[op](man, tagName, req, rev);
       // The tray and the dropped ledger move BEFORE the manifest is written, because the identity
@@ -1478,6 +1574,148 @@ export class CharacterDO {
     };
   }
 
+  // --- a new move ------------------------------------------------------------------------------
+  // DESIGN-pipeline.md, "a new move": a move becomes manifest data, created from an existing move
+  // as a template, and `MOVES` in two Python files becomes bootstrap defaults only.
+  //
+  // The tag it appends is EMPTY — `to` one below `from` — because a move that has never been
+  // rendered owns no frames. Everything downstream reads that correctly: the rail prices its clip
+  // as never built, the packer skips it, and the first picks run splices its cells in at exactly
+  // the position the empty range already names.
+  async newmove(man, tagName, req, rev) {
+    if (!MOVE_NAME.test(tagName)) {
+      throw new HttpError(400, `not a move name: ${tagName} — lower case, letters, digits and ` +
+        "hyphens, up to 24 characters");
+    }
+    const from = man.tags[tagIndex(man, req.from)];
+    if (!from) throw new HttpError(400, `no ${req.from} move to copy — a move is made from one`);
+    if (!Object.prototype.hasOwnProperty.call(HEIGHT, req.height)) {
+      throw new HttpError(400, "say whether this move's height changes: " +
+        `${Object.keys(HEIGHT).join(", ")} — unify on a jump is the bug this question exists for`);
+    }
+    const fps = whole(req.fps, "fps");
+    if (fps <= 0) throw new HttpError(400, "fps must be greater than zero");
+    // Validated to the last field before one byte of the manifest is touched, exactly as `step`
+    // is: a refusal must not be able to leave half a move behind.
+    const tag = {
+      name: tagName,
+      from: man.frames.length,
+      to: man.frames.length - 1,
+      fps,
+      direction: "forward",
+      loop: flag(req.loop, "loop"),
+      hold_key: flag(req.hold_key, "hold_key"),
+      unify: HEIGHT[req.height],
+      // Its own recipe, named after itself, so its clip is its own file. Copying the template's
+      // would leave two moves rendering to one path, and the second one to run would silently
+      // overwrite the first one's performance.
+      clip: clipPath(man, tagName),
+      recipe: tagName,
+      recipe_text: text(req.recipe_text, "the recipe"),
+      cells: stepValue("cells", req.cells),
+      cyclic: flag(req.cyclic, "cyclic"),
+    };
+    man.tags.push(tag);
+    return {
+      text: `${man.character} new move ${tagName} from ${req.from}`,
+      index: null,
+      inverse: { k: "newTag", tag: tagName },
+      // Nothing runnable was made — the move is a to-do list, not an artifact. It still owes a
+      // repack, because the tag table the atlas carries has genuinely changed, and `mutate`
+      // decides that off the pack's own key rather than off this flag.
+      norun: true,
+    };
+  }
+
+  // --- a new subject -----------------------------------------------------------------------
+  // DESIGN-pipeline.md, "a new subject": upload an image, cut it out, write the trait line, and
+  // the character exists. This is the cell that character is.
+  //
+  // Everything is validated here rather than trusted, including the parts that came from the
+  // agent. The one exception is the `build` block, which is the locked constants every cache key
+  // is computed against: this object cannot compute them (they digest Python strings) and it is
+  // self-healing anyway — `_backfill_move_data` refreshes it from `repaint_cells` on every load,
+  // and every finished job reports it back through `absorbPacked`.
+  async create(req) {
+    if (await this.manifest()) {
+      throw new HttpError(409, `${req.cid} already exists — pick another id`);
+    }
+    const build = req.build;
+    if (!build || !build.template_version || !build.clip || !build.cost_s) {
+      throw new HttpError(400, "the bootstrap is missing its build block");
+    }
+    const cell = whole(req.cell, "the cell size");
+    if (cell < 64 || cell > 2048) throw new HttpError(400, "the cell size must be 64..2048");
+    const pivot = xy(req.pivot, "pivot");
+    inCell(pivot[0], pivot[1], cell, "pivot");
+    if (!Array.isArray(req.moves) || !req.moves.length) {
+      throw new HttpError(400, "a character starts with at least one move");
+    }
+    // The manifest's key order is repaint_cells.MANIFEST_FIELDS, and the tag's is `_tag`'s. This
+    // object's copy is written verbatim to sheets/<cid>.json by the agent, so a key in the wrong
+    // place here re-orders the file on every later local run for no change in meaning.
+    const man = {
+      character: req.cid,
+      name: text(req.name, "the display name"),
+      cell,
+      pivot,
+      trait: text(req.trait, "the trait line"),
+      // `prop` starts null and NOT false, because "nobody has looked yet" and "somebody looked
+      // and there is no prop" are different facts and only one of them is safe to build an hour
+      // of clips on. The page nags on null; it says nothing on false.
+      plate: { source: stepValue("source", req.source), prop: null },
+      build,
+      tags: [],
+      frames: [],
+    };
+    const seen = new Set();
+    for (const m of req.moves) {
+      const name = typeof m.name === "string" ? m.name : "";
+      if (!MOVE_NAME.test(name)) throw new HttpError(400, `not a move name: ${name}`);
+      if (seen.has(name)) throw new HttpError(400, `${name} is in the move list twice`);
+      seen.add(name);
+      const fps = whole(m.fps, `${name} fps`);
+      if (fps <= 0) throw new HttpError(400, `${name} fps must be greater than zero`);
+      if (!UNIFY.some((u) => u === m.unify)) {
+        throw new HttpError(400, `${name} unify must be false, true or "head"`);
+      }
+      // Every move starts EMPTY: this character has no clips at all yet, so there is nothing to
+      // pick cells off. `from` one above `to` is the empty range, and every tag shares the same
+      // one because the frame list is empty.
+      man.tags.push({
+        name, from: 0, to: -1, fps, direction: "forward",
+        loop: flag(m.loop, `${name} loop`), hold_key: flag(m.hold_key, `${name} hold_key`),
+        unify: m.unify, clip: clipPath(man, text(m.recipe, `${name} recipe`)),
+        recipe: m.recipe, recipe_text: text(m.recipe_text, `${name} recipe text`),
+        cells: stepValue("cells", m.cells), cyclic: flag(m.cyclic, `${name} cyclic`),
+      });
+    }
+    const rev = 1;
+    await this.refreshSteps(man);
+    await this.saveManifest(man);
+    await this.ctx.storage.put("revision", rev);
+    return { ok: true, character: req.cid, moves: man.tags.length, revision: rev };
+  }
+
+  // Empty this cell completely. The other half of "a character is data": something that can be
+  // created without a code change has to be removable without one, or the fleet accumulates
+  // half-finished experiments that every roster read and every health check pays for.
+  //
+  // Not reachable from the page, on purpose — it is behind the agent token, so deleting a
+  // character is a command somebody types with the id spelled out. The FILES are the agent's half
+  // of it; this half is the record.
+  async erase() {
+    const existed = (await this.manifest()) !== null;
+    await this.ctx.storage.deleteAll();
+    return { existed };
+  }
+
+  async rosterRemove(cid) {
+    const list = (await this.roster()).filter((c) => c !== cid);
+    await this.ctx.storage.put("roster", list);
+    return list;
+  }
+
   async reorder(man, tagName, req, rev) {
     if (!Array.isArray(req.order)) throw new HttpError(400, "order must be a list of indices");
     const order = req.order.map((v, k) => whole(v, `order[${k}]`));
@@ -1593,21 +1831,36 @@ export class CharacterDO {
       );
     }
     const value = stepValue(req.field, req.value);
+    // Two params on this page belong to the CHARACTER and not to the tag the page happens to have
+    // selected: his trait line, and the image his plate is cut out of. Writing either onto the tag
+    // would put a character-wide fact in seven places free to disagree.
+    if (PLATE_FIELD.includes(req.field) && !man.plate) {
+      throw new HttpError(400, `${man.character}'s plate was made by hand — there is no source ` +
+        "image to replace, and cutting one out would re-key every clip he has");
+    }
+    if (req.field === "source" && man.plate.prop !== null) {
+      // Replacing the image replaces the subject that was looked at, so the answer to "is he
+      // holding a prop" is about a picture that is gone. Clearing it is not a courtesy: a stale
+      // "no" on a new plate is the exact failure this field exists to prevent.
+      man.plate.prop = null;
+    }
     const tag = man.tags[tagIndex(man, tagName)];
-    const now = req.field === "trait" ? man.trait : tag[req.field];
+    const now = req.field === "trait" ? man.trait
+      : PLATE_FIELD.includes(req.field) ? man.plate[req.field] : tag[req.field];
     if (canon(now) === canon(value)) {
       throw new HttpError(400, `that is the ${req.field} it already has`);
     }
     const inverse = { k: "stepParams", tag: tagName, field: req.field, value: now };
     if (req.field === "trait") man.trait = value;
+    else if (PLATE_FIELD.includes(req.field)) man.plate[req.field] = value;
     else tag[req.field] = value;
     const what = typeof value === "string" && value.length > 24
       ? `${value.slice(0, 24)}…` : JSON.stringify(value);
     return {
       // The trait line is the character's, not the tag's, and saying otherwise in the queue would
       // be the one edit on this page whose blast radius is wider than it reads.
-      text: req.field === "trait"
-        ? `${man.character} trait ${what}`
+      text: req.field === "trait" || PLATE_FIELD.includes(req.field)
+        ? `${man.character} ${req.field} ${what}`
         : `${man.character}-${tagName} ${req.field} ${what}`,
       index: null,
       inverse,
@@ -1625,16 +1878,18 @@ export class CharacterDO {
     if (!man) throw new HttpError(409, "this character has not been seeded yet");
     const jobKind = JOB_KIND[req.kind];
     if (!jobKind) {
-      throw new HttpError(400,
-        `${req.kind} has no agent job type — a plate is uploaded and an export is streamed`);
+      throw new HttpError(400, `${req.kind} has no agent job type — an export is streamed`);
     }
-    if (jobKind !== "pack" && tagIndex(man, req.tag) < 0) {
+    // `plate` and `pack` belong to the CHARACTER; the other four belong to one move. The scoping
+    // is the same distinction the rail draws, and it decides both which steps a run covers and
+    // whether the job carries a tag at all.
+    const scoped = jobKind !== "pack" && jobKind !== "plate";
+    if (scoped && tagIndex(man, req.tag) < 0) {
       throw new HttpError(400, `no ${req.tag} tag for ${man.character}`);
     }
     const steps = man.steps || [];
     const stale = staleness(steps);
-    const scope = steps.filter((s) =>
-      s.kind === req.kind && (req.kind === "pack" || s.tag === req.tag));
+    const scope = steps.filter((s) => s.kind === req.kind && (!scoped || s.tag === req.tag));
     if (!scope.length) {
       throw new HttpError(400, `no ${req.kind} step for ${req.tag ?? man.character}`);
     }
@@ -1648,13 +1903,15 @@ export class CharacterDO {
     // and any cheap edit may join it; a clip, an extraction and a re-pick are none of those, so
     // all three are true even though only the clip touches the card. Letting a hold join an
     // extraction would have run ffmpeg and silently never packed the hold.
-    const generates = jobKind === "clip" || jobKind === "extract" || jobKind === "picks" ||
-      (jobKind === "repaint" && paints > 0);
+    const generates = jobKind === "plate" || jobKind === "clip" || jobKind === "extract" ||
+      jobKind === "picks" || (jobKind === "repaint" && paints > 0);
     // The pack is not tag-scoped — it packs every move in one atlas, because the cell scale is
-    // shared across the set. Carrying the page's selected tag onto it would name a scope the job
-    // does not have.
-    const tag = jobKind === "pack" ? null : req.tag;
+    // shared across the set — and neither is the plate, which is the one artifact every move's
+    // clip is composited from. Carrying the page's selected tag onto either would name a scope the
+    // job does not have.
+    const tag = scoped ? req.tag : null;
     const LABEL = {
+      plate: "run plate — cut the subject out",
       clip: `run clip(${tag}) — one 170s render`,
       extract: `run extract(${tag}) — re-extract the frames`,
       picks: `run picks(${tag}) — choose ${man.tags[tagIndex(man, tag)]?.cells} cells`,
@@ -1726,9 +1983,18 @@ export class CharacterDO {
     const stale = staleness(steps);
     return {
       character: man.character,
+      // Both absent for a character whose plate was made by hand, and the page reads them that
+      // way: no display name means the id is the name, and no plate source means there is no
+      // cut-out to re-run and nothing to warn about.
+      name: man.name ?? null,
+      plate: man.plate ?? null,
       cell: man.cell,
       pivot: man.pivot,
       trait: man.trait ?? null,
+      // The measured price of one run of each step kind. The rail already reads a price off every
+      // step record, but a character with no cells has no repaint records at all — and "what will
+      // this character cost to build" is a question about the steps that do not exist yet.
+      cost_s: man.build ? man.build.cost_s : null,
       revision: await this.revision(),
       tags,
       // The pipeline's state, made explicit. Nothing reads this yet and nothing runs off it; the
@@ -1757,6 +2023,19 @@ export class CharacterDO {
           return json({ characters: await this.roster() });
         case "/roster-add":
           return json({ characters: await this.rosterAdd(body.cid) });
+        case "/roster-remove":
+          return json({ characters: await this.rosterRemove(body.cid) });
+        case "/create":
+          // 200, not 202: unlike every other write on this object there is no work behind it. The
+          // character exists the instant this returns; what he does not have yet is a plate, and
+          // that is a priced run like any other.
+          return json(await this.create(body));
+        // `/erase` and not `/forget`: `forget` is already a MUTATION — hand-collecting one tray
+        // entry — and the mutation branch above is tested first, so a DO route sharing a name
+        // with an op is a route that can never be reached. It answered "no undefined tag" on
+        // every call until this was renamed.
+        case "/erase":
+          return json(await this.erase());
         case "/health": {
           // Reads storage, so a 200 here means the route AND the cell's state are live. It must
           // never 404: celld-release counts 404 as healthy, and DO routing is broken for about
@@ -1933,6 +2212,15 @@ export default {
         const body = await request.json();
         const verb = url.pathname.slice("/api/agent/".length);
         if (verb === "manifest") return await callDO(env, body.cid, "/manifest");
+        // Deleting a character is behind the agent token and has no route on the page. It is the
+        // only destructive-by-design operation this fleet has, and a one-click version of it next
+        // to the character switcher is a mis-click that costs an hour of GPU to undo.
+        if (verb === "erase-character") {
+          const r = await callDO(env, body.cid, "/erase", post(body));
+          const rr = await rosterStub(env).fetch(
+            new Request("http://character/roster-remove", post(body)));
+          return json({ ...(await r.json()), characters: (await rr.json()).characters });
+        }
         if (!["seed", "claim", "progress", "picked", "done", "failed"].includes(verb)) {
           return json({ error: "not found" }, 404);
         }
@@ -1974,6 +2262,28 @@ export default {
           return await callDO(env, cid, `/job?id=${encodeURIComponent(id)}`);
         }
         return json({ error: "not found" }, 404);
+      }
+
+      // A new subject. The id is validated for SHAPE by `characterStub` and for COLLISION here,
+      // because the roster is the only thing that knows which ids are taken and it lives in a
+      // different cell from the one about to be seeded. Membership is added only after the cell
+      // has really taken the manifest — a failed create must not leave a name the page offers and
+      // nothing can answer for, which is the same order `seed` already uses.
+      if (url.pathname === "/api/character") {
+        if (request.method !== "POST") return json({ error: "POST only" }, 405);
+        const body = await request.json();
+        const id = typeof body.cid === "string" ? body.cid.trim().toLowerCase() : "";
+        if (!CHARACTER_ID.test(id)) {
+          return json({ error: `not a character id: ${JSON.stringify(body.cid)} — lower case, ` +
+            "starting with a letter, letters digits and hyphens, up to 32 characters" }, 400);
+        }
+        if (names.includes(id)) return json({ error: `${id} already exists` }, 409);
+        const r = await callDO(env, id, "/create", post({ ...body, cid: id }));
+        if (!r.ok) return r;
+        const out = await r.json();
+        const rr = await rosterStub(env).fetch(
+          new Request("http://character/roster-add", post({ cid: id })));
+        return json({ ...out, characters: (await rr.json()).characters });
       }
 
       if (url.pathname === "/api/run") {

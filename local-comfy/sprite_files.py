@@ -168,3 +168,55 @@ def variants(cid, tag_name, src):
         out.append({"png": os.path.join(RC.REPAINT_DIR, n),
                     "seed": int(tail[2:]) if tail.startswith("-s") else RC.SEED})
     return out
+
+
+# --- the one thing this side ACCEPTS ------------------------------------------------------------
+# A new subject arrives as an uploaded image (DESIGN-pipeline.md, "a new subject"), and it has to
+# land on the machine with the GPU and the disk. Everything below exists so that "the editor can
+# accept an image" does not also mean "anything on the LAN can write a file of any size and any
+# type anywhere on wilson".
+
+UPLOAD_DIR = "/tmp/sprite-uploads"
+# 8 MiB. A phone photograph is 2-5MB and the cut-out throws most of it away, so this is generous
+# for the one job it has, and small enough that a bad actor -- or a bug in a loop -- cannot fill
+# /tmp before anyone notices.
+UPLOAD_MAX = 8 << 20
+# Below this an image cannot carry a subject worth cutting out; above it, nothing is gained,
+# because the plate is written at 1024 square whatever arrives.
+UPLOAD_MIN_PX, UPLOAD_MAX_PX = 64, 8192
+# Checked against the first bytes, not against the Content-Type header: a header is what the
+# client CLAIMS, and PIL is about to be pointed at whatever really arrived.
+MAGIC = ((b"\x89PNG\r\n\x1a\n", "png"), (b"\xff\xd8\xff", "jpeg"))
+
+
+def stage_upload(data):
+    """Validate one uploaded image and write it where the plate step can read it.
+
+    Returns (path, width, height). Raises ValueError with a sentence a person can act on.
+
+    It is RE-ENCODED to PNG rather than saved as it arrived, and that is the security half of this
+    function: a JPEG's EXIF, colour profiles and any appended payload do not survive a decode and a
+    fresh encode, so what reaches the disk is pixels and nothing else.
+    """
+    if len(data) > UPLOAD_MAX:
+        raise ValueError(f"that image is {len(data) >> 20}MB and the limit is {UPLOAD_MAX >> 20}MB")
+    if not any(data.startswith(m) for m, _ in MAGIC):
+        raise ValueError("that is not a PNG or a JPEG — the first bytes say otherwise")
+    from PIL import Image
+    import io
+    try:
+        im = Image.open(io.BytesIO(data))
+        im.load()
+    except Exception as e:                    # noqa: BLE001 - any decode failure is one answer
+        raise ValueError(f"that image would not decode: {type(e).__name__}")
+    if not (UPLOAD_MIN_PX <= im.width <= UPLOAD_MAX_PX and
+            UPLOAD_MIN_PX <= im.height <= UPLOAD_MAX_PX):
+        raise ValueError(f"that image is {im.width}x{im.height}, and the sides have to be between "
+                         f"{UPLOAD_MIN_PX} and {UPLOAD_MAX_PX} pixels")
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    # A name this side chooses, never one the client sends. A client-supplied filename is a path
+    # traversal waiting to happen, and the upload is addressed by the path returned from here.
+    import secrets
+    path = os.path.join(UPLOAD_DIR, f"src-{secrets.token_hex(8)}.png")
+    im.convert("RGBA").save(path)
+    return path, im.width, im.height

@@ -25,7 +25,10 @@ This process therefore does exactly two things:
    reported back is the `png` path the packer filled in for each frame. The DO's queue can hold
    several jobs; it only ever offers the head of one, so this process is never asked to run two.
 2. Serves the files the page needs to look at: the packed cells, the source frames and the
-   atlas, read-only and cross-origin, because the page is served from another host.
+   atlas, read-only and cross-origin, because the page is served from another host. It also
+   ACCEPTS one thing -- the image a new character is cut out of -- because a plate has to land on
+   the machine with the GPU and the disk, and there is nowhere else for it to go. That is the
+   only write route, and `sprite_files.stage_upload` is what makes it a bounded one.
 
 Both halves are answers about FILES, so the answers themselves live in `sprite_files.py` — the
 path allowlist, the atlas crop, the metrics and the variant listing. Keeping them out of this
@@ -50,6 +53,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import exports as EX  # noqa: E402
+import pipeline as PL  # noqa: E402
 import repaint_cells as RC  # noqa: E402
 import sprite_files as SF  # noqa: E402
 
@@ -131,6 +135,33 @@ def derived(cid, man):
                 "variants": SF.variants(cid, tag["name"], f["src"])})
         tags[tag["name"]] = {"cells": cells}
     return {"atlas": SF.sheet_paths(cid)[0], "outdir": RC.OUT, "tags": tags, "locks": LOCKS}
+
+
+def defaults():
+    """What a character who does not exist yet is made of.
+
+    A new subject is created by the PAGE against the Durable Object (DESIGN-pipeline.md, "a new
+    subject"), and the DO cannot import Python — so the bootstrap defaults have to travel. What
+    travels is exactly what `repaint_cells` already owns: the cell size, the sheet pivot, the
+    locked build block every cache key is computed against, and the seven moves from `MOVES` with
+    their recipe text from `build_sprite.MOVES`.
+
+    The DO validates every field of this before it seeds anything, so nothing here is trusted for
+    being ours. The build block is the one part that is taken as given, and it is self-healing:
+    `_backfill_move_data` refreshes it from this module on every load, and every finished job
+    reports it back, so a wrong one survives exactly until the character's first job.
+
+    `recipes` and `traits` are for the page's own forms — the recipe library a new move is written
+    against, and the existing trait lines shown as examples of the one sentence a person has to
+    write. Neither is manifest data.
+    """
+    moves = {}
+    for move, (recipe, n, fps, loop, hold_key, unify) in RC.MOVES.items():
+        moves[move] = {"recipe": recipe, "recipe_text": RC.BS.MOVES[recipe], "cells": n,
+                       "fps": fps, "loop": loop, "hold_key": hold_key, "unify": unify,
+                       "cyclic": RC.is_cyclic(recipe)}
+    return {"cell": RC.CELL, "pivot": RC.sheet_pivot(), "build": RC.build_block(),
+            "moves": moves, "recipes": dict(RC.BS.MOVES), "traits": dict(RC.TRAITS)}
 
 
 # The prompt TEMPLATES, read-only, so the editor can show a person the words their clips and their
@@ -221,6 +252,7 @@ def report_built(cid, job, built_id, cleared_tag=None):
 # the clip's 170 seconds needs most, because it is the longest wait this queue can produce.
 NOTES = {
     "pack": "repacking, a few seconds",
+    "plate": "cutting the subject out on the card, ~20s",
     "clip": "rendering the clip on the card, ~170s",
     "extract": "re-extracting the frames, ~10s",
     "picks": "choosing the cells, ~5s",
@@ -295,8 +327,11 @@ def run_job(cid, job):
         result_path = f"/tmp/sprite-step-{job['id']}.json"
         if os.path.exists(result_path):
             os.remove(result_path)
-        argv = [sys.executable, os.path.join(HERE, "sprite_steps.py"), kind, cid, job["tag"],
-                result_path]
+        # A plate belongs to the character and not to a move, so its job carries no tag. The
+        # placeholder keeps ONE command line for every step kind (sprite_steps.py's docstring says
+        # why), and the plate step ignores it.
+        argv = [sys.executable, os.path.join(HERE, "sprite_steps.py"), kind, cid,
+                job["tag"] or "-", result_path]
 
     code, killed = supervise(argv, beat)
     if killed:
@@ -335,8 +370,44 @@ def run_job(cid, job):
               f"{r['orphaned']} to the tray ({r['edits_orphaned']} hand-edited), "
               f"{r['suppressed']} still dropped, "
               f"carry-over {'on' if r['carried_over'] else 'off — a new extraction'}", flush=True)
-    built = {"clip": f"clip:{move}", "extract": f"frames:{move}", "picks": f"picks:{move}"}[kind]
+    built = {"plate": "plate", "clip": f"clip:{move}", "extract": f"frames:{move}",
+             "picks": f"picks:{move}"}[kind]
     report_built(cid, job, built, move if kind == "extract" and result["changed"] else None)
+
+
+def fleet_roster():
+    """Which characters the fleet says exist. The DURABLE OBJECTS are the record, not `sheets/`.
+
+    Read off the Worker's own health route, which already answers it, rather than through a new
+    agent verb: the roster is a public fact about the fleet, and it is the only thing this process
+    needs in order to notice a character somebody created in the page a minute ago.
+    """
+    with urllib.request.urlopen(f"{CELLD}/api/health", timeout=HTTP_TIMEOUT) as r:
+        return json.load(r)["characters"]
+
+
+def supervisor(pending, wake):
+    """Start a long-poll thread for every character on the fleet, including ones created later.
+
+    A character created in the page is a Durable Object with a queue of its own, and until
+    something claims from it his very first job -- cutting his plate out -- sits there forever.
+    This used to require restarting the agent, which meant the new-subject flow could not complete
+    without a shell. One thread per character is the design (each character is one DO), so this
+    only ever ADDS: a character is never un-polled while this process lives, because a poller that
+    stopped could not be restarted without also proving nothing was in flight on it.
+    """
+    running = set()
+    while True:
+        try:
+            for cid in fleet_roster():
+                if cid in running:
+                    continue
+                running.add(cid)
+                threading.Thread(target=poller, args=(cid, pending, wake), daemon=True).start()
+                print(f"[{cid}] polling", flush=True)
+        except Exception as e:
+            print(f"roster read failed: {type(e).__name__}: {e}", flush=True)
+        time.sleep(10)
 
 
 def poller(cid, pending, wake):
@@ -410,6 +481,49 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def json(self, code, obj):
         self.send(code, json.dumps(obj), "application/json")
 
+    def do_OPTIONS(self):
+        """The upload's preflight. An `image/png` body is not a CORS-simple content type, so the
+        browser asks first — and the page is served by celld on another host, so it always asks."""
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "content-type")
+        self.send_header("Access-Control-Max-Age", "600")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def do_POST(self):
+        """The ONE write route: stage the image a new character will be cut out of.
+
+        The body is read only after Content-Length has been checked, so an over-sized upload is
+        refused without this process ever holding it. Everything else the request claims about
+        itself — its type, its name — is ignored in favour of what the bytes actually are; see
+        `sprite_files.stage_upload`.
+        """
+        if urllib.parse.urlparse(self.path).path != "/upload":
+            self.json(404, {"error": "not found"})
+            return
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            self.json(400, {"error": "a bad Content-Length"})
+            return
+        if length <= 0:
+            self.json(411, {"error": "the upload needs a Content-Length"})
+            return
+        if length > SF.UPLOAD_MAX:
+            self.json(413, {"error": f"that image is {length >> 20}MB and the limit is "
+                                     f"{SF.UPLOAD_MAX >> 20}MB"})
+            return
+        data = self.rfile.read(length)
+        try:
+            path, w, h = SF.stage_upload(data)
+        except ValueError as e:
+            self.json(400, {"error": str(e)})
+            return
+        print(f"staged an upload: {path} ({w}x{h}, {len(data) >> 10}KB)", flush=True)
+        self.json(200, {"path": path, "width": w, "height": h})
+
     def do_GET(self):
         u = urllib.parse.urlparse(self.path)
         q = urllib.parse.parse_qs(u.query)
@@ -418,11 +532,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if u.path == "/health":
                 self.json(200, {"ok": True, "celld": CELLD})
             elif u.path == "/derived":
-                cid = one("cid", "seth")
-                if cid not in SF.characters():
-                    self.json(404, {"error": f"unknown character: {cid}"})
+                # The DURABLE OBJECT decides whether a character exists, not this filesystem. A
+                # character created from an upload has a manifest in his cell from the instant he
+                # is seeded, and `sheets/<cid>.json` only appears when his first job runs -- so
+                # gating on the file made a brand-new character's page open on an error.
+                try:
+                    man = fetch_manifest(one("cid", "seth"))[0]
+                except urllib.error.HTTPError as e:
+                    self.json(e.code, {"error": f"unknown character: {one('cid', 'seth')}"})
                     return
-                self.json(200, derived(cid, fetch_manifest(cid)[0]))
+                self.json(200, derived(man["character"], man))
+            elif u.path == "/defaults":
+                self.json(200, defaults())
             elif u.path == "/frames":
                 self.json(200, {"frames": SF.source_frames(one("cid", "seth"), one("tag", "walk"))})
             elif u.path == "/cell":
@@ -524,18 +645,62 @@ def seed():
         print(f"  {cid}: seeded {r['frames']} frames", flush=True)
 
 
+def forget(cid):
+    """Delete one character completely: his Durable Object cell, his roster entry, and his files.
+
+    Deliberately NOT a button on the page. Everything a character is lives in exactly two places
+    and this is the only thing that empties both, so it is a command somebody has to type -- with
+    the cid spelled out -- rather than a click next to the character switcher.
+
+    The order is the record first and the files second. A crash between the two leaves files
+    nothing refers to, which the next `--forget` or a `rm` clears; the reverse would leave a
+    character on the roster whose every drawing had gone, and the page would then 404 its way
+    through a set that still claims to exist.
+    """
+    import glob
+    import shutil
+    # Read BEFORE the record is erased, and from the DURABLE OBJECT rather than from disk: the
+    # image the plate was cut out of is named in the manifest and nowhere else, and a character
+    # created a minute ago has no `sheets/<cid>.json` at all -- that file is written by his first
+    # job. Asking the record rather than the copy is what makes this work at any age.
+    try:
+        source = ((fetch_manifest(cid)[0].get("plate")) or {}).get("source")
+    except urllib.error.HTTPError:
+        source = None       # already erased, or never seeded; the file sweep below still runs
+    got = celld("erase-character", {"cid": cid})
+    print(f"  cell: {'cleared' if got.get('existed') else 'was already empty'}; "
+          f"roster is now {', '.join(got['characters']) or '(empty)'}")
+    gone = 0
+    for pattern in (source or "", RC.manifest_path(cid), PL.plate_path(cid),
+                    os.path.join(RC.OUT, f"{cid}.png"), os.path.join(RC.OUT, f"{cid}.json"),
+                    os.path.join(RC.OUT, f"{cid}-qc.json"),
+                    os.path.join(RC.REPAINT_DIR, f"{cid}-*.png"),
+                    f"/tmp/{cid}-*.mp4", f"/tmp/sprite-{cid}-*", f"/tmp/sprite-clip-{cid}-*.pid",
+                    f"/tmp/sprite-plate-{cid}.pid", f"/tmp/sprite-plate-raw-{cid}.png"):
+        for path in glob.glob(pattern):
+            shutil.rmtree(path) if os.path.isdir(path) else os.remove(path)
+            gone += 1
+    print(f"  files: {gone} removed")
+    # The copies this process cannot reach. ComfyUI loads by bare FILENAME, so both the plate and
+    # every padded repaint input were uploaded to its input directory on gpu-worker — another
+    # host, one this service has no credential for and should not grow one for. They are harmless
+    # (each is overwritten by name on the next run) but they are still this character, so they are
+    # named rather than left unsaid.
+    print(f"  still on gpu-worker, remove them there: ~/comfyui/input/cast-cutout-{cid}.png "
+          f"and ~/comfyui/input/{cid}-*-padded.png")
+
+
 if __name__ == "__main__":
     if not TOKEN:
         sys.exit("SPRITE_AGENT_TOKEN is not set; the fleet will refuse every call")
     if "--seed" in sys.argv:
         seed()
         sys.exit(0)
+    if "--forget" in sys.argv:
+        forget(sys.argv[sys.argv.index("--forget") + 1])
+        sys.exit(0)
     pending, wake = [], threading.Condition()
     threading.Thread(target=runner, args=(pending, wake), daemon=True).start()
-    # Read once, at start: each character needs its own long-poll thread against its own Durable
-    # Object. A character seeded later is served by every read route immediately -- those ask
-    # SF.characters() per request -- but does not get a poller until this process is restarted.
-    for cid in SF.characters():
-        threading.Thread(target=poller, args=(cid, pending, wake), daemon=True).start()
+    threading.Thread(target=supervisor, args=(pending, wake), daemon=True).start()
     print(f"sprite agent on http://0.0.0.0:{PORT}/ , polling {CELLD}", flush=True)
     Server(("0.0.0.0", PORT), Handler).serve_forever()

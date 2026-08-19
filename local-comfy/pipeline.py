@@ -195,14 +195,25 @@ def build_steps(cid, man, built=()):
         steps.append(rec)
         return rec
 
-    # --- plate. Uploaded, never computed, so the file IS the build: there is no job to run and
-    # reporting it stale would be an instruction nobody can follow. Its content is its only param,
-    # so replacing the plate changes its hash, which changes every clip's input and marks the
-    # clips stale — which is the signal that actually matters.
+    # --- plate. Two shapes, because there are two ways a plate can have come to exist.
+    #
+    # A plate CUT OUT FROM AN UPLOAD records the source image it was cut from, and is then an
+    # ordinary runnable step: its input is that source, and swapping the source re-keys it so the
+    # rail offers the cut-out again. This is the new-subject flow (DESIGN-pipeline.md).
+    #
+    # A HAND-MADE plate -- seth's and cadbury's, drawn before any of this existed -- records no
+    # source, so the file itself is the build. There is no job that could rebuild it and calling
+    # it stale would be an instruction nobody can follow, so it stays exactly as it was. Inventing
+    # a source for those two would re-key the plate, and with it every clip of a character nobody
+    # has touched: 20 minutes of GPU to answer a refactor.
     plate = plate_path(cid)
     phash = hash_file(plate)
-    add("plate", "plate", None, {}, [edge(None, plate, phash)], plate, phash,
-        current=phash is not None)
+    source = (man.get("plate") or {}).get("source")
+    if source:
+        add("plate", "plate", None, {}, [edge(None, source, hash_file(source))], plate, phash)
+    else:
+        add("plate", "plate", None, {}, [edge(None, plate, phash)], plate, phash,
+            current=phash is not None)
 
     for tag in man["tags"]:
         move = tag["name"]

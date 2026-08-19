@@ -99,6 +99,17 @@
                overflow-y: auto; background: var(--sunk); border-radius: 3px; padding: 4px; }
   #stepart { display: block; width: 100%; height: 132px; object-fit: contain;
              background: var(--cream); border-radius: 4px; margin-bottom: 6px; }
+  /* The plate is the one step artifact whose TRANSPARENCY is the thing being judged, so it gets
+     the checkerboard rather than the cream every other step artifact sits on: a cut-out that
+     failed and kept the whole photograph is invisible against a flat colour. The id selector on
+     #stepart would otherwise win, which is why this one repeats it. */
+  #stepart.plate, #make img.plate { background-color: var(--sunk);
+    background-image: linear-gradient(45deg, #2a251e 25%, transparent 25%),
+      linear-gradient(-45deg, #2a251e 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #2a251e 75%),
+      linear-gradient(-45deg, transparent 75%, #2a251e 75%);
+    background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
+  #stepart.plate { height: 200px; }
   .why0 { color: var(--faint); font-style: italic; margin-top: 4px; }
 
   /* --- the orphan tray -------------------------------------------------------------------- */
@@ -119,6 +130,26 @@
                  font-weight: 700; margin-left: 3px; }
 
   /* --- the cost receipt ------------------------------------------------------------------- */
+  /* --- creating a subject and a move --------------------------------------------------------
+     A form, not a wizard: one column, every field visible, and the two buttons at the bottom. It
+     is inside the same #modal as the receipt and the re-pick scrubber, so it inherits the phone's
+     full-screen treatment for free. */
+  #make { max-width: 560px; }
+  #make .srow input[type=text] { width: 100%; }
+  #make .eg { color: var(--faint); font-style: italic; max-height: 108px; overflow: auto;
+              border-left: 2px solid var(--line); padding-left: 7px; margin-top: 4px; }
+  #make .eg b { color: var(--dim); font-style: normal; }
+  #make .go { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  #make .bad { color: #e6a394; margin: 6px 0; }
+  /* Rust, like every other price on this page: a plate is 20 seconds on the card. */
+  #make .plate { display: block; max-width: 260px; max-height: 260px; border: 1px solid var(--line);
+                 border-radius: 4px; margin: 6px 0; }
+  /* The one warning on this page that is about a picture rather than a number. It is gold and not
+     rust because it costs nothing to read and an hour of GPU to ignore. */
+  .warn { border-left: 2px solid var(--gold); background: var(--sunk); padding: 6px 8px;
+          border-radius: 0 4px 4px 0; margin: 8px 0; color: var(--cream); }
+  .warn b { color: var(--gold); }
+
   #receipt { max-width: 560px; }
   #receipt .row { display: flex; gap: 8px; border-top: 1px solid var(--line); padding: 5px 0; }
   #receipt .row:first-of-type { border-top: 0; }
@@ -728,9 +759,17 @@ function renderChars() {
     b.textContent = c;
     b.title = "switch character (Tab)";
     if (c === cid) b.className = "on";
+    if (c === cid && ST.name) b.title = ST.name;
     b.onclick = () => switchCharacter(c);
     host.appendChild(b);
   }
+  // Creating a subject belongs beside the switcher because that is where a person is when they
+  // notice the character they want is not in the list.
+  const add = document.createElement("button");
+  add.textContent = "+ new";
+  add.title = "create a character from an image and a trait line";
+  add.onclick = openNewCharacter;
+  host.appendChild(add);
 }
 
 function renderTags() {
@@ -748,6 +787,11 @@ function renderTags() {
     b.onclick = () => selectTag(t.name);
     host.appendChild(b);
   });
+  const add = document.createElement("button");
+  add.textContent = "+ move";
+  add.title = "create a move from an existing one as a template";
+  add.onclick = openNewMove;
+  host.appendChild(add);
 }
 
 // Which cells a live job is about to replace. The API answers for one index per job; OWN fills in
@@ -907,8 +951,10 @@ function selectTag(name) {
   paint(null);
 }
 
-async function switchCharacter(c) {
-  if (c === cid || !ST.characters.includes(c)) return;
+// `isNew` is for the character created a moment ago, who is on the fleet's roster and not yet in
+// this page's copy of it. Every other caller is a click on a button drawn from that copy.
+async function switchCharacter(c, isNew) {
+  if (c === cid || (!isNew && !ST.characters.includes(c))) return;
   cid = c;
   sel = 0;
   tagName = "";
@@ -1080,7 +1126,14 @@ function renderStage() {
   el("b-pin").hidden = !compare;
   el("pv").hidden = compare;
   el("cmp").hidden = !compare;
-  if (!c) return;
+  if (!c) {
+    // A tag with no cells — a move that exists as manifest data and has never been built. Without
+    // this the canvas keeps whatever it last drew, which after a character switch is somebody
+    // else's cell sitting under a caption that says "no cell".
+    const ctx = fitCanvas(el("cellcv"));
+    ctx.clearRect(0, 0, ST.cell, ST.cell);
+    return;
+  }
   paintCell(c);
   if (c.atlas !== null) {
     withCell(cellUrl(tagName, sel, c.atlas), () => { if (CUR() === c) paintCell(c); });
@@ -1344,6 +1397,21 @@ function renderRail() {
     b.onclick = () => openStep(kind);
     host.appendChild(b);
   });
+  // The whole to-do list, priced. It matters most on a brand-new character, where every chip is
+  // stale and the honest answer — seven clips and fifty-odd repaints — is over an hour.
+  const all = document.createElement("button");
+  const {rows: owed, total} = buildCost();
+  all.className = "pchip" + (total ? " stale" : " fresh");
+  all.style.marginLeft = "10px";
+  all.innerHTML = '<i class="dot"></i><span class="who">everything</span>' +
+                  '<span class="' + (total ? "price" : "free") + '"></span>';
+  all.querySelector(total ? ".price" : ".free").textContent = total ? about(total) : "all fresh";
+  all.title = total
+    ? owed.reduce((n, r) => n + r.n, 0) + " steps across every move — " + about(total) +
+      " end to end"
+    : "every step of every move is fresh";
+  all.onclick = openBuildAll;
+  host.appendChild(all);
 }
 
 function openStep(kind) {
@@ -1448,7 +1516,7 @@ const canonSame = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // this fleet cannot run, and quietly repacking in answer to it would be the cascade the design
 // forbids.
 function saveParam(kind, field, value, label) {
-  mutate("/api/step", {kind, field, value}, label, "tag", []);
+  return mutate("/api/step", {kind, field, value}, label, "tag", []);
 }
 
 function stepArt(src) {
@@ -1492,15 +1560,59 @@ function renderStep(kind) {
 
   const p = one.params;
   if (kind === "plate") {
-    if (one.artifact) body.appendChild(stepArt(imgUrl(one.artifact, 300)));
+    if (one.artifact) {
+      const im = stepArt(imgUrl(one.artifact, 300) + "&v=" + (ST.revision || 0));
+      // The plate is TRANSPARENT and this is the one panel where that is the thing being judged.
+      // On the flat panel background a white subject on white is indistinguishable from a cut-out
+      // that failed and kept the whole photograph.
+      im.className = "plate";
+      body.appendChild(im);
+    }
+    if (ST.plate) {
+      // A character CUT OUT from an upload. His plate is a runnable step: the source is a param,
+      // so a different image is one edit and one 20-second run, and everything downstream simply
+      // reads stale until it is rebuilt against the plate that won.
+      const swap = document.createElement("input");
+      swap.type = "file";
+      swap.accept = "image/png,image/jpeg";
+      swap.onchange = async () => {
+        const f = swap.files[0];
+        if (!f) return;
+        tick("uploading…");
+        try {
+          const staged = await uploadImage(f);
+          await saveParam("plate", "source", staged.path, cid + " new plate source");
+        } catch (e) { tick(e.message, true); }
+      };
+      body.appendChild(row("the image he is cut out of", swap,
+        "PNG or JPEG, up to 8MB. Swapping it marks the plate stale and queues nothing — the " +
+        "cut-out is a priced run like every other step."));
+      const src = document.createElement("div");
+      src.className = "why0";
+      src.textContent = "currently " + ST.plate.source.split("/").pop();
+      body.appendChild(src);
+      if (ST.plate.prop === null) {
+        propQuestion(body, ST.plate,
+          (answer) => saveParam("plate", "prop", answer, cid + " prop " + answer));
+      } else if (ST.plate.prop) {
+        propWarning(body);
+      }
+    } else {
+      const n = document.createElement("div");
+      n.className = "why0";
+      n.textContent = "this plate was made by hand and records no source image, so there is " +
+        "nothing here to cut out again. Replacing the file on wilson changes its hash, which " +
+        "marks every clip stale — that is the signal that matters.";
+      body.appendChild(n);
+    }
     body.appendChild(lockRow("the key colour", "flat magenta",
       "the magenta is a blank keying screen, so the packer can key it out"));
     body.appendChild(lockRow("the compositing graph", "hidden", "not a knob on this page"));
-    const n = document.createElement("div");
-    n.className = "why0";
-    n.textContent = "a plate is uploaded, never computed. Replacing the file changes its hash, " +
-      "which marks every clip stale — that is the signal that matters.";
-    body.appendChild(n);
+    const mk = document.createElement("button");
+    mk.textContent = "+ New character…";
+    mk.title = "an image and a trait line is a character";
+    mk.onclick = openNewCharacter;
+    body.appendChild(mk);
   } else if (kind === "clip") {
     // The poster frame, not the mp4. There is no <video> on this page and there must not be one:
     // the first extracted frame is already a PNG on disk and an <img> beats an iOS mp4 seek.
@@ -1949,26 +2061,508 @@ function openReceipt(kind) {
     });
 }
 
-async function runStep(kind) {
+// Queue one step. `forCid` is a parameter and not the global because the creation flow runs a
+// character's plate while the page is still looking at somebody else — the queue is per character,
+// so there is nothing to switch first.
+async function runFor(forCid, kind, tag) {
+  const r = await fetch("/api/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({cid: forCid, kind, tag}),
+  });
+  const j = await r.json();
+  if (!r.ok || j.error) throw new Error(j.error || "the run was refused");
+  return j.job;
+}
+
+async function runStep(kind, tag) {
+  const scope = tag === undefined ? tagName : tag;
   tick("queueing " + kind + "…");
-  let j;
+  let job;
   try {
-    const r = await fetch("/api/run", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({cid, kind, tag: tagName}),
-    });
-    j = await r.json();
-    if (!r.ok || j.error) { tick(j.error || "the run was refused", true); return; }
+    job = await runFor(cid, kind, scope);
   } catch (e) {
-    tick("could not reach the editor service: " + e.message, true);
+    tick(e.message, true);
     return;
   }
-  RUNS.set(j.job.id, kind);
-  JOBS = JOBS.filter((x) => x.id !== j.job.id).concat([j.job]);
-  tick(j.job.label + " — queued");
+  RUNS.set(job.id, kind);
+  JOBS = JOBS.filter((x) => x.id !== job.id).concat([job]);
+  tick(job.label + " — queued");
   renderRail();
   renderQueue();
+}
+
+// --- creating a subject and a move --------------------------------------------------------------
+// DESIGN-pipeline.md, "what this implies that does not exist yet". Both flows are the same shape:
+// the DEFAULTS come from the agent, because the bootstrap tables are Python and live on the
+// machine that owns them; the Durable Object validates every field of what the page then sends,
+// because a page is not a trust boundary.
+let DEFAULTS = null;
+
+async function defaults() {
+  if (!DEFAULTS) {
+    const r = await fetch(AGENT + "/defaults");
+    DEFAULTS = await r.json();
+  }
+  return DEFAULTS;
+}
+
+// The image goes to the AGENT and not through celld: a plate has to land on the machine with the
+// GPU and the disk, and pushing megabytes through the fleet's bucket to send them straight back
+// would be the one upload in this system that travelled twice. The agent checks the size, the
+// magic bytes and the dimensions, and re-encodes what it keeps.
+async function uploadImage(file) {
+  const r = await fetch(AGENT + "/upload", {
+    method: "POST", headers: {"Content-Type": file.type || "application/octet-stream"}, body: file,
+  });
+  const j = await r.json();
+  if (!r.ok || j.error) throw new Error(j.error || "the upload was refused");
+  return j;
+}
+
+// Watch one job to its end, reporting each label change. Polled rather than pushed for the same
+// reason the rest of this page is: the agent is behind a long poll and nothing can call us.
+async function waitJob(forCid, id, say) {
+  let last = "";
+  for (;;) {
+    await new Promise((ok) => setTimeout(ok, 1500));
+    const r = await fetch("/api/job/" + id + "?cid=" + forCid);
+    const j = await r.json();
+    if (!r.ok || j.error) throw new Error(j.error || "the job vanished");
+    if (j.job.label !== last) { last = j.job.label; say(last); }
+    if (j.job.state === "done") return j.job;
+    if (["failed", "cancelled"].includes(j.job.state)) {
+      throw new Error(j.job.error || j.job.label || ("the job " + j.job.state));
+    }
+  }
+}
+
+const ID_OK = /^[a-z][a-z0-9-]{0,31}$/;
+
+function makeBox(host) {
+  const box = document.createElement("div");
+  box.id = "make";
+  host.innerHTML = "";
+  host.appendChild(document.createElement("h3")).textContent = overlay;
+  host.appendChild(box);
+  return box;
+}
+
+function field(box, label, control, note) {
+  box.appendChild(row(label, control, note));
+  return control;
+}
+
+function textInput(value, placeholder) {
+  const i = document.createElement("input");
+  i.type = "text";
+  i.value = value || "";
+  if (placeholder) i.placeholder = placeholder;
+  return i;
+}
+
+function examples(box, title, pairs) {
+  const d = document.createElement("div");
+  d.className = "eg";
+  d.appendChild(document.createElement("div")).textContent = title;
+  for (const [k, v] of pairs) {
+    const line = document.createElement("div");
+    line.innerHTML = "<b></b> ";
+    line.querySelector("b").textContent = k + " —";
+    line.appendChild(document.createTextNode(" " + v));
+    d.appendChild(line);
+  }
+  box.appendChild(d);
+  return d;
+}
+
+// The form's one line of running commentary. It writes into a slot the form reserved for it, so
+// progress and refusals appear where the eye already is instead of below the buttons — and it
+// keeps a stable class, because a `.bad` it renamed on success was a slot it could never find
+// again and every later message opened a new line.
+function say(box, message, bad) {
+  const d = box.querySelector(".msg") || box.appendChild(document.createElement("div"));
+  d.className = "msg " + (bad ? "bad" : "why0");
+  d.textContent = message;
+  return d;
+}
+
+// The prop question, asked of a CUT-OUT rather than of a description, because it can only be
+// answered by looking. It is not a guess this page makes: nothing here can see a serving tray, and
+// a detector that was wrong either way would be worse than the question.
+// The standing warning, once the question has been answered "yes". It has to be a function
+// because it is shown in two places — the creation review and the Plate chip — and a second copy
+// of the measured story is a copy free to soften.
+function propWarning(box) {
+  const w = document.createElement("div");
+  w.className = "warn";
+  w.innerHTML = "<b>This plate holds a prop.</b> A prompt cannot beat the plate: Cadbury's " +
+    "canonical plate holds a serving tray, and “his hands are empty” made the tray flicker in " +
+    "about three cells in ten rather than leave. Build ONE move and look at it before spending " +
+    "the rest — if the prop is in the drawings, this character needs a second plate without it, " +
+    "not another clause.";
+  box.appendChild(w);
+  return w;
+}
+
+function propQuestion(box, plate, after) {
+  const w = document.createElement("div");
+  w.className = "warn";
+  w.innerHTML = "<b>Is he drawn holding or wearing a prop?</b> " +
+    "A prompt cannot beat the plate. Cadbury's canonical plate holds a serving tray, and adding " +
+    "\u201chis hands are empty\u201d to his walk took it from no cycle at all to a clean one " +
+    "while the tray still flickered in about three cells in ten. A prop the character is drawn " +
+    "with cannot be removed by a clause — it needs a second plate without it.";
+  box.appendChild(w);
+  const go = document.createElement("div");
+  go.className = "go";
+  for (const [answer, label] of [[false, "No — nothing in his hands"],
+                                 [true, "Yes — he is holding something"]]) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.className = plate && plate.prop === answer ? "on" : "";
+    b.onclick = () => after(answer);
+    go.appendChild(b);
+  }
+  box.appendChild(go);
+  return go;
+}
+
+function openNewCharacter() {
+  openOverlay("New character", (host) => {
+    const box = makeBox(host);
+    let staged = null, busy = false;
+    const id = field(box, "id", textInput("", "ake"),
+      "lower case, letters digits and hyphens. It names his files, his plate and his URL, so it " +
+      "cannot be changed later.");
+    const name = field(box, "display name", textInput("", "Ake"));
+    const trait = field(box, "trait line", textField("", () => {}),
+      "one sentence: HOW this character moves. It is what makes a move recipe written for " +
+      "somebody else work for him — Ake has no legs, so “walk cycle” has to read as rolling.");
+    // The slot is reserved now and filled when the agent answers, so the examples land under the
+    // field they are examples of rather than wherever the fetch happened to finish.
+    const egHost = box.appendChild(document.createElement("div"));
+    defaults().then((d) => examples(egHost, "the lines the cast already carry:",
+      Object.entries(d.traits))).catch(() => {});
+
+    const pick = document.createElement("input");
+    pick.type = "file";
+    pick.accept = "image/png,image/jpeg";
+    const shot = document.createElement("img");
+    shot.className = "plate";
+    shot.hidden = true;
+    field(box, "the image he is cut out of", pick,
+      "PNG or JPEG, up to 8MB. One subject on a plain background cuts out best.");
+    box.appendChild(shot);
+    pick.onchange = async () => {
+      const f = pick.files[0];
+      if (!f) return;
+      say(box, "uploading…");
+      try {
+        staged = await uploadImage(f);
+        shot.src = imgUrl(staged.path, 260);
+        shot.hidden = false;
+        say(box, "staged " + staged.width + "x" + staged.height + " — nothing is cut out yet");
+      } catch (e) { staged = null; say(box, e.message, true); }
+    };
+
+    // Reserved before the buttons, so `say` never pushes them down the page mid-flow.
+    box.appendChild(document.createElement("div")).className = "msg why0";
+    const go = document.createElement("div");
+    go.className = "go";
+    const yes = document.createElement("button");
+    yes.className = "cost";
+    yes.innerHTML = "Create and cut out <span class=\"price\">· ~20s GPU</span>";
+    const no = document.createElement("button");
+    no.textContent = "Cancel";
+    no.onclick = closeOverlay;
+    go.appendChild(yes);
+    go.appendChild(no);
+    box.appendChild(go);
+
+    yes.onclick = async () => {
+      if (busy) return;
+      const newCid = id.value.trim().toLowerCase();
+      if (!ID_OK.test(newCid)) return say(box, "that is not a usable id", true);
+      if (ST.characters.includes(newCid)) return say(box, newCid + " already exists", true);
+      if (!name.value.trim()) return say(box, "give him a display name", true);
+      if (!trait.value.trim()) return say(box, "write the one-sentence trait line", true);
+      if (!staged) return say(box, "choose the image he is cut out of", true);
+      busy = true;
+      yes.disabled = true;
+      try {
+        const d = await defaults();
+        const r = await fetch("/api/character", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            cid: newCid, name: name.value.trim(), trait: trait.value.trim(),
+            source: staged.path, cell: d.cell, pivot: d.pivot, build: d.build,
+            moves: Object.entries(d.moves).map(([n, m]) => Object.assign({name: n}, m)),
+          }),
+        });
+        const j = await r.json();
+        if (!r.ok || j.error) throw new Error(j.error || "the character was refused");
+        say(box, newCid + " exists with " + j.moves + " moves, all empty. Cutting his plate out…");
+        const job = await runFor(newCid, "plate", null);
+        await waitJob(newCid, job.id, (m) => say(box, m));
+        await switchCharacter(newCid, true);
+        reviewPlate();
+      } catch (e) {
+        busy = false;
+        yes.disabled = false;
+        say(box, e.message, true);
+      }
+    };
+  });
+}
+
+// The second half of creation: look at what came back, answer the prop question, and swap the
+// image if the cut-out is wrong — all before one clip has been rendered against it.
+function reviewPlate() {
+  openOverlay("The plate — look at it before anything is built", (host) => {
+    const box = makeBox(host);
+    const step = (ST.steps || []).find((x) => x.kind === "plate");
+    if (step && step.artifact) {
+      const im = document.createElement("img");
+      im.className = "plate";
+      im.src = imgUrl(step.artifact, 260) + "&v=" + Date.now();
+      box.appendChild(im);
+    }
+    propQuestion(box, ST.plate, async (answer) => {
+      await mutate("/api/step", {kind: "plate", field: "prop", value: answer},
+                   cid + " prop " + answer, "tag", []);
+      // Redrawn rather than patched, so the answer is read back off the manifest that now holds
+      // it — the warning below survives, which a line of transient status text would not.
+      reviewPlate();
+    });
+    if (ST.plate && ST.plate.prop) propWarning(box);
+
+    const swap = document.createElement("input");
+    swap.type = "file";
+    swap.accept = "image/png,image/jpeg";
+    field(box, "not right? cut a different image out", swap,
+      "nothing downstream exists yet, so this costs one more 20-second cut-out and nothing else.");
+    swap.onchange = async () => {
+      const f = swap.files[0];
+      if (!f) return;
+      try {
+        say(box, "uploading…");
+        const staged = await uploadImage(f);
+        await mutate("/api/step", {kind: "plate", field: "source", value: staged.path},
+                     cid + " new plate source", "tag", []);
+        const job = await runFor(cid, "plate", null);
+        await waitJob(cid, job.id, (m) => say(box, m));
+        await reload(null, false);
+        reviewPlate();
+      } catch (e) { say(box, e.message, true); }
+    };
+
+    box.appendChild(document.createElement("div")).className = "msg why0";
+    const go = document.createElement("div");
+    go.className = "go";
+    const done = document.createElement("button");
+    done.textContent = "Done — show me the rail";
+    done.onclick = closeOverlay;
+    go.appendChild(done);
+    box.appendChild(go);
+  });
+}
+
+function openNewMove() {
+  openOverlay("New move", (host) => {
+    const box = makeBox(host);
+    const from = TAG(), template = from.name;
+    let height = null;
+    const name = field(box, "name", textInput("", "wave"),
+      "lower case. It names this move's clip, its extracted frames and every drawing of it.");
+    field(box, "made from", selectField(
+      ST.tags.map((t) => [t.name, t.name]), template,
+      // Re-open on the new template rather than patch the fields in place: a template is every
+      // default at once, and half-applying one is how a jump ends up with a walk's unify.
+      (v) => openNewMoveFrom(v)), "every setting below starts from this move's.");
+
+    // A tag's recipe and its cell count are not in `/api/state`'s tag view — they are step PARAMS,
+    // which is where they belong: the recipe is what the clip is briefed with and the cell count
+    // is what the picker is asked for, and neither is playback.
+    const step = (kind) => (ST.steps || []).find((x) => x.kind === kind && x.tag === template);
+    const clip = step("clip").params, picks = step("picks").params;
+    const recipe = field(box, "recipe text", textField(clip.recipe_text, () => {}),
+      "the words the clip is briefed with. State what IS true — a negation summons what it forbids.");
+    const cells = field(box, "cell count", numberField(picks.cells, 2, 24, () => {}));
+    const fps = field(box, "fps", numberField(from.fps, 1, 60, () => {}));
+    const loop = field(box, "loop", checkField("loop this tag", from.loop, () => {}));
+    const holdKey = field(box, "hold on the last cell",
+      checkField("freeze while the key is down", from.hold_key, () => {}));
+    const cyclic = field(box, "cyclic",
+      checkField("this move ends where it began", clip.cyclic, () => {}),
+      "a cycle is left unpinned and its cells are picked by gait period.");
+
+    // THE QUESTION. No default is selected and Create stays dead until one is: unify on a jump is
+    // the silent killer this project shipped once and had to measure its way out of, and neither
+    // possible default is safe for the other two answers.
+    const q = document.createElement("div");
+    q.className = "warn";
+    q.innerHTML = "<b>Does this move's height change?</b> " +
+      "It decides <code>unify</code>, which normalises the few percent of scale drift between " +
+      "independently repainted cells. On a jump it normalises away the jump — the height IS the " +
+      "animation. There is no safe default, so this has to be answered.";
+    box.appendChild(q);
+    const answers = document.createElement("div");
+    answers.className = "go";
+    const OPTIONS = [
+      ["changes", "Yes — the height is the animation (jump, crouch, faint) · unify none"],
+      ["stride", "Only a stride's rise and fall (walk, run) · unify head"],
+      ["fixed", "No — he stays the same height (idle, wave) · unify total height"],
+    ];
+    for (const [value, label] of OPTIONS) {
+      const b = document.createElement("button");
+      b.textContent = label;
+      b.style.textAlign = "left";
+      b.onclick = () => {
+        height = value;
+        for (const other of answers.querySelectorAll("button")) other.classList.remove("on");
+        b.classList.add("on");
+        yes.disabled = false;
+      };
+      answers.appendChild(b);
+    }
+    box.appendChild(answers);
+
+    const go = document.createElement("div");
+    go.className = "go";
+    const yes = document.createElement("button");
+    yes.textContent = "Create the move";
+    yes.disabled = true;
+    yes.title = "answer the height question first";
+    const no = document.createElement("button");
+    no.textContent = "Cancel";
+    no.onclick = closeOverlay;
+    go.appendChild(yes);
+    go.appendChild(no);
+    box.appendChild(go);
+
+    yes.onclick = async () => {
+      const move = name.value.trim().toLowerCase();
+      const got = await mutate("/api/newmove", {
+        tag: move, from: template, height,
+        recipe_text: recipe.value.trim(), cells: +cells.value, fps: +fps.value,
+        loop: loop.querySelector("input").checked,
+        hold_key: holdKey.querySelector("input").checked,
+        cyclic: cyclic.querySelector("input").checked,
+      }, cid + " new move " + move, "tag", []);
+      if (got === null && !ST.tags.some((t) => t.name === move)) return;
+      closeOverlay();
+      selectTag(move);
+      openStep("clip");
+    };
+  });
+}
+
+// Re-opening on another template is a fresh form, because a template supplies every default at
+// once. Named so the select's handler can say what it does.
+function openNewMoveFrom(templateName) {
+  const was = tagName;
+  tagName = templateName;
+  openNewMove();
+  tagName = was;
+}
+
+// --- build everything ---------------------------------------------------------------------------
+// The honest total for a character with nothing built: seven clips and about fifty-four repaints
+// is over an hour. It is a PRICE LIST and not a cascade — the Run on it queues exactly one step,
+// the next one that can actually be built, because "there is never a one-click cascade" and eight
+// is the whole queue's depth anyway.
+const RUN_ORDER = ["plate", "clip", "frames", "picks", "repaint", "pack"];
+
+function nextBuildable() {
+  return (ST.steps || []).find((s) => s.stale && RUN_ORDER.includes(s.kind)) || null;
+}
+
+// What building this character out costs, INCLUDING the drawings that do not exist as steps yet.
+//
+// This is the honest-total problem and it is the whole reason this function is not a sum over
+// `ST.steps`. A character whose moves have never been picked has no repaint instances at all, so
+// summing what exists answers "22 minutes" for a job that is over an hour: seven clips is 20
+// minutes and the fifty-four cells they imply are another 40. Each tag knows how many cells it
+// will ask the picker for, so the drawings are counted from that and labelled as the estimate
+// they are.
+function buildCost() {
+  const rows = [];
+  let total = 0;
+  const put = (k, n, cost) => {
+    if (!n) return;
+    let r = rows.find((x) => x.k === k);
+    if (!r) { r = {k, n: 0, cost: 0}; rows.push(r); }
+    r.n += n;
+    r.cost += cost;
+    total += cost;
+  };
+  for (const s of (ST.steps || [])) if (s.stale) put(s.kind, 1, s.cost_s);
+  const each = (ST.cost_s || {}).repaint || 0;
+  let owed = 0;
+  for (const t of ST.tags) {
+    const picks = (ST.steps || []).find((x) => x.kind === "picks" && x.tag === t.name);
+    // A cell that has been picked already has a repaint step of its own and is counted above.
+    // What is missing is the difference between the cells the tag HAS and the cells its picks run
+    // will choose.
+    if (picks) owed += Math.max(0, picks.params.cells - t.cells.length);
+  }
+  put("repaint · not chosen yet", owed, owed * each);
+  return {rows, total};
+}
+
+function openBuildAll() {
+  const next = nextBuildable();
+  openOverlay("Build everything — the whole cost", (host) => {
+    const box = document.createElement("div");
+    box.id = "receipt";
+    const {rows, total} = buildCost();
+    if (!rows.length) rows.push({k: "nothing is stale", n: 1, cost: 0});
+    for (const r of rows) {
+      const d = document.createElement("div");
+      d.className = "row";
+      d.innerHTML = "<b></b><span></span>";
+      d.querySelector("b").textContent = r.k + (r.n > 1 ? " × " + r.n : "");
+      d.querySelector("span").textContent = r.cost ? "~" + r.cost + "s" : "free";
+      box.appendChild(d);
+    }
+    const tot = document.createElement("div");
+    tot.className = "row tot";
+    tot.innerHTML = "<b>every stale step, end to end</b><span></span>";
+    tot.querySelector("span").textContent = about(total);
+    box.appendChild(tot);
+
+    const ed = document.createElement("div");
+    ed.className = "edits";
+    ed.textContent = "This is a price list, not a button that spends it. Each step is its own " +
+      "cancellable job and the queue holds eight, so building a character is a sequence of runs " +
+      "you keep confirming — which is the only way a clip that came back wrong costs 170 seconds " +
+      "instead of an hour.";
+    box.appendChild(ed);
+
+    const go = document.createElement("div");
+    go.className = "go";
+    const yes = document.createElement("button");
+    yes.className = "cost";
+    yes.textContent = next
+      ? "Run the next one: " + next.kind + (next.tag ? "(" + next.tag + ")" : "") +
+        " · ~" + next.cost_s + "s"
+      : "nothing to run";
+    yes.disabled = !next;
+    yes.onclick = () => {
+      closeOverlay();
+      if (next.tag) selectTag(next.tag);
+      runStep(next.kind, next.tag);
+    };
+    const no = document.createElement("button");
+    no.textContent = "Close";
+    no.onclick = closeOverlay;
+    go.appendChild(yes);
+    go.appendChild(no);
+    box.appendChild(go);
+    host.appendChild(box);
+  });
 }
 
 // --- inspector ---------------------------------------------------------------------------------

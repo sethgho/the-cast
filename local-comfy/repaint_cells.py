@@ -302,7 +302,12 @@ def sheet_pivot():
 # Durable Object write this file: a manifest that came back from the DO with `trait` appended
 # after `frames` would otherwise re-order the whole file on the next local run, for no change in
 # meaning, and every diff of a real edit would be buried in it.
-MANIFEST_FIELDS = ("character", "cell", "pivot", "trait", "build", "tags", "frames", "steps")
+# `name` and `plate` are only ever present on a character CREATED from an uploaded image
+# (DESIGN-pipeline.md, "a new subject"). Both are absent from seth's and cadbury's manifests,
+# whose cutouts were hand-made, and `_ordered` only emits the keys a manifest actually has -- so
+# naming them here re-orders nothing that already exists on disk.
+MANIFEST_FIELDS = ("character", "name", "cell", "pivot", "trait", "plate", "build", "tags",
+                   "frames", "steps")
 
 
 def _ordered(man):
@@ -313,7 +318,8 @@ def _ordered(man):
     return known
 
 
-def _tag(name, start, end, recipe, fps, loop, hold_key, unify, clip):
+def _tag(name, start, end, recipe, fps, loop, hold_key, unify, clip, cells=None,
+         recipe_text=None):
     """One move, as manifest data, always the same shape and the same key order.
 
     A move is `{name, recipe_text, cells, fps, loop, hold_key, unify, cyclic}` plus the range it
@@ -326,7 +332,11 @@ def _tag(name, start, end, recipe, fps, loop, hold_key, unify, clip):
     """
     return {"name": name, "from": start, "to": end, "fps": fps, "direction": "forward",
             "loop": loop, "hold_key": hold_key, "unify": unify, "clip": clip,
-            "recipe": recipe, "recipe_text": BS.MOVES[recipe], "cells": end - start + 1,
+            "recipe": recipe, "recipe_text": recipe_text or BS.MOVES[recipe],
+            # How many cells the next picks run should choose, which is NOT the range's width once
+            # an empty tag exists: a move whose clip has never been rendered owns no frames at all,
+            # and reading its cell count off `end - start + 1` would ask the picker for zero.
+            "cells": cells if cells is not None else end - start + 1,
             "cyclic": is_cyclic(recipe)}
 
 
@@ -425,10 +435,17 @@ def _backfill_missing_moves(cid, man):
             continue
         start = len(man["frames"])
         clip = clip_path(cid, move, man)
-        for p in pick_frames(cid, move, clip, n, cycle=is_cyclic(recipe), stop=hold_key):
+        # A character created from an uploaded plate has no clips at all yet, so there is nothing
+        # to pick cells off. That move gets an EMPTY tag -- `from` one past `to`, which slices to
+        # no frames -- and the rail then prices it as a to-do rather than this dying on a missing
+        # mp4. Picking against a clip that is not there was the only behaviour before, which is
+        # why a new subject could not exist without someone rendering seven clips by hand first.
+        picks = pick_frames(cid, move, clip, n, cycle=is_cyclic(recipe),
+                            stop=hold_key) if os.path.isfile(clip) else []
+        for p in picks:
             man["frames"].append(_frame(p, SEED))
         man["tags"].append(_tag(move, start, len(man["frames"]) - 1, recipe, fps, loop, hold_key,
-                                unify, clip))
+                                unify, clip, cells=n))
         changed = True
     return changed
 
@@ -551,9 +568,12 @@ def bootstrap_manifest(cid):
     for move, (recipe, n, fps, loop, hold_key, unify) in MOVES.items():
         start = len(frames)
         clip = bootstrap_clip_path(cid, recipe)
-        for p in pick_frames(cid, move, clip, n, cycle=is_cyclic(recipe), stop=hold_key):
+        picks = pick_frames(cid, move, clip, n, cycle=is_cyclic(recipe),
+                            stop=hold_key) if os.path.isfile(clip) else []
+        for p in picks:
             frames.append(_frame(p, SEED))
-        tags.append(_tag(move, start, len(frames) - 1, recipe, fps, loop, hold_key, unify, clip))
+        tags.append(_tag(move, start, len(frames) - 1, recipe, fps, loop, hold_key, unify, clip,
+                         cells=n))
     return _character(cid, tags, frames)
 
 
@@ -584,6 +604,13 @@ def main():
     for tag in man["tags"]:
         t0 = time.time()
         span = list(range(tag["from"], tag["to"] + 1))
+        # An EMPTY tag: a move that exists as manifest data and whose clip has never been
+        # rendered. It is skipped rather than packed, so it contributes no cell to the atlas and
+        # no row to the sheet table -- which is what keeps a half-built character's atlas the
+        # honest packing of the moves that DO have drawings.
+        if not span:
+            print(f"  {cid}-{tag['name']}: no cells yet — nothing to pack", flush=True)
+            continue
         print(f"  {cid}-{tag['name']}: {len(span)} cells from the manifest", flush=True)
         for n, idx in enumerate(span, start=1):
             f = man["frames"][idx]
@@ -604,6 +631,18 @@ def main():
     # Written before anything is packed. A pack can crash or be killed; if it does, the picks and
     # the repaint paths are still recorded and the next run costs nothing.
     save_character_manifest(cid, man)
+
+    # A brand-new character, whose every move is still an empty tag. There is no atlas to emit and
+    # `pack` must NOT be stamped built, or the rail would call a character with no drawings fresh.
+    # The step records are still written, because the whole point of the rail on a new character
+    # is that it prices what has not been made yet.
+    if not prepared:
+        built.discard("pack")
+        man["steps"] = PL.build_steps(cid, man, built)
+        save_character_manifest(cid, man)
+        print(f"  {cid}: no move has any cells yet — nothing packed", flush=True)
+        print_steps(cid, PL.summary(man))
+        return
 
     # One scale across the whole set, or he changes size when the state machine switches move.
     tallest = max(p["natural"] for _, p, _ in prepared)
