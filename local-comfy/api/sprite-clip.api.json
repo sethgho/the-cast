@@ -20,7 +20,7 @@
  "4": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "a full walk cycle in place, striding steadily to the right through contact, down, passing and up positions, ending on the same pose he began with so the cycle loops"
+   "value": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly"
   },
   "_meta": {
    "title": "\u25b6 3 \u00b7 THE MOVE (paste a recipe)"
@@ -145,7 +145,7 @@
  "13": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "A sprite animation reference for a 1933 rubber-hose cartoon character, drawn with confident smooth ink outlines of even weight and soft halftone shading, in the muted sepia inks of aged newsprint. The character is alone on a completely flat, evenly filled bright magenta screen that fills every part of the picture behind and around him \u2014 the magenta is a blank keying screen, so it stays one single solid colour with nothing drawn on it, no floor, no horizon, no shadow and no scenery. The camera is locked off and never moves, pans or zooms: one fixed wide side-on view, the character seen from his side, his whole body inside the frame with clear space above his head and below his feet, his feet staying on the same invisible ground line for the whole clip, and his size in the frame never changing. He performs one single move, cleanly and completely, and every drawing of him stays exactly the character in the first frame. The move is:"
+   "value": "A sprite animation reference for a 1933 rubber-hose cartoon character, drawn with confident smooth ink outlines of even weight and soft halftone shading, in the muted sepia inks of aged newsprint. The character is alone on a completely flat, evenly filled bright magenta screen that fills every part of the picture behind and around him \u2014 the magenta is a blank keying screen, so it stays one single solid colour with nothing drawn on it, no floor, no horizon, no shadow and no scenery. He is the only thing in the picture from the first frame to the last, and nothing else comes into the frame at any point. The camera is locked off on a tripod and never moves, pans, zooms or cuts: one single unbroken shot, one fixed wide side-on view, the character seen from his side, his whole body inside the frame with clear space above his head and below his feet, his feet staying on the same invisible ground line for the whole clip, and his size in the frame never changing. He performs the move on the spot, staying in the same part of the frame for the whole clip, as if on a treadmill. His hands and his feet are drawn at exactly the size they are in the first frame in every single drawing, however hard he swings, punches, kicks or stamps: they never swell, balloon or grow on the frames of impact. He performs one single move, cleanly and completely, and every drawing of him stays exactly the character in the first frame. The move is:"
   },
   "_meta": {
    "title": "SPRITE LOCK \u2014 stage, camera and framing"
@@ -163,13 +163,22 @@
  "15": {
   "class_type": "PrimitiveStringMultiline",
   "inputs": {
-   "value": "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
+   "value": "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. The only sounds are the practical noises the action itself makes. NEVER any music, melody, score, song, piano, orchestra or musical tones of any kind. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
   },
   "_meta": {
    "title": "SOUND LOCK \u2014 H3 needs this even when muted"
   }
  },
  "16": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Throughout the whole clip the background behind him stays one completely flat, evenly filled bright magenta screen of a single solid colour, covering every part of the picture behind and around him, with no paper texture, no floor, no shadow and nothing else drawn on it."
+  },
+  "_meta": {
+   "title": "STAGE RESTATE \u2014 last, or the magenta is lost"
+  }
+ },
+ "17": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
@@ -186,12 +195,12 @@
    "title": "sprite lock + the move"
   }
  },
- "17": {
+ "18": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "16",
+    "17",
     0
    ],
    "string_b": [
@@ -203,12 +212,12 @@
    "title": "+ who lead-in"
   }
  },
- "18": {
+ "19": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "17",
+    "18",
     0
    ],
    "string_b": [
@@ -220,12 +229,29 @@
    "title": "+ who he is"
   }
  },
- "19": {
+ "20": {
   "class_type": "StringConcatenate",
   "inputs": {
    "delimiter": " ",
    "string_a": [
-    "18",
+    "19",
+    0
+   ],
+   "string_b": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ stage restate"
+  }
+ },
+ "21": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "20",
     0
    ],
    "string_b": [
@@ -237,7 +263,7 @@
    "title": "FINAL PROMPT \u2014 expand to read what H3 got"
   }
  },
- "20": {
+ "22": {
   "class_type": "UNETLoader",
   "inputs": {
    "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
@@ -247,7 +273,7 @@
    "title": "MiniMax H3 (video)"
   }
  },
- "21": {
+ "23": {
   "class_type": "EasyCache",
   "inputs": {
    "reuse_threshold": 0.2,
@@ -255,7 +281,7 @@
    "end_percent": 0.95,
    "verbose": true,
    "model": [
-    "20",
+    "22",
     0
    ]
   },
@@ -263,7 +289,7 @@
    "title": "EasyCache"
   }
  },
- "22": {
+ "24": {
   "class_type": "CLIPLoader",
   "inputs": {
    "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
@@ -274,7 +300,7 @@
    "title": "H3 text encoder"
   }
  },
- "23": {
+ "25": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "minimax_h3_video_vae_fp16.safetensors"
@@ -283,7 +309,7 @@
    "title": "video VAE"
   }
  },
- "24": {
+ "26": {
   "class_type": "VAELoader",
   "inputs": {
    "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
@@ -292,22 +318,22 @@
    "title": "audio VAE"
   }
  },
- "25": {
+ "27": {
   "class_type": "MiniMaxH3ImageToVideo",
   "inputs": {
    "prompt": [
-    "19",
+    "21",
     0
    ],
    "width": 512,
    "height": 512,
    "length": 61,
    "clip": [
-    "22",
+    "24",
     0
    ],
    "vae": [
-    "23",
+    "25",
     0
    ],
    "first_frame": [
@@ -319,15 +345,15 @@
    "title": "H3 \u2014 the magenta frame pinned first"
   }
  },
- "26": {
+ "28": {
   "class_type": "BasicGuider",
   "inputs": {
    "model": [
-    "21",
+    "23",
     0
    ],
    "conditioning": [
-    "25",
+    "27",
     0
    ]
   },
@@ -335,7 +361,7 @@
    "title": "guider"
   }
  },
- "27": {
+ "29": {
   "class_type": "KSamplerSelect",
   "inputs": {
    "sampler_name": "res_multistep"
@@ -344,7 +370,7 @@
    "title": "sampler"
   }
  },
- "28": {
+ "30": {
   "class_type": "RandomNoise",
   "inputs": {
    "noise_seed": 11
@@ -353,14 +379,14 @@
    "title": "\u25b6 4 \u00b7 SEED"
   }
  },
- "29": {
+ "31": {
   "class_type": "BasicScheduler",
   "inputs": {
    "scheduler": "simple",
    "steps": 10,
    "denoise": 1.0,
    "model": [
-    "21",
+    "23",
     0
    ]
   },
@@ -368,27 +394,27 @@
    "title": "\u25b6 4 \u00b7 STEPS"
   }
  },
- "30": {
+ "32": {
   "class_type": "SamplerCustomAdvanced",
   "inputs": {
    "noise": [
-    "28",
+    "30",
     0
    ],
    "guider": [
-    "26",
+    "28",
     0
    ],
    "sampler": [
-    "27",
-    0
-   ],
-   "sigmas": [
     "29",
     0
    ],
+   "sigmas": [
+    "31",
+    0
+   ],
    "latent_image": [
-    "25",
+    "27",
     1
    ]
   },
@@ -396,15 +422,15 @@
    "title": "sample"
   }
  },
- "31": {
+ "33": {
   "class_type": "VAEDecode",
   "inputs": {
    "samples": [
-    "30",
+    "32",
     0
    ],
    "vae": [
-    "23",
+    "25",
     0
    ]
   },
@@ -412,15 +438,15 @@
    "title": "decode frames"
   }
  },
- "32": {
+ "34": {
   "class_type": "VAEDecodeAudio",
   "inputs": {
    "samples": [
-    "30",
+    "32",
     0
    ],
    "vae": [
-    "24",
+    "26",
     0
    ]
   },
@@ -428,17 +454,17 @@
    "title": "decode audio"
   }
  },
- "33": {
+ "35": {
   "class_type": "CreateVideo",
   "inputs": {
    "fps": 24,
    "bit_depth": 8,
    "images": [
-    "31",
+    "33",
     0
    ],
    "audio": [
-    "32",
+    "34",
     0
    ]
   },
@@ -446,14 +472,14 @@
    "title": "make the clip"
   }
  },
- "34": {
+ "36": {
   "class_type": "SaveVideo",
   "inputs": {
    "filename_prefix": "video/sprite",
    "format": "auto",
    "codec": "auto",
    "video": [
-    "33",
+    "35",
     0
    ]
   },

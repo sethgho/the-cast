@@ -628,6 +628,158 @@ def _emit_sheet(cid, parts, cell, outdir, scale, pivot):
     return atlas_path
 
 
+# ------------------------------------------------------------------ numeric QC
+#
+# Method borrowed from gary149/h3-game-sprites, which writes a `report.json` per move and says to
+# read it before trusting anything. We measured the same things, but only by hand in conversation
+# — which is exactly why every defect below was caught late and by eye. Now the pack measures
+# them every run.
+#
+# The QC pass reads the atlas back off disk and measures the pixels that SHIPPED. It hands nothing
+# back to the packer, so it cannot move a cell by a pixel.
+
+QC_DECIDED = 8       # alpha within this of 0 or 255 is a pixel the key was sure about
+
+# Every limit is set from what the two packed characters — Seth and Cadbury, both known good —
+# actually measure, with room for normal variation. The measured range is written next to each
+# one, so the next person can see whether a change moved the data or just moved the goalposts.
+QC_LIMITS = {
+    # measured 0.9477 (seth idle) .. 0.9989; a key against the wrong magenta reads far below 0.5,
+    # because the whole screen comes back faintly opaque instead of decided.
+    "bg_purity": 0.92,
+    # wrap step / median step. Measured 0.32 .. 1.71 across the four cyclic tags. Past ~2.5 the
+    # seam is jumping more than twice as far as a normal step, which is a visible reset.
+    "loop_closure": 2.5,
+    # Cells are anchored on their own feet, so this is residual only — smoothing pull (<=3px) plus
+    # rounding. Measured 1 .. 4px. A double-digit spread means the anchor is reading something
+    # other than the feet.
+    "feet_drift_px": 8,
+    # Head-width spread, judged only on tags the packer unifies (see below). Measured 1.1 .. 4.3%.
+    "size_drift_pct": 8.0,
+    # Measured 30 .. 60px of clear space above the head in a 512 cell. A clipped head reads 0, and
+    # PAD exists precisely because eight of ten walk cells once came back flat-topped.
+    "top_clearance_px": 12,
+    # Two consecutive cells with the same silhouette are one drawing shown twice: an uneven hold,
+    # which reads as a stutter. There is no benign amount of it.
+    "duplicate_cells": 0,
+}
+
+
+def _qc_purity(rgba):
+    """How much of a keyed frame the key was confident about (their `worst_bg_purity`).
+
+    Ours is a SOFT key — `key_out` ramps alpha across a colour-distance band — so the analogue of
+    their binary bg+fg fraction is the fraction of pixels that came out decided, either screen or
+    character. The failure it catches is the one `measure_key` exists for: key against the wrong
+    magenta and the whole screen comes back faintly opaque, which is a picture full of undecided
+    pixels long before anyone can see the haze.
+    """
+    a = np.asarray(rgba)[:, :, 3]
+    return float(((a <= QC_DECIDED) | (a >= 255 - QC_DECIDED)).mean())
+
+
+def _qc_cells(atlas, meta, tmeta, cell):
+    return [atlas.crop((meta["frames"][i]["x"], meta["frames"][i]["y"],
+                        meta["frames"][i]["x"] + cell, meta["frames"][i]["y"] + cell))
+            for i in range(tmeta["from"], tmeta["to"] + 1)]
+
+
+def _qc_metric(value, limit, worse="high"):
+    ok = value <= limit if worse == "high" else value >= limit
+    return {"value": value, "limit": limit, "status": "ok" if ok else "warn"}
+
+
+def sheet_qc(cid, parts, cell, outdir, pivot):
+    """Measure the packed sheet and write `<outdir>/<cid>-qc.json`. Returns the report.
+
+    Tag ranges and cell positions are read back out of the emitted JSON rather than recomputed,
+    for the same reason `_emit_sheet` recomputes them from the concatenation: a second copy of
+    the arithmetic is only somewhere for the report and the atlas to disagree.
+    """
+    atlas = Image.open(os.path.join(outdir, f"{cid}.png")).convert("RGBA")
+    meta = json.load(open(os.path.join(outdir, f"{cid}.json")))
+    tags, worst = {}, "ok"
+    for (tag, prep, _frames), tmeta in zip(parts, meta["tags"]):
+        cells = _qc_cells(atlas, meta, tmeta, cell)
+        boxes = [bbox(c) for c in cells]
+        if not all(boxes):
+            # An empty cell has no silhouette to measure, so every measure below would be a lie.
+            # It is also a defect on its own: a cell that keyed to nothing is a hole in the move.
+            tags[tag["name"]] = {"cells": len(cells), "status": "warn", "warn": ["empty cell"],
+                                 "empty_cells": [i for i, b in enumerate(boxes) if not b]}
+            worst = "warn"
+            continue
+
+        purity = min(_qc_purity(prep["rgba"][i]) for i in prep["picks"])
+        sils = silhouettes(cells)
+        steps = [float(np.abs(sils[i] - sils[i - 1]).mean()) for i in range(1, len(sils))]
+        bottoms = [b[3] - 1 - pivot[1] for b in boxes]
+        heads = [head_width(c, b) for c, b in zip(cells, boxes)]
+        med_head = sorted(heads)[len(heads) // 2]
+        flat = [np.asarray(c)[:, :, 3] > 8 for c in cells]
+        dupes = sum(1 for i in range(1, len(flat)) if np.array_equal(flat[i], flat[i - 1]))
+
+        m = {
+            "cells": len(cells),
+            "bg_purity": _qc_metric(round(purity, 4), QC_LIMITS["bg_purity"], "low"),
+            "feet_drift_px": _qc_metric(max(bottoms) - min(bottoms), QC_LIMITS["feet_drift_px"]),
+            "feet_offset_px": [min(bottoms), max(bottoms)],
+            "top_clearance_px": _qc_metric(min(b[1] for b in boxes),
+                                           QC_LIMITS["top_clearance_px"], "low"),
+            "duplicate_cells": _qc_metric(dupes, QC_LIMITS["duplicate_cells"]),
+        }
+        if tmeta["loop"] and len(steps) > 1:
+            # The wrap step against the median step — the ratio we already compute by hand when a
+            # cycle visibly resets. Absolute silhouette difference cannot be compared across
+            # characters (a fence panel moves less than a lanky man), but "is the seam like every
+            # other step?" is scale-free and is the question a loop actually asks.
+            wrap = float(np.abs(sils[0] - sils[-1]).mean())
+            med_step = sorted(steps)[len(steps) // 2]
+            m["loop_closure"] = _qc_metric(round(wrap / med_step, 2) if med_step else 99.0,
+                                           QC_LIMITS["loop_closure"])
+        # `head_width` takes the widest row of the top fifth of the silhouette, which is the head
+        # only while the head is the topmost thing. A punch, a kick and a jump all throw an arm or
+        # a knee above it, so the number stops being a size measure there — which is also why the
+        # packer unifies on it for walk and idle alone. Measured everywhere, judged where it means
+        # something.
+        size = round(100.0 * (max(heads) - min(heads)) / med_head, 1) if med_head else 100.0
+        m["size_drift_pct"] = (_qc_metric(size, QC_LIMITS["size_drift_pct"]) if tag["unify"]
+                               else {"value": size, "limit": None, "status": "n/a"})
+        m["warn"] = [k for k, v in m.items() if isinstance(v, dict) and v["status"] == "warn"]
+        m["status"] = "warn" if m["warn"] else "ok"
+        worst = "warn" if m["status"] == "warn" else worst
+        tags[tag["name"]] = m
+
+    report = {"character": cid, "cell": cell, "pivot": list(pivot), "status": worst,
+              "limits": QC_LIMITS, "tags": tags}
+    path = os.path.join(outdir, f"{cid}-qc.json")
+    json.dump(report, open(path, "w"), indent=1)
+    return report
+
+
+def print_qc(report):
+    """One line per tag, so a bad tag is obvious without opening the file."""
+    print(f"QC {report['character']}: {report['status'].upper()}  "
+          f"(limits: purity>={QC_LIMITS['bg_purity']}, loop<={QC_LIMITS['loop_closure']}, "
+          f"feet<={QC_LIMITS['feet_drift_px']}px, size<={QC_LIMITS['size_drift_pct']}%, "
+          f"top>={QC_LIMITS['top_clearance_px']}px, dup<={QC_LIMITS['duplicate_cells']})")
+    print(f"  {'tag':8} {'n':>2}  {'purity':>6} {'loop':>5} {'feet':>5} {'size':>6} "
+          f"{'top':>5} {'dup':>3}  status        (bracketed = measured, not judged)")
+    for name, t in report["tags"].items():
+        if "bg_purity" not in t:
+            print(f"  {name:8} {t['cells']:>2}  {'-- empty cells --':>34}  WARN")
+            continue
+        loop = f"{t['loop_closure']['value']:.2f}" if "loop_closure" in t else "-"
+        flags = " ".join(t["warn"])
+        size = (f"{t['size_drift_pct']['value']:.1f}%" if t["size_drift_pct"]["status"] != "n/a"
+                else f"({t['size_drift_pct']['value']:.1f})")
+        print(f"  {name:8} {t['cells']:>2}  {t['bg_purity']['value']:>6.4f} {loop:>5} "
+              f"{t['feet_drift_px']['value']:>4}p {size:>6} "
+              f"{t['top_clearance_px']['value']:>4}p {t['duplicate_cells']['value']:>3}  "
+              f"{'WARN: ' + flags if flags else 'ok'}")
+
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("clip")

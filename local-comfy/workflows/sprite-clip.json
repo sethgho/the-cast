@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 34,
- "last_link_id": 37,
+ "last_node_id": 36,
+ "last_link_id": 39,
  "nodes": [
   {
    "id": 1,
@@ -25,7 +25,7 @@
     "Node name for S&R": "MarkdownNote"
    },
    "widgets_values": [
-    "# Sprite clip\n\n**One character, one move, on a flat magenta screen \u2014 the raw material for a sprite sheet.**\n\nThe clip is not the deliverable. Run it through `sprite_sheet.py` and you get a normalised PNG\natlas, a JSON descriptor, a CSS `steps()` snippet and an animated preview:\n\n```\npython3 sprite_sheet.py <clip.mp4> <name> --frames 8\n```\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 CHARACTER PLATE** | A transparent cutout of the character. It is composited onto the magenta screen for you. |\n| **2 \u00b7 WHO HE IS** | The trait line \u2014 how this character moves. Ake has no legs; his line says the dolly rolls him. |\n| **3 \u00b7 THE MOVE** | Paste one of the recipes below. |\n| **4 \u00b7 SEED + STEPS** | Re-roll here. 10 steps is the working default. |\n\n## Why magenta\n\nKeying a flat colour is exact and identical on every frame. Matting the same character off aged\npaper with BiRefNet wobbles a pixel or two per frame, and that wobble *is* sprite jitter. The\npacker keys the magenta, finds each frame's true bounding box, and aligns every cell on the\ncharacter's own feet.\n\n## The moves\n\n- **`idle-breathe`** \u2014 a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in.\n- **`roll-cycle`** \u2014 he rolls steadily to the right at a constant speed on his wheels, the wheels turning and the body rocking slightly with the roll, ending on the pose he began with so the cycle loops \u2014 for a character with legs, read this as a smooth walk.\n- **`walk-cycle`** \u2014 a full walk cycle in place, striding steadily to the right through contact, down, passing and up positions, ending on the same pose he began with so the cycle loops.\n- **`run-cycle`** \u2014 a fast run cycle in place, leaning forward, arms pumping, both feet leaving the ground at the stretch, ending on the pose he began with so the cycle loops.\n- **`jump`** \u2014 a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact.\n- **`crouch`** \u2014 he ducks down into a low crouch, holds it a beat, and rises back to standing.\n- **`punch`** \u2014 he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard.\n- **`kick`** \u2014 he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down.\n- **`block`** \u2014 he brings both arms up in front of himself into a braced blocking guard, holds it, and lowers them again.\n- **`wave`** \u2014 he raises one arm and waves broadly twice, then lowers the arm back to his side.\n- **`take-a-bow`** \u2014 he bows deeply from the waist with one arm sweeping across himself, holds the bow, and straightens back up.\n- **`surprise-jolt`** \u2014 he jolts upright in surprise, whole body popping up off the ground line for a beat with limbs flung out, then drops back down and settles.\n- **`faint`** \u2014 he wobbles, stiffens, and topples over backwards out of the standing pose, landing flat.\n\n## The trait lines\n\n- **seth** \u2014 a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump.\n- **wilson** \u2014 a living picket-fence panel \u2014 the fence panel IS his body \u2014 with two short stubby metal legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow beneath its brim; he stumps stiffly about on those short boots, upright as a plank, and never bends at a waist because he has none.\n- **cadbury** \u2014 a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep.\n- **ake** \u2014 a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, wearing a little dark cap; he has no legs and never walks \u2014 the dolly rolls him along, he arrives and leaves by rolling, and the water sloshes in the bowl as he moves.\n"
+    "# Sprite clip\n\n**One character, one move, on a flat magenta screen \u2014 the raw material for a sprite sheet.**\n\nThe clip is not the deliverable. Run it through `sprite_sheet.py` and you get a normalised PNG\natlas, a JSON descriptor, a CSS `steps()` snippet and an animated preview:\n\n```\npython3 sprite_sheet.py <clip.mp4> <name> --frames 8\n```\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 CHARACTER PLATE** | A transparent cutout of the character. It is composited onto the magenta screen for you. |\n| **2 \u00b7 WHO HE IS** | The trait line \u2014 how this character moves. Ake has no legs; his line says the dolly rolls him. |\n| **3 \u00b7 THE MOVE** | Paste one of the recipes below. |\n| **4 \u00b7 SEED + STEPS** | Re-roll here. 10 steps is the working default. |\n\n## Why magenta\n\nKeying a flat colour is exact and identical on every frame. Matting the same character off aged\npaper with BiRefNet wobbles a pixel or two per frame, and that wobble *is* sprite jitter. The\npacker keys the magenta, finds each frame's true bounding box, and aligns every cell on the\ncharacter's own feet.\n\n## The moves\n\n- **`idle-breathe`** \u2014 a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in.\n- **`roll-cycle`** \u2014 he rolls steadily to the right at a constant speed on his wheels, the wheels turning and the body rocking slightly with the roll, ending on the pose he began with so the cycle loops \u2014 for a character with legs, read this as a smooth walk.\n- **`walk-cycle`** \u2014 a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly.\n- **`run-cycle`** \u2014 a fast run cycle in place, leaning forward, arms pumping, both feet leaving the ground at the stretch, ending on the pose he began with so the cycle loops.\n- **`jump`** \u2014 a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact.\n- **`crouch`** \u2014 he ducks down into a low crouch, holds it a beat, and rises back to standing.\n- **`punch`** \u2014 he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard.\n- **`kick`** \u2014 he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down.\n- **`block`** \u2014 he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time.\n- **`wave`** \u2014 he raises one arm and waves broadly twice, then lowers the arm back to his side.\n- **`take-a-bow`** \u2014 he bows deeply from the waist with one arm sweeping across himself, holds the bow, and straightens back up.\n- **`surprise-jolt`** \u2014 he jolts upright in surprise, whole body popping up off the ground line for a beat with limbs flung out, then drops back down and settles.\n- **`faint`** \u2014 he wobbles, stiffens, and topples over backwards out of the standing pose, landing flat.\n\n## The trait lines\n\n- **seth** \u2014 a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump.\n- **wilson** \u2014 a living picket-fence panel \u2014 the fence panel IS his body \u2014 with two short stubby metal legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow beneath its brim; he stumps stiffly about on those short boots, upright as a plank, and never bends at a waist because he has none.\n- **cadbury** \u2014 a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep.\n- **ake** \u2014 a plump goldfish inside a spherical glass fishbowl mounted on a small wheeled wooden dolly, wearing a little dark cap; he has no legs and never walks \u2014 the dolly rolls him along, he arrives and leaves by rolling, and the water sloshes in the bowl as he moves.\n"
    ]
   },
   {
@@ -173,7 +173,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "a full walk cycle in place, striding steadily to the right through contact, down, passing and up positions, ending on the same pose he began with so the cycle loops"
+    "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly"
    ],
    "color": "#232",
    "bgcolor": "#353"
@@ -456,7 +456,7 @@
      "type": "IMAGE",
      "links": [
       9,
-      22
+      24
      ]
     }
    ],
@@ -529,7 +529,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "A sprite animation reference for a 1933 rubber-hose cartoon character, drawn with confident smooth ink outlines of even weight and soft halftone shading, in the muted sepia inks of aged newsprint. The character is alone on a completely flat, evenly filled bright magenta screen that fills every part of the picture behind and around him \u2014 the magenta is a blank keying screen, so it stays one single solid colour with nothing drawn on it, no floor, no horizon, no shadow and no scenery. The camera is locked off and never moves, pans or zooms: one fixed wide side-on view, the character seen from his side, his whole body inside the frame with clear space above his head and below his feet, his feet staying on the same invisible ground line for the whole clip, and his size in the frame never changing. He performs one single move, cleanly and completely, and every drawing of him stays exactly the character in the first frame. The move is:"
+    "A sprite animation reference for a 1933 rubber-hose cartoon character, drawn with confident smooth ink outlines of even weight and soft halftone shading, in the muted sepia inks of aged newsprint. The character is alone on a completely flat, evenly filled bright magenta screen that fills every part of the picture behind and around him \u2014 the magenta is a blank keying screen, so it stays one single solid colour with nothing drawn on it, no floor, no horizon, no shadow and no scenery. He is the only thing in the picture from the first frame to the last, and nothing else comes into the frame at any point. The camera is locked off on a tripod and never moves, pans, zooms or cuts: one single unbroken shot, one fixed wide side-on view, the character seen from his side, his whole body inside the frame with clear space above his head and below his feet, his feet staying on the same invisible ground line for the whole clip, and his size in the frame never changing. He performs the move on the spot, staying in the same part of the frame for the whole clip, as if on a treadmill. His hands and his feet are drawn at exactly the size they are in the first frame in every single drawing, however hard he swings, punches, kicks or stamps: they never swell, balloon or grow on the frames of impact. He performs one single move, cleanly and completely, and every drawing of him stays exactly the character in the first frame. The move is:"
    ],
    "color": "#223",
    "bgcolor": "#335"
@@ -592,7 +592,7 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      17
+      19
      ]
     }
    ],
@@ -601,17 +601,53 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
+    "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. The only sounds are the practical noises the action itself makes. NEVER any music, melody, score, song, piano, orchestra or musical tones of any kind. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
    ],
    "color": "#223",
    "bgcolor": "#335"
   },
   {
    "id": 16,
-   "type": "StringConcatenate",
+   "type": "PrimitiveStringMultiline",
    "pos": [
     1040,
     -482
+   ],
+   "size": [
+    430,
+    190
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 16,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      17
+     ]
+    }
+   ],
+   "title": "STAGE RESTATE \u2014 last, or the magenta is lost",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Throughout the whole clip the background behind him stays one completely flat, evenly filled bright magenta screen of a single solid colour, covering every part of the picture behind and around him, with no paper texture, no floor, no shadow and nothing else drawn on it."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 17,
+   "type": "StringConcatenate",
+   "pos": [
+    1040,
+    -436
    ],
    "size": [
     330,
@@ -620,7 +656,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 16,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
@@ -660,11 +696,11 @@
    ]
   },
   {
-   "id": 17,
+   "id": 18,
    "type": "StringConcatenate",
    "pos": [
     1040,
-    -436
+    -390
    ],
    "size": [
     330,
@@ -673,7 +709,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 17,
+   "order": 18,
    "mode": 0,
    "inputs": [
     {
@@ -713,11 +749,11 @@
    ]
   },
   {
-   "id": 18,
+   "id": 19,
    "type": "StringConcatenate",
    "pos": [
     1040,
-    -390
+    -344
    ],
    "size": [
     330,
@@ -726,7 +762,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 18,
+   "order": 19,
    "mode": 0,
    "inputs": [
     {
@@ -766,11 +802,11 @@
    ]
   },
   {
-   "id": 19,
+   "id": 20,
    "type": "StringConcatenate",
    "pos": [
     1040,
-    -344
+    -298
    ],
    "size": [
     330,
@@ -779,7 +815,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 19,
+   "order": 20,
    "mode": 0,
    "inputs": [
     {
@@ -804,7 +840,60 @@
      "name": "STRING",
      "type": "STRING",
      "links": [
-      21
+      18
+     ]
+    }
+   ],
+   "title": "+ stage restate",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 21,
+   "type": "StringConcatenate",
+   "pos": [
+    1040,
+    -252
+   ],
+   "size": [
+    330,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 18,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 19,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      23
      ]
     }
    ],
@@ -819,11 +908,11 @@
    ]
   },
   {
-   "id": 20,
+   "id": 22,
    "type": "UNETLoader",
    "pos": [
     1040,
-    -252
+    -160
    ],
    "size": [
     400,
@@ -832,7 +921,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 20,
+   "order": 22,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -840,7 +929,7 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      18
+      20
      ]
     }
    ],
@@ -856,11 +945,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 21,
+   "id": 23,
    "type": "EasyCache",
    "pos": [
     1040,
-    -206
+    -114
    ],
    "size": [
     400,
@@ -869,13 +958,13 @@
    "flags": {
     "collapsed": true
    },
-   "order": 21,
+   "order": 23,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 18
+     "link": 20
     }
    ],
    "outputs": [
@@ -883,8 +972,8 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      23,
-      25
+      25,
+      27
      ]
     }
    ],
@@ -902,11 +991,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 22,
+   "id": 24,
    "type": "CLIPLoader",
    "pos": [
     1040,
-    -160
+    -68
    ],
    "size": [
     400,
@@ -915,7 +1004,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 22,
+   "order": 24,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -923,7 +1012,7 @@
      "name": "CLIP",
      "type": "CLIP",
      "links": [
-      19
+      21
      ]
     }
    ],
@@ -940,11 +1029,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 23,
+   "id": 25,
    "type": "VAELoader",
    "pos": [
     1040,
-    -114
+    -22
    ],
    "size": [
     400,
@@ -953,7 +1042,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 23,
+   "order": 25,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -961,8 +1050,8 @@
      "name": "VAE",
      "type": "VAE",
      "links": [
-      20,
-      32
+      22,
+      34
      ]
     }
    ],
@@ -977,11 +1066,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 24,
+   "id": 26,
    "type": "VAELoader",
    "pos": [
     1040,
-    -68
+    24
    ],
    "size": [
     400,
@@ -990,7 +1079,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 24,
+   "order": 26,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -998,7 +1087,7 @@
      "name": "VAE",
      "type": "VAE",
      "links": [
-      34
+      36
      ]
     }
    ],
@@ -1013,11 +1102,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 25,
+   "id": 27,
    "type": "MiniMaxH3ImageToVideo",
    "pos": [
     1040,
-    -22
+    70
    ],
    "size": [
     400,
@@ -1026,23 +1115,23 @@
    "flags": {
     "collapsed": true
    },
-   "order": 25,
+   "order": 27,
    "mode": 0,
    "inputs": [
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 19
+     "link": 21
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 20
+     "link": 22
     },
     {
      "name": "prompt",
      "type": "STRING",
-     "link": 21,
+     "link": 23,
      "widget": {
       "name": "prompt"
      }
@@ -1050,7 +1139,7 @@
     {
      "name": "first_frame",
      "type": "IMAGE",
-     "link": 22
+     "link": 24
     }
    ],
    "outputs": [
@@ -1058,14 +1147,14 @@
      "name": "CONDITIONING",
      "type": "CONDITIONING",
      "links": [
-      24
+      26
      ]
     },
     {
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      30
+      32
      ]
     }
    ],
@@ -1081,11 +1170,11 @@
    ]
   },
   {
-   "id": 26,
+   "id": 28,
    "type": "BasicGuider",
    "pos": [
     1040,
-    24
+    116
    ],
    "size": [
     400,
@@ -1094,18 +1183,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 26,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 23
+     "link": 25
     },
     {
      "name": "conditioning",
      "type": "CONDITIONING",
-     "link": 24
+     "link": 26
     }
    ],
    "outputs": [
@@ -1113,7 +1202,7 @@
      "name": "GUIDER",
      "type": "GUIDER",
      "links": [
-      27
+      29
      ]
     }
    ],
@@ -1126,11 +1215,11 @@
    "bgcolor": "#000"
   },
   {
-   "id": 27,
+   "id": 29,
    "type": "KSamplerSelect",
    "pos": [
     1040,
-    70
+    162
    ],
    "size": [
     400,
@@ -1139,7 +1228,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 27,
+   "order": 29,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1147,7 +1236,7 @@
      "name": "SAMPLER",
      "type": "SAMPLER",
      "links": [
-      28
+      30
      ]
     }
    ],
@@ -1162,7 +1251,7 @@
    "bgcolor": "#000"
   },
   {
-   "id": 28,
+   "id": 30,
    "type": "RandomNoise",
    "pos": [
     560,
@@ -1173,7 +1262,7 @@
     110
    ],
    "flags": {},
-   "order": 28,
+   "order": 30,
    "mode": 0,
    "inputs": [
     {
@@ -1192,7 +1281,7 @@
      "name": "NOISE",
      "type": "NOISE",
      "links": [
-      26
+      28
      ]
     }
    ],
@@ -1207,7 +1296,7 @@
    "bgcolor": "#535"
   },
   {
-   "id": 29,
+   "id": 31,
    "type": "BasicScheduler",
    "pos": [
     560,
@@ -1218,13 +1307,13 @@
     160
    ],
    "flags": {},
-   "order": 29,
+   "order": 31,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 25
+     "link": 27
     },
     {
      "name": "scheduler",
@@ -1260,7 +1349,7 @@
      "name": "SIGMAS",
      "type": "SIGMAS",
      "links": [
-      29
+      31
      ]
     }
    ],
@@ -1277,7 +1366,7 @@
    "bgcolor": "#535"
   },
   {
-   "id": 30,
+   "id": 32,
    "type": "SamplerCustomAdvanced",
    "pos": [
     560,
@@ -1290,33 +1379,33 @@
    "flags": {
     "collapsed": true
    },
-   "order": 30,
+   "order": 32,
    "mode": 0,
    "inputs": [
     {
      "name": "noise",
      "type": "NOISE",
-     "link": 26
+     "link": 28
     },
     {
      "name": "guider",
      "type": "GUIDER",
-     "link": 27
+     "link": 29
     },
     {
      "name": "sampler",
      "type": "SAMPLER",
-     "link": 28
+     "link": 30
     },
     {
      "name": "sigmas",
      "type": "SIGMAS",
-     "link": 29
+     "link": 31
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 30
+     "link": 32
     }
    ],
    "outputs": [
@@ -1324,8 +1413,8 @@
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      31,
-      33
+      33,
+      35
      ]
     },
     {
@@ -1341,7 +1430,7 @@
    "widgets_values": []
   },
   {
-   "id": 31,
+   "id": 33,
    "type": "VAEDecode",
    "pos": [
     560,
@@ -1354,50 +1443,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 31,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "samples",
-     "type": "LATENT",
-     "link": 31
-    },
-    {
-     "name": "vae",
-     "type": "VAE",
-     "link": 32
-    }
-   ],
-   "outputs": [
-    {
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "links": [
-      35
-     ]
-    }
-   ],
-   "title": "decode frames",
-   "properties": {
-    "Node name for S&R": "VAEDecode"
-   },
-   "widgets_values": []
-  },
-  {
-   "id": 32,
-   "type": "VAEDecodeAudio",
-   "pos": [
-    560,
-    1130
-   ],
-   "size": [
-    400,
-    80
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 32,
+   "order": 33,
    "mode": 0,
    "inputs": [
     {
@@ -1413,10 +1459,53 @@
    ],
    "outputs": [
     {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      37
+     ]
+    }
+   ],
+   "title": "decode frames",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 34,
+   "type": "VAEDecodeAudio",
+   "pos": [
+    560,
+    1130
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 34,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 35
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 36
+    }
+   ],
+   "outputs": [
+    {
      "name": "AUDIO",
      "type": "AUDIO",
      "links": [
-      36
+      38
      ]
     }
    ],
@@ -1427,7 +1516,7 @@
    "widgets_values": []
   },
   {
-   "id": 33,
+   "id": 35,
    "type": "CreateVideo",
    "pos": [
     560,
@@ -1440,18 +1529,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 33,
+   "order": 35,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 35
+     "link": 37
     },
     {
      "name": "audio",
      "type": "AUDIO",
-     "link": 36
+     "link": 38
     }
    ],
    "outputs": [
@@ -1459,7 +1548,7 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      37
+      39
      ]
     }
    ],
@@ -1473,7 +1562,7 @@
    ]
   },
   {
-   "id": 34,
+   "id": 36,
    "type": "SaveVideo",
    "pos": [
     1560,
@@ -1484,13 +1573,13 @@
     900
    ],
    "flags": {},
-   "order": 34,
+   "order": 36,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 37
+     "link": 39
     }
    ],
    "outputs": [],
@@ -1582,7 +1671,7 @@
    10,
    13,
    0,
-   16,
+   17,
    0,
    "STRING"
   ],
@@ -1590,15 +1679,15 @@
    11,
    4,
    0,
-   16,
+   17,
    1,
    "STRING"
   ],
   [
    12,
-   16,
-   0,
    17,
+   0,
+   18,
    0,
    "STRING"
   ],
@@ -1606,15 +1695,15 @@
    13,
    14,
    0,
-   17,
+   18,
    1,
    "STRING"
   ],
   [
    14,
-   17,
-   0,
    18,
+   0,
+   19,
    0,
    "STRING"
   ],
@@ -1622,23 +1711,23 @@
    15,
    3,
    0,
-   18,
+   19,
    1,
    "STRING"
   ],
   [
    16,
-   18,
-   0,
    19,
+   0,
+   20,
    0,
    "STRING"
   ],
   [
    17,
-   15,
+   16,
    0,
-   19,
+   20,
    1,
    "STRING"
   ],
@@ -1648,157 +1737,173 @@
    0,
    21,
    0,
-   "MODEL"
+   "STRING"
   ],
   [
    19,
+   15,
+   0,
+   21,
+   1,
+   "STRING"
+  ],
+  [
+   20,
    22,
    0,
-   25,
+   23,
+   0,
+   "MODEL"
+  ],
+  [
+   21,
+   24,
+   0,
+   27,
    0,
    "CLIP"
   ],
   [
-   20,
-   23,
-   0,
+   22,
    25,
+   0,
+   27,
    1,
    "VAE"
   ],
   [
+   23,
    21,
-   19,
    0,
-   25,
+   27,
    2,
    "STRING"
   ],
   [
-   22,
+   24,
    11,
    0,
-   25,
+   27,
    3,
    "IMAGE"
   ],
   [
+   25,
    23,
-   21,
    0,
-   26,
+   28,
    0,
    "MODEL"
   ],
   [
-   24,
-   25,
-   0,
    26,
+   27,
+   0,
+   28,
    1,
    "CONDITIONING"
   ],
   [
-   25,
-   21,
+   27,
+   23,
    0,
-   29,
+   31,
    0,
    "MODEL"
   ],
   [
-   26,
    28,
-   0,
    30,
+   0,
+   32,
    0,
    "NOISE"
   ],
   [
-   27,
-   26,
+   29,
+   28,
    0,
-   30,
+   32,
    1,
    "GUIDER"
   ],
   [
-   28,
-   27,
-   0,
    30,
+   29,
+   0,
+   32,
    2,
    "SAMPLER"
   ],
   [
-   29,
-   29,
+   31,
+   31,
    0,
-   30,
+   32,
    3,
    "SIGMAS"
   ],
   [
-   30,
-   25,
+   32,
+   27,
    1,
-   30,
+   32,
    4,
    "LATENT"
   ],
   [
-   31,
-   30,
-   0,
-   31,
-   0,
-   "LATENT"
-  ],
-  [
-   32,
-   23,
-   0,
-   31,
-   1,
-   "VAE"
-  ],
-  [
    33,
-   30,
-   0,
    32,
+   0,
+   33,
    0,
    "LATENT"
   ],
   [
    34,
-   24,
+   25,
    0,
-   32,
+   33,
    1,
    "VAE"
   ],
   [
    35,
-   31,
+   32,
    0,
-   33,
+   34,
    0,
-   "IMAGE"
+   "LATENT"
   ],
   [
    36,
-   32,
+   26,
    0,
-   33,
+   34,
    1,
-   "AUDIO"
+   "VAE"
   ],
   [
    37,
    33,
    0,
+   35,
+   0,
+   "IMAGE"
+  ],
+  [
+   38,
    34,
+   0,
+   35,
+   1,
+   "AUDIO"
+  ],
+  [
+   39,
+   35,
+   0,
+   36,
    0,
    "VIDEO"
   ]
@@ -1837,7 +1942,7 @@
     1010,
     -690,
     480,
-    412
+    504
    ],
    "color": "#3f789e",
    "font_size": 24,
@@ -1848,7 +1953,7 @@
    "title": "engine \u00b7 don't touch",
    "bounding": [
     1010,
-    -322,
+    -230,
     480,
     458
    ],
@@ -1895,16 +2000,16 @@
      "value"
     ],
     [
-     "28",
+     "30",
      "noise_seed"
     ],
     [
-     "29",
+     "31",
      "steps"
     ]
    ],
    "outputs": [
-    "34"
+    "36"
    ]
   }
  },

@@ -454,7 +454,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
+    "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and close. The only sounds are the practical noises the action itself makes. NEVER any music, melody, score, song, piano, orchestra or musical tones of any kind. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of any kind. No text, no lettering, no captions, no subtitles, no title cards."
    ],
    "color": "#223",
    "bgcolor": "#335"

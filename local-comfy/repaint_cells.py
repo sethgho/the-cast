@@ -442,6 +442,10 @@ def main():
     # somewhere for the two to disagree.
     SS._emit_sheet(cid, prepared, CELL, OUT, scale, tuple(man["pivot"]))
 
+    # Measured off the atlas that was just written, never fed back into it. Numbers, not eyes:
+    # every one of these has caught a real defect here after it shipped.
+    SS.print_qc(SS.sheet_qc(cid, prepared, CELL, OUT, tuple(man["pivot"])))
+
 
 if __name__ == "__main__":
     main()

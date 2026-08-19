@@ -45,12 +45,34 @@ SPRITE_LOCK = (
     "newsprint. The character is alone on a completely flat, evenly filled bright magenta screen "
     "that fills every part of the picture behind and around him — the magenta is a blank keying "
     "screen, so it stays one single solid colour with nothing drawn on it, no floor, no horizon, "
-    "no shadow and no scenery. The camera is locked off and never moves, pans or zooms: one fixed "
-    "wide side-on view, the character seen from his side, his whole body inside the frame with "
-    "clear space above his head and below his feet, his feet staying on the same invisible ground "
-    "line for the whole clip, and his size in the frame never changing. He performs one single "
-    "move, cleanly and completely, and every drawing of him stays exactly the character in the "
-    "first frame. The move is:"
+    "no shadow and no scenery. "
+    # He is the ONLY thing in frame, said as a fact about the whole clip rather than as a list of
+    # what may not appear. gary149/h3-game-sprites hit the same failure from the other side: a
+    # second figure or a prop wanders in partway through, and the packer keys it as part of the
+    # character — one cell of the walk is then a man and a chair.
+    "He is the only thing in the picture from the first frame to the last, and nothing else comes "
+    "into the frame at any point. "
+    # "Tripod" and "one unbroken shot" are borrowed wording from that skill. Ours already said the
+    # camera never moves, pans or zooms; it never said the shot is uncut, and a cut mid-clip
+    # restages the character at a new size, which no per-cell alignment can undo.
+    "The camera is locked off on a tripod and never moves, pans, zooms or cuts: one single "
+    "unbroken shot, one fixed wide side-on view, the character seen from his side, his whole body "
+    "inside the frame with clear space above his head and below his feet, his feet staying on the "
+    "same invisible ground line for the whole clip, and his size in the frame never changing. "
+    # Travel is an engine problem, not a sprite problem: the transform moves the character, so a
+    # sprite that walks across the screen fights it. Said once here, it covers every recipe —
+    # walk, run and Ake's roll all read as performed on the spot.
+    "He performs the move on the spot, staying in the same part of the frame for the whole clip, "
+    "as if on a treadmill. "
+    # Cartoon models exaggerate the frame of impact unless told not to: a punch lands with a fist
+    # twice its own size, and one cell of the set is then a different character. Stated as the
+    # size that IS true (the first frame's), with the one explicit "never swell", because the
+    # failure is specific to the impact frames and nothing positive names them.
+    "His hands and his feet are drawn at exactly the size they are in the first frame in every "
+    "single drawing, however hard he swings, punches, kicks or stamps: they never swell, balloon "
+    "or grow on the frames of impact. "
+    "He performs one single move, cleanly and completely, and every drawing of him stays exactly "
+    "the character in the first frame. The move is:"
 )
 
 WHO_LEAD = "The character is"
@@ -81,9 +103,13 @@ MOVES = {
         # 0.0061 (a clean one), but the tray still flickers in about three cells in ten. A prop a
         # character is drawn holding needs a trayless sprite plate, not a prompt clause -- the
         # instruction and the picture cannot both win.
-        "a full walk cycle in place with his hands empty, striding steadily to the right through "
-        "contact, down, passing and up positions, ending on exactly the same pose he began with, "
-        "in the same place, so the cycle loops seamlessly"),
+        # "In place" was already here and is not enough on its own — H3 reads "striding steadily
+        # to the right" as travel and creeps him across the frame. The treadmill image is the
+        # concrete picture that stops it, and it is the one wording their skill singles out.
+        "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he "
+        "strides steadily through contact, down, passing and up positions, his legs facing to the "
+        "right, while his body stays in exactly the same place in the frame, and he ends on "
+        "exactly the same pose he began with so the cycle loops seamlessly"),
     "run-cycle": (
         "a fast run cycle in place, leaning forward, arms pumping, both feet leaving the ground at "
         "the stretch, ending on the pose he began with so the cycle loops"),
@@ -234,14 +260,23 @@ def build():
                      links={"string_a": (a, 0, "STRING", True), "string_b": (b, 0, "STRING", True)},
                      outputs=[("STRING", "STRING")], collapsed=True)
 
-    acc = cat("sprite lock + the move", sprite_lock, move, 3)
-    acc = cat("+ who lead-in", acc, who_lead, 4)
-    acc = cat("+ who he is", acc, who, 5)
-    prompt = cat("FINAL PROMPT — expand to read what H3 got", acc, sound_lock, 6)
-    g.group("③ SPRITE & SOUND LOCK · leave alone", (LX - 30, LY - 70, 480, 7 * DY + 90), GROUP_LOCK)
+    # The app used to end its prompt on the sound lock, so it was the ONE render path without the
+    # staging restate -- the same app whose whole output the packer has to key. hires_sprite.py has
+    # carried it since the day H3 swapped the keying screen for aged paper; the app now concatenates
+    # it in the same place, second to last, so both paths hand H3 the same string.
+    stage_restate = g.add("PrimitiveStringMultiline", "STAGE RESTATE — last, or the magenta is lost",
+                          (LX, LY + 3 * DY), (430, 190), {"value": STAGE_RESTATE},
+                          outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
+
+    acc = cat("sprite lock + the move", sprite_lock, move, 4)
+    acc = cat("+ who lead-in", acc, who_lead, 5)
+    acc = cat("+ who he is", acc, who, 6)
+    acc = cat("+ stage restate", acc, stage_restate, 7)
+    prompt = cat("FINAL PROMPT — expand to read what H3 got", acc, sound_lock, 8)
+    g.group("③ SPRITE & SOUND LOCK · leave alone", (LX - 30, LY - 70, 480, 9 * DY + 90), GROUP_LOCK)
 
     # --- engine ------------------------------------------------------------
-    EX, EY = LX, LY + 8 * DY
+    EX, EY = LX, LY + 10 * DY
     unet = g.add("UNETLoader", "MiniMax H3 (video)", (EX, EY), (400, 110),
                  {"unet_name": H3_UNET, "weight_dtype": "default"},
                  outputs=[("MODEL", "MODEL")], color=ENGINE, collapsed=True)

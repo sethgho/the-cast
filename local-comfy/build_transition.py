@@ -76,7 +76,13 @@ TRANSITION_LEAD = "The handover happens like this:"
 # garbled human vocalisations, which also degrades the picture.
 SOUND_LOCK = (
     "SOUND: the clatter and whoosh of the handover itself, a vaudeville woodblock knock, quiet and "
-    "close. No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of "
+    "close. The only sounds are the practical noises the action itself makes. "
+    # H3 scores a vaudeville-looking clip unprompted — it hears "1933 cartoon" and reaches for a
+    # piano. Harmless in a muted sprite clip, but the transition app ships its audio, and a two
+    # second sting of music under every handover is unusable. A negation is safe here: this clause
+    # is about sound, so it cannot summon anything into the picture.
+    "NEVER any music, melody, score, song, piano, orchestra or musical tones of any kind. "
+    "No voices, no speech, no singing, no humming, no breathing, no human vocal sounds of "
     "any kind. No text, no lettering, no captions, no subtitles, no title cards."
 )
 
