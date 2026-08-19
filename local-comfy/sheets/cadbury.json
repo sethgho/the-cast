@@ -5,6 +5,43 @@
   256,
   481
  ],
+ "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+ "build": {
+  "template_version": "cdae6be0a5e63c9e",
+  "clip": {
+   "size": 832,
+   "steps": 20,
+   "length": 61,
+   "seed": 77
+  },
+  "picks": {
+   "skip": 6,
+   "anchor": "feet",
+   "smooth": true
+  },
+  "repaint": {
+   "pad": 0.86,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0
+  },
+  "pack": {
+   "columns": 10,
+   "height_cap": 0.92,
+   "up_cap": 0.88
+  },
+  "cost_s": {
+   "plate": 20,
+   "clip": 170,
+   "frames": 10,
+   "picks": 5,
+   "repaint": 45,
+   "pack": 5,
+   "export": 0
+  }
+ },
  "tags": [
   {
    "name": "walk",
@@ -15,7 +52,11 @@
    "loop": true,
    "hold_key": false,
    "unify": "head",
-   "clip": "/tmp/cadbury-walk-cycle-832-20.mp4"
+   "clip": "/tmp/cadbury-walk-cycle-832-20.mp4",
+   "recipe": "walk-cycle",
+   "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+   "cells": 10,
+   "cyclic": true
   },
   {
    "name": "idle",
@@ -26,7 +67,11 @@
    "loop": true,
    "hold_key": false,
    "unify": true,
-   "clip": "/tmp/cadbury-idle-breathe-832-20.mp4"
+   "clip": "/tmp/cadbury-idle-breathe-832-20.mp4",
+   "recipe": "idle-breathe",
+   "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+   "cells": 8,
+   "cyclic": true
   },
   {
    "name": "punch",
@@ -37,7 +82,11 @@
    "loop": false,
    "hold_key": false,
    "unify": false,
-   "clip": "/tmp/cadbury-punch-832-20.mp4"
+   "clip": "/tmp/cadbury-punch-832-20.mp4",
+   "recipe": "punch",
+   "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+   "cells": 8,
+   "cyclic": false
   },
   {
    "name": "kick",
@@ -48,7 +97,11 @@
    "loop": false,
    "hold_key": false,
    "unify": false,
-   "clip": "/tmp/cadbury-kick-832-20.mp4"
+   "clip": "/tmp/cadbury-kick-832-20.mp4",
+   "recipe": "kick",
+   "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+   "cells": 8,
+   "cyclic": false
   },
   {
    "name": "jump",
@@ -59,7 +112,11 @@
    "loop": false,
    "hold_key": false,
    "unify": false,
-   "clip": "/tmp/cadbury-jump-832-20.mp4"
+   "clip": "/tmp/cadbury-jump-832-20.mp4",
+   "recipe": "jump",
+   "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+   "cells": 8,
+   "cyclic": false
   },
   {
    "name": "block",
@@ -70,7 +127,11 @@
    "loop": false,
    "hold_key": true,
    "unify": false,
-   "clip": "/tmp/cadbury-block-832-20.mp4"
+   "clip": "/tmp/cadbury-block-832-20.mp4",
+   "recipe": "block",
+   "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+   "cells": 6,
+   "cyclic": false
   },
   {
    "name": "crouch",
@@ -81,7 +142,11 @@
    "loop": false,
    "hold_key": true,
    "unify": false,
-   "clip": "/tmp/cadbury-crouch-832-20.mp4"
+   "clip": "/tmp/cadbury-crouch-832-20.mp4",
+   "recipe": "crouch",
+   "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+   "cells": 6,
+   "cyclic": false
   }
  ],
  "frames": [
@@ -624,6 +689,2769 @@
     0,
     0
    ]
+  }
+ ],
+ "steps": [
+  {
+   "id": "plate",
+   "kind": "plate",
+   "tag": null,
+   "params": {},
+   "inputs": [
+    {
+     "from": null,
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "cdf01527678a484e",
+   "built_key": "cdf01527678a484e",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+   "artifact_hash": "2f572753d9ab53da",
+   "cost_s": 20
+  },
+  {
+   "id": "clip:walk",
+   "kind": "clip",
+   "tag": "walk",
+   "params": {
+    "recipe": "walk-cycle",
+    "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "8dfb8b4a9e6450b3",
+   "built_key": "8dfb8b4a9e6450b3",
+   "artifact": "/tmp/cadbury-walk-cycle-832-20.mp4",
+   "artifact_hash": "fb5297cf7ca06200",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:walk",
+   "kind": "frames",
+   "tag": "walk",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:walk",
+     "path": "/tmp/cadbury-walk-cycle-832-20.mp4",
+     "hash": "fb5297cf7ca06200"
+    }
+   ],
+   "key": "519f5828b2a5bba2",
+   "built_key": "519f5828b2a5bba2",
+   "artifact": "/tmp/sprite-cadbury-walk-pick",
+   "artifact_hash": "b7be63e7f9af5e5c",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:walk",
+   "kind": "picks",
+   "tag": "walk",
+   "params": {
+    "cells": 10,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick",
+     "hash": "b7be63e7f9af5e5c"
+    }
+   ],
+   "key": "1305ebcdc7a514ec",
+   "built_key": "1305ebcdc7a514ec",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "bb84226c3c7116c3",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0038",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0038.png",
+     "hash": "a6d515216a6061a9"
+    }
+   ],
+   "key": "644f6ada4a9a413b",
+   "built_key": "644f6ada4a9a413b",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0038.png",
+   "artifact_hash": "12f15946f378eeb5",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0035-s576867989",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 576867989,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0035.png",
+     "hash": "b8e4eb4459b6d72c"
+    }
+   ],
+   "key": "c4ff38d52f68d337",
+   "built_key": "c4ff38d52f68d337",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0035-s576867989.png",
+   "artifact_hash": "36ff9723a07d4f19",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0041",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0041.png",
+     "hash": "bc16fcfb5df4fa5b"
+    }
+   ],
+   "key": "9c415300ca985321",
+   "built_key": "9c415300ca985321",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0041.png",
+   "artifact_hash": "643ce28d0edbe362",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0044",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0044.png",
+     "hash": "bc8a9b2aa564eee5"
+    }
+   ],
+   "key": "572074d3f9b8203d",
+   "built_key": "572074d3f9b8203d",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0044.png",
+   "artifact_hash": "5574b652eb5d3656",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0049",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0049.png",
+     "hash": "9659ae700c1b6f09"
+    }
+   ],
+   "key": "ad69cfc38f5922a7",
+   "built_key": "ad69cfc38f5922a7",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0049.png",
+   "artifact_hash": "a37ffe585bcaee75",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0047-s1738028730",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 1738028730,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0047.png",
+     "hash": "177653d04fa523fa"
+    }
+   ],
+   "key": "a592f5df82c566fd",
+   "built_key": "a592f5df82c566fd",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0047-s1738028730.png",
+   "artifact_hash": "016cd506f932f347",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0052-s1742824854",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 1742824854,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0052.png",
+     "hash": "481d02a949020680"
+    }
+   ],
+   "key": "9f95a451b3272121",
+   "built_key": "9f95a451b3272121",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0052-s1742824854.png",
+   "artifact_hash": "277903a843cecafd",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0055",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0055.png",
+     "hash": "7b5c41fea66d1f3b"
+    }
+   ],
+   "key": "0791b66455f9492d",
+   "built_key": "0791b66455f9492d",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0055.png",
+   "artifact_hash": "e3e2101f7f5fdbb9",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0058",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0058.png",
+     "hash": "5615b21e520c37f5"
+    }
+   ],
+   "key": "330b379e425be30f",
+   "built_key": "330b379e425be30f",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0058.png",
+   "artifact_hash": "dc965bf1a0e65065",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-walk-f_0061",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-cadbury-walk-pick/f_0061.png",
+     "hash": "533fdbd9a7d005b4"
+    }
+   ],
+   "key": "5d7b45db7a63cb71",
+   "built_key": "5d7b45db7a63cb71",
+   "artifact": "/tmp/repaint/cadbury-walk-f_0061.png",
+   "artifact_hash": "10593085f5a5bc96",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:idle",
+   "kind": "clip",
+   "tag": "idle",
+   "params": {
+    "recipe": "idle-breathe",
+    "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "b4c73d14238fae4a",
+   "built_key": "b4c73d14238fae4a",
+   "artifact": "/tmp/cadbury-idle-breathe-832-20.mp4",
+   "artifact_hash": "ecc1c556e5227e00",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:idle",
+   "kind": "frames",
+   "tag": "idle",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:idle",
+     "path": "/tmp/cadbury-idle-breathe-832-20.mp4",
+     "hash": "ecc1c556e5227e00"
+    }
+   ],
+   "key": "255c77ca2739d611",
+   "built_key": "255c77ca2739d611",
+   "artifact": "/tmp/sprite-cadbury-idle-pick",
+   "artifact_hash": "73af3cc75d616861",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:idle",
+   "kind": "picks",
+   "tag": "idle",
+   "params": {
+    "cells": 8,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick",
+     "hash": "73af3cc75d616861"
+    }
+   ],
+   "key": "048715efcb13cb1a",
+   "built_key": "048715efcb13cb1a",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "b11346ebab8e38e5",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0009",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0009.png",
+     "hash": "2bae5a9fb11292fd"
+    }
+   ],
+   "key": "99c44df948270b71",
+   "built_key": "99c44df948270b71",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0009.png",
+   "artifact_hash": "9270403bd6b07658",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0018",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0018.png",
+     "hash": "c85b682baa6b8e57"
+    }
+   ],
+   "key": "2c83e1ed86cd0862",
+   "built_key": "2c83e1ed86cd0862",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0018.png",
+   "artifact_hash": "430bde2b79768b3e",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0026",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0026.png",
+     "hash": "dd6258550bd06135"
+    }
+   ],
+   "key": "c6d2004af5db8142",
+   "built_key": "c6d2004af5db8142",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0026.png",
+   "artifact_hash": "77e5f4be8be63d42",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0035",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0035.png",
+     "hash": "8bc6bec310c67e71"
+    }
+   ],
+   "key": "d5d17398e92dd5d5",
+   "built_key": "d5d17398e92dd5d5",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0035.png",
+   "artifact_hash": "10e791de3cff9e6d",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0039",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0039.png",
+     "hash": "cb33316160a81a3d"
+    }
+   ],
+   "key": "f5acda2eb5aa0e14",
+   "built_key": "f5acda2eb5aa0e14",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0039.png",
+   "artifact_hash": "52c16ec0208d3bc4",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0051",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0051.png",
+     "hash": "970ed257f40667ed"
+    }
+   ],
+   "key": "5628bc1e321dba17",
+   "built_key": "5628bc1e321dba17",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0051.png",
+   "artifact_hash": "fce50fcd6e05667a",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0056",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0056.png",
+     "hash": "9aa822b5d7ccf548"
+    }
+   ],
+   "key": "08d5fcfb03724ecf",
+   "built_key": "08d5fcfb03724ecf",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0056.png",
+   "artifact_hash": "39e4ff56b1faba4e",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-idle-f_0064",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-cadbury-idle-pick/f_0064.png",
+     "hash": "68a20a062216daa1"
+    }
+   ],
+   "key": "8ef992885aaa1f66",
+   "built_key": "8ef992885aaa1f66",
+   "artifact": "/tmp/repaint/cadbury-idle-f_0064.png",
+   "artifact_hash": "5b49aa8ee9e7f53e",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:punch",
+   "kind": "clip",
+   "tag": "punch",
+   "params": {
+    "recipe": "punch",
+    "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "d120b2a8b28d9b29",
+   "built_key": "d120b2a8b28d9b29",
+   "artifact": "/tmp/cadbury-punch-832-20.mp4",
+   "artifact_hash": "8931fdb0ec25845a",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:punch",
+   "kind": "frames",
+   "tag": "punch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:punch",
+     "path": "/tmp/cadbury-punch-832-20.mp4",
+     "hash": "8931fdb0ec25845a"
+    }
+   ],
+   "key": "3d8113931b2ac5f6",
+   "built_key": "3d8113931b2ac5f6",
+   "artifact": "/tmp/sprite-cadbury-punch-pick",
+   "artifact_hash": "e00601da0e111012",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:punch",
+   "kind": "picks",
+   "tag": "punch",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick",
+     "hash": "e00601da0e111012"
+    }
+   ],
+   "key": "715a1382345c5c6e",
+   "built_key": "715a1382345c5c6e",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "ebf32fead3f8829b",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0009",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0009.png",
+     "hash": "c2fd8a3e40f158aa"
+    }
+   ],
+   "key": "2b29431ded4ac199",
+   "built_key": "2b29431ded4ac199",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0009.png",
+   "artifact_hash": "b15fd523637adf63",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0013",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0013.png",
+     "hash": "7b519322a32fe11a"
+    }
+   ],
+   "key": "c02300eca16c6b50",
+   "built_key": "c02300eca16c6b50",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0013.png",
+   "artifact_hash": "06612312ca2c913f",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0018",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0018.png",
+     "hash": "934e1257ea9de63f"
+    }
+   ],
+   "key": "fcdb850abd9e9226",
+   "built_key": "fcdb850abd9e9226",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0018.png",
+   "artifact_hash": "c45ee76ee6032ae0",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0030",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0030.png",
+     "hash": "6be6b72b68826af0"
+    }
+   ],
+   "key": "6173a8d6d045f385",
+   "built_key": "6173a8d6d045f385",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0030.png",
+   "artifact_hash": "50b03f121199a33c",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0039",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0039.png",
+     "hash": "67a1860fbf80d2c0"
+    }
+   ],
+   "key": "f53024c24adaa1a8",
+   "built_key": "f53024c24adaa1a8",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0039.png",
+   "artifact_hash": "934ac56f6c6b8a8f",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0047",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0047.png",
+     "hash": "5925d8a80fa4f460"
+    }
+   ],
+   "key": "3758f93cd61449d8",
+   "built_key": "3758f93cd61449d8",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0047.png",
+   "artifact_hash": "34fd331be45ba81d",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0056",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0056.png",
+     "hash": "5754707d28beed63"
+    }
+   ],
+   "key": "bbc145671e3060d4",
+   "built_key": "bbc145671e3060d4",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0056.png",
+   "artifact_hash": "88139b43ce97f7a6",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-punch-f_0064",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-cadbury-punch-pick/f_0064.png",
+     "hash": "9b02754d066b9474"
+    }
+   ],
+   "key": "fa98e13b9b0bba98",
+   "built_key": "fa98e13b9b0bba98",
+   "artifact": "/tmp/repaint/cadbury-punch-f_0064.png",
+   "artifact_hash": "8bfc7affd9de920e",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:kick",
+   "kind": "clip",
+   "tag": "kick",
+   "params": {
+    "recipe": "kick",
+    "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "7fb3c7d56e0db2b0",
+   "built_key": "7fb3c7d56e0db2b0",
+   "artifact": "/tmp/cadbury-kick-832-20.mp4",
+   "artifact_hash": "c1455f1f251bed78",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:kick",
+   "kind": "frames",
+   "tag": "kick",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:kick",
+     "path": "/tmp/cadbury-kick-832-20.mp4",
+     "hash": "c1455f1f251bed78"
+    }
+   ],
+   "key": "8f5b884f2b6c0744",
+   "built_key": "8f5b884f2b6c0744",
+   "artifact": "/tmp/sprite-cadbury-kick-pick",
+   "artifact_hash": "7a03f52acef7c143",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:kick",
+   "kind": "picks",
+   "tag": "kick",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick",
+     "hash": "7a03f52acef7c143"
+    }
+   ],
+   "key": "2b874d2a33b5d68b",
+   "built_key": "2b874d2a33b5d68b",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "21c2a87da1d628d5",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0009",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0009.png",
+     "hash": "6e71f23c21504bdf"
+    }
+   ],
+   "key": "2ab9651de79f931d",
+   "built_key": "2ab9651de79f931d",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0009.png",
+   "artifact_hash": "d72191ca86e8b308",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0018",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0018.png",
+     "hash": "533e914f9b042cca"
+    }
+   ],
+   "key": "1052d4788c51845f",
+   "built_key": "1052d4788c51845f",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0018.png",
+   "artifact_hash": "e6c487d7d52f8a24",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0026",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0026.png",
+     "hash": "a515f1f29f8a2c36"
+    }
+   ],
+   "key": "8d530ff04ed704c1",
+   "built_key": "8d530ff04ed704c1",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0026.png",
+   "artifact_hash": "5dfd8c0d1c7fdcdc",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0030",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0030.png",
+     "hash": "01baaeb4a7d6221a"
+    }
+   ],
+   "key": "37f3caba7c5c8064",
+   "built_key": "37f3caba7c5c8064",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0030.png",
+   "artifact_hash": "7b6655aa91ff570a",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0039",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0039.png",
+     "hash": "3af56fd0cb4751b2"
+    }
+   ],
+   "key": "df8c54b5ca232911",
+   "built_key": "df8c54b5ca232911",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0039.png",
+   "artifact_hash": "75290db9b42a52e0",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0052",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0052.png",
+     "hash": "e35c18a97443aa14"
+    }
+   ],
+   "key": "4c551fbd02462be4",
+   "built_key": "4c551fbd02462be4",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0052.png",
+   "artifact_hash": "bbe6a309d85e34d3",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0060",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0060.png",
+     "hash": "31878e6c52190691"
+    }
+   ],
+   "key": "014374af3d4085cb",
+   "built_key": "014374af3d4085cb",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0060.png",
+   "artifact_hash": "d8b297cf801df0bb",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-kick-f_0068",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-cadbury-kick-pick/f_0068.png",
+     "hash": "24c2c16b6ec054e8"
+    }
+   ],
+   "key": "004eaf65457e77e9",
+   "built_key": "004eaf65457e77e9",
+   "artifact": "/tmp/repaint/cadbury-kick-f_0068.png",
+   "artifact_hash": "642b40e73a5372d2",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:jump",
+   "kind": "clip",
+   "tag": "jump",
+   "params": {
+    "recipe": "jump",
+    "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "680dbecb61061e7b",
+   "built_key": "680dbecb61061e7b",
+   "artifact": "/tmp/cadbury-jump-832-20.mp4",
+   "artifact_hash": "97c81c3d0e63e2f1",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:jump",
+   "kind": "frames",
+   "tag": "jump",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:jump",
+     "path": "/tmp/cadbury-jump-832-20.mp4",
+     "hash": "97c81c3d0e63e2f1"
+    }
+   ],
+   "key": "4f0266f23e6d875f",
+   "built_key": "4f0266f23e6d875f",
+   "artifact": "/tmp/sprite-cadbury-jump-pick",
+   "artifact_hash": "992c319c06e7f9fb",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:jump",
+   "kind": "picks",
+   "tag": "jump",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick",
+     "hash": "992c319c06e7f9fb"
+    }
+   ],
+   "key": "be91dc52162ff2e7",
+   "built_key": "be91dc52162ff2e7",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "383ec7284f8fb204",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0009",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0009.png",
+     "hash": "a0a4990186eadc0c"
+    }
+   ],
+   "key": "72aab8fa5483e8b7",
+   "built_key": "72aab8fa5483e8b7",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0009.png",
+   "artifact_hash": "9dd1e84a42624252",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0018",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0018.png",
+     "hash": "33e45904b1fb5901"
+    }
+   ],
+   "key": "f50d7deb666b4c25",
+   "built_key": "f50d7deb666b4c25",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0018.png",
+   "artifact_hash": "a54e70db6cdcdb83",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0026",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0026.png",
+     "hash": "4ff2bfd8864a41b9"
+    }
+   ],
+   "key": "8de3e00c9b375caa",
+   "built_key": "8de3e00c9b375caa",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0026.png",
+   "artifact_hash": "90434de4fbb4be64",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0035",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0035.png",
+     "hash": "c2ad3aa754ce5020"
+    }
+   ],
+   "key": "af86fd3260c8168d",
+   "built_key": "af86fd3260c8168d",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0035.png",
+   "artifact_hash": "23cb8c6b0c5f30ba",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0043",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0043.png",
+     "hash": "d1f51e251f177992"
+    }
+   ],
+   "key": "d8f9c52c0a033b94",
+   "built_key": "d8f9c52c0a033b94",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0043.png",
+   "artifact_hash": "d76a44c357d60cf2",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0047",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0047.png",
+     "hash": "4f98ef97d5da0e69"
+    }
+   ],
+   "key": "539743d4ae3b2dd8",
+   "built_key": "539743d4ae3b2dd8",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0047.png",
+   "artifact_hash": "cd84fce56c7ccb14",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0052",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0052.png",
+     "hash": "332c8be237c854e0"
+    }
+   ],
+   "key": "493ccdcfe7e38b7c",
+   "built_key": "493ccdcfe7e38b7c",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0052.png",
+   "artifact_hash": "db443d3320b1e99f",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-jump-f_0060",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-cadbury-jump-pick/f_0060.png",
+     "hash": "dc81b7cd9fb2b0ce"
+    }
+   ],
+   "key": "e1251c6c6152d43a",
+   "built_key": "e1251c6c6152d43a",
+   "artifact": "/tmp/repaint/cadbury-jump-f_0060.png",
+   "artifact_hash": "b0a56224f3d0caec",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:block",
+   "kind": "clip",
+   "tag": "block",
+   "params": {
+    "recipe": "block",
+    "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "da2bd3d67d28990c",
+   "built_key": "da2bd3d67d28990c",
+   "artifact": "/tmp/cadbury-block-832-20.mp4",
+   "artifact_hash": "bc905b24b24ff7a1",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:block",
+   "kind": "frames",
+   "tag": "block",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:block",
+     "path": "/tmp/cadbury-block-832-20.mp4",
+     "hash": "bc905b24b24ff7a1"
+    }
+   ],
+   "key": "9ba40f7dc962d5c7",
+   "built_key": "9ba40f7dc962d5c7",
+   "artifact": "/tmp/sprite-cadbury-block-pick",
+   "artifact_hash": "16ff35b50b1b88a0",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:block",
+   "kind": "picks",
+   "tag": "block",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:block",
+     "path": "/tmp/sprite-cadbury-block-pick",
+     "hash": "16ff35b50b1b88a0"
+    }
+   ],
+   "key": "701e9561df4ab3bd",
+   "built_key": "701e9561df4ab3bd",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "be4bad08ce871880",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-block-f_0007",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-cadbury-block-pick/f_0007.png",
+     "hash": "d1ce6771772a9dfb"
+    }
+   ],
+   "key": "e4438ca5afdc8d45",
+   "built_key": "e4438ca5afdc8d45",
+   "artifact": "/tmp/repaint/cadbury-block-f_0007.png",
+   "artifact_hash": "46c5b86d273f1e24",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-block-f_0011",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-cadbury-block-pick/f_0011.png",
+     "hash": "7971b235634192a7"
+    }
+   ],
+   "key": "c126c1deaff540b5",
+   "built_key": "c126c1deaff540b5",
+   "artifact": "/tmp/repaint/cadbury-block-f_0011.png",
+   "artifact_hash": "811eedbb2b84ba39",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-block-f_0018",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-cadbury-block-pick/f_0018.png",
+     "hash": "8fd7735018f46933"
+    }
+   ],
+   "key": "57c66e368d76556d",
+   "built_key": "57c66e368d76556d",
+   "artifact": "/tmp/repaint/cadbury-block-f_0018.png",
+   "artifact_hash": "37e86d03ea55da80",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-block-f_0022",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-cadbury-block-pick/f_0022.png",
+     "hash": "86f54914a468b81a"
+    }
+   ],
+   "key": "79d72febad4a9d15",
+   "built_key": "79d72febad4a9d15",
+   "artifact": "/tmp/repaint/cadbury-block-f_0022.png",
+   "artifact_hash": "3526c8e215f2e6b0",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-block-f_0026",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-cadbury-block-pick/f_0026.png",
+     "hash": "430fff9b9a8fc401"
+    }
+   ],
+   "key": "60d8822c348dbb40",
+   "built_key": "60d8822c348dbb40",
+   "artifact": "/tmp/repaint/cadbury-block-f_0026.png",
+   "artifact_hash": "e75556df0af04d99",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-block-f_0032",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-cadbury-block-pick/f_0032.png",
+     "hash": "42988a55d283dff6"
+    }
+   ],
+   "key": "dfee31a6ae465524",
+   "built_key": "dfee31a6ae465524",
+   "artifact": "/tmp/repaint/cadbury-block-f_0032.png",
+   "artifact_hash": "2b21d2a174a54e00",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:crouch",
+   "kind": "clip",
+   "tag": "crouch",
+   "params": {
+    "recipe": "crouch",
+    "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "0baf58112a54d5d6",
+   "built_key": "0baf58112a54d5d6",
+   "artifact": "/tmp/cadbury-crouch-832-20.mp4",
+   "artifact_hash": "934712ceba980a64",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:crouch",
+   "kind": "frames",
+   "tag": "crouch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:crouch",
+     "path": "/tmp/cadbury-crouch-832-20.mp4",
+     "hash": "934712ceba980a64"
+    }
+   ],
+   "key": "7b3cd02ebc2b6ca9",
+   "built_key": "7b3cd02ebc2b6ca9",
+   "artifact": "/tmp/sprite-cadbury-crouch-pick",
+   "artifact_hash": "861e67a1591f7da9",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:crouch",
+   "kind": "picks",
+   "tag": "crouch",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick",
+     "hash": "861e67a1591f7da9"
+    }
+   ],
+   "key": "bba51e79169e43b2",
+   "built_key": "bba51e79169e43b2",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "654eeadaebb8092b",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:cadbury-crouch-f_0007",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick/f_0007.png",
+     "hash": "1b9f172d0b89cdc5"
+    }
+   ],
+   "key": "1c3a56ac533cd60f",
+   "built_key": "1c3a56ac533cd60f",
+   "artifact": "/tmp/repaint/cadbury-crouch-f_0007.png",
+   "artifact_hash": "a632fe04e53e18dd",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-crouch-f_0011",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick/f_0011.png",
+     "hash": "fd44ee62a6600d16"
+    }
+   ],
+   "key": "f94aead8e63095f4",
+   "built_key": "f94aead8e63095f4",
+   "artifact": "/tmp/repaint/cadbury-crouch-f_0011.png",
+   "artifact_hash": "134f32454c7e89a4",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-crouch-f_0013",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick/f_0013.png",
+     "hash": "0bdb10d3ac61cdfd"
+    }
+   ],
+   "key": "46a9fd4564266d86",
+   "built_key": "46a9fd4564266d86",
+   "artifact": "/tmp/repaint/cadbury-crouch-f_0013.png",
+   "artifact_hash": "18f9d5a9e8f912a9",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-crouch-f_0018",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick/f_0018.png",
+     "hash": "2a4a631a29871cf7"
+    }
+   ],
+   "key": "ea22543fca17542b",
+   "built_key": "ea22543fca17542b",
+   "artifact": "/tmp/repaint/cadbury-crouch-f_0018.png",
+   "artifact_hash": "423df65f08e701e8",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-crouch-f_0026",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick/f_0026.png",
+     "hash": "31651313f2086fce"
+    }
+   ],
+   "key": "2da245148c401f18",
+   "built_key": "2da245148c401f18",
+   "artifact": "/tmp/repaint/cadbury-crouch-f_0026.png",
+   "artifact_hash": "6e6a22fcba04ef22",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:cadbury-crouch-f_0035",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-cadbury-crouch-pick/f_0035.png",
+     "hash": "87352f37435b1cc8"
+    }
+   ],
+   "key": "41abde85fc462362",
+   "built_key": "41abde85fc462362",
+   "artifact": "/tmp/repaint/cadbury-crouch-f_0035.png",
+   "artifact_hash": "a609bfd4e7acb9b2",
+   "cost_s": 45
+  },
+  {
+   "id": "pack",
+   "kind": "pack",
+   "tag": null,
+   "params": {
+    "cell": 512,
+    "pivot": [
+     256,
+     481
+    ],
+    "columns": 10,
+    "height_cap": 0.92,
+    "up_cap": 0.88,
+    "tags": [
+     {
+      "name": "walk",
+      "fps": 14,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": "head",
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "idle",
+      "fps": 8,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": true,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "punch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "kick",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "jump",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "block",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "crouch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "from": "repaint:cadbury-walk-f_0038",
+     "path": "/tmp/repaint/cadbury-walk-f_0038.png",
+     "hash": "12f15946f378eeb5"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0035-s576867989",
+     "path": "/tmp/repaint/cadbury-walk-f_0035-s576867989.png",
+     "hash": "36ff9723a07d4f19"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0041",
+     "path": "/tmp/repaint/cadbury-walk-f_0041.png",
+     "hash": "643ce28d0edbe362"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0044",
+     "path": "/tmp/repaint/cadbury-walk-f_0044.png",
+     "hash": "5574b652eb5d3656"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0049",
+     "path": "/tmp/repaint/cadbury-walk-f_0049.png",
+     "hash": "a37ffe585bcaee75"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0047-s1738028730",
+     "path": "/tmp/repaint/cadbury-walk-f_0047-s1738028730.png",
+     "hash": "016cd506f932f347"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0052-s1742824854",
+     "path": "/tmp/repaint/cadbury-walk-f_0052-s1742824854.png",
+     "hash": "277903a843cecafd"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0055",
+     "path": "/tmp/repaint/cadbury-walk-f_0055.png",
+     "hash": "e3e2101f7f5fdbb9"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0058",
+     "path": "/tmp/repaint/cadbury-walk-f_0058.png",
+     "hash": "dc965bf1a0e65065"
+    },
+    {
+     "from": "repaint:cadbury-walk-f_0061",
+     "path": "/tmp/repaint/cadbury-walk-f_0061.png",
+     "hash": "10593085f5a5bc96"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0009",
+     "path": "/tmp/repaint/cadbury-idle-f_0009.png",
+     "hash": "9270403bd6b07658"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0018",
+     "path": "/tmp/repaint/cadbury-idle-f_0018.png",
+     "hash": "430bde2b79768b3e"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0026",
+     "path": "/tmp/repaint/cadbury-idle-f_0026.png",
+     "hash": "77e5f4be8be63d42"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0035",
+     "path": "/tmp/repaint/cadbury-idle-f_0035.png",
+     "hash": "10e791de3cff9e6d"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0039",
+     "path": "/tmp/repaint/cadbury-idle-f_0039.png",
+     "hash": "52c16ec0208d3bc4"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0051",
+     "path": "/tmp/repaint/cadbury-idle-f_0051.png",
+     "hash": "fce50fcd6e05667a"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0056",
+     "path": "/tmp/repaint/cadbury-idle-f_0056.png",
+     "hash": "39e4ff56b1faba4e"
+    },
+    {
+     "from": "repaint:cadbury-idle-f_0064",
+     "path": "/tmp/repaint/cadbury-idle-f_0064.png",
+     "hash": "5b49aa8ee9e7f53e"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0009",
+     "path": "/tmp/repaint/cadbury-punch-f_0009.png",
+     "hash": "b15fd523637adf63"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0013",
+     "path": "/tmp/repaint/cadbury-punch-f_0013.png",
+     "hash": "06612312ca2c913f"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0018",
+     "path": "/tmp/repaint/cadbury-punch-f_0018.png",
+     "hash": "c45ee76ee6032ae0"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0030",
+     "path": "/tmp/repaint/cadbury-punch-f_0030.png",
+     "hash": "50b03f121199a33c"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0039",
+     "path": "/tmp/repaint/cadbury-punch-f_0039.png",
+     "hash": "934ac56f6c6b8a8f"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0047",
+     "path": "/tmp/repaint/cadbury-punch-f_0047.png",
+     "hash": "34fd331be45ba81d"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0056",
+     "path": "/tmp/repaint/cadbury-punch-f_0056.png",
+     "hash": "88139b43ce97f7a6"
+    },
+    {
+     "from": "repaint:cadbury-punch-f_0064",
+     "path": "/tmp/repaint/cadbury-punch-f_0064.png",
+     "hash": "8bfc7affd9de920e"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0009",
+     "path": "/tmp/repaint/cadbury-kick-f_0009.png",
+     "hash": "d72191ca86e8b308"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0018",
+     "path": "/tmp/repaint/cadbury-kick-f_0018.png",
+     "hash": "e6c487d7d52f8a24"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0026",
+     "path": "/tmp/repaint/cadbury-kick-f_0026.png",
+     "hash": "5dfd8c0d1c7fdcdc"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0030",
+     "path": "/tmp/repaint/cadbury-kick-f_0030.png",
+     "hash": "7b6655aa91ff570a"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0039",
+     "path": "/tmp/repaint/cadbury-kick-f_0039.png",
+     "hash": "75290db9b42a52e0"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0052",
+     "path": "/tmp/repaint/cadbury-kick-f_0052.png",
+     "hash": "bbe6a309d85e34d3"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0060",
+     "path": "/tmp/repaint/cadbury-kick-f_0060.png",
+     "hash": "d8b297cf801df0bb"
+    },
+    {
+     "from": "repaint:cadbury-kick-f_0068",
+     "path": "/tmp/repaint/cadbury-kick-f_0068.png",
+     "hash": "642b40e73a5372d2"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0009",
+     "path": "/tmp/repaint/cadbury-jump-f_0009.png",
+     "hash": "9dd1e84a42624252"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0018",
+     "path": "/tmp/repaint/cadbury-jump-f_0018.png",
+     "hash": "a54e70db6cdcdb83"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0026",
+     "path": "/tmp/repaint/cadbury-jump-f_0026.png",
+     "hash": "90434de4fbb4be64"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0035",
+     "path": "/tmp/repaint/cadbury-jump-f_0035.png",
+     "hash": "23cb8c6b0c5f30ba"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0043",
+     "path": "/tmp/repaint/cadbury-jump-f_0043.png",
+     "hash": "d76a44c357d60cf2"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0047",
+     "path": "/tmp/repaint/cadbury-jump-f_0047.png",
+     "hash": "cd84fce56c7ccb14"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0052",
+     "path": "/tmp/repaint/cadbury-jump-f_0052.png",
+     "hash": "db443d3320b1e99f"
+    },
+    {
+     "from": "repaint:cadbury-jump-f_0060",
+     "path": "/tmp/repaint/cadbury-jump-f_0060.png",
+     "hash": "b0a56224f3d0caec"
+    },
+    {
+     "from": "repaint:cadbury-block-f_0007",
+     "path": "/tmp/repaint/cadbury-block-f_0007.png",
+     "hash": "46c5b86d273f1e24"
+    },
+    {
+     "from": "repaint:cadbury-block-f_0011",
+     "path": "/tmp/repaint/cadbury-block-f_0011.png",
+     "hash": "811eedbb2b84ba39"
+    },
+    {
+     "from": "repaint:cadbury-block-f_0018",
+     "path": "/tmp/repaint/cadbury-block-f_0018.png",
+     "hash": "37e86d03ea55da80"
+    },
+    {
+     "from": "repaint:cadbury-block-f_0022",
+     "path": "/tmp/repaint/cadbury-block-f_0022.png",
+     "hash": "3526c8e215f2e6b0"
+    },
+    {
+     "from": "repaint:cadbury-block-f_0026",
+     "path": "/tmp/repaint/cadbury-block-f_0026.png",
+     "hash": "e75556df0af04d99"
+    },
+    {
+     "from": "repaint:cadbury-block-f_0032",
+     "path": "/tmp/repaint/cadbury-block-f_0032.png",
+     "hash": "2b21d2a174a54e00"
+    },
+    {
+     "from": "repaint:cadbury-crouch-f_0007",
+     "path": "/tmp/repaint/cadbury-crouch-f_0007.png",
+     "hash": "a632fe04e53e18dd"
+    },
+    {
+     "from": "repaint:cadbury-crouch-f_0011",
+     "path": "/tmp/repaint/cadbury-crouch-f_0011.png",
+     "hash": "134f32454c7e89a4"
+    },
+    {
+     "from": "repaint:cadbury-crouch-f_0013",
+     "path": "/tmp/repaint/cadbury-crouch-f_0013.png",
+     "hash": "18f9d5a9e8f912a9"
+    },
+    {
+     "from": "repaint:cadbury-crouch-f_0018",
+     "path": "/tmp/repaint/cadbury-crouch-f_0018.png",
+     "hash": "423df65f08e701e8"
+    },
+    {
+     "from": "repaint:cadbury-crouch-f_0026",
+     "path": "/tmp/repaint/cadbury-crouch-f_0026.png",
+     "hash": "6e6a22fcba04ef22"
+    },
+    {
+     "from": "repaint:cadbury-crouch-f_0035",
+     "path": "/tmp/repaint/cadbury-crouch-f_0035.png",
+     "hash": "a609bfd4e7acb9b2"
+    }
+   ],
+   "key": "09146b3d8f4df770",
+   "built_key": "09146b3d8f4df770",
+   "artifact": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
+   "artifact_hash": "8093326bcae12967",
+   "cost_s": 5
+  },
+  {
+   "id": "export:css",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "css"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
+     "hash": "8093326bcae12967"
+    }
+   ],
+   "key": "b791aa4ddd3ead96",
+   "built_key": "b791aa4ddd3ead96",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:godot",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "godot"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
+     "hash": "8093326bcae12967"
+    }
+   ],
+   "key": "9545e8fa0f4ced5f",
+   "built_key": "9545e8fa0f4ced5f",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-array",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-array"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
+     "hash": "8093326bcae12967"
+    }
+   ],
+   "key": "9ecfba82adf21a1f",
+   "built_key": "9ecfba82adf21a1f",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-hash",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-hash"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
+     "hash": "8093326bcae12967"
+    }
+   ],
+   "key": "2940f694c5d43787",
+   "built_key": "2940f694c5d43787",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:phaser3",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "phaser3"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
+     "hash": "8093326bcae12967"
+    }
+   ],
+   "key": "59f764ae1c73a2b7",
+   "built_key": "59f764ae1c73a2b7",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
   }
  ]
 }

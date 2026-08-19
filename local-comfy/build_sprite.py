@@ -36,6 +36,10 @@ WIDGET_TYPES.setdefault(("EmptyImage", "width"), "INT")
 
 SIZE, STEPS, LENGTH, FPS = 512, 10, 61, 24
 KEY_MAGENTA = 0xFF00FF
+# One locked noise seed for every sprite clip, for the same reason the repaint locks one: two
+# independent generations of the same brief wander off-model, and a sprite set has to be one
+# character. hires_sprite.py renders with it; the clip step's cache key records it.
+CLIP_SEED = 77
 
 # ---------------------------------------------------------------- the locks
 
@@ -88,6 +92,10 @@ STAGE_RESTATE = (
 
 # ---------------------------------------------------------------- the move library
 
+# BOOTSTRAP DEFAULTS ONLY, plus the App Mode note above. A move that has a tag in a character
+# manifest carries its own `recipe_text`, and that copy is the one every render reads
+# (`hires_sprite.py`). This table is what a move that has never been built starts from, and what
+# the App Mode note lists for a human to paste.
 MOVES = {
     "idle-breathe": (
         "a gentle idle: he stands square, breathing, weight shifting a little from one side to the "

@@ -23,14 +23,36 @@ pins its own end frame.
 import json, sys, time, os, subprocess
 sys.path.insert(0,'/home/wilson/dev/the-cast/local-comfy')
 import smoke_test as S
-from build_sprite import SPRITE_LOCK, MOVES, WHO_LEAD, KEY_MAGENTA, STAGE_RESTATE
+import repaint_cells as RC
+from build_sprite import (SPRITE_LOCK, MOVES, WHO_LEAD, KEY_MAGENTA, STAGE_RESTATE, LENGTH,
+                          CLIP_SEED)
 from build_transition import TRAITS, SOUND_LOCK, H3_UNET, H3_CLIP, H3_VIDEO_VAE, H3_AUDIO_VAE
 
-SIZE, STEPS, LENGTH = int(sys.argv[3]), int(sys.argv[4]), 61
-# A cycle is briefed to end where it began, so its end must stay free; see the docstring.
-CYCLIC = sys.argv[2].endswith("-cycle") or sys.argv[2] == "idle-breathe"
+SIZE, STEPS = int(sys.argv[3]), int(sys.argv[4])
 cid, move = sys.argv[1], sys.argv[2]
-prompt = f"{SPRITE_LOCK} {MOVES[move]}. {WHO_LEAD} {TRAITS[cid]}. {STAGE_RESTATE} {SOUND_LOCK}"
+
+
+def brief(cid, recipe):
+    """The recipe text, the trait line and the cyclic flag for one clip.
+
+    The character MANIFEST wins wherever it has a tag for this recipe: a move is data now, and its
+    text is editable, so re-rendering a clip has to use the words the tag actually carries. MOVES
+    and TRAITS are the bootstrap defaults a recipe that no character has ever built falls back to.
+    A cycle is briefed to end where it began, so its end must stay unpinned; see the docstring.
+    """
+    # Read straight off disk rather than through load_character_manifest(): that one tops a
+    # manifest up with any move it is missing, which picks cells off clips -- and this script is
+    # what RENDERS a clip, so it must not depend on one already being there.
+    path = RC.manifest_path(cid)
+    man = json.load(open(path)) if os.path.exists(path) else {}
+    for tag in man.get("tags", []):
+        if tag["recipe"] == recipe:
+            return tag["recipe_text"], man["trait"], tag["cyclic"]
+    return MOVES[recipe], TRAITS[cid], RC.is_cyclic(recipe)
+
+
+RECIPE_TEXT, TRAIT, CYCLIC = brief(cid, move)
+prompt = f"{SPRITE_LOCK} {RECIPE_TEXT}. {WHO_LEAD} {TRAIT}. {STAGE_RESTATE} {SOUND_LOCK}"
 name = f"{cid}-{move}-{SIZE}-{STEPS}"
 
 g = {
@@ -49,7 +71,7 @@ g = {
  "first":{"class_type":"ImageCompositeMasked","inputs":{"destination":["screen",0],"source":["fit",0],"mask":["amask",0],"x":0,"y":0,"resize_source":False}},
  "104":{"class_type":"MiniMaxH3ImageToVideo","inputs":{"clip":["13",0],"vae":["11",0],"prompt":prompt,
         "width":SIZE,"height":SIZE,"length":LENGTH,"first_frame":["first",0], **({} if CYCLIC else {"last_frame":["first",0]})}},
- "15":{"class_type":"RandomNoise","inputs":{"noise_seed":77}},
+ "15":{"class_type":"RandomNoise","inputs":{"noise_seed":CLIP_SEED}},
  "16":{"class_type":"BasicGuider","inputs":{"model":["50",0],"conditioning":["104",0]}},
  "17":{"class_type":"KSamplerSelect","inputs":{"sampler_name":"res_multistep"}},
  "9":{"class_type":"BasicScheduler","inputs":{"model":["50",0],"scheduler":"simple","steps":STEPS,"denoise":1.0}},

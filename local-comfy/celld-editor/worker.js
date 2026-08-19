@@ -22,7 +22,21 @@
 //   3. A queued job can be cancelled, and its stored INVERSE is re-spliced. A re-roll is an
 //      experiment; backing out of one must not need a second GPU job.
 
-const CHARACTERS = ["seth", "cadbury"];
+// Which characters exist is DATA, not a constant. It was a two-name array here, so adding a
+// character meant editing and redeploying a Worker — and the whole point of DESIGN-pipeline.md's
+// new-subject flow is that a person uploads a plate and the character exists. The roster is one
+// reserved cell in this same Durable Object namespace, appended to whenever a character is seeded.
+//
+// The name is unusable as a character id (a NUL byte), so it cannot collide with a real one, and
+// it keeps the roster inside the namespace it describes rather than in a second store that could
+// disagree with it.
+const ROSTER = "\u0000roster";
+
+// A character id has to be safe in a file name, a URL and a repaint path. Membership is NOT
+// checked on the hot path on purpose: an id that names nothing simply routes to an unseeded cell,
+// which already answers "this character has not been seeded yet", and checking the roster on every
+// request would put a second Durable Object hop in front of every read.
+const CHARACTER_ID = /^[a-z][a-z0-9-]{0,31}$/;
 
 // Mirrors repaint_cells.SEED: the one seed every cell starts on, and the only one whose repaint
 // file carries no `-s<seed>` suffix.
@@ -273,6 +287,194 @@ function applyInverse(man, inv, rev) {
   }
 }
 
+
+// --- the pipeline's step records ---------------------------------------------------------------
+// A mirror of pipeline.py, and it has to live here: this object owns every mutation, so it is the
+// only thing that can say what an edit invalidated without a round trip to a machine that may be
+// asleep. `canon()` and `digest()` are copied from canon.py rule for rule, and
+// test_pipeline_keys.py runs the two implementations over the real manifests and fails on one
+// digit of disagreement.
+//
+// What this side CANNOT do is read a file, so every artifact hash is carried forward from the
+// record the agent reported. A step with no previous record therefore has no hash and no
+// built_key, and reads "never built" — which for a re-roll's brand-new drawing is exactly true.
+//
+// The four functions below are exported only so that test can import them. celld loads this module
+// for its `default` export and the `CharacterDO` class; the rest is invisible to it.
+
+export function canon(value) {
+  if (value === null || value === undefined) return "null";
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "number") {
+    // Python's json cannot emit these and neither should we: a NaN in a key would be a key that
+    // never equals itself, so every step carrying it would read stale forever.
+    if (!Number.isFinite(value)) throw new HttpError(500, `${value} has no canonical form`);
+    // Number.isInteger(1.0) is true, so 1.0 emits as "1" here and str(int(1.0)) emits "1" there.
+    // Left to JSON.stringify this would be "1" against Python's "1.0", and cfg=1.0 is a real
+    // repaint param — the two sides would have disagreed about every repaint's key.
+    return String(value);
+  }
+  if (typeof value === "string") return JSON.stringify(value);
+  if (Array.isArray(value)) return "[" + value.map(canon).join(",") + "]";
+  if (typeof value === "object") {
+    return "{" + Object.keys(value).sort()
+      .map((k) => `${canon(k)}:${canon(value[k])}`).join(",") + "}";
+  }
+  throw new HttpError(500, `${typeof value} has no canonical form`);
+}
+
+export async function digest(value) {
+  const bytes = new TextEncoder().encode(canon(value));
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  return [...hash].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+
+// One incoming edge: which step it came from, which file was read, and that file's hash. Only the
+// hash is key material — `from` and `path` both carry the TAG NAME, and a tag name in a cache key
+// would mean renaming `walk` re-keys its picks, its ten repaints and the pack.
+function edge(from, path, hash) {
+  return { from, path: path ?? null, hash: hash ?? null };
+}
+
+async function stepKey(version, kind, params, inputs) {
+  return await digest([version, kind, params, inputs.map((e) => e.hash)]);
+}
+
+// pipeline.frames_dir / pipeline.repaint_id, duplicated for the same reason repaintPath() below
+// already is: a mutation has to name the step it just invalidated without asking the agent.
+function framesDir(cid, move) {
+  return `/tmp/sprite-${cid}-${move}-pick`;
+}
+
+function repaintId(png) {
+  return `repaint:${png.split("/").pop().replace(/\.png$/, "")}`;
+}
+
+// Every step instance for one character, recomputed from the manifest it is called with. `prior`
+// is the last set, and it is where every artifact hash and every built_key comes from: this side
+// recomputes what an edit MEANS, never what was built.
+export async function buildSteps(man, prior) {
+  const was = new Map((prior || []).map((s) => [s.id, s]));
+  const build = man.build;
+  const version = build.template_version;
+  const steps = [];
+
+  // Source-frame hashes, recovered from the repaint steps that already consumed them. A re-roll
+  // keeps the source frame and only changes the seed, so its new step finds the hash here and
+  // keys correctly; a re-pick to a frame nothing has painted yet finds nothing, keys against null,
+  // and reads "never built" until the agent reports the real hash back.
+  const srcHash = new Map();
+  for (const s of was.values()) {
+    if (s.kind === "repaint" && s.inputs[0] && s.inputs[0].path) {
+      srcHash.set(s.inputs[0].path, s.inputs[0].hash);
+    }
+  }
+
+  const add = async (id, kind, tag, params, inputs, artifact, artifactHash, current) => {
+    const had = was.get(id);
+    const rec = {
+      id, kind, tag, params, inputs,
+      key: await stepKey(version, kind, params, inputs),
+      built_key: null,
+      artifact: artifact ?? had?.artifact ?? null,
+      artifact_hash: artifactHash ?? null,
+      cost_s: build.cost_s[kind],
+    };
+    if (current !== undefined) rec.built_key = current ? rec.key : null;
+    else if (had) rec.built_key = had.built_key ?? null;
+    steps.push(rec);
+    return rec;
+  };
+
+  const plate = was.get("plate");
+  const plateHash = plate?.artifact_hash ?? null;
+  const plateStep = await add("plate", "plate", null, {},
+    [edge(null, plate?.artifact, plateHash)], plate?.artifact, plateHash, plateHash !== null);
+
+  for (const tag of man.tags) {
+    const move = tag.name;
+    const clipId = `clip:${move}`, framesId = `frames:${move}`, picksId = `picks:${move}`;
+    const frames = man.frames.slice(tag.from, tag.to + 1);
+
+    const clip = await add(clipId, "clip", move,
+      { recipe: tag.recipe, recipe_text: tag.recipe_text, trait: man.trait, cyclic: tag.cyclic,
+        ...build.clip },
+      [edge("plate", plateStep.artifact, plateHash)], tag.clip, was.get(clipId)?.artifact_hash);
+
+    const dir = was.get(framesId)?.artifact ?? framesDir(man.character, move);
+    const fr = await add(framesId, "frames", move, { skip: build.picks.skip },
+      [edge(clipId, tag.clip, clip.artifact_hash)], dir, was.get(framesId)?.artifact_hash);
+
+    // `cycle` and `stop` are facts about the MOTION — is there a gait to detect, and does the move
+    // end on a held pose. They are not the tag's `loop` and `hold_key`, which are what the game
+    // does at playback, and keeping them apart is what lets a re-tag leave the picks alone.
+    const srcs = [...new Set(frames.map((f) => f.src))].sort();
+    await add(picksId, "picks", move,
+      { cells: tag.cells, cycle: tag.cyclic, stop: tag.hold_key,
+        anchor: build.picks.anchor, smooth: build.picks.smooth },
+      [edge(framesId, fr.artifact, fr.artifact_hash)],
+      was.get(picksId)?.artifact, await digest(srcs));
+
+    for (const f of frames) {
+      const png = f.png ?? repaintPath(man.character, move, f.src, f.seed);
+      const id = repaintId(png);
+      await add(id, "repaint", move, { seed: f.seed, ...build.repaint },
+        [edge(picksId, f.src, srcHash.get(f.src) ?? null)], png,
+        was.get(id)?.artifact_hash);
+    }
+  }
+
+  // Every field the key deliberately keeps out of the steps above lands here, because the pack is
+  // the step that actually reads it: fps, direction, loop, hold_key, unify, the pivot and every
+  // cell's hold and nudge.
+  const repaints = steps.filter((s) => s.kind === "repaint");
+  const pack = await add("pack", "pack", null,
+    { cell: man.cell, pivot: man.pivot, ...build.pack,
+      tags: man.tags.map((t) => ({
+        name: t.name, fps: t.fps, direction: t.direction, loop: t.loop, hold_key: t.hold_key,
+        unify: t.unify,
+        cells: man.frames.slice(t.from, t.to + 1).map((f) => ({
+          hold: f.hold ?? 1, pivot_nudge: f.pivot_nudge ?? [0, 0],
+        })),
+      })) },
+    repaints.map((s) => edge(s.id, s.artifact, s.artifact_hash)),
+    was.get("pack")?.artifact, was.get("pack")?.artifact_hash);
+
+  // Which export formats exist is the agent's knowledge (exports.FORMATS), not this object's, so
+  // the instances are carried from the last report rather than invented here. An export is
+  // computed on request straight off the atlas and streamed, so it is built exactly when the
+  // atlas exists and goes stale only by inheriting a stale pack.
+  for (const id of (prior || []).filter((s) => s.kind === "export").map((s) => s.id)) {
+    await add(id, "export", null, { format: id.slice("export:".length) },
+      [edge("pack", pack.artifact, pack.artifact_hash)], null, null,
+      pack.artifact_hash !== null);
+  }
+  return steps;
+}
+
+// `stale` and why, for every step, propagated down every edge. Two independent reasons and both
+// are needed: a step goes stale on its OWN key when a param or an input's content changed, and by
+// INHERITANCE when an upstream step is stale but has not been rebuilt — a re-worded recipe leaves
+// the old mp4 byte-identical, so no hash downstream of it moves and only the propagation carries
+// the news. Derived on read, never stored: a stored flag is a second answer free to disagree.
+export function staleness(steps) {
+  const out = {};
+  const known = new Set(steps.map((s) => s.id));
+  for (const s of steps) {
+    if (s.built_key === null) out[s.id] = { stale: true, reason: "never built" };
+    else if (s.key !== s.built_key) out[s.id] = { stale: true, reason: "params or inputs changed" };
+    else {
+      const behind = s.inputs.map((e) => e.from)
+        .filter((u) => u && known.has(u) && out[u].stale);
+      out[s.id] = behind.length
+        ? { stale: true, reason: `upstream is stale: ${behind[0]}` }
+        : { stale: false, reason: null };
+    }
+  }
+  return out;
+}
+
+
 // --- the job queue ---------------------------------------------------------------------------
 
 function isLive(job) {
@@ -330,6 +532,34 @@ export class CharacterDO {
       await this.ctx.storage.delete("job");
     }
     return man;
+  }
+
+  // Recompute every step's params, inputs and key from the manifest as it now stands. `built_key`
+  // and every artifact hash are carried, never invented: this object cannot read a file, and
+  // stamping "built" from an edit would erase the staleness the edit just created.
+  async refreshSteps(man) {
+    if (!man.build) return;   // seeded before the pipeline records existed; the agent tops it up
+    man.steps = await buildSteps(man, man.steps);
+  }
+
+  // --- the roster ------------------------------------------------------------------------
+  // Only the reserved ROSTER cell answers these. It is an ordinary CharacterDO with no manifest,
+  // used as the namespace's own index, because a Durable Object namespace cannot be listed and a
+  // second store would be free to disagree with the cells it claims to describe.
+
+  async roster() {
+    return (await this.ctx.storage.get("roster")) || [];
+  }
+
+  // Append-only, and ordered by when each character was first seeded, so the page's first
+  // character does not move under it when another is added.
+  async rosterAdd(cid) {
+    const list = await this.roster();
+    if (!list.includes(cid)) {
+      list.push(cid);
+      await this.ctx.storage.put("roster", list);
+    }
+    return list;
   }
 
   async catalogue() {
@@ -512,6 +742,13 @@ export class CharacterDO {
     // key, and this manifest is written verbatim to sheets/<cid>.json — the whole file would
     // re-order for no change in meaning.
     man.frames = man.frames.map((f) => frameRecord(f, f._rev));
+    // The BUILD REPORT. Every artifact hash and every built_key is the packer's knowledge — it is
+    // the half of this system that can open a file — so those are taken as given and the keys are
+    // recomputed on top of them. The locked constants come with it because they are owned by
+    // repaint_cells.py; the trait line is NOT, because that is data this object owns.
+    if (packed.build) man.build = packed.build;
+    if (Array.isArray(packed.steps)) man.steps = packed.steps;
+    await this.refreshSteps(man);
     await this.ctx.storage.put("manifest", man);
   }
 
@@ -574,6 +811,10 @@ export class CharacterDO {
         throw new HttpError(400, `no ${tagName} tag for ${man.character}`);
       }
       const done = await this[op](man, tagName, req, rev);
+      // The step records are recomputed from the manifest this edit just produced. Nothing here
+      // runs, queues or prices anything as a result — a step that has gone stale is drawn stale
+      // and stays that way until someone asks for it (DESIGN-pipeline.md, stage 1).
+      await this.refreshSteps(man);
       await this.ctx.storage.put("manifest", man);
       await this.ctx.storage.put("revision", rev);
       return await this.publish(taken, done, tagName, rev);
@@ -860,13 +1101,18 @@ export class CharacterDO {
         pivot_nudge: f.pivot_nudge ?? [0, 0],
       })),
     }));
+    const steps = man.steps || [];
+    const stale = staleness(steps);
     return {
       character: man.character,
-      characters: CHARACTERS,
       cell: man.cell,
       pivot: man.pivot,
+      trait: man.trait ?? null,
       revision: await this.revision(),
       tags,
+      // The pipeline's state, made explicit. Nothing reads this yet and nothing runs off it; the
+      // rail that draws it is stage 3.
+      steps: steps.map((s) => ({ ...s, ...stale[s.id] })),
     };
   }
 
@@ -880,6 +1126,10 @@ export class CharacterDO {
         return json(await this.mutate(op, body), 202);
       }
       switch (url.pathname) {
+        case "/roster":
+          return json({ characters: await this.roster() });
+        case "/roster-add":
+          return json({ characters: await this.rosterAdd(body.cid) });
         case "/health": {
           // Reads storage, so a 200 here means the route AND the cell's state are live. It must
           // never 404: celld-release counts 404 as healthy, and DO routing is broken for about
@@ -978,8 +1228,20 @@ function repaintPath(cid, move, src, seed) {
 }
 
 function characterStub(env, cid) {
-  if (!CHARACTERS.includes(cid)) throw new HttpError(400, `unknown character: ${cid}`);
+  // The SHAPE of the id, not membership of a list. An id that names no character routes to an
+  // unseeded cell, which already answers "this character has not been seeded yet" — and checking
+  // the roster here would put a second Durable Object hop in front of every single request.
+  if (!CHARACTER_ID.test(cid)) throw new HttpError(400, `not a character id: ${cid}`);
   return env.CHARACTER.get(env.CHARACTER.idFromName(cid));
+}
+
+function rosterStub(env) {
+  return env.CHARACTER.get(env.CHARACTER.idFromName(ROSTER));
+}
+
+async function roster(env) {
+  const r = await rosterStub(env).fetch(new Request("http://character/roster"));
+  return (await r.json()).characters;
 }
 
 async function callDO(env, cid, path, init) {
@@ -994,23 +1256,58 @@ function post(body) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const cid = url.searchParams.get("cid") || CHARACTERS[0];
     try {
       if (url.pathname === "/api/health") {
         // Touches a DO on purpose. The asset path answers 200 all through a restart while DO
         // routing is still broken, so health-checking "/" would report green on a broken app.
         // Any failure in here has to surface as 5xx, never as 404.
-        const r = await callDO(env, CHARACTERS[0], "/health");
+        //
+        // It also digests a fixed probe, because the whole staleness model rests on
+        // crypto.subtle.digest existing on this runtime. If it ever does not, this says so at
+        // deploy time instead of on the first edit somebody makes.
+        const names = await roster(env);
+        const probe = await digest("celld");
+        // The roster cell itself when there is no character yet: an empty fleet must still be
+        // able to say it is healthy, and it is a Durable Object, so it proves routing just as well.
+        const stub = names.length ? characterStub(env, names[0]) : rosterStub(env);
+        const r = await stub.fetch(new Request("http://character/health"));
         if (!r.ok) return json({ error: "durable object unhealthy" }, 503);
-        return json({ ok: true, character: CHARACTERS[0], ...(await r.json()) });
+        return json({ ok: true, characters: names, digest: probe, ...(await r.json()) });
       }
 
+      if (url.pathname.startsWith("/api/agent/")) {
+        if (!tokenMatches(bearer(request), env.AGENT_TOKEN || "")) {
+          return json({ error: "bad agent token" }, 401);
+        }
+        const body = await request.json();
+        const verb = url.pathname.slice("/api/agent/".length);
+        if (verb === "manifest") return await callDO(env, body.cid, "/manifest");
+        if (!["seed", "claim", "progress", "done", "failed"].includes(verb)) {
+          return json({ error: "not found" }, 404);
+        }
+        const r = await callDO(env, body.cid, `/${verb}`, post(body));
+        // Seeding is what makes a character EXIST, so it is what puts him on the roster — and
+        // only once the cell has actually taken the manifest, or a failed seed would leave a name
+        // the page offers and nothing can answer for.
+        if (verb === "seed" && r.ok) {
+          await rosterStub(env).fetch(new Request("http://character/roster-add", post(body)));
+        }
+        return r;
+      }
+
+      // Every route below is the PAGE's, and the page may arrive without naming a character, so
+      // this is where the roster is read. It is deliberately after the agent block: the agent
+      // always names its own character, and its claim is a long poll, so putting a second Durable
+      // Object hop in front of it would cost one on every poll of every character forever.
+      const names = await roster(env);
+      const cid = url.searchParams.get("cid") || names[0];
+      if (!cid) throw new HttpError(409, "no character has been seeded on this fleet yet");
       if (url.pathname === "/api/state") {
         const r = await callDO(env, cid, "/state");
         const body = await r.json();
         // The page needs a second origin: the cells, the source frames and the atlas are files
         // on wilson and are served from there, never through this bucket.
-        return json({ ...body, agent: env.AGENT_BASE }, r.status);
+        return json({ ...body, characters: names, agent: env.AGENT_BASE }, r.status);
       }
 
       if (url.pathname === "/api/jobs") return await callDO(env, cid, "/jobs");
@@ -1026,19 +1323,6 @@ export default {
           return await callDO(env, cid, `/job?id=${encodeURIComponent(id)}`);
         }
         return json({ error: "not found" }, 404);
-      }
-
-      if (url.pathname.startsWith("/api/agent/")) {
-        if (!tokenMatches(bearer(request), env.AGENT_TOKEN || "")) {
-          return json({ error: "bad agent token" }, 401);
-        }
-        const body = await request.json();
-        const verb = url.pathname.slice("/api/agent/".length);
-        if (verb === "manifest") return await callDO(env, body.cid, "/manifest");
-        if (!["seed", "claim", "progress", "done", "failed"].includes(verb)) {
-          return json({ error: "not found" }, 404);
-        }
-        return await callDO(env, body.cid, `/${verb}`, post(body));
       }
 
       const mutation = url.pathname.startsWith("/api/") ? url.pathname.slice(5) : null;

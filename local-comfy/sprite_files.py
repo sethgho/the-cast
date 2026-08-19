@@ -18,8 +18,17 @@ sys.path.insert(0, HERE)
 
 import repaint_cells as RC  # noqa: E402
 
-CHARACTERS = ["seth", "cadbury"]
-PICK_SKIP = 6                    # settle-in frames pick_frames drops; not offerable as a re-pick
+# Not a constant, and not a list. Which characters exist is DATA: a character is a manifest in
+# `sheets/`, and a new one must be able to exist without editing this file. The Worker answers the
+# same question from its own roster (`celld-editor/worker.js`), because the Durable Objects are the
+# record; this side answers it from the files, because this side is the one that owns the files.
+def characters():
+    if not os.path.isdir(RC.MANIFEST_DIR):
+        return []
+    return sorted(n[:-len(".json")] for n in os.listdir(RC.MANIFEST_DIR) if n.endswith(".json"))
+
+
+PICK_SKIP = RC.PICK_SKIP         # settle-in frames pick_frames drops; not offerable as a re-pick
 
 # /img serves nothing outside these. The editor only ever needs source frames, repaints and the
 # packed output, and an unrestricted path parameter on a LAN-bound server is a file-read hole.

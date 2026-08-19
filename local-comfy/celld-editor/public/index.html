@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sprite cell editor</title>
 <style>
   /* An EDITOR shell, not a document: the viewport is the frame, nothing outside it scrolls, and
@@ -188,7 +188,9 @@
            padding: 12px; max-width: min(1100px, 92vw); max-height: 86vh; overflow-y: auto; }
   #modal h3 { font: 700 11px/1 ui-monospace, monospace; letter-spacing: .1em;
               text-transform: uppercase; color: var(--gold); margin: 0 0 8px; }
-  .picks { display: flex; flex-wrap: wrap; gap: 4px; }
+  /* Capped so the commit button stays on screen: the whole point of a two-step re-pick is that
+     you can see what you are about to spend 45 seconds of GPU on. */
+  .picks { display: flex; flex-wrap: wrap; gap: 4px; max-height: 34vh; overflow-y: auto; }
   .picks figure { margin: 0; cursor: pointer; border: 2px solid transparent; border-radius: 4px;
                   background: var(--cream); }
   /* The current frame has to be findable among sixty-odd near-identical thumbnails, so it gets
@@ -197,6 +199,9 @@
   .picks figure.cur { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(216,166,87,.35); }
   .picks figure.cur figcaption { color: var(--gold); font-weight: 700; }
   .picks figure.cur figcaption::after { content: " · current"; }
+  /* Two different things, so two different marks: `cur` is the frame this cell is painted from,
+     `on` is the frame the scrubber is looking at right now. */
+  .picks figure.on { border-color: var(--cream); box-shadow: 0 0 0 3px var(--rust); }
   .picks figure .off { color: var(--faint); }
   .picks img { display: block; width: 92px; height: 92px; }
   .picks figcaption { font: 9px/1.3 ui-monospace, monospace; color: var(--faint); text-align: center; }
@@ -206,6 +211,145 @@
               white-space: nowrap; }
   .keys span { color: var(--dim); }
   .dls { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+
+  /* --- the frame strip -------------------------------------------------------------------- */
+  /* Scrubbing SOURCE footage means scrubbing the extracted frames, never the mp4 they came from.
+     Every one of them is already a PNG on disk beside the pick directory, and an <img> swap is
+     instant on a phone where an mp4 seek is a decode, a flush and a fullscreen takeover. There is
+     no <video> element on this page, and there must not be one. */
+  #fs { display: flex; flex-direction: column; gap: 8px; }
+  #fs-stage { display: flex; align-items: center; justify-content: center; background: var(--cream);
+              border-radius: 6px; height: 220px; }
+  /* `object-fit` rather than a pair of max-* : a percentage max-height against a flex line is how
+     the head came off the top of every portrait frame. */
+  #fs-big { display: block; width: 100%; height: 100%; object-fit: contain; }
+  #fs-meta { color: var(--dim); }
+  #fs-meta b { color: var(--gold); }
+  /* 44px of slider, because the scrubber is the primary control here and a 12px track is a miss
+     on a thumb. */
+  #fs-range { width: 100%; height: 44px; accent-color: var(--gold); }
+  #fs-use { align-self: flex-start; min-height: 44px; }
+
+  /* --- the phone --------------------------------------------------------------------------- */
+  /* Below 760px this stops being an editor shell and becomes a review surface: one column, three
+     screens, and NOTHING that needs a pointer. Pivot drag, the duration grips, onion skinning and
+     compare are hidden rather than shrunk — a 20px pivot handle under a thumb is a foot-gun that
+     costs a repack, and the phone is where you approve work, not where you align feet. */
+  #screens { display: none; }
+
+  @media (max-width: 759.98px) {
+    html, body { height: 100dvh; }
+    #app { display: flex; flex-direction: column; overflow-x: hidden;
+           padding-bottom: env(safe-area-inset-bottom); }
+    /* The desktop fitting rules must not reach in here: PiP would take the preview out of flow and
+       `noinsp` would delete the only place the phone can re-roll from. */
+    body.pip #right, body.pip #cellpane { position: static; width: auto; height: auto;
+                                          flex: 1 1 auto; box-shadow: none; }
+
+    /* topbar: characters and the queue on one line, the tags on their own scrolling line */
+    /* Not sticky: on Cells the column scrolls, and only ONE of these can hold the top. The
+       screen switcher wins, because losing the way back to Preview mid-scroll is worse than
+       scrolling up for the tag rail. */
+    #topbar { grid-column: auto; height: auto; flex-wrap: wrap; padding: 6px; gap: 6px; }
+    #topbar button, #topbar .btn { min-height: 44px; display: flex; align-items: center; }
+    /* The shortcut list and the inspector toggle describe a keyboard and a third column, neither
+       of which exists here. Scoped to #topbar so they outrank `#topbar button` above — an id on
+       its own loses that fight however late it is declared. */
+    #topbar .sep, #topbar #b-help, #topbar #insptoggle { display: none; }
+    #chars { order: 1; }
+    #queue { order: 2; margin-left: auto; min-width: 0; max-width: 42vw; padding: 0 8px; }
+    #b-export { order: 3; }
+    #tags { order: 4; flex: 1 0 100%; overflow-x: auto; padding-bottom: 2px;
+            scrollbar-width: none; }
+    #tags::-webkit-scrollbar { display: none; }
+    /* Status is one thin line under everything, because it is read and never touched. */
+    #topbar .grow { order: 5; flex: 1 0 100%; }
+    #ticker { font-size: 11px; padding: 0; }
+
+    #screens { display: flex; order: 0; flex: none; background: var(--panel);
+               border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 19; }
+    body.ph-cells #screens { box-shadow: 0 6px 12px rgba(10, 9, 7, .5); }
+    #screens button { flex: 1 1 33%; min-height: 44px; border: 0; border-radius: 0;
+                      border-right: 1px solid var(--line); background: var(--panel);
+                      color: var(--dim); font-size: 12px; }
+    #screens button:last-child { border-right: 0; }
+    #screens button.on { background: var(--gold); color: #1a1610; }
+
+    /* every region is off by default; each screen turns its own back on */
+    #striprow, #stage, #inspector, #queuepop { display: none; }
+    #striprow { grid-column: auto; }
+    #stage { grid-column: auto; padding: 6px; }
+    #inspector { grid-column: auto; border-left: 0; border-top: 1px solid var(--line);
+                 overflow: visible; }
+
+    /* Preview: the atlas canvas, the tag it is playing and the transport under it. */
+    body.ph-preview #stage { display: flex; order: 1; flex: 1 1 auto; min-height: 0; }
+    body.ph-preview #cellpane { display: none; }
+    body.ph-preview #right { display: flex; flex: 1 1 auto; }
+    body.ph-preview #striprow { display: block; order: 2; flex: none; border-bottom: 0;
+                                border-top: 1px solid var(--line); }
+    body.ph-preview #strip { display: none; }
+    #b-compare, #b-pin { display: none; }
+    #transport { flex-wrap: wrap; padding: 4px 6px 6px; gap: 6px; }
+    #transport button { min-width: 44px; min-height: 44px; justify-content: center; }
+    /* First and last are a keyboard convenience, and direction is a repack. The phone keeps
+       play, step and fps — the three that answer "does this move read right". */
+    #t-first, #t-last, #transport #dirlab { display: none; }
+    #scrub { flex: 1 0 100%; height: 44px; order: -1; }
+    #fps { min-height: 44px; width: 56px; }
+    #beatcap { margin-left: auto; }
+
+    /* Cells: the filmstrip as a grid, then the tapped cell, then the one-tap edits. */
+    body.ph-cells #app { overflow-y: auto; }
+    body.ph-cells #striprow { display: block; order: 1; flex: none; }
+    body.ph-cells #transport { display: none; }
+    body.ph-cells .stub { display: none; }
+    /* --strip is a filmstrip's height. A grid is as tall as its rows, capped by the screen. */
+    body.ph-cells #strip { height: auto; }
+    body.ph-cells #film { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+                          gap: 6px; overflow-x: hidden; overflow-y: auto; max-height: 46vh; }
+    /* The hold is inline width on the desktop strip. In a grid it would tear the columns, so the
+       count in the caption carries it instead. */
+    body.ph-cells .fbox { width: auto !important; }
+    body.ph-cells .fbox .art { height: auto; }
+    body.ph-cells .fbox img, body.ph-cells .fbox .empty { width: 100%; height: auto;
+                                                          aspect-ratio: 1 / 1; }
+    body.ph-cells .fbox .empty { padding-top: 40%; }
+    body.ph-cells .fbox .held, body.ph-cells .fbox .grip { display: none; }
+    body.ph-cells #stage { display: flex; order: 2; flex: none; height: 34vh; }
+    body.ph-cells #right { display: none; }
+    body.ph-cells #cellpane { display: flex; flex: 1 1 auto; }
+    body.ph-cells #cellpane .foot { display: none; }
+    body.ph-cells #cellcv { cursor: default; touch-action: pan-y; }
+    body.ph-cells #inspector { display: flex; flex-direction: column; order: 3; flex: none; }
+    body.ph-cells #g-act { order: 1; }
+    body.ph-cells #g-var { order: 2; }
+    body.ph-cells #g-prov { order: 3; }
+    body.ph-cells #actions button { min-height: 44px; }
+    body.ph-cells #variants { gap: 6px; }
+    body.ph-cells .vthumb img { width: 76px; height: 76px; }
+    body.ph-cells #srcimg { height: 96px; }
+
+    /* Queue: the same rows as the desktop popover, in the flow and full width. */
+    body.ph-queue #queuepop { display: block; position: static; order: 1; flex: 1 1 auto;
+                              width: auto; max-height: none; overflow-y: auto; border: 0;
+                              border-radius: 0; box-shadow: none; }
+    body.ph-queue .job { padding: 10px 0; flex-wrap: wrap; }
+    body.ph-queue .job button { min-height: 44px; }
+
+    /* overlays */
+    #modal { padding: 8px; max-width: 100vw; width: 100vw; max-height: 100dvh; height: 100dvh;
+             border-radius: 0; display: flex; flex-direction: column; }
+    #fs { flex: 1 1 auto; min-height: 0; }
+    #fs-stage { flex: 1 1 auto; height: auto; min-height: 120px; }
+    /* One row that snaps, paired with the slider: a wrap of sixty-odd thumbnails is four screens
+       of scrolling on a phone. */
+    .picks { flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory;
+             padding-bottom: 4px; }
+    .picks figure { scroll-snap-align: center; flex: none; }
+    .picks img { width: 72px; height: 72px; }
+    .dls .btn { min-height: 44px; }
+  }
 </style>
 
 <div id="app">
@@ -221,6 +365,12 @@
     <button id="insptoggle" title="inspector (\)">\</button>
   </header>
 
+  <nav id="screens" aria-label="screen">
+    <button data-s="preview" class="on">Preview</button>
+    <button data-s="cells">Cells</button>
+    <button data-s="queue">Queue</button>
+  </nav>
+
   <section id="striprow">
     <div id="strip">
       <button class="stub" id="prevtag"></button>
@@ -234,8 +384,8 @@
       <button id="t-next" title="step forward (&rarr; or .)">&#9654;</button>
       <button id="t-last" title="last cell (End)">&#9654;|</button>
       <input id="scrub" type="range" min="0" max="0" step="1" value="0" title="scrub this tag">
-      <label title="frames per second for this tag">fps <input id="fps" type="number" min="1" step="1"></label>
-      <label title="loop direction for this tag">dir <select id="direction">
+      <label id="fpslab" title="frames per second for this tag">fps <input id="fps" type="number" min="1" step="1"></label>
+      <label id="dirlab" title="loop direction for this tag">dir <select id="direction">
         <option value="forward">forward</option>
         <option value="reverse">reverse</option>
         <option value="pingpong">pingpong</option>
@@ -271,16 +421,16 @@
   </section>
 
   <aside id="inspector">
-    <div class="grp">
+    <div class="grp" id="g-prov">
       <div class="lbl" title="the H3 frame this drawing was painted from, and what the packer measures">Provenance</div>
       <img id="srcimg" alt="source frame">
       <div class="facts" id="facts"></div>
     </div>
-    <div class="grp">
+    <div class="grp" id="g-var">
       <div class="lbl" title="every seed already painted for this source frame — switching is free">Variants</div>
       <div id="variants"></div>
     </div>
-    <div class="grp">
+    <div class="grp" id="g-act">
       <div class="lbl" title="rust means the click costs GPU time">Actions</div>
       <div id="actions">
         <button id="b-reroll" class="cost" title="paint this cell again on a new seed (R)">R Re-roll <span class="price">· ~45s GPU</span></button>
@@ -320,7 +470,13 @@ const PREV_INK = "#b4462f", NEXT_INK = "#3a6ea5";
 const PRICE = {reroll: "~45s GPU", repick: "~45s GPU"};
 
 let onion = {on: true, prev: true, next: false, mode: "alpha"};
-let seq = [], head = 0, playing = true, timer = null, rest = 0;
+let seq = [], head = 0, playing = true, raf = null, beatAt = 0, rest = 0;
+
+// The phone is a different tool, not a smaller one. Below this width the shell is one column of
+// three screens and every pointer-only affordance is gone; at or above it nothing on this page
+// behaves differently from the day it was written.
+const PHONE_MAX = 760;
+let phone = false, screenName = "preview";
 let compare = false, pinned = null;   // {tag, i}
 let drag = null, holdDrag = null, gesture = false, suppressClick = false;
 let sheetDragKey = false;             // S held during a pivot drag targets the SHEET pivot
@@ -333,6 +489,21 @@ let lastUi = "";
 const VER = new Map();                // cellKey -> integer, bumped only when the ART moved
 
 const el = (id) => document.getElementById(id);
+
+// A cell is 512px of drawing, and on a dpr-3 phone the browser was blowing a 512 backing store up
+// to about 1100 device pixels — every line soft. Size the backing store to the DISPLAYED size in
+// device pixels, never below the cell, then scale the context so all the drawing code below keeps
+// working in cell coordinates. `max-width/max-height: 100%` only ever shrink, so on a dpr-1
+// desktop this resolves to exactly the 512 it always was and the layout cannot move.
+function fitCanvas(cv) {
+  const cell = ST.cell, dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const shown = cv.getBoundingClientRect().width || cell;
+  const want = Math.max(cell, Math.round(shown * dpr));
+  if (cv.width !== want) { cv.width = want; cv.height = want; }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(cv.width / cell, 0, 0, cv.width / cell, 0, 0);
+  return ctx;
+}
 const TAG = () => ST.tags.find((t) => t.name === tagName) || ST.tags[0];
 const CELLS = () => TAG().cells;
 const CUR = () => CELLS()[sel];
@@ -583,23 +754,29 @@ function frameBox(tag, i, c, pend, flash) {
   // cell selection.
   box.addEventListener("pointerdown", (ev) => {
     suppressClick = false;
-    startOrderDrag(ev, i, box);
+    // Reordering by drag needs a horizontal drag on a surface whose own gesture is a vertical
+    // scroll. On the phone a cell takes taps only.
+    if (!phone) startOrderDrag(ev, i, box);
   });
   box.onclick = () => {
     if (suppressClick) { suppressClick = false; return; }
     selectCell(i);
   };
-  const grip = document.createElement("div");
-  grip.className = "grip";
-  grip.title = "drag to hold cell " + (i + 1) + " longer (+ / -)";
-  grip.addEventListener("pointerdown", (ev) => startHoldDrag(ev, i, c, box));
-  box.appendChild(grip);
+  if (!phone) {
+    const grip = document.createElement("div");
+    grip.className = "grip";
+    grip.title = "drag to hold cell " + (i + 1) + " longer (+ / -)";
+    grip.addEventListener("pointerdown", (ev) => startHoldDrag(ev, i, c, box));
+    box.appendChild(grip);
+  }
   return box;
 }
 
 function scrollSelectionIntoView() {
   const film = el("film"), box = film.querySelector(".fbox.sel");
   if (!box) return;
+  // The strip is a grid on the phone, so the axis that matters is the other one.
+  if (phone) { box.scrollIntoView({block: "nearest", inline: "nearest"}); return; }
   const left = box.offsetLeft - film.offsetLeft;
   // Scrolls the strip only. There is no page scroll in an editor shell, and there must not be.
   if (left < film.scrollLeft) film.scrollLeft = left - 12;
@@ -691,13 +868,33 @@ function seekToCell(i) {
   if (at >= 0) { head = at; el("scrub").value = String(head); drawPreview(); }
 }
 
+// Driven by requestAnimationFrame rather than an interval, and stopped dead while the page is
+// hidden. A backgrounded interval keeps decoding the atlas and repainting a canvas nobody can see,
+// which on a phone is battery spent on nothing.
 function retime() {
-  if (timer) { clearInterval(timer); timer = null; }
+  if (raf) { cancelAnimationFrame(raf); raf = null; }
   el("t-play").innerHTML = playing ? "&#10073;&#10073;" : "&#9654;";
   el("t-play").className = playing ? "on" : "";
-  if (!playing || seq.length < 2) return;
-  timer = setInterval(advance, 1000 / TAG().fps);
+  if (!ST || !playing || seq.length < 2 || document.hidden) return;
+  beatAt = performance.now();
+  raf = requestAnimationFrame(pump);
 }
+
+function pump(now) {
+  raf = null;
+  // `switchCharacter` clears the manifest and then awaits the next one, and every beat reads the
+  // tag out of it. An interval had the same hole; at 60Hz it is hit every time.
+  if (!ST || !playing || seq.length < 2 || document.hidden) return;
+  const step = 1000 / TAG().fps;
+  // One beat per step at most: a tab that was throttled must not fast-forward the loop on return.
+  if (now - beatAt >= step) { beatAt = now; advance(); }
+  raf = requestAnimationFrame(pump);
+}
+
+// On `document`, which is where the event is raised: bound to `window` it works only because the
+// real event bubbles, and it must fire for the loop to be picked back up.
+// `playing` is untouched, so it resumes exactly where it was left.
+document.addEventListener("visibilitychange", retime);
 
 function advance() {
   const tag = TAG();
@@ -800,7 +997,9 @@ function renderStage() {
 // unrelated poses.
 function ghosts() {
   const cells = CELLS(), out = [];
-  if (!onion.on) return out;
+  // The phone has no onion controls, so it gets no onion: a ghost you cannot turn off reads as a
+  // second character standing behind the one you are reviewing.
+  if (!onion.on || phone) return out;
   if (onion.prev && sel > 0 && cells[sel - 1].atlas !== null)
     out.push({url: cellUrl(tagName, sel - 1, cells[sel - 1].atlas), ink: PREV_INK});
   if (onion.next && sel < cells.length - 1 && cells[sel + 1].atlas !== null)
@@ -835,8 +1034,7 @@ function outlineOf(im, ink, k) {
 // anchored, which is pivot + this cell's nudge.
 function paintCell(c) {
   const cv = el("cellcv"), cell = ST.cell;
-  if (cv.width !== cell) { cv.width = cell; cv.height = cell; }
-  const ctx = cv.getContext("2d");
+  const ctx = fitCanvas(cv);
   ctx.clearRect(0, 0, cell, cell);
   const me = c.atlas === null ? null : cached(cellUrl(tagName, sel, c.atlas));
   const g = ghosts();
@@ -903,25 +1101,23 @@ function drawPreview() {
   el("beatcap").textContent = "beat " + (seq.length ? head + 1 : 0) + "/" + seq.length +
     " · cell " + (seq.length && seq[head] ? seq[head].i + 1 : 0) + "/" + tag.cells.length;
   if (compare) return;
-  const cv = el("pv"), ctx = cv.getContext("2d");
-  if (cv.width !== ST.cell) { cv.width = ST.cell; cv.height = ST.cell; }
+  const cv = el("pv"), ctx = fitCanvas(cv);
   el("rightcap").textContent = "preview — " + tag.name + " " + tag.fps + "fps " + tag.direction +
     (tag.loop ? " loop" : tag.hold_key ? " hold" : " once");
-  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.clearRect(0, 0, ST.cell, ST.cell);
   if (!seq.length || !seq[head]) return;
   const step = seq[head];
   withAtlas((sheet) => {
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.drawImage(sheet, step.xy[0], step.xy[1], ST.cell, ST.cell, 0, 0, cv.width, cv.height);
+    ctx.clearRect(0, 0, ST.cell, ST.cell);
+    ctx.drawImage(sheet, step.xy[0], step.xy[1], ST.cell, ST.cell, 0, 0, ST.cell, ST.cell);
   });
 }
 
 // Compare answers what onion skinning cannot: drift between two cells that are NOT neighbours.
 // The ghost only ever shows the cell either side.
 function drawCompare() {
-  const cv = el("cmp"), ctx = cv.getContext("2d");
-  if (cv.width !== ST.cell) { cv.width = ST.cell; cv.height = ST.cell; }
-  ctx.clearRect(0, 0, cv.width, cv.height);
+  const cv = el("cmp"), ctx = fitCanvas(cv);
+  ctx.clearRect(0, 0, ST.cell, ST.cell);
   if (!pinned) { el("rightcap").textContent = "compare — nothing pinned"; return; }
   const tag = ST.tags.find((t) => t.name === pinned.tag);
   const c = tag && tag.cells[pinned.i];
@@ -930,7 +1126,7 @@ function drawCompare() {
   if (!c || c.atlas === null) return;
   const url = cellUrl(pinned.tag, pinned.i, c.atlas);
   const im = cached(url);
-  if (im) ctx.drawImage(im, 0, 0, cv.width, cv.height);
+  if (im) ctx.drawImage(im, 0, 0, ST.cell, ST.cell);
   else withCell(url, () => { if (compare) drawCompare(); });
 }
 
@@ -1184,6 +1380,8 @@ function cellPoint(ev) {
           Math.round((ev.clientY - r.top) * ST.cell / r.height)];
 }
 el("cellcv").addEventListener("pointerdown", (ev) => {
+  // A one-pixel pivot under a thumb is a foot-gun, and every nudge costs a repack.
+  if (phone) return;
   if (!ST || !CUR() || CUR().atlas === null) return;
   el("cellcv").setPointerCapture(ev.pointerId);
   drag = {from: cellPoint(ev), d: [0, 0], sheet: sheetDragKey};
@@ -1327,6 +1525,8 @@ async function retryJob(id) {
 }
 
 el("queue").onclick = () => {
+  // On the phone the queue is a screen, not a popover: the chip is the way into it.
+  if (phone) { setScreen("queue"); return; }
   queueOpen = !queueOpen;
   el("queuepop").hidden = !queueOpen;
   if (queueOpen) renderQueuePop();
@@ -1418,45 +1618,109 @@ el("scrim").onclick = (ev) => { if (ev.target === el("scrim")) closeOverlay(); }
 
 // Re-pick is a modal because the source directory holds hundreds of frames: inline, it pushed
 // every other control off the screen the moment it opened.
+//
+// It is also the only place this tool scrubs SOURCE footage, and it does it with images. The clip
+// these frames came from is an mp4, and seeking an mp4 on a phone means iOS takes the element
+// fullscreen, forces its own controls and decodes to every keyframe on the way — the scrub Seth
+// called clunky. Every frame is already a PNG in the pick directory and the agent already serves
+// it, so the scrubber is a range over the frame list, a big <img> that is swapped, and a lazy
+// strip of thumbnails. Nothing here loads a video.
 function openRepick() {
   if (lockedHere()) { tick("that cell already has a job in flight", true); return; }
   const cur = CUR().src, at = sel;
   openOverlay("Re-pick the source frame · ~45s GPU", (host) => {
-    const box = document.createElement("div");
-    box.className = "picks";
-    box.textContent = "loading source frames…";
-    host.appendChild(box);
+    const fs = document.createElement("div");
+    fs.id = "fs";
+    fs.innerHTML =
+      '<div id="fs-stage"><img id="fs-big" alt="source frame"></div>' +
+      '<div id="fs-meta">loading source frames…</div>' +
+      '<input id="fs-range" type="range" min="0" max="0" value="0" ' +
+      'title="scrub the extracted frames — no video is seeked">' +
+      '<div class="picks"></div>';
+    host.appendChild(fs);
+    const big = fs.querySelector("#fs-big"), meta = fs.querySelector("#fs-meta");
+    const range = fs.querySelector("#fs-range"), box = fs.querySelector(".picks");
+    const use = document.createElement("button");
+    use.className = "cost";
+    use.id = "fs-use";
+    use.disabled = true;
+    use.innerHTML = 'Use this frame <span class="price">· ~45s GPU</span>';
+    fs.appendChild(use);
+
     fetch(AGENT + "/frames?cid=" + cid + "&tag=" + tagName)
       .then((r) => r.json())
       .then((d) => {
+        const frames = d.frames || [];
+        if (!frames.length) { meta.textContent = "no source frames on disk for this tag"; return; }
+        const at0 = frames.indexOf(cur);
+        // Held so a scrub does not go back to the network for a frame it just left, and so the
+        // next one either side is already decoded when the thumb gets there.
+        const warm = new Map();
+        const preload = (i) => {
+          const f = frames[i];
+          if (!f || warm.has(f)) return;
+          const im = new Image();
+          im.src = imgUrl(f, 512);
+          warm.set(f, im);
+        };
+        let focus = at0 >= 0 ? at0 : 0;
+        const figs = [];
+        const offset = (i) => (at0 < 0 || i === at0 ? "" :
+                               " " + (i > at0 ? "+" : "\u2212") + Math.abs(i - at0));
+
+        function setFocus(i, scroll) {
+          focus = Math.max(0, Math.min(frames.length - 1, i));
+          const f = frames[focus];
+          big.src = imgUrl(f, 512);
+          range.value = String(focus);
+          meta.innerHTML = "";
+          meta.appendChild(document.createTextNode(
+            f.split("/").pop().replace(".png", "") + " · frame " + (focus + 1) + " of " +
+            frames.length + (focus === at0 ? " · the one this cell uses" : offset(focus))));
+          figs.forEach((fig, n) => fig.classList.toggle("on", n === focus));
+          use.disabled = focus === at0;
+          use.title = focus === at0 ? "this cell already uses that frame"
+                                    : "paint cell " + (at + 1) + " from this frame";
+          for (const d2 of [-2, -1, 1, 2]) preload(focus + d2);
+          if (scroll && figs[focus]) figs[focus].scrollIntoView({block: "nearest", inline: "center"});
+        }
+
         box.textContent = "";
-        const at0 = d.frames.indexOf(cur);
-        let curFig = null;
-        d.frames.forEach((f, i) => {
+        frames.forEach((f, i) => {
           const fig = document.createElement("figure");
-          if (f === cur) { fig.className = "cur"; curFig = fig; }
-          fig.innerHTML = '<img loading="lazy" src="' + imgUrl(f, 96) + '"><figcaption></figcaption>';
+          if (i === at0) fig.className = "cur";
+          // Lazy and intrinsically sized: sixty-odd decodes on open is what made the modal stall,
+          // and a thumbnail without dimensions reflows the strip as each one lands.
+          fig.innerHTML = '<img loading="lazy" decoding="async" width="92" height="92" src="' +
+                          imgUrl(f, 96) + '"><figcaption></figcaption>';
           const cap = fig.querySelector("figcaption");
           cap.textContent = f.split("/").pop().replace(".png", "").replace("f_", "");
           // A re-pick is nearly always a step or two either side of where you are, so the
           // distance from the current frame is more use than the absolute frame number.
-          if (at0 >= 0 && i !== at0) {
+          if (offset(i)) {
             const off = document.createElement("span");
             off.className = "off";
-            off.textContent = " " + (i > at0 ? "+" : "\u2212") + Math.abs(i - at0);
+            off.textContent = offset(i);
             cap.appendChild(off);
           }
-          fig.onclick = () => {
-            closeOverlay();
-            mutate("/api/repick", {index: at, src: f}, "re-pick cell " + (at + 1), "cells", [at]);
-          };
+          // A tap focuses, it does not spend. One mis-tap on a phone would otherwise cost 45
+          // seconds of GPU and a repack, so committing is its own button.
+          fig.onclick = () => setFocus(i, false);
+          figs.push(fig);
           box.appendChild(fig);
         });
-        // Sixty-odd thumbnails wrap well past the fold, so the one you are replacing is usually
+        range.max = String(frames.length - 1);
+        range.oninput = () => setFocus(parseInt(range.value, 10) || 0, true);
+        use.onclick = () => {
+          const f = frames[focus];
+          closeOverlay();
+          mutate("/api/repick", {index: at, src: f}, "re-pick cell " + (at + 1), "cells", [at]);
+        };
+        // Sixty-odd thumbnails scroll well past the fold, so the one you are replacing is usually
         // off screen when the modal opens. Put it in front of the eye.
-        if (curFig) curFig.scrollIntoView({block: "center"});
+        setFocus(focus, true);
       })
-      .catch((e) => { box.textContent = "could not list the source frames: " + e.message; });
+      .catch((e) => { meta.textContent = "could not list the source frames: " + e.message; });
   });
 }
 
@@ -1530,6 +1794,7 @@ el("b-export").onclick = openExport;
 el("b-help").onclick = openHelp;
 el("insptoggle").onclick = () => toggleInspector();
 function toggleInspector() {
+  if (phone) return;                  // the phone has no inspector to collapse; Cells IS it
   handCollapse = !document.body.classList.contains("noinsp");
   document.body.classList.toggle("noinsp", handCollapse);
 }
@@ -1607,8 +1872,52 @@ addEventListener("keydown", (ev) => {
 
 // --- fitting ----------------------------------------------------------------------------------
 // Below the minimum useful window the inspector goes first, and Preview becomes a
-// picture-in-picture rather than disappearing.
+// picture-in-picture rather than disappearing. Below PHONE_MAX neither of those applies: the
+// layout is not a squeezed editor, it is three screens.
+const SCREENS = ["preview", "cells", "queue"];
+
+function setScreen(name) {
+  if (!SCREENS.includes(name)) return;
+  screenName = name;
+  for (const b of el("screens").querySelectorAll("button"))
+    b.classList.toggle("on", b.dataset.s === name);
+  for (const s of SCREENS) document.body.classList.toggle("ph-" + s, phone && s === name);
+  if (phone) {
+    queueOpen = name === "queue";
+    el("queuepop").hidden = !queueOpen;
+    if (queueOpen) renderQueuePop();
+  }
+  if (!ST) return;
+  // A canvas that was display:none measured zero, so whatever screen just appeared has to be
+  // drawn again at the size it actually got.
+  if (name === "cells") { renderStrip(null); scrollSelectionIntoView(); }
+  renderStage();
+}
+for (const b of el("screens").querySelectorAll("button")) b.onclick = () => setScreen(b.dataset.s);
+
 function fit() {
+  const was = phone;
+  phone = innerWidth < PHONE_MAX;
+  const pop = el("queuepop");
+  if (phone) {
+    // The desktop's two narrow-window tricks are wrong here: PiP takes the preview out of flow on
+    // top of the strip, and `noinsp` deletes the only place a phone can re-roll from.
+    document.body.classList.remove("noinsp", "pip");
+    if (pop.parentNode !== el("app")) el("app").appendChild(pop);
+    if (was !== phone) { compare = false; drag = null; holdDrag = null; gesture = false; }
+    if (was !== phone || !document.body.classList.contains("ph-" + screenName)) {
+      if (ST) paint(null);            // the strip is rebuilt without its grips
+      setScreen(screenName);
+    }
+    return;
+  }
+  if (pop.parentNode !== document.body) document.body.appendChild(pop);
+  if (was !== phone) {
+    for (const s of SCREENS) document.body.classList.remove("ph-" + s);
+    queueOpen = false;
+    pop.hidden = true;
+    if (ST) paint(null);
+  }
   document.body.classList.toggle("noinsp", handCollapse || innerWidth < 1180);
   document.body.classList.toggle("pip", el("stage").clientWidth < 760);
 }
@@ -1625,6 +1934,7 @@ new ResizeObserver(fit).observe(el("stage"));
     return;
   }
   fit();
+  if (phone) setScreen(screenName);
   const loop = async () => {
     // A dropped poll costs one interval and never the page: the manifest is the record, and the
     // next tick reads it again.

@@ -53,17 +53,6 @@ import exports as EX  # noqa: E402
 import repaint_cells as RC  # noqa: E402
 import sprite_files as SF  # noqa: E402
 
-# /export?cid=&format= -- each value is (builder, content-type, filename(cid)). The builder is a
-# pure function of the atlas table (`exports.load_atlas`), so this dict is the entire contract
-# with exports.py and nothing else here needs to know the formats exist.
-EXPORT_FORMATS = {
-    "json-hash": (EX.export_json_hash, "application/json", lambda cid: f"{cid}-atlas-hash.json"),
-    "json-array": (EX.export_json_array, "application/json", lambda cid: f"{cid}-atlas-array.json"),
-    "phaser3": (EX.export_phaser3, "application/json", lambda cid: f"{cid}-phaser3.json"),
-    "godot": (EX.export_godot, "text/plain; charset=utf-8", lambda cid: f"{cid}-frames.tres"),
-    "css": (EX.export_css, "text/css; charset=utf-8", lambda cid: f"{cid}-sprite.css"),
-}
-
 PORT = int(os.environ.get("SPRITE_AGENT_PORT", "8812"))
 CELLD = os.environ.get("SPRITE_CELLD_BASE", "http://192.168.0.19:8087").rstrip("/")
 TOKEN = os.environ.get("SPRITE_AGENT_TOKEN", "")
@@ -229,6 +218,10 @@ def run_job(cid, job):
                          "message": f"{job['label']} — the repack exited {code}"})
         return
     packed = RC.load_character_manifest(cid)
+    # `manifest` carries the step records and the locked build constants the packer just wrote,
+    # which is the BUILD REPORT: every artifact hash and every built_key in there is knowledge only
+    # this half has, because only this half can open a file. The DO takes those as given and
+    # recomputes the cache keys on top of them.
     celld("done", {"cid": cid, "id": job["id"], "message": f"{job['label']} — done",
                    "manifest": packed, "frames": frames, "catalogue": catalogue(cid, packed)})
 
@@ -313,7 +306,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.json(200, {"ok": True, "celld": CELLD})
             elif u.path == "/derived":
                 cid = one("cid", "seth")
-                if cid not in SF.CHARACTERS:
+                if cid not in SF.characters():
                     self.json(404, {"error": f"unknown character: {cid}"})
                     return
                 self.json(200, derived(cid, fetch_manifest(cid)[0]))
@@ -349,7 +342,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return buf.getvalue()
 
     def serve_cell(self, cid, index, width):
-        if cid not in SF.CHARACTERS or index is None or not index.isdigit():
+        if cid not in SF.characters() or index is None or not index.isdigit():
             self.json(403, {"error": "unknown character or cell"})
             return
         im = SF.cell_image(cid, int(index))
@@ -380,13 +373,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send(200, body, self.TYPES[ext], extra)
 
     def serve_export(self, cid, fmt):
-        if cid not in SF.CHARACTERS:
+        if cid not in SF.characters():
             self.json(404, {"error": f"unknown character: {cid}"})
             return
-        entry = EXPORT_FORMATS.get(fmt)
+        entry = EX.FORMATS.get(fmt)
         if entry is None:
             self.json(400, {"error": f"unknown format {fmt!r}; choose one of "
-                                     f"{', '.join(sorted(EXPORT_FORMATS))}"})
+                                     f"{', '.join(sorted(EX.FORMATS))}"})
             return
         builder, ctype, name_for = entry
         try:
@@ -395,7 +388,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.json(404, {"error": f"no emitted atlas for {cid} -- run the packer first"})
             return
         self.send(200, builder(atlas, cid), ctype,
-                  {"Content-Disposition": f'attachment; filename="{name_for(cid)}"'})
+                  {"Content-Disposition": f'attachment; filename="{name_for.format(cid=cid)}"'})
 
 
 class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
@@ -409,7 +402,7 @@ def seed():
     Only meaningful once, at cutover — after that the DO is the record and this would overwrite
     it with whatever the file happens to say. So it is a flag, not the startup path.
     """
-    for cid in SF.CHARACTERS:
+    for cid in SF.characters():
         man = RC.load_character_manifest(cid)
         if not man:
             print(f"  {cid}: no manifest on disk, skipped", flush=True)
@@ -426,7 +419,10 @@ if __name__ == "__main__":
         sys.exit(0)
     pending, wake = [], threading.Condition()
     threading.Thread(target=runner, args=(pending, wake), daemon=True).start()
-    for cid in SF.CHARACTERS:
+    # Read once, at start: each character needs its own long-poll thread against its own Durable
+    # Object. A character seeded later is served by every read route immediately -- those ask
+    # SF.characters() per request -- but does not get a poller until this process is restarted.
+    for cid in SF.characters():
         threading.Thread(target=poller, args=(cid, pending, wake), daemon=True).start()
     print(f"sprite agent on http://0.0.0.0:{PORT}/ , polling {CELLD}", flush=True)
     Server(("0.0.0.0", PORT), Handler).serve_forever()

@@ -39,7 +39,10 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, "/home/wilson/scratch/local-cast")
 
 import smoke_test as S  # noqa: E402
+from canon import digest  # noqa: E402
 import sprite_sheet as SS  # noqa: E402
+import build_sprite as BS  # noqa: E402
+from build_transition import TRAITS  # noqa: E402
 from build_workflows import UNET, LORA, CLIP, VAE  # noqa: E402
 
 OUT = "/home/wilson/artifacts/cast-fighter/sprites"
@@ -48,14 +51,23 @@ SEED = 77          # one seed for every cell, so the drawing itself does not wan
 STEPS = 8
 CELL = 512
 
+# The whole set is packed at ONE scale, which is what stops the character resizing when the state
+# machine switches move: the tallest cell fills this much of the cell, and the highest reach fits
+# in that much above the pivot. Named rather than inline because the pack step's cache key carries
+# them -- changing either one really does invalidate the atlas.
+SHEET_HEIGHT_CAP, SHEET_UP_CAP = 0.92, 0.88
+
 # move -> (clip recipe in build_sprite.MOVES, cells, fps, loop, hold_key, unify)
 #
-# NOT seed values that stop mattering once a manifest exists. clip_path() and pick_frames() read
-# MOVES at runtime, keyed by move name, for the clip recipe and the fields bootstrap_manifest()
-# would give a move that has never had a manifest entry. The editor no longer reads it at all: it
-# drives off the manifest's own tag list. Renaming a
-# tag here therefore still breaks clip_path() for that move, even though the tag itself carries
-# its own `clip` field once written — the two are independent copies of the same fact.
+# BOOTSTRAP DEFAULTS ONLY. Nothing at runtime reads this table for a move that already has a tag:
+# a move is manifest data now, and its tag carries its own recipe, recipe text, cell count, fps,
+# loop, hold_key, unify, cyclic flag and clip path. clip_path() returns the tag's `clip`, and
+# pick_frames() is told the cycle and stop flags by its caller.
+#
+# This comment used to say the recipe existed here and in the tag as two independent copies free
+# to disagree, so renaming a move broke its clip path while the tag looked fine. That is fixed:
+# the table now only supplies the FIRST values a move that has never been built gets, and the
+# manifest is the truth from the moment it is written.
 #
 # The recipe name is not always the move name: a sprite "walk" comes from the `walk-cycle` clip,
 # which for a character with no legs reads as a roll instead. The clip path is derived from the
@@ -78,8 +90,52 @@ MOVES = {
 SIZE, CLIP_STEPS = 832, 20
 
 
-def clip_path(cid, move):
-    return f"/tmp/{cid}-{MOVES[move][0]}-{SIZE}-{CLIP_STEPS}.mp4"
+def _pipeline():
+    """The step graph, imported on demand.
+
+    `pipeline.py` reads this module's paths, constants and prompt text, so importing it at module
+    scope would be a cycle. Every caller in here goes through this one function rather than
+    scattering local imports, so there is one place that says why.
+    """
+    import pipeline
+    return pipeline
+
+
+def bootstrap_clip_path(cid, recipe):
+    """Where hires_sprite.py writes a clip. Only a move with no tag yet has to guess at it."""
+    return f"/tmp/{cid}-{recipe}-{SIZE}-{CLIP_STEPS}.mp4"
+
+
+def clip_path(cid, move, man=None):
+    """This move's clip, from the manifest's own `clip` field wherever there is one.
+
+    The MOVES fallback is reached only for a move that has never had a tag. Deriving the path from
+    the recipe table instead was the bug the table's comment complained about: the tag recorded a
+    `clip` of its own, so renaming a move made this function point at a file that did not exist
+    while the tag still named the right one.
+    """
+    if man is not None:
+        i = _tag_index(man, move)
+        if i is not None:
+            return man["tags"][i]["clip"]
+    return bootstrap_clip_path(cid, MOVES[move][0])
+
+
+def recipe_of_clip(cid, clip):
+    """The recipe name a clip path encodes — the tag's own record of which brief rendered it."""
+    stem = os.path.basename(clip)[:-len(".mp4")]
+    return stem[len(f"{cid}-"):-len(f"-{SIZE}-{CLIP_STEPS}")]
+
+
+def is_cyclic(recipe):
+    """Does this brief end where it began? Mirrors hires_sprite.py, which pins one-shots only.
+
+    A cycle's clip must be left unpinned (see the cast-sprites skill: pinning Cadbury's walk took
+    self-similarity from 0.0061 to 0.1223 against a 0.139 random baseline), and its cells must be
+    picked by gait period rather than spaced by motion. Both readings are this one fact, which is
+    why it is a tag field and not two.
+    """
+    return recipe.endswith("-cycle") or recipe == "idle-breathe"
 
 
 # The repaint instruction. It says "repaint" three ways on purpose: the failure mode is Qwen
@@ -180,18 +236,28 @@ def repaint(src, dst, seed=SEED):
     return dst
 
 
-def pick_frames(cid, move, clip, n_cells):
+PICK_SKIP, PICK_ANCHOR, PICK_SMOOTH = 6, "feet", True
+
+
+def pick_frames(cid, move, clip, n_cells, cycle, stop):
     """Let the packer choose the cells off the CLIP, then hand back their file paths.
 
     Cell choice needs the motion, so it stays on the video: gait period, pose extremes and the
     sharpest-frame nudge all read the sequence. Only the chosen frames get repainted.
+
+    `cycle` and `stop` are facts about the MOTION -- is there a gait to detect, and does the move
+    end on a held pose -- and they arrive from the caller rather than from MOVES. They used to be
+    read as the tag's `loop` and `hold_key`, which are what the GAME does at playback; the two
+    pairs agree today, and conflating them meant re-tagging a move for playback changed which
+    frames got picked.
     """
     SS.CEL_CLEAN = True                        # picking reads video frames, so clean them
     name = f"{cid}-{move}-pick"
-    prep = SS._prepare(clip, name, n_cells, skip=6, cycle=MOVES[move][3], anchor="feet",
-                       smooth=True, stop=MOVES[move][4])
+    prep = SS._prepare(clip, name, n_cells, skip=PICK_SKIP, cycle=cycle, anchor=PICK_ANCHOR,
+                       smooth=PICK_SMOOTH, stop=stop)
     paths = sorted(os.listdir(f"/tmp/sprite-{name}"))
-    paths = [os.path.join(f"/tmp/sprite-{name}", p) for p in paths if p.endswith(".png")][6:]
+    paths = [os.path.join(f"/tmp/sprite-{name}", p)
+             for p in paths if p.endswith(".png")][PICK_SKIP:]
     return [paths[i] for i in prep["picks"]]
 
 
@@ -230,6 +296,65 @@ def manifest_path(cid):
 def sheet_pivot():
     """The packer's feet line, seeded into the manifest as the sheet-level pivot."""
     return list(SS.cell_pivot(CELL, "feet"))
+
+
+# The order sheets/<cid>.json is written in. Fixed in one place because both this module and the
+# Durable Object write this file: a manifest that came back from the DO with `trait` appended
+# after `frames` would otherwise re-order the whole file on the next local run, for no change in
+# meaning, and every diff of a real edit would be buried in it.
+MANIFEST_FIELDS = ("character", "cell", "pivot", "trait", "build", "tags", "frames", "steps")
+
+
+def _ordered(man):
+    known = {k: man[k] for k in MANIFEST_FIELDS if k in man}
+    # Anything this module has not heard of is kept, at the end. Dropping it would silently
+    # discard a field a newer Worker had added.
+    known.update({k: v for k, v in man.items() if k not in known})
+    return known
+
+
+def _tag(name, start, end, recipe, fps, loop, hold_key, unify, clip):
+    """One move, as manifest data, always the same shape and the same key order.
+
+    A move is `{name, recipe_text, cells, fps, loop, hold_key, unify, cyclic}` plus the range it
+    owns and the clip it came from. The recipe and its text live HERE, not in MOVES: that table is
+    the bootstrap default a brand-new move gets, and from this record on the manifest is the truth.
+
+    The new fields are appended after the old ones on purpose. This record is serialised straight
+    into sheets/<cid>.json and mirrored by the Durable Object, so inserting a key in the middle
+    would rewrite every tag of every manifest for no change in meaning.
+    """
+    return {"name": name, "from": start, "to": end, "fps": fps, "direction": "forward",
+            "loop": loop, "hold_key": hold_key, "unify": unify, "clip": clip,
+            "recipe": recipe, "recipe_text": BS.MOVES[recipe], "cells": end - start + 1,
+            "cyclic": is_cyclic(recipe)}
+
+
+def build_block():
+    """The locked constants every step's cache key is computed against.
+
+    Carried IN the manifest rather than read from this module by both halves, because the Durable
+    Object recomputes the same keys and has no way to import Python. One copy, pushed to the DO
+    with the manifest, is what stops the two sides drifting into disagreeing about which steps are
+    stale. Every number here is measured; the cast-sprites skill says why each one is what it is.
+    """
+    return {
+        # One digest over every prompt TEMPLATE, so re-wording a lock invalidates the clips and
+        # the repaints that were briefed with the old words -- and nothing else. It is in the key;
+        # a move's own recipe text is a param, because that is data, not template.
+        "template_version": digest([BS.SPRITE_LOCK, BS.WHO_LEAD, BS.STAGE_RESTATE,
+                                    BS.SOUND_LOCK, REPAINT, NEG]),
+        "clip": {"size": SIZE, "steps": CLIP_STEPS, "length": BS.LENGTH, "seed": BS.CLIP_SEED},
+        "picks": {"skip": PICK_SKIP, "anchor": PICK_ANCHOR, "smooth": PICK_SMOOTH},
+        "repaint": {"pad": PAD, "steps": STEPS, "cfg": 1.0, "sampler": "euler",
+                    "scheduler": "simple", "denoise": 1.0},
+        "pack": {"columns": SS.SHEET_COLUMNS, "height_cap": SHEET_HEIGHT_CAP,
+                 "up_cap": SHEET_UP_CAP},
+        # Prices, not key material. Carried here because the Durable Object has to price a step it
+        # has just invented -- a re-roll makes a repaint instance that has never existed -- and it
+        # cannot import Python to ask.
+        "cost_s": dict(_pipeline().COST_S),
+    }
 
 
 def _frame(src, seed, png=None, hold=1, pivot_nudge=(0, 0)):
@@ -271,19 +396,17 @@ def _migrated(cid):
             man = json.load(open(old))
             new_frames = [_frame(c["src"], c["seed"], c.get("png")) for c in man["cells"]]
             start = len(frames)
-            tag = {"name": move, "from": start, "to": start + len(new_frames) - 1,
-                   "fps": man["fps"], "direction": "forward", "loop": man["loop"],
-                   # The old per-move `hold` was the game semantic; it becomes `hold_key`.
-                   "hold_key": man["hold"], "unify": man["unify"], "clip": man["clip"]}
+            # The old per-move `hold` was the game semantic; it becomes `hold_key`.
+            tag = _tag(move, start, start + len(new_frames) - 1,
+                       recipe_of_clip(cid, man["clip"]), man["fps"], man["loop"], man["hold"],
+                       man["unify"], man["clip"])
         except (KeyError, ValueError) as e:
             print(f"  {cid}-{move}: {old} did not fold cleanly ({e}) -- leaving it on disk")
             continue
         frames.extend(new_frames)
         tags.append(tag)
         folded.append(move)
-    man = {"character": cid, "cell": CELL, "pivot": sheet_pivot(), "tags": tags,
-           "frames": frames} if tags else None
-    return man, folded
+    return (_character(cid, tags, frames) if tags else None), folded
 
 
 def _backfill_missing_moves(cid, man):
@@ -297,17 +420,41 @@ def _backfill_missing_moves(cid, man):
     caller only re-saves the manifest when there was something to add.
     """
     changed = False
-    for move, (_, n, fps, loop, hold_key, unify) in MOVES.items():
+    for move, (recipe, n, fps, loop, hold_key, unify) in MOVES.items():
         if _tag_index(man, move) is not None:
             continue
         start = len(man["frames"])
-        for p in pick_frames(cid, move, clip_path(cid, move), n):
+        clip = clip_path(cid, move, man)
+        for p in pick_frames(cid, move, clip, n, cycle=is_cyclic(recipe), stop=hold_key):
             man["frames"].append(_frame(p, SEED))
-        man["tags"].append({"name": move, "from": start, "to": len(man["frames"]) - 1, "fps": fps,
-                            "direction": "forward", "loop": loop, "hold_key": hold_key,
-                            "unify": unify, "clip": clip_path(cid, move)})
+        man["tags"].append(_tag(move, start, len(man["frames"]) - 1, recipe, fps, loop, hold_key,
+                                unify, clip))
         changed = True
     return changed
+
+
+def _backfill_move_data(cid, man):
+    """Top a manifest written before a move was data up to the current shape.
+
+    A tag used to record only how it PLAYS -- fps, loop, hold_key, unify -- and left the brief that
+    rendered it in a Python table. It now carries the recipe and its text as well, and the
+    character carries his own trait line, so a rename or a re-word cannot leave the two disagreeing.
+    The recipe name is recovered from the tag's own `clip` path, which has always encoded it, so no
+    move has to be matched back to MOVES by name.
+
+    The locked build constants are REFRESHED, not defaulted: they are still owned by this module,
+    and the manifest carries a copy only so the Durable Object can compute the same cache keys.
+    Returns True when it changed something, so a manifest that is already current is not rewritten.
+    """
+    before = json.dumps(man, sort_keys=True)
+    for tag in man["tags"]:
+        if "recipe" not in tag:
+            recipe = recipe_of_clip(cid, tag["clip"])
+            tag.update({"recipe": recipe, "recipe_text": BS.MOVES[recipe],
+                        "cells": tag["to"] - tag["from"] + 1, "cyclic": is_cyclic(recipe)})
+    man.setdefault("trait", TRAITS.get(cid, ""))
+    man["build"] = build_block()
+    return json.dumps(man, sort_keys=True) != before
 
 
 def load_character_manifest(cid):
@@ -337,7 +484,8 @@ def load_character_manifest(cid):
             old = os.path.join(MANIFEST_DIR, f"{cid}-{move}.json")
             if os.path.exists(old):
                 os.remove(old)
-    if _backfill_missing_moves(cid, man):
+    topped_up = _backfill_move_data(cid, man)
+    if _backfill_missing_moves(cid, man) or topped_up:
         save_character_manifest(cid, man)
     return man
 
@@ -356,7 +504,7 @@ def save_character_manifest(cid, man):
     tmp = f"{p}.tmp{os.getpid()}"
     try:
         with open(tmp, "w") as f:
-            json.dump(man, f, indent=1)
+            json.dump(_ordered(man), f, indent=1)
         os.replace(tmp, p)
     except Exception:
         # A mid-serialise failure (e.g. a bad value slipped into `man`) must not leave a stray
@@ -380,32 +528,58 @@ def repaint_path(cid, move, src, seed):
     return os.path.join(REPAINT_DIR, f"{cid}-{move}-{stem}{tag}.png")
 
 
+def _character(cid, tags, frames):
+    """The whole-character record, always the same shape and the same key order.
+
+    `trait` is the character's own one-sentence description of how he moves, and it is manifest
+    data for the same reason a recipe is: Ake has no legs, so "walk cycle" has to read as rolling
+    for him, and that fact belongs to the character rather than to a table in a Python file. A
+    character with no line of his own yet starts from build_transition.TRAITS.
+    """
+    return _ordered({"character": cid, "cell": CELL, "pivot": sheet_pivot(),
+                     "trait": TRAITS.get(cid, ""), "build": build_block(),
+                     "tags": tags, "frames": frames})
+
+
 def bootstrap_manifest(cid):
     """A character with no manifest yet: choose every move's cells off its clip, in MOVES order.
 
-    This is the only path that reads MOVES for anything but a clip path. Once the file exists the
-    manifest is the truth and MOVES cannot silently overrule an edit.
+    This is the only path that reads MOVES at all. Once the file exists the manifest is the truth
+    and MOVES cannot silently overrule an edit.
     """
     frames, tags = [], []
-    for move, (_, n, fps, loop, hold_key, unify) in MOVES.items():
+    for move, (recipe, n, fps, loop, hold_key, unify) in MOVES.items():
         start = len(frames)
-        for p in pick_frames(cid, move, clip_path(cid, move), n):
+        clip = bootstrap_clip_path(cid, recipe)
+        for p in pick_frames(cid, move, clip, n, cycle=is_cyclic(recipe), stop=hold_key):
             frames.append(_frame(p, SEED))
-        tags.append({"name": move, "from": start, "to": len(frames) - 1, "fps": fps,
-                     "direction": "forward", "loop": loop, "hold_key": hold_key,
-                     "unify": unify, "clip": clip_path(cid, move)})
-    return {"character": cid, "cell": CELL, "pivot": sheet_pivot(), "tags": tags, "frames": frames}
+        tags.append(_tag(move, start, len(frames) - 1, recipe, fps, loop, hold_key, unify, clip))
+    return _character(cid, tags, frames)
+
+
+def print_steps(cid, rows):
+    """One line per step kind: how many instances, how many stale and what re-running them costs."""
+    total = sum(r["cost_s"] for r in rows.values())
+    print(f"STEPS {cid}: " +
+          "  ".join(f"{k} {r['n'] - r['stale']}/{r['n']} fresh" for k, r in rows.items()) +
+          (f"  -- rebuilding the stale ones costs about {total}s" if total else ""))
 
 
 def main():
     cid = sys.argv[1] if len(sys.argv) > 1 else "seth"
     os.makedirs(REPAINT_DIR, exist_ok=True)
+    PL = _pipeline()
     # Always every tag, never a subset. The cell scale is shared across the whole set -- that is
     # what stops the character resizing when the state machine switches move -- so packing one tag
     # on its own would silently rescale it against itself. Repaints are cached, so the moves you
     # did not touch cost nothing.
     man = load_character_manifest(cid) or bootstrap_manifest(cid)
 
+    # Which steps this run really produced an artifact for, so their `built_key` is stamped at the
+    # key they were built at. Everything else carries its old built_key forward -- see
+    # pipeline.build_steps: a run that packs without re-rendering must not clear the staleness an
+    # edit created.
+    built = {"pack"}
     prepared = []
     for tag in man["tags"]:
         t0 = time.time()
@@ -416,6 +590,7 @@ def main():
             dst = repaint_path(cid, tag["name"], f["src"], f["seed"])
             if not os.path.exists(dst):
                 repaint(f["src"], dst, seed=f["seed"])
+                built.add(PL.repaint_id(dst))
             man["frames"][idx] = _frame(f["src"], f["seed"], dst, f.get("hold", 1),
                                         f.get("pivot_nudge", (0, 0)))
             print(f"  {cid}-{tag['name']} cell {n}/{len(span)}  {time.time()-t0:.0f}s", flush=True)
@@ -433,7 +608,7 @@ def main():
     # One scale across the whole set, or he changes size when the state machine switches move.
     tallest = max(p["natural"] for _, p, _ in prepared)
     highest = max(p["up"] for _, p, _ in prepared)
-    scale = min((CELL * 0.92) / tallest, (CELL * 0.88) / highest)
+    scale = min((CELL * SHEET_HEIGHT_CAP) / tallest, (CELL * SHEET_UP_CAP) / highest)
 
     SS.CEL_CLEAN = False
     # One atlas, one JSON, and nothing else. The per-move atlases and the `<cid>-moves.json` that
@@ -445,6 +620,13 @@ def main():
     # Measured off the atlas that was just written, never fed back into it. Numbers, not eyes:
     # every one of these has caught a real defect here after it shipped.
     SS.print_qc(SS.sheet_qc(cid, prepared, CELL, OUT, tuple(man["pivot"])))
+
+    # Last, because every step's record carries the content hash of an artifact, and the atlas is
+    # only final once the emit above has written it. Nothing reads these yet and nothing runs off
+    # them -- they make the pipeline's state explicit, no more (DESIGN-pipeline.md, stage 1).
+    man["steps"] = PL.build_steps(cid, man, built)
+    save_character_manifest(cid, man)
+    print_steps(cid, PL.summary(man))
 
 
 if __name__ == "__main__":

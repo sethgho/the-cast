@@ -445,10 +445,15 @@ def export_css(atlas, cid):
 
 # --- dispatch ----------------------------------------------------------------------------------
 
+# name -> (builder, content type, the file name a download is offered under). The builder is a
+# pure function of the atlas table (`load_atlas`), so this dict is the whole contract: the agent
+# serves exactly these formats and pipeline.py records exactly one export step per entry. It used
+# to be two dicts, one here and one in sprite_agent.py, and a format in one and not the other is a
+# step nobody can run or a route nobody knows about.
 FORMATS = {
-    "json-hash": export_json_hash,
-    "json-array": export_json_array,
-    "phaser3": export_phaser3,
-    "godot": export_godot,
-    "css": export_css,
+    "json-hash": (export_json_hash, "application/json", "{cid}-atlas-hash.json"),
+    "json-array": (export_json_array, "application/json", "{cid}-atlas-array.json"),
+    "phaser3": (export_phaser3, "application/json", "{cid}-phaser3.json"),
+    "godot": (export_godot, "text/plain; charset=utf-8", "{cid}-frames.tres"),
+    "css": (export_css, "text/css; charset=utf-8", "{cid}-sprite.css"),
 }
