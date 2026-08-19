@@ -389,7 +389,7 @@
    "src": "/tmp/sprite-seth-kick-pick/f_0039.png",
    "seed": 77,
    "png": "/tmp/repaint/seth-kick-f_0039.png",
-   "hold": 3,
+   "hold": 1,
    "pivot_nudge": [
     0,
     0
@@ -399,7 +399,7 @@
    "src": "/tmp/sprite-seth-kick-pick/f_0055.png",
    "seed": 77,
    "png": "/tmp/repaint/seth-kick-f_0055.png",
-   "hold": 7,
+   "hold": 1,
    "pivot_nudge": [
     0,
     0
