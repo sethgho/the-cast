@@ -177,10 +177,21 @@ def build_steps(cid, man, built=()):
             rec["built_key"] = rec["key"] if current else None
         elif sid in built:
             rec["built_key"] = rec["key"]
-        elif was:
-            rec["built_key"] = was.get("built_key")
+        elif was and was.get("built_key") is not None:
+            rec["built_key"] = was["built_key"]
         elif artifact_hash is not None:
-            rec["built_key"] = rec["key"]       # the backfill: an artifact on disk is current
+            # The backfill: an artifact on disk with no built_key anywhere is current.
+            #
+            # It reaches PAST an existing record on purpose, and only when that record says
+            # "never built". A re-pick lands a cell on a source frame something already drew --
+            # the file is named by (source frame, seed), so a cell that has been there before
+            # comes back to its own drawing -- and the Durable Object, which cannot open a file,
+            # necessarily invented that step with `built_key: null`. Carrying that null forward
+            # read "never built" forever, because the packer paints only what is MISSING: running
+            # repaint could not answer it, so the rail showed a permanent stale chip that no
+            # amount of GPU would clear. A record that DOES carry a built_key is never touched
+            # here, so a genuinely stale drawing stays stale.
+            rec["built_key"] = rec["key"]
         steps.append(rec)
         return rec
 

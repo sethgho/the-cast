@@ -163,30 +163,110 @@ def fetch_manifest(cid):
     return got["manifest"], got["frames"]
 
 
+def supervise(argv, beat):
+    """Run one child to completion, heartbeating while it works. Returns (exit code, killed).
+
+    The heartbeat thread is the only thing that can hear a cancel — the agent is behind a long
+    poll and the Worker cannot call it — so the beat continues at a fixed cadence whatever the
+    child is doing, and a clip's 170 seconds is no different from a repack's two.
+    """
+    proc = subprocess.Popen(argv)
+    stop = threading.Event()
+    killed = threading.Event()
+
+    def heartbeat():
+        while not stop.wait(HEARTBEAT_S):
+            if beat() and not killed.is_set():
+                killed.set()
+                # SIGTERM, not SIGKILL: sprite_steps.py catches it to take the render off
+                # gpu-worker's queue as well. A kill would stop this process and leave the card
+                # rendering a clip nobody will ever collect.
+                proc.terminate()
+
+    heart = threading.Thread(target=heartbeat, daemon=True)
+    heart.start()
+    try:
+        code = proc.wait()
+    finally:
+        stop.set()
+        heart.join(timeout=1)
+    return code, killed.is_set()
+
+
+def report_built(cid, job, built_id, cleared_tag=None):
+    """Report one upstream step's result: the manifest as the DO now holds it, re-keyed.
+
+    The manifest is re-fetched rather than reused, because the DO owns it and this job may have
+    taken minutes — a re-roll typed during a clip render is already spliced in there, and the
+    reconcile above has just rewritten a whole tag. Only `built_id` is stamped as built: every
+    other step carries its previous built_key forward, or a run that packed nothing would erase
+    the staleness an edit had just created.
+    """
+    man, frames = fetch_manifest(cid)
+    RC.save_character_manifest(cid, man)
+    man["steps"] = RC._pipeline().build_steps(cid, man, {built_id})
+    RC.save_character_manifest(cid, man)
+    celld("done", {"cid": cid, "id": job["id"], "message": f"{job['label']} — done",
+                   "manifest": man, "frames": frames, "catalogue": catalogue(cid, man),
+                   # A changed extraction deleted every drawing of this move, so the tray entries
+                   # that still name one have to be told. They keep their facts and lose their
+                   # picture; without this the page asks the agent for a deleted file every time
+                   # somebody opens the Picks panel.
+                   "cleared_tag": cleared_tag})
+
+
+# What each job type is actually doing, in the words the queue shows while it does it. Saying
+# "repainting" for a reorder made a two-second repack look like a 45-second generation, which is
+# how this tool earned a reputation for doing things nobody asked for; the same honesty is what
+# the clip's 170 seconds needs most, because it is the longest wait this queue can produce.
+NOTES = {
+    "pack": "repacking, a few seconds",
+    "clip": "rendering the clip on the card, ~170s",
+    "extract": "re-extracting the frames, ~10s",
+    "picks": "choosing the cells, ~5s",
+}
+
+
 def run_job(cid, job):
-    """One claimed job: adopt the DO's manifest, repaint and repack, report what was packed.
+    """One claimed job: adopt the DO's manifest, do the one thing it names, report the result.
 
-    The manifest is written to disk BEFORE the repack for the same reason the Python editor did
-    it: a repack can crash or be killed, and the edit must survive that. Nothing in here decides
-    anything about the manifest — `repaint_cells.main()` fills in each frame's `png` as it
-    repaints, and that is the only field the DO will accept back.
+    The manifest is written to disk BEFORE anything runs, for the same reason the Python editor
+    did it: work can crash or be killed, and the edit must survive that. It is also what makes the
+    upstream steps manifest-driven — `hires_sprite.brief()` and `sprite_steps.tag_of()` both read
+    this file, so a clip is briefed with the words the tag carries and never with the Python
+    tables (DESIGN-pipeline.md, "a new move").
 
-    The repack runs as a CHILD PROCESS rather than in this thread, and that is what makes a cancel
-    real. A queued job can simply be dropped, but a job already on the GPU is 45 seconds of
-    ComfyUI inside one blocking call; there is no flag `repaint_cells` could check often enough,
-    and Python cannot interrupt a thread. So the abort is a signal to a process. It also puts the
-    packer's numpy and PIL arenas in a process that exits, which this long-lived server does not.
+    Every kind runs as a CHILD PROCESS rather than in this thread, and that is what makes a cancel
+    real. A queued job can simply be dropped, but a job already on the card is 45 seconds of
+    ComfyUI — 170 for a clip — inside one blocking call; there is no flag the work could check
+    often enough, and Python cannot interrupt a thread. So the abort is a signal to a process. It
+    also puts the packer's numpy and PIL arenas in a process that exits, which this long-lived
+    server does not.
     """
     man, frames = fetch_manifest(cid)
     RC.save_character_manifest(cid, man)
 
-    # Saying "repainting" for a reorder made a two-second repack look like a 45-second
-    # generation, which is how this tool earned a reputation for doing things nobody asked for.
-    note = "painting a new cell, ~45s" if job["generates"] else "repacking, a few seconds"
+    kind = job.get("kind") or "pack"
+    if kind in ("pack", "repaint"):
+        # Counted off the disk, not guessed from the job's `generates` flag. That flag says
+        # whether the EDIT was a generating one; the packer paints whatever drawing is missing,
+        # whoever made it missing. A restore landing on a tag whose cells were re-picked reported
+        # "repacking, a few seconds" and then held the queue for three minutes of painting.
+        missing = sum(1 for f in man["frames"] if not f.get("png") or not os.path.exists(f["png"]))
+        note = (f"painting {missing} cell{'' if missing == 1 else 's'}, ~{45 * missing}s"
+                if missing else NOTES["pack"])
+    else:
+        note = NOTES[kind]
     message = f"{job['label']} — {note}"
 
     def beat():
-        """One heartbeat. Returns True when the DO has asked for this job to stop."""
+        """One heartbeat. Returns True when the DO has asked for this job to stop.
+
+        This is also what renews the job's RUNNING lease, and it is why a 170-second clip does not
+        need a longer one: the beat is every 5 seconds whatever the child is doing, so the DO's
+        60-second running lease keeps twelve beats of headroom at any job length. The lease bounds
+        the AGENT's silence, not the work's duration, which is the property that has to hold.
+        """
         try:
             return celld("progress", {"cid": cid, "id": job["id"], "message": message}) \
                 .get("cancel", False)
@@ -198,6 +278,9 @@ def run_job(cid, job):
         celld("failed", {"cid": cid, "id": job["id"], "message": f"{job['label']} — cancelled"})
         print(f"[{cid}] {job['id']} cancelled", flush=True)
 
+    def fail(why):
+        celld("failed", {"cid": cid, "id": job["id"], "message": f"{job['label']} — {why}"})
+
     # Beat once before starting anything. A job can be claimed and then cancelled while it waits
     # behind the other character's job on the one card, and starting a paint nobody wants any more
     # is exactly the cost this queue exists to avoid.
@@ -205,40 +288,55 @@ def run_job(cid, job):
         cancelled()
         return
 
-    proc = subprocess.Popen([sys.executable, os.path.join(HERE, "repaint_cells.py"), cid])
-    stop = threading.Event()
-    killed = threading.Event()
+    if kind in ("pack", "repaint"):
+        argv = [sys.executable, os.path.join(HERE, "repaint_cells.py"), cid]
+        result_path = None
+    else:
+        result_path = f"/tmp/sprite-step-{job['id']}.json"
+        if os.path.exists(result_path):
+            os.remove(result_path)
+        argv = [sys.executable, os.path.join(HERE, "sprite_steps.py"), kind, cid, job["tag"],
+                result_path]
 
-    def heartbeat():
-        while not stop.wait(HEARTBEAT_S):
-            if beat() and not killed.is_set():
-                killed.set()
-                proc.terminate()
-
-    heart = threading.Thread(target=heartbeat, daemon=True)
-    heart.start()
-    try:
-        code = proc.wait()
-    finally:
-        stop.set()
-        heart.join(timeout=1)
-    if killed.is_set():
+    code, killed = supervise(argv, beat)
+    if killed:
         cancelled()
         return
     if code != 0:
         # gpu-worker being down is routine, so this path is reachable on any re-roll. In-process
         # this arrived as SystemExit — which slips past `except Exception` and used to kill the
         # worker thread silently; as a child process it is simply an exit code.
-        celld("failed", {"cid": cid, "id": job["id"],
-                         "message": f"{job['label']} — the repack exited {code}"})
+        fail(f"{kind} exited {code}")
         return
-    packed = RC.load_character_manifest(cid)
-    # `manifest` carries the step records and the locked build constants the packer just wrote,
-    # which is the BUILD REPORT: every artifact hash and every built_key in there is knowledge only
-    # this half has, because only this half can open a file. The DO takes those as given and
-    # recomputes the cache keys on top of them.
-    celld("done", {"cid": cid, "id": job["id"], "message": f"{job['label']} — done",
-                   "manifest": packed, "frames": frames, "catalogue": catalogue(cid, packed)})
+
+    if kind in ("pack", "repaint"):
+        packed = RC.load_character_manifest(cid)
+        # `manifest` carries the step records and the locked build constants the packer just
+        # wrote, which is the BUILD REPORT: every artifact hash and every built_key in there is
+        # knowledge only this half has, because only this half can open a file. The DO takes those
+        # as given and recomputes the cache keys on top of them.
+        celld("done", {"cid": cid, "id": job["id"], "message": f"{job['label']} — done",
+                       "manifest": packed, "frames": frames,
+                       "catalogue": catalogue(cid, packed)})
+        return
+
+    result = json.load(open(result_path))
+    os.remove(result_path)
+    move = job["tag"]
+    if kind == "picks":
+        # The picker chose frames; it does NOT get to decide what that costs the hand edits on the
+        # frames it replaced. That answer is the Durable Object's, because the edits are its data,
+        # and it has to land before the step records below are computed — those key off the chosen
+        # source frames, and stamping built_key against picks the DO has not accepted yet would
+        # report "fresh" about a manifest that never existed.
+        r = celld("picked", {"cid": cid, "tag": move, "srcs": result["srcs"],
+                             "frames_hash": result["frames_hash"]})
+        print(f"[{cid}] {move}: {r['cells']} cells, {r['matched']} kept their edits, "
+              f"{r['orphaned']} to the tray ({r['edits_orphaned']} hand-edited), "
+              f"{r['suppressed']} still dropped, "
+              f"carry-over {'on' if r['carried_over'] else 'off — a new extraction'}", flush=True)
+    built = {"clip": f"clip:{move}", "extract": f"frames:{move}", "picks": f"picks:{move}"}[kind]
+    report_built(cid, job, built, move if kind == "extract" and result["changed"] else None)
 
 
 def poller(cid, pending, wake):

@@ -84,6 +84,12 @@ g = {
 for n,d in g.items(): d.setdefault("_meta",{"title":n})
 t0=time.time()
 pid=S.api("/prompt",{"prompt":g,"client_id":"hires"})["prompt_id"]
+# Publish the queued prompt's id when the caller asked for it. A cancelled clip job used to stop
+# only the process WAITING on this render, leaving gpu-worker to spend the remaining 170 seconds
+# on video nobody would collect -- on a card that is shared. sprite_steps.py reads this file to
+# interrupt exactly this prompt and never another tenant's.
+if os.environ.get("SPRITE_CLIP_PID_FILE"):
+    open(os.environ["SPRITE_CLIP_PID_FILE"], "w").write(pid)
 while True:
     h=S.api(f"/history/{pid}")
     if pid in h: break

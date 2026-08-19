@@ -256,8 +256,8 @@
    "png": "/tmp/repaint/seth-idle-f_0011.png",
    "hold": 1,
    "pivot_nudge": [
-    97,
-    -184
+    0,
+    0
    ]
   },
   {
@@ -2716,8 +2716,8 @@
        {
         "hold": 1,
         "pivot_nudge": [
-         97,
-         -184
+         0,
+         0
         ]
        },
        {
@@ -3347,10 +3347,10 @@
      "hash": "5a0825722d98e5f0"
     }
    ],
-   "key": "5aa4d94ce46f8110",
-   "built_key": "5aa4d94ce46f8110",
+   "key": "061d857d83b2afb7",
+   "built_key": "061d857d83b2afb7",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-   "artifact_hash": "fee7001fdeda959e",
+   "artifact_hash": "819075d2fad16d98",
    "cost_s": 5
   },
   {
@@ -3364,11 +3364,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "fee7001fdeda959e"
+     "hash": "819075d2fad16d98"
     }
    ],
-   "key": "b1ff00b02ee0f526",
-   "built_key": "b1ff00b02ee0f526",
+   "key": "0817f91500bcaa20",
+   "built_key": "0817f91500bcaa20",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3384,11 +3384,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "fee7001fdeda959e"
+     "hash": "819075d2fad16d98"
     }
    ],
-   "key": "1cb32fc7f25425eb",
-   "built_key": "1cb32fc7f25425eb",
+   "key": "b356a5b235ef083e",
+   "built_key": "b356a5b235ef083e",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3404,11 +3404,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "fee7001fdeda959e"
+     "hash": "819075d2fad16d98"
     }
    ],
-   "key": "f0ecbe484a912dee",
-   "built_key": "f0ecbe484a912dee",
+   "key": "02d424e68b33bccd",
+   "built_key": "02d424e68b33bccd",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3424,11 +3424,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "fee7001fdeda959e"
+     "hash": "819075d2fad16d98"
     }
    ],
-   "key": "a83c4553a48cf8f6",
-   "built_key": "a83c4553a48cf8f6",
+   "key": "9a82be7421b0cdc2",
+   "built_key": "9a82be7421b0cdc2",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3444,11 +3444,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "fee7001fdeda959e"
+     "hash": "819075d2fad16d98"
     }
    ],
-   "key": "760300e9c4381f2a",
-   "built_key": "760300e9c4381f2a",
+   "key": "842bc07fc6e3ad09",
+   "built_key": "842bc07fc6e3ad09",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0

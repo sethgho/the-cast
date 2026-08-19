@@ -101,6 +101,23 @@
              background: var(--cream); border-radius: 4px; margin-bottom: 6px; }
   .why0 { color: var(--faint); font-style: italic; margin-top: 4px; }
 
+  /* --- the orphan tray -------------------------------------------------------------------- */
+  /* It sits in the Picks panel and not behind a disclosure, because an edit that is only visible
+     to whoever thinks to open a drawer is an edit that was silently eaten. */
+  #tray { margin: 8px 0 2px; }
+  #tray > b { color: var(--gold); }
+  .tray-e { display: flex; gap: 6px; margin-top: 5px; padding: 5px; background: var(--sunk);
+            border: 1px solid var(--line); border-left: 2px solid var(--gold); border-radius: 4px; }
+  .tray-e img { width: 46px; height: 46px; object-fit: contain; flex: none;
+                background: var(--cream); border-radius: 3px; }
+  .tray-e .facts { flex: 1 1 auto; min-width: 0; color: var(--dim); line-height: 1.45; }
+  .tray-e .facts b { color: var(--ink); font-weight: 700; }
+  .tray-e .why { display: block; font-style: italic; color: var(--faint); }
+  .tray-e .acts { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; align-items: center; }
+  .tray-e select { flex: 1 1 90px; min-width: 0; }
+  .pchip .orph { background: var(--gold); color: #241c12; border-radius: 7px; padding: 0 5px;
+                 font-weight: 700; margin-left: 3px; }
+
   /* --- the cost receipt ------------------------------------------------------------------- */
   #receipt { max-width: 560px; }
   #receipt .row { display: flex; gap: 8px; border-top: 1px solid var(--line); padding: 5px 0; }
@@ -1244,9 +1261,9 @@ el("b-pin").onclick = pinHere;
 // second answer would be free to disagree with the two that already exist.
 const KINDS = ["plate", "clip", "frames", "picks", "repaint", "pack", "export"];
 const SCOPED = ["clip", "frames", "picks", "repaint"];
-// The only two kinds with an agent job type. `clip` and `frames` land in stage 4; until they do,
-// their receipt is honest about it and the confirm is dead.
-const RUNNABLE = ["repaint", "pack"];
+// Every kind with an agent job type. A plate is uploaded and an export is streamed on request,
+// so those two are the only chips whose Run stays dead.
+const RUNNABLE = ["clip", "frames", "picks", "repaint", "pack"];
 const BASE_SEED = 77;
 
 let stepOpen = null;                  // which chip owns the inspector, or null for the cell
@@ -1265,15 +1282,25 @@ function priceOf(list) {
   return {text: "~" + each + "s" + (list.length > 1 ? " × " + list.length : ""), free: false};
 }
 
-// A kind is RUNNING when a live job would rebuild it. A repack rebuilds the pack whatever queued
-// it, and a generating job is a repaint, so the two read as running from any edit — not only from
-// a Run on this rail.
+// A kind is RUNNING when a live job would rebuild it. The job says which type it is, so this is
+// read off the queue rather than guessed: a clip, an extraction and a re-pick all set
+// `generates`, and inferring the kind from that flag alone would have lit the repaint chip for
+// all three. A `pack` job is the repack every cheap edit coalesces into, and a `repaint` job ends
+// in one too — but a clip, an extraction and a pick do not touch the atlas at all.
+const JOB_OF_KIND = {clip: "clip", frames: "extract", picks: "picks", repaint: "repaint",
+                     pack: "pack"};
 function runningKind(kind) {
+  const want = JOB_OF_KIND[kind];
   for (const j of JOBS) {
     if (!LIVE.includes(j.state)) continue;
-    if (RUNS.get(j.id) === kind) return true;
-    if (kind === "pack" && !j.generates) return true;
-    if (kind === "repaint" && j.generates && (!j.tag || j.tag === tagName)) return true;
+    const jk = j.kind || "pack";
+    if (kind === "pack") {
+      if (jk === "pack" || jk === "repaint") return true;
+      continue;
+    }
+    if (jk !== want) continue;
+    if (SCOPED.includes(kind) && j.tag && j.tag !== tagName) continue;
+    return true;
   }
   return false;
 }
@@ -1297,6 +1324,16 @@ function renderRail() {
                   (SCOPED.includes(kind) ? '<span class="ptag"></span>' : "") +
                   '<span class="' + (price.free ? "free" : "price") + '"></span>';
     b.querySelector(".who").textContent = kind;
+    // The orphan count rides on the chip that owns the tray, so a re-run that parked somebody's
+    // pivot nudge says so from the rail — without needing the panel open to find out.
+    const orph = trayOf(tagName).length;
+    if (kind === "picks" && orph) {
+      const badge = document.createElement("span");
+      badge.className = "orph";
+      badge.textContent = String(orph);
+      badge.title = orph + " orphaned frame" + (orph === 1 ? "" : "s") + " in the tray";
+      b.appendChild(badge);
+    }
     if (SCOPED.includes(kind)) b.querySelector(".ptag").textContent = tagName;
     b.querySelector(price.free ? ".free" : ".price").textContent = price.text;
     b.title = kind + (SCOPED.includes(kind) ? "(" + tagName + ")" : "") + " — " +
@@ -1523,6 +1560,7 @@ function renderStep(kind) {
     b.title = "the source-frame scrubber, for this one cell";
     b.onclick = () => openRepick();
     body.appendChild(b);
+    body.appendChild(renderTray());
     body.appendChild(lockRow("CYCLE_SCORE_MAX", "0.09",
       "absolute; a relative version is worse, see references"));
     body.appendChild(lockRow("anchor / smooth", p.anchor + " · " + p.smooth,
@@ -1598,6 +1636,142 @@ function renderStep(kind) {
 
 }
 
+// --- the orphan tray ---------------------------------------------------------------------------
+// DESIGN-pipeline.md: a re-run NEVER deletes a hand edit, it orphans it visibly. This is the
+// visible part. Everything in here came off a frame this tag used to have, and the only two ways
+// out are a person restoring it onto a live cell or a person collecting it — nothing on this page
+// or in the Durable Object ever empties it on its own.
+const trayOf = (tag) => (ST.tray || []).filter((e) => e.tag === tag);
+const droppedOf = (tag) => (ST.dropped || []).filter((e) => e.tag === tag);
+
+// Where a source frame sits in the clip, off the name `pick_frames` extracted it under. The same
+// rule the Durable Object matches by, and it is only used here to say WHICH frame an edit came
+// from and to offer the nearest live cell as the default place to put it back.
+function srcTime(src) {
+  const m = /(?:^|\/)f_(\d+)\.png$/.exec(src || "");
+  return m ? parseInt(m[1], 10) : null;
+}
+
+// The frame's name as it is ON DISK, zero-padded. A bare `f_11` beside a directory full of
+// `f_0011.png` is a second spelling of the same thing, and this panel exists to let a person go
+// and look at the frame an edit came from.
+const frameName = (t) => "f_" + String(t).padStart(4, "0");
+
+const nudged = (n) => n && (n[0] || n[1]) ? (n[0] > 0 ? "+" + n[0] : n[0]) + "," +
+  (n[1] > 0 ? "+" + n[1] : n[1]) : null;
+
+// What a person actually put on this frame by hand, as words. A tray entry with none of them is
+// still kept and still shown — the tray holds FRAMES, not just edits, so that "which frame did
+// this come from" has an answer — but it says so rather than pretending an edit was lost.
+function editWords(e) {
+  const bits = [];
+  if (e.seed !== BASE_SEED) bits.push("seed " + e.seed);
+  if (e.hold > 1) bits.push("hold " + e.hold);
+  const n = nudged(e.pivot_nudge);
+  if (n) bits.push("nudge " + n);
+  return bits.length ? bits.join(" · ") : "no hand edits";
+}
+
+function renderTray() {
+  const box = document.createElement("div");
+  box.id = "tray";
+  const entries = trayOf(tagName), dead = droppedOf(tagName);
+  const head = document.createElement("div");
+  head.innerHTML = "<b></b> <span></span>";
+  head.querySelector("b").textContent = "orphan tray — " + entries.length +
+    (entries.length === 1 ? " frame" : " frames");
+  head.querySelector("span").className = "why0";
+  head.querySelector("span").textContent = entries.length
+    ? "a re-run could not match these to a new pick. Nothing is ever deleted; restore one onto a " +
+      "live cell, or collect it by hand."
+    : "empty — every frame this tag has ever had is either live or collected.";
+  box.appendChild(head);
+
+  for (const e of entries) {
+    const d = document.createElement("div");
+    d.className = "tray-e";
+    if (e.png) {
+      const im = document.createElement("img");
+      im.src = imgUrl(e.png, 92);
+      im.alt = "";
+      // The drawing may be gone: a clip re-run deletes the repaints of frames that no longer
+      // exist, and the entry outlives them on purpose. The facts are the payload; the picture is
+      // a courtesy, so its absence hides the element instead of logging a broken image.
+      im.onerror = () => { im.remove(); };
+      d.appendChild(im);
+    }
+    const f = document.createElement("div");
+    f.className = "facts";
+    const t = srcTime(e.src);
+    f.innerHTML = "<b></b><br><span class=\"e\"></span><span class=\"why\"></span>";
+    f.querySelector("b").textContent = "frame " +
+      (t === null ? e.src.split("/").pop() : frameName(t));
+    f.querySelector(".e").textContent = editWords(e);
+    f.querySelector(".why").textContent = e.why;
+
+    const acts = document.createElement("div");
+    acts.className = "acts";
+    const pick = document.createElement("select");
+    pick.title = "which live cell this edit should land on";
+    CELLS().forEach((c, i) => {
+      const o = document.createElement("option");
+      o.value = String(i);
+      const ct = srcTime(c.src);
+      o.textContent = "cell " + (i + 1) + (ct === null ? "" : " · " + frameName(ct));
+      pick.appendChild(o);
+    });
+    // Default to the live cell whose source frame is nearest in the clip. It is the cell this
+    // edit was most likely meant for, and picking the first one instead would make the common
+    // restore a two-step act with a wrong default in the middle of it.
+    if (t !== null) {
+      let best = 0, gap = Infinity;
+      CELLS().forEach((c, i) => {
+        const ct = srcTime(c.src);
+        if (ct === null) return;
+        if (Math.abs(ct - t) < gap) { gap = Math.abs(ct - t); best = i; }
+      });
+      pick.value = String(best);
+    }
+    const put = document.createElement("button");
+    put.textContent = "Restore";
+    put.title = "reattach this frame's hold and nudge to the chosen live cell";
+    put.onclick = () => restoreOrphan(e.fid, parseInt(pick.value, 10));
+    const bin = document.createElement("button");
+    bin.textContent = "Collect";
+    bin.title = "stop offering this one. Its id stays on the record with the reason.";
+    bin.onclick = () => forgetOrphan(e.fid, t);
+    acts.appendChild(pick);
+    acts.appendChild(put);
+    acts.appendChild(bin);
+    f.appendChild(acts);
+    d.appendChild(f);
+    box.appendChild(d);
+  }
+
+  if (dead.length) {
+    const n = document.createElement("div");
+    n.className = "why0";
+    // The third bucket, said out loud. It is what stops a re-pick resurrecting a cell somebody
+    // deliberately removed, and it is the other half of the invariant the Durable Object asserts.
+    n.textContent = dead.length + " frame" + (dead.length === 1 ? " is" : "s are") +
+      " retired from this tag (dropped, restored or collected). A re-pick will not bring " +
+      (dead.length === 1 ? "it" : "them") + " back.";
+    box.appendChild(n);
+  }
+  return box;
+}
+
+function restoreOrphan(fid, index) {
+  if (!Number.isInteger(index) || index < 0) return;
+  mutate("/api/restore", {fid, index}, "restore onto cell " + (index + 1), "cells", [index]);
+}
+
+function forgetOrphan(fid, t) {
+  if (!confirm("Collect the orphaned frame " + (t === null ? fid : frameName(t)) +
+               "?\n\nIt stops being offered for restore. Nothing else changes.")) return;
+  mutate("/api/forget", {fid}, "collect " + fid + " from the tray", "tag", []);
+}
+
 const packUnify = () => {
   const p = (ST.steps || []).find((x) => x.id === "pack");
   const t = p && p.params.tags.find((x) => x.name === tagName);
@@ -1671,8 +1845,9 @@ const FATE = {
     "a new clip is a new performance, so frame times no longer mean anything and nothing auto-matches"],
   clip: ["ORPHANED to the tray",
     "a new clip is a new performance, so frame times no longer mean anything and nothing auto-matches"],
-  frames: ["MATCHED by source-frame time, nearest index within ±3 frames",
-    "anything unmatched goes to the tag's orphan tray — visible and restorable, never deleted"],
+  frames: ["MATCHED where the extraction comes back byte-identical, ORPHANED where it does not",
+    "re-extracting an unchanged clip is free and keeps every edit; an extraction that really " +
+    "moved means a new performance, and then nothing auto-matches"],
   picks: ["MATCHED by source-frame time, nearest index within ±3 frames",
     "anything unmatched goes to the tag's orphan tray — visible and restorable, never deleted"],
   repaint: ["KEPT",
@@ -1696,9 +1871,6 @@ function editFate(kind, tags) {
 
 const NOT_YET = {
   plate: "a plate is uploaded, not computed — replace the file on wilson to change it",
-  clip: "not wired up until the clip job type lands (stage 4)",
-  frames: "not wired up until the clip job type lands (stage 4)",
-  picks: "not wired up until the clip job type lands (stage 4)",
   export: "an export is computed on request — use ↓ Export, it costs nothing",
 };
 
