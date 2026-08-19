@@ -20,9 +20,10 @@ destroyed by the next celld edit, and a re-roll in each could put two jobs on on
 This process therefore does exactly two things:
 
 1. Long-polls each character's Durable Object for work. When it gets a job it writes the DO's
-   manifest to `sheets/<cid>.json`, runs the existing `repaint_cells.main()`, and reports the
+   manifest to `sheets/<cid>.json`, runs `repaint_cells.py` as a child process, and reports the
    result. It never decides what the manifest should say — the DO owns that, and the only thing
-   reported back is the `png` path the packer filled in for each frame.
+   reported back is the `png` path the packer filled in for each frame. The DO's queue can hold
+   several jobs; it only ever offers the head of one, so this process is never asked to run two.
 2. Serves the files the page needs to look at: the packed cells, the source frames and the
    atlas, read-only and cross-origin, because the page is served from another host.
 
@@ -33,7 +34,9 @@ file keeps the HTTP surface from growing a second, looser copy of the allowlist.
 import io
 import json
 import os
+import secrets
 import socketserver
+import subprocess
 import sys
 import threading
 import time
@@ -70,9 +73,18 @@ TOKEN = os.environ.get("SPRITE_AGENT_TOKEN", "")
 CLAIM_WAIT_MS = 18000
 HTTP_TIMEOUT = 30
 
-# A job can be minutes of GPU time. The DO expires a lease on a silent agent, so a running job
-# says so often enough that a slow repaint is never mistaken for a dead one.
-HEARTBEAT_S = 60
+# The heartbeat is two things at once, and the second is why it is seconds rather than a minute:
+# it renews the running lease, AND its response is the only channel a cancel has to reach a job
+# that is already on the GPU. The DO gives a running job a 60s lease, so this is twelve beats of
+# headroom, and a cancel is felt within one beat instead of within a paint.
+HEARTBEAT_S = 5
+
+# This process's identity, new on every start. A claim carries it so the DO can tell "the agent
+# is holding this job" from "the agent that held this job is gone": celld drops a long poll when
+# its client disconnects without telling the object, so a restart used to leave the head of the
+# queue claimed by nobody for the full ten-minute lease. Only correct while exactly one agent
+# process runs per fleet, which is what the systemd unit guarantees.
+RUN_ID = secrets.token_hex(8)
 
 
 def celld(path, body=None, timeout=HTTP_TIMEOUT):
@@ -135,6 +147,18 @@ def derived(cid, man):
 # --- the work ------------------------------------------------------------------------------
 
 
+def fetch_manifest(cid):
+    """The DO's manifest, plus the per-frame bookkeeping that travels BESIDE it.
+
+    Beside, and not inside, because this manifest is written verbatim to `sheets/<cid>.json`: a
+    frame id or a revision carried in the frame records would land in every manifest on disk. The
+    list is handed straight back with the finished report, and the DO uses it to decide which
+    painted `png` paths still belong to the frames it now holds.
+    """
+    got = celld("manifest", {"cid": cid})
+    return got["manifest"], got["frames"]
+
+
 def run_job(cid, job):
     """One claimed job: adopt the DO's manifest, repaint and repack, report what was packed.
 
@@ -142,56 +166,85 @@ def run_job(cid, job):
     it: a repack can crash or be killed, and the edit must survive that. Nothing in here decides
     anything about the manifest — `repaint_cells.main()` fills in each frame's `png` as it
     repaints, and that is the only field the DO will accept back.
+
+    The repack runs as a CHILD PROCESS rather than in this thread, and that is what makes a cancel
+    real. A queued job can simply be dropped, but a job already on the GPU is 45 seconds of
+    ComfyUI inside one blocking call; there is no flag `repaint_cells` could check often enough,
+    and Python cannot interrupt a thread. So the abort is a signal to a process. It also puts the
+    packer's numpy and PIL arenas in a process that exits, which this long-lived server does not.
     """
-    stop = threading.Event()
-    man = celld("manifest", {"cid": cid})
+    man, frames = fetch_manifest(cid)
     RC.save_character_manifest(cid, man)
 
-    def beat():
-        # Saying "repainting" for a reorder made a two-second repack look like a 45-second
-        # generation, which is how this tool earned a reputation for doing things nobody asked for.
-        note = "painting a new cell, ~45s" if job["generates"] else "repacking, a few seconds"
-        while True:
-            try:
-                celld("progress", {"cid": cid, "id": job["id"],
-                                   "message": f"{job['label']} — {note}"})
-            except Exception as e:
-                print(f"[{cid}] progress report failed: {type(e).__name__}: {e}", flush=True)
-            if stop.wait(HEARTBEAT_S):
-                return
+    # Saying "repainting" for a reorder made a two-second repack look like a 45-second
+    # generation, which is how this tool earned a reputation for doing things nobody asked for.
+    note = "painting a new cell, ~45s" if job["generates"] else "repacking, a few seconds"
+    message = f"{job['label']} — {note}"
 
-    heart = threading.Thread(target=beat, daemon=True)
+    def beat():
+        """One heartbeat. Returns True when the DO has asked for this job to stop."""
+        try:
+            return celld("progress", {"cid": cid, "id": job["id"], "message": message}) \
+                .get("cancel", False)
+        except Exception as e:
+            print(f"[{cid}] progress report failed: {type(e).__name__}: {e}", flush=True)
+            return False
+
+    def cancelled():
+        celld("failed", {"cid": cid, "id": job["id"], "message": f"{job['label']} — cancelled"})
+        print(f"[{cid}] {job['id']} cancelled", flush=True)
+
+    # Beat once before starting anything. A job can be claimed and then cancelled while it waits
+    # behind the other character's job on the one card, and starting a paint nobody wants any more
+    # is exactly the cost this queue exists to avoid.
+    if beat():
+        cancelled()
+        return
+
+    proc = subprocess.Popen([sys.executable, os.path.join(HERE, "repaint_cells.py"), cid])
+    stop = threading.Event()
+    killed = threading.Event()
+
+    def heartbeat():
+        while not stop.wait(HEARTBEAT_S):
+            if beat() and not killed.is_set():
+                killed.set()
+                proc.terminate()
+
+    heart = threading.Thread(target=heartbeat, daemon=True)
     heart.start()
     try:
-        # BaseException, not Exception: a failed ComfyUI job raises SystemExit, which slips past
-        # `except Exception` and used to kill the editor's worker thread silently. gpu-worker
-        # being down is routine, so this path is reachable on any re-roll.
-        try:
-            SF.repack(cid)
-        except BaseException as e:
-            traceback.print_exc()
-            celld("failed", {"cid": cid, "id": job["id"],
-                             "message": f"{job['label']} — {type(e).__name__}: {e}"})
-            return
-        packed = RC.load_character_manifest(cid)
-        celld("done", {"cid": cid, "id": job["id"], "message": f"{job['label']} — done",
-                       "manifest": packed, "catalogue": catalogue(cid, packed)})
+        code = proc.wait()
     finally:
         stop.set()
         heart.join(timeout=1)
+    if killed.is_set():
+        cancelled()
+        return
+    if code != 0:
+        # gpu-worker being down is routine, so this path is reachable on any re-roll. In-process
+        # this arrived as SystemExit — which slips past `except Exception` and used to kill the
+        # worker thread silently; as a child process it is simply an exit code.
+        celld("failed", {"cid": cid, "id": job["id"],
+                         "message": f"{job['label']} — the repack exited {code}"})
+        return
+    packed = RC.load_character_manifest(cid)
+    celld("done", {"cid": cid, "id": job["id"], "message": f"{job['label']} — done",
+                   "manifest": packed, "frames": frames, "catalogue": catalogue(cid, packed)})
 
 
 def poller(cid, pending, wake):
     """One long-poll loop per character, because each character is its own Durable Object.
 
-    Claiming and running are separated on purpose. The DO already refuses a second job for the
-    same character, but the GPU is one card for all of them, so a claimed job for Cadbury waits
-    in this queue while Seth's runs rather than starting beside it. The page sees it as
-    "claimed" the whole time, which is the truth.
+    Claiming and running are separated on purpose. Each DO offers only the head of its own
+    queue, but the GPU is one card for both characters, so a claimed job for Cadbury waits in
+    this list while Seth's runs rather than starting beside it. The page sees it as "claimed"
+    the whole time, which is the truth — and a cancel arriving in that window is felt at the
+    first heartbeat, before any paint starts.
     """
     while True:
         try:
-            job = celld("claim", {"cid": cid, "waitMs": CLAIM_WAIT_MS})["job"]
+            job = celld("claim", {"cid": cid, "waitMs": CLAIM_WAIT_MS, "agent": RUN_ID})["job"]
         except Exception as e:
             print(f"[{cid}] claim failed: {type(e).__name__}: {e}", flush=True)
             time.sleep(5)
@@ -263,7 +316,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 if cid not in SF.CHARACTERS:
                     self.json(404, {"error": f"unknown character: {cid}"})
                     return
-                self.json(200, derived(cid, celld("manifest", {"cid": cid})))
+                self.json(200, derived(cid, fetch_manifest(cid)[0]))
             elif u.path == "/frames":
                 self.json(200, {"frames": SF.source_frames(one("cid", "seth"), one("tag", "walk"))})
             elif u.path == "/cell":

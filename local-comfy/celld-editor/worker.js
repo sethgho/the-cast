@@ -3,13 +3,24 @@
 // The split is deliberate and is the whole design (DESIGN-editor.md, stage 6). The packer is
 // numpy and the repaint drives ComfyUI on a GPU, so neither will ever run in V8; they stay on
 // wilson, behind `sprite_agent.py`, which long-polls this Worker for work. What moves here is
-// the part that is pure state: the manifest, and the single job slot that stops two browsers
-// from queueing the same 45-second GPU job.
+// the part that is pure state: the manifest, and the job QUEUE that stops two browsers from
+// queueing the same 45-second GPU job.
 //
 // The mutations below are MESSAGES, not manifest writes. The Python editor loaded the manifest,
 // spliced it in the client of the file and saved it back; against a Durable Object that same
 // shape would be a non-atomic read-modify-write and the DO's single-threadedness would buy
 // nothing. So "drop frame 3 of tag punch" crosses the wire, and the splice happens in here.
+//
+// This object used to allow ONE in-flight job per character and 409 everything else, which made
+// the page a modal wait: every edit blocked the next one for the length of a paint. It is a
+// queue now. Three rules make that safe on one GPU:
+//
+//   1. Only the HEAD of the queue is ever claimable, so the card runs one job at a time.
+//   2. Cheap mutations (`generates: false`) coalesce into ONE trailing repack. They edit the
+//      manifest immediately and the agent re-reads the manifest when it starts, so one repack
+//      absorbs any number of state edits — twenty holds and reorders cost one repack, not twenty.
+//   3. A queued job can be cancelled, and its stored INVERSE is re-spliced. A re-roll is an
+//      experiment; backing out of one must not need a second GPU job.
 
 const CHARACTERS = ["seth", "cadbury"];
 
@@ -19,16 +30,46 @@ const BASE_SEED = 77;
 
 const DIRECTIONS = ["forward", "reverse", "pingpong"];
 
-// A claimed job whose agent has gone silent for this long is declared failed and the character
-// unlocks. Without it a wilson reboot mid-repaint would lock that character until someone
-// noticed; a repaint of a whole tag is minutes, so the lease is generous and every progress
-// report renews it.
+// A CLAIMED job whose agent has gone silent for this long is handed back to the queue. It is
+// generous because a claim is not a start: the agent serialises the two characters against the
+// one card, so cadbury's job can sit claimed for the length of seth's paint with nothing to
+// report.
 const LEASE_MS = 10 * 60 * 1000;
+
+// A RUNNING job is different — the agent heartbeats every few seconds while it works, so silence
+// here means the process died. Without the shorter bound a wilson reboot mid-repaint stalled the
+// whole queue behind it for ten minutes.
+const RUNNING_LEASE_MS = 60 * 1000;
 
 // The longest a claim request is held open before answering "no work". Kept well under any
 // proxy's idle timeout, and short enough that an agent restart cannot leave a request hanging
 // against a DO that has since been evicted.
 const MAX_CLAIM_WAIT_MS = 20000;
+
+// The queue depth past which a mutation is refused. Deep enough that a person editing quickly
+// never meets it, shallow enough that a stuck agent cannot bank an hour of GPU work nobody
+// remembers asking for.
+const MAX_PENDING = 8;
+
+// A finished job stays visible this long so the page can show that it completed. Any longer and
+// the job list becomes a log; the manifest is the record, not this.
+const HISTORY_MS = 30000;
+
+// Which operations cost GPU time. This is static, not something an op handler decides, because
+// the queue has to know whether a mutation coalesces BEFORE it takes the lock and splices.
+const GENERATES = {
+  reroll: true,
+  repick: true,
+  use: false,
+  drop: false,
+  reorder: false,
+  pivot: false,
+  hold: false,
+  tag: false,
+};
+const MUTATIONS = Object.keys(GENERATES);
+
+const LIVE = ["preparing", "queued", "claimed", "running"];
 
 class HttpError extends Error {
   constructor(status, message) {
@@ -68,16 +109,42 @@ function bearer(request) {
   return h.startsWith("Bearer ") ? h.slice(7) : "";
 }
 
+function shortId() {
+  return crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+}
+
 // --- manifest surgery ------------------------------------------------------------------------
 // The key order here matches repaint_cells._frame() exactly, and `png` is omitted when absent.
 // The agent writes whatever the DO hands it straight to sheets/<cid>.json, so a reordered key
 // would rewrite every manifest on disk for no change in meaning.
-function frameRecord(src, seed, png, hold, nudge) {
-  const f = { src, seed };
-  if (png) f.png = png;
-  f.hold = hold;
-  f.pivot_nudge = nudge;
-  return f;
+//
+// `_fid` and `_rev` are this object's own bookkeeping and are stripped from every copy that
+// leaves it (`stripped()`). They are stored ON the frame rather than in a parallel array
+// because a parallel array has to be spliced in lockstep with `man.frames` at six call sites,
+// and the one that got missed would silently mis-key a cancel or a paint report.
+//   _fid — a frame's identity, stable across reorder and re-insert.
+//   _rev — the manifest revision at which this frame's DRAWING (src, seed) last changed. A
+//          paint report is accepted per frame against this, so an edit made during a 45s paint
+//          no longer fails a paint that was correct when it started.
+function frameRecord(f, rev) {
+  const out = { src: f.src, seed: f.seed };
+  if (f.png) out.png = f.png;
+  out.hold = f.hold ?? 1;
+  out.pivot_nudge = f.pivot_nudge ?? [0, 0];
+  out._fid = f._fid ?? shortId();
+  out._rev = f._rev ?? rev;
+  return out;
+}
+
+function stripped(man) {
+  return {
+    ...man,
+    frames: man.frames.map(({ _fid, _rev, ...f }) => f),
+  };
+}
+
+function frameMeta(man) {
+  return man.frames.map((f) => ({ fid: f._fid, rev: f._rev }));
 }
 
 function tagIndex(man, name) {
@@ -126,15 +193,13 @@ function seedOfRepaint(png) {
 // Splice one tag's frame list and renumber every tag after it. Dropping or adding a frame moves
 // the whole flat list along; a stale range points at the neighbouring tag's cells and the packer
 // then emits another move's drawings under this tag's name.
-function editTagFrames(man, tagName, mutate) {
+function editTagFrames(man, tagName, mutate, rev) {
   const i = tagIndex(man, tagName);
   const tag = man.tags[i];
   const span = tag.to + 1 - tag.from;
   const frames = mutate(man.frames.slice(tag.from, tag.to + 1).map((f) => ({ ...f })));
   if (!frames.length) throw new HttpError(400, "a tag cannot have zero frames");
-  const next = frames.map((f) =>
-    frameRecord(f.src, f.seed, f.png, f.hold ?? 1, f.pivot_nudge ?? [0, 0]),
-  );
+  const next = frames.map((f) => frameRecord(f, rev));
   man.frames.splice(tag.from, span, ...next);
   const shift = next.length - span;
   tag.to += shift;
@@ -142,6 +207,101 @@ function editTagFrames(man, tagName, mutate) {
     later.from += shift;
     later.to += shift;
   }
+}
+
+// The frame a cell index names, as it stands before an edit. Captured as the edit's INVERSE, so a
+// cancel can put the drawing back without a second trip to the GPU.
+function frameInverse(f) {
+  return {
+    k: "frame",
+    fid: f._fid,
+    src: f.src,
+    seed: f.seed,
+    png: f.png,
+    hold: f.hold ?? 1,
+    pivot_nudge: f.pivot_nudge ?? [0, 0],
+  };
+}
+
+// Undo one recorded edit. Everything is addressed by `_fid`, never by index: by the time a
+// cancel arrives, later edits in the same queue may have dropped or reordered the frames around
+// it, and an index-addressed undo would restore the wrong cell.
+function applyInverse(man, inv, rev) {
+  if (inv.k === "frame") {
+    const at = man.frames.findIndex((f) => f._fid === inv.fid);
+    // A later edit dropped the frame this one touched. There is nothing to restore, and
+    // re-inserting it would resurrect a cell the person deliberately removed.
+    if (at < 0) return;
+    man.frames[at] = frameRecord({ ...inv, _fid: inv.fid, _rev: rev }, rev);
+    return;
+  }
+  if (inv.k === "insert") {
+    editTagFrames(
+      man,
+      inv.tag,
+      (frames) => {
+        frames.splice(Math.min(inv.at, frames.length), 0, inv.frame);
+        return frames;
+      },
+      rev,
+    );
+    return;
+  }
+  if (inv.k === "order") {
+    editTagFrames(
+      man,
+      inv.tag,
+      (frames) => {
+        const by = new Map(frames.map((f) => [f._fid, f]));
+        const back = inv.fids.map((id) => by.get(id)).filter(Boolean);
+        // A later drop or insert changed which frames the tag holds, so the recorded order is no
+        // longer a permutation of it. Leaving the current order alone is the only safe answer.
+        return back.length === frames.length ? back : frames;
+      },
+      rev,
+    );
+    return;
+  }
+  if (inv.k === "sheetPivot") {
+    man.pivot = inv.pivot;
+    return;
+  }
+  const t = man.tags[tagIndex(man, inv.tag)];
+  if (t) {
+    t.fps = inv.fps;
+    t.direction = inv.direction;
+  }
+}
+
+// --- the job queue ---------------------------------------------------------------------------
+
+function isLive(job) {
+  return LIVE.includes(job.state);
+}
+
+// What every job-shaped response says. `queuePos` is the job's place among the LIVE jobs, so 0 is
+// the one the agent is allowed to work on and a finished job has none.
+function view(job, pos, now) {
+  const started = job.startedAt ?? null;
+  return {
+    id: job.id,
+    label: job.label,
+    // `preparing` is this object's internal lock and lasts for the length of one splice. It is
+    // reported as `queued` because it is one: the edit is going in and no agent can take it.
+    state: job.state === "preparing" ? "queued" : job.state,
+    generates: job.generates,
+    tag: job.tag ?? null,
+    index: job.index ?? null,
+    queuePos: pos,
+    startedAt: started,
+    elapsedMs: started === null ? null : (job.finishedAt ?? now) - started,
+    error: job.error ?? null,
+  };
+}
+
+function viewAll(jobs, now) {
+  let pos = 0;
+  return jobs.map((j) => view(j, isLive(j) ? pos++ : null, now));
 }
 
 // --- the character cell ------------------------------------------------------------------------
@@ -157,102 +317,145 @@ export class CharacterDO {
   }
 
   async manifest() {
-    return (await this.ctx.storage.get("manifest")) || null;
+    const man = (await this.ctx.storage.get("manifest")) || null;
+    // Cells seeded before frames carried an identity have none. Stamping them on first read is
+    // the whole migration, and it has to happen HERE rather than by re-seeding from disk: the
+    // Durable Object is the record, and `sheets/<cid>.json` is only ever a copy of it.
+    if (man && man.frames.some((f) => !f._fid)) {
+      const rev = await this.revision();
+      man.frames = man.frames.map((f) => frameRecord(f, rev));
+      await this.ctx.storage.put("manifest", man);
+      // The single-slot lock this queue replaced. Left behind it would be a second, invisible
+      // record of "what is running" that nothing reads and nothing clears.
+      await this.ctx.storage.delete("job");
+    }
+    return man;
   }
 
   async catalogue() {
     return (await this.ctx.storage.get("catalogue")) || { sources: {}, variants: {} };
   }
 
-  async job() {
-    return (await this.ctx.storage.get("job")) || null;
+  async revision() {
+    return (await this.ctx.storage.get("revision")) || 0;
   }
 
-  // The lock. A job holds the character until it finishes, fails, or its lease runs out — and
-  // the lease check happens on READ, so a dead agent's job is reaped by the next person who
-  // tries to edit rather than needing an alarm to come round.
-  async activeJob() {
-    const job = await this.job();
-    if (!job || job.state === "done" || job.state === "error") return null;
-    if (Date.now() <= job.deadline) return job;
-    if (job.state === "claimed") {
-      // Claimed and then silent means the agent never STARTED it — `run_job` reports progress
-      // within a second of claiming. So the work was not done, and the edit is already in the
-      // manifest: queue it again rather than fail it, and the next agent to poll packs it.
-      const requeued = {
-        ...job,
-        state: "queued",
-        message: `${job.label} — the agent never started it; queued again`,
-        deadline: Date.now() + LEASE_MS,
-      };
-      await this.setJob(requeued);
-      return requeued;
+  // Every read of the queue ages it first: leases are enforced and finished jobs fall out of
+  // history. Doing it on READ rather than from an alarm means a dead agent's job is reaped by
+  // the next person who looks, which is the only moment it matters.
+  async jobs() {
+    const jobs = (await this.ctx.storage.get("jobs")) || [];
+    const now = Date.now();
+    const head = jobs.find(isLive);
+    let changed = false;
+    if (head && now > head.deadline) {
+      if (head.state === "claimed") {
+        // Claimed and then silent means the agent never STARTED it — `run_job` reports progress
+        // within a second of claiming. So the work was not done, and the edit is already in the
+        // manifest: queue it again rather than fail it, and the next agent to poll packs it.
+        head.state = "queued";
+        head.startedAt = null;
+        head.deadline = now + LEASE_MS;
+      } else if (head.state === "running") {
+        head.state = "failed";
+        head.error = "the agent stopped reporting; lease expired";
+        head.finishedAt = now;
+      } else if (head.state === "preparing") {
+        // One splice long. Reaching here means the request that took the lock died inside it, so
+        // the manifest was never written and the slot must not be held for the whole lease.
+        head.state = "failed";
+        head.error = "the edit was never completed";
+        head.finishedAt = now;
+      }
+      changed = true;
     }
-    await this.finish(job.id, "error", `${job.label} — the agent stopped reporting; lease expired`);
-    return null;
+    const kept = jobs.filter((j) => isLive(j) || now - j.finishedAt < HISTORY_MS);
+    if (changed || kept.length !== jobs.length) await this.ctx.storage.put("jobs", kept);
+    return kept;
   }
 
-  async setJob(job) {
-    await this.ctx.storage.put("job", job);
+  async putJobs(jobs) {
+    await this.ctx.storage.put("jobs", jobs);
   }
 
-  async finish(id, state, message) {
-    const job = await this.job();
-    if (!job || job.id !== id) return;
-    await this.setJob({ ...job, state, message, deadline: Date.now() + LEASE_MS });
+  // Read-modify-write of the queue with no await between the read and the write, which is what
+  // makes it a lock rather than a suggestion.
+  async editJobs(fn) {
+    const jobs = await this.jobs();
+    const out = fn(jobs);
+    await this.putJobs(jobs);
+    return out;
   }
 
-  // Take the lock, before anything is spliced. `state: "preparing"` and not "queued" is the
-  // whole trick: `activeJob` counts it, so a second mutation is refused from this moment on,
-  // while `claim` only ever takes a "queued" job — so no agent can run off with a job whose
-  // edit has not been written yet. The lease applies from here, so a crash mid-mutation unlocks
-  // the character on its own.
-  async reserve(op, tagName, character) {
-    const id = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
-    const job = {
-      id,
-      label: `${character}-${tagName} ${op}`,
-      generates: false,
-      state: "preparing",
-      message: `preparing: ${character}-${tagName} ${op}`,
-      deadline: Date.now() + LEASE_MS,
-    };
-    await this.setJob(job);
-    return job;
-  }
-
-  async publish(job) {
-    await this.setJob(job);
-    // Hand it straight to a parked agent if one is listening, so an edit does not wait out the
-    // poll interval it happened to land in the middle of.
-    const waiter = this.waiters.shift();
-    if (waiter) {
-      const claimed = { ...job, state: "claimed", message: `${job.label} — claimed by the agent` };
-      await this.setJob(claimed);
-      waiter.resolve(claimed);
-      return claimed;
-    }
-    return job;
-  }
-
-  async claim(waitMs) {
+  liveWaiter() {
     // Sweep waiters that have outlived their own wait. Their `setTimeout` should have done it,
     // but celld does not run the timers of a request whose client has gone: an agent that
     // restarts while parked leaves a waiter that looks live and can never answer, and the next
     // job handed to it disappeared — the character then sat locked for the whole lease with
     // nobody running anything. Measured on this fleet, twice, during the cutover. Every claim
-    // sweeps, so a leak can outlive at most one poll.
+    // and every handoff sweeps, so a leak can outlive at most one poll.
     const now = Date.now();
     this.waiters = this.waiters.filter((w) => w.until > now);
-    const job = await this.activeJob();
-    if (job && job.state === "queued") {
-      const claimed = { ...job, state: "claimed", message: `${job.label} — claimed by the agent`, deadline: Date.now() + LEASE_MS };
-      await this.setJob(claimed);
-      return claimed;
+    return this.waiters.shift() || null;
+  }
+
+  // Hand the head of the queue to a parked agent, if there is one and it is claimable. Called
+  // whenever the head can have changed, so an edit does not wait out the poll interval it landed
+  // in the middle of, and the next job starts the instant the last one reports.
+  async pump() {
+    const now = Date.now();
+    const jobs = await this.jobs();
+    const head = jobs.find(isLive);
+    if (!head || head.state !== "queued") return;
+    const waiter = this.liveWaiter();
+    if (!waiter) return;
+    this.give(head, waiter.agent, now);
+    await this.putJobs(jobs);
+    waiter.resolve(view(head, 0, now));
+  }
+
+  give(job, agent, now) {
+    job.state = "claimed";
+    job.agent = agent;
+    job.startedAt = now;
+    job.deadline = now + LEASE_MS;
+  }
+
+  async claim(waitMs, agent) {
+    const now = Date.now();
+    this.waiters = this.waiters.filter((w) => w.until > now);
+    const jobs = await this.jobs();
+    const head = jobs.find(isLive);
+    // A job claimed by a DIFFERENT agent process than the one now asking cannot still be running:
+    // there is one agent for this fleet, so a claim from a new process id means the old one died
+    // holding it. Without this the queue stalled for the full ten-minute lease after every agent
+    // restart — the handoff had gone to a waiter whose request had already been dropped, which
+    // celld does not tell the object about. The work was never started, so it is requeued, not
+    // failed. Note the assumption this rests on: exactly one agent process per fleet.
+    if (head && head.state === "claimed" && head.agent !== agent) {
+      if (head.cancelRequested) {
+        // Asked to stop, and the agent that would have been told is gone. Running it now would
+        // be the queue doing the one thing it was told not to.
+        head.state = "cancelled";
+        head.finishedAt = now;
+      } else {
+        head.state = "queued";
+        head.startedAt = null;
+        head.deadline = now + LEASE_MS;
+      }
+      await this.putJobs(jobs);
+    }
+    // Strictly the head, and only if it is queued. That single rule is what keeps one GPU job
+    // running at a time while everything behind it stays visible and cancellable.
+    const next = jobs.find(isLive);
+    if (next && next.state === "queued") {
+      this.give(next, agent, now);
+      await this.putJobs(jobs);
+      return view(next, 0, now);
     }
     if (waitMs <= 0) return null;
     return await new Promise((resolve) => {
-      const waiter = { until: Date.now() + waitMs };
+      const waiter = { until: Date.now() + waitMs, agent };
       waiter.timer = setTimeout(() => {
         this.waiters = this.waiters.filter((w) => w !== waiter);
         resolve(null);
@@ -266,33 +469,49 @@ export class CharacterDO {
     });
   }
 
-  // The agent reports the manifest it actually packed. Only the `png` fields are taken from it:
-  // repaint_cells.main() fills those in as it repaints, and dropping them would leave the DO
-  // pointing at drawings it thinks do not exist yet. Everything else differing means the agent
-  // edited the manifest, which is this object's job alone — so that is reported as a failure
-  // rather than absorbed.
-  async absorbPacked(packed) {
+  async finish(id, state, error) {
+    const now = Date.now();
+    await this.editJobs((jobs) => {
+      const job = jobs.find((j) => j.id === id);
+      if (!job || !isLive(job)) return;
+      // The agent reports a plain failure either way; whether that failure was ASKED FOR is this
+      // object's own knowledge, so it decides the word rather than trusting the report.
+      job.state = state === "failed" && job.cancelRequested ? "cancelled" : state;
+      job.error = error ?? null;
+      job.finishedAt = now;
+      if (job.startedAt === null) job.startedAt = now;
+    });
+    await this.pump();
+  }
+
+  // The agent reports the manifest it actually packed, and the frame list it was handed when it
+  // started. Only `png` is taken from it: repaint_cells.main() fills those in as it repaints, and
+  // dropping them would leave the DO pointing at drawings it thinks do not exist yet.
+  //
+  // The acceptance is PER FRAME, keyed on that frame's identity and drawing revision. The old
+  // check compared the whole manifest and refused the report if anything at all differed — which
+  // meant a hold typed during a 45-second paint failed a paint that was perfectly correct when it
+  // started, and the drawing on disk was then invisible to the editor. A frame the agent packed
+  // and nobody has touched since is still exactly the frame it packed, wherever it has since been
+  // moved to; a frame that HAS been re-rolled or re-picked since has a newer drawing coming and
+  // must not take the old one's path.
+  async absorbPacked(packed, meta) {
     const man = await this.manifest();
     if (!man) throw new HttpError(409, "no manifest to absorb into");
-    const same =
-      packed &&
-      Array.isArray(packed.frames) &&
-      packed.frames.length === man.frames.length &&
-      JSON.stringify(packed.tags) === JSON.stringify(man.tags) &&
-      JSON.stringify(packed.pivot) === JSON.stringify(man.pivot) &&
-      packed.frames.every((f, i) => {
-        const m = man.frames[i];
-        return (
-          f.src === m.src &&
-          f.seed === m.seed &&
-          (f.hold ?? 1) === (m.hold ?? 1) &&
-          JSON.stringify(f.pivot_nudge ?? [0, 0]) === JSON.stringify(m.pivot_nudge ?? [0, 0])
-        );
-      });
-    if (!same) throw new HttpError(409, "the packed manifest disagrees with this character's own");
-    man.frames = man.frames.map((f, i) =>
-      frameRecord(f.src, f.seed, packed.frames[i].png, f.hold ?? 1, f.pivot_nudge ?? [0, 0]),
-    );
+    if (!packed || !Array.isArray(packed.frames) || !Array.isArray(meta) ||
+        meta.length !== packed.frames.length) {
+      throw new HttpError(409, "the packed report does not match the frame list it was given");
+    }
+    const painted = new Map();
+    packed.frames.forEach((f, i) => painted.set(meta[i].fid, { rev: meta[i].rev, png: f.png }));
+    for (const f of man.frames) {
+      const p = painted.get(f._fid);
+      if (p && p.rev === f._rev && typeof p.png === "string" && p.png) f.png = p.png;
+    }
+    // Rebuilt, not just assigned: a frame that had no `png` would otherwise carry it as its LAST
+    // key, and this manifest is written verbatim to sheets/<cid>.json — the whole file would
+    // re-order for no change in meaning.
+    man.frames = man.frames.map((f) => frameRecord(f, f._rev));
     await this.ctx.storage.put("manifest", man);
   }
 
@@ -302,59 +521,158 @@ export class CharacterDO {
   // can be killed, and if it is, the edit must still be recorded so the next run picks it up.
 
   async mutate(op, req) {
+    const generates = GENERATES[op];
     // The lock is genuinely HELD across the splice, not merely checked before it. An earlier
     // version checked here and took the slot at the end, and the gap between the two was only
     // safe under Cloudflare's input-gate semantics, which cannot be proven on celld from
     // outside: two mutations fired at once gave one job and TWO edits, and the loser's edit rode
-    // along on the winner's repack under a 409 that said it had been refused. Measured. So a
-    // provisional record is written FIRST, and every later await is inside the lock.
-    const held = await this.activeJob();
-    if (held) {
-      throw new HttpError(409, `refused — "${held.label}" is still ${held.state} on this character`);
-    }
-    const man = await this.manifest();
-    if (!man) throw new HttpError(409, "this character has not been seeded yet");
-    const tagName = req.tag;
-    if (tagIndex(man, tagName) < 0) {
-      throw new HttpError(400, `no ${tagName} tag for ${man.character}`);
-    }
-    const job = await this.reserve(op, tagName, man.character);
-    let label;
+    // along on the winner's repack under a 409 that said it had been refused. Measured. So the
+    // queue record is written FIRST, in the unclaimable `preparing` state, and every later await
+    // is inside it.
+    const taken = await this.editJobs((jobs) => {
+      const live = jobs.filter(isLive);
+      // A cheap edit joins a repack that is queued but not yet claimed. The agent re-reads the
+      // manifest when it starts a job, so that one repack will carry this edit and every other
+      // one that lands before it is claimed. Joining a CLAIMED repack would be a lie — its agent
+      // already has its copy of the manifest.
+      const join = generates ? null : live.find((j) => !j.generates && j.state === "queued");
+      if (join) {
+        join.state = "preparing";
+        return { job: join, joined: true };
+      }
+      if (live.length >= MAX_PENDING) {
+        throw new HttpError(
+          409,
+          `refused — ${live.length} jobs are already queued on this character, which is the limit`,
+        );
+      }
+      const job = {
+        id: shortId(),
+        label: `preparing ${op}`,
+        generates,
+        tag: req.tag ?? null,
+        index: null,
+        state: "preparing",
+        agent: null,
+        error: null,
+        edits: [],
+        cancelRequested: false,
+        startedAt: null,
+        deadline: Date.now() + LEASE_MS,
+        finishedAt: null,
+      };
+      jobs.push(job);
+      return { job, joined: false };
+    });
+
+    const rev = (await this.revision()) + 1;
     try {
-      label = await this[op](man, tagName, req);
+      const man = await this.manifest();
+      if (!man) throw new HttpError(409, "this character has not been seeded yet");
+      const tagName = req.tag;
+      if (tagIndex(man, tagName) < 0) {
+        throw new HttpError(400, `no ${tagName} tag for ${man.character}`);
+      }
+      const done = await this[op](man, tagName, req, rev);
       await this.ctx.storage.put("manifest", man);
+      await this.ctx.storage.put("revision", rev);
+      return await this.publish(taken, done, tagName, rev);
     } catch (e) {
-      // A rejected edit must not leave the character locked. `man` is a fresh copy out of
-      // storage and was never written, so dropping the reservation drops the whole attempt.
-      await this.ctx.storage.delete("job");
+      // A rejected edit must not leave a job in the queue, and must not leave a repack that other
+      // edits have already joined half-cancelled. `man` is a fresh copy out of storage and was
+      // never written, so backing the record out drops the whole attempt.
+      await this.editJobs((jobs) => {
+        const at = jobs.findIndex((j) => j.id === taken.job.id);
+        if (at < 0) return;
+        if (taken.joined) jobs[at].state = "queued";
+        else jobs.splice(at, 1);
+      });
       throw e;
     }
-    return await this.publish({
-      ...job,
-      label: label.text,
-      generates: label.generates,
-      state: "queued",
-      message: `queued: ${label.text}`,
-    });
   }
 
-  async reroll(man, tagName, req) {
+  async publish(taken, done, tagName, rev) {
+    const now = Date.now();
+    const id = taken.job.id;
+    done.inverse.label = done.text;
+    await this.editJobs((jobs) => {
+      const job = jobs.find((j) => j.id === id);
+      job.state = "queued";
+      job.tag = tagName;
+      job.index = done.index ?? null;
+      job.edits.push(done.inverse);
+      // A coalesced repack is named after the edit that created it, plus a count. The individual
+      // texts are kept on the inverses, which is where a cancel needs them anyway.
+      job.label = taken.joined ? `${job.edits[0].label} +${job.edits.length - 1} more` : done.text;
+      job.deadline = now + LEASE_MS;
+    });
+    // Read the job back only AFTER the handoff. An agent parked on a claim takes it inside
+    // `pump()`, so a view built before this call would tell the page "queued" about a job that is
+    // already running, and the page would then show the wrong thing until its next poll.
+    await this.pump();
+    const jobs = await this.jobs();
+    const at = jobs.findIndex((j) => j.id === id);
+    return { job: viewAll(jobs, Date.now())[at], revision: rev };
+  }
+
+  // Cancel is first-class because a re-roll is an experiment. A job that has not started yet is
+  // removed and its recorded edits are re-spliced in reverse; one that is already with the agent
+  // can only be ASKED to stop, which it reads from its next heartbeat.
+  async cancel(id) {
+    const now = Date.now();
+    const outcome = await this.editJobs((jobs) => {
+      const job = jobs.find((j) => j.id === id);
+      if (!job) throw new HttpError(404, "no job with that id");
+      if (!isLive(job)) throw new HttpError(409, `that job has already ${job.state}`);
+      if (job.state === "preparing") throw new HttpError(409, "that job is still being prepared");
+      if (job.state !== "queued") {
+        job.cancelRequested = true;
+        return null;
+      }
+      // Marked finished BEFORE the manifest is touched, for the same reason a mutation takes its
+      // slot first: from this instant no agent can claim it and no second cancel can double-apply
+      // the inverse.
+      job.state = "cancelled";
+      job.error = null;
+      job.finishedAt = now;
+      if (job.startedAt === null) job.startedAt = now;
+      return job.edits;
+    });
+    if (!outcome) return { ok: true, reverted: false };
+    const rev = (await this.revision()) + 1;
+    const man = await this.manifest();
+    for (const inv of [...outcome].reverse()) applyInverse(man, inv, rev);
+    await this.ctx.storage.put("manifest", man);
+    await this.ctx.storage.put("revision", rev);
+    await this.pump();
+    return { ok: true, reverted: true, revision: rev };
+  }
+
+  async reroll(man, tagName, req, rev) {
     const i = cellIndex(man, tagName, req);
     const seed =
       req.seed === undefined || req.seed === null
         ? crypto.getRandomValues(new Uint32Array(1))[0] % 2147483647 + 1
         : whole(req.seed, "seed");
-    editTagFrames(man, tagName, (frames) => {
-      const f = frames[i];
-      if (seed === f.seed) throw new HttpError(400, "that is the seed the cell already has");
-      f.seed = seed;
-      f.png = repaintPath(man.character, tagName, f.src, seed);
-      return frames;
-    });
-    return { text: `${man.character}-${tagName} cell ${i + 1} re-roll`, generates: true };
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        const f = frames[i];
+        if (seed === f.seed) throw new HttpError(400, "that is the seed the cell already has");
+        inverse = frameInverse(f);
+        f.seed = seed;
+        f.png = repaintPath(man.character, tagName, f.src, seed);
+        f._rev = rev;
+        return frames;
+      },
+      rev,
+    );
+    return { text: `${man.character}-${tagName} cell ${i + 1} re-roll`, index: i, inverse };
   }
 
-  async repick(man, tagName, req) {
+  async repick(man, tagName, req, rev) {
     const i = cellIndex(man, tagName, req);
     const src = req.src;
     const cat = await this.catalogue();
@@ -362,64 +680,97 @@ export class CharacterDO {
     if (!known.includes(src)) {
       throw new HttpError(400, "that source frame is not in this tag's pick directory");
     }
-    editTagFrames(man, tagName, (frames) => {
-      const f = frames[i];
-      f.src = src;
-      f.png = repaintPath(man.character, tagName, src, f.seed);
-      return frames;
-    });
-    return { text: `${man.character}-${tagName} cell ${i + 1} re-pick`, generates: true };
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        const f = frames[i];
+        inverse = frameInverse(f);
+        f.src = src;
+        f.png = repaintPath(man.character, tagName, src, f.seed);
+        f._rev = rev;
+        return frames;
+      },
+      rev,
+    );
+    return { text: `${man.character}-${tagName} cell ${i + 1} re-pick`, index: i, inverse };
   }
 
-  async use(man, tagName, req) {
+  async use(man, tagName, req, rev) {
     const i = cellIndex(man, tagName, req);
     const png = req.png;
     const cat = await this.catalogue();
-    editTagFrames(man, tagName, (frames) => {
-      const f = frames[i];
-      const known = (cat.variants[f.src] || []).map((v) => v.png);
-      if (!known.includes(png)) {
-        throw new HttpError(400, "that is not a variant of this cell's source frame");
-      }
-      f.png = png;
-      f.seed = seedOfRepaint(png);
-      return frames;
-    });
-    return { text: `${man.character}-${tagName} cell ${i + 1} use variant`, generates: false };
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        const f = frames[i];
+        const known = (cat.variants[f.src] || []).map((v) => v.png);
+        if (!known.includes(png)) {
+          throw new HttpError(400, "that is not a variant of this cell's source frame");
+        }
+        inverse = frameInverse(f);
+        f.png = png;
+        f.seed = seedOfRepaint(png);
+        f._rev = rev;
+        return frames;
+      },
+      rev,
+    );
+    return { text: `${man.character}-${tagName} cell ${i + 1} use variant`, index: i, inverse };
   }
 
-  async drop(man, tagName, req) {
+  async drop(man, tagName, req, rev) {
     const i = cellIndex(man, tagName, req);
-    editTagFrames(man, tagName, (frames) => {
-      if (frames.length <= 1) throw new HttpError(400, "refusing to drop the last cell of a tag");
-      frames.splice(i, 1);
-      return frames;
-    });
-    return { text: `${man.character}-${tagName} drop cell ${i + 1}`, generates: false };
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        if (frames.length <= 1) throw new HttpError(400, "refusing to drop the last cell of a tag");
+        // The whole frame, keeping its `_fid`, so an undo puts the same cell back rather than a
+        // copy of it — every other edit queued behind this one addresses it by that id.
+        inverse = { k: "insert", tag: tagName, at: i, frame: frames[i] };
+        frames.splice(i, 1);
+        return frames;
+      },
+      rev,
+    );
+    return { text: `${man.character}-${tagName} drop cell ${i + 1}`, index: i, inverse };
   }
 
-  async reorder(man, tagName, req) {
+  async reorder(man, tagName, req, rev) {
     if (!Array.isArray(req.order)) throw new HttpError(400, "order must be a list of indices");
     const order = req.order.map((v, k) => whole(v, `order[${k}]`));
-    editTagFrames(man, tagName, (frames) => {
-      const want = frames.map((_, k) => k).join(",");
-      if ([...order].sort((a, b) => a - b).join(",") !== want) {
-        throw new HttpError(400, "order must be a permutation of the current cell indices");
-      }
-      return order.map((k) => frames[k]);
-    });
-    return { text: `${man.character}-${tagName} reorder`, generates: false };
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        const want = frames.map((_, k) => k).join(",");
+        if ([...order].sort((a, b) => a - b).join(",") !== want) {
+          throw new HttpError(400, "order must be a permutation of the current cell indices");
+        }
+        inverse = { k: "order", tag: tagName, fids: frames.map((f) => f._fid) };
+        return order.map((k) => frames[k]);
+      },
+      rev,
+    );
+    return { text: `${man.character}-${tagName} reorder`, index: null, inverse };
   }
 
   // `scope` says WHICH origin moves, because the two are different operations: the sheet pivot
   // is the ground line the whole character is packed against and moving it re-seats every cell,
   // while a frame's nudge moves one drawing relative to that shared line.
-  async pivot(man, tagName, req) {
+  async pivot(man, tagName, req, rev) {
     if (req.scope === "sheet") {
       const [x, y] = xy(req.pivot, "pivot");
       inCell(x, y, man.cell, "pivot");
+      const inverse = { k: "sheetPivot", pivot: man.pivot };
       man.pivot = [x, y];
-      return { text: `${man.character} sheet pivot -> ${x},${y}`, generates: false };
+      return { text: `${man.character} sheet pivot -> ${x},${y}`, index: null, inverse };
     }
     if (req.scope === "frame") {
       const i = cellIndex(man, tagName, req);
@@ -427,14 +778,22 @@ export class CharacterDO {
       // The nudge is an OFFSET, so it is the RESULT that must land inside the cell: the artwork
       // is pasted at pivot+nudge, and a nudge past the edge paints it into a neighbouring cell.
       inCell(man.pivot[0] + dx, man.pivot[1] + dy, man.cell, "nudged pivot");
-      editTagFrames(man, tagName, (frames) => {
-        frames[i].pivot_nudge = [dx, dy];
-        return frames;
-      });
+      let inverse;
+      editTagFrames(
+        man,
+        tagName,
+        (frames) => {
+          inverse = frameInverse(frames[i]);
+          frames[i].pivot_nudge = [dx, dy];
+          return frames;
+        },
+        rev,
+      );
       const sign = (v) => (v > 0 ? `+${v}` : `${v}`);
       return {
         text: `${man.character}-${tagName} cell ${i + 1} nudge ${sign(dx)},${sign(dy)}`,
-        generates: false,
+        index: i,
+        inverse,
       };
     }
     throw new HttpError(400, 'scope must be "sheet" or "frame"');
@@ -442,15 +801,22 @@ export class CharacterDO {
 
   // One cell's duration multiplier over its tag's fps — an animator sitting on an extreme. Not
   // the tag's `hold_key`, which is the game freezing on the last cell while a key is down.
-  async hold(man, tagName, req) {
+  async hold(man, tagName, req, rev) {
     const i = cellIndex(man, tagName, req);
     const beats = whole(req.hold, "hold");
     if (beats < 1) throw new HttpError(400, "hold is a count of beats, so it cannot be less than 1");
-    editTagFrames(man, tagName, (frames) => {
-      frames[i].hold = beats;
-      return frames;
-    });
-    return { text: `${man.character}-${tagName} cell ${i + 1} hold ${beats}`, generates: false };
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        inverse = frameInverse(frames[i]);
+        frames[i].hold = beats;
+        return frames;
+      },
+      rev,
+    );
+    return { text: `${man.character}-${tagName} cell ${i + 1} hold ${beats}`, index: i, inverse };
   }
 
   async tag(man, tagName, req) {
@@ -460,9 +826,14 @@ export class CharacterDO {
       throw new HttpError(400, `direction must be one of ${DIRECTIONS.join(", ")}`);
     }
     const t = man.tags[tagIndex(man, tagName)];
+    const inverse = { k: "tagTiming", tag: tagName, fps: t.fps, direction: t.direction };
     t.fps = fps;
     t.direction = req.direction;
-    return { text: `${man.character}-${tagName} ${fps}fps ${req.direction}`, generates: false };
+    return {
+      text: `${man.character}-${tagName} ${fps}fps ${req.direction}`,
+      index: null,
+      inverse,
+    };
   }
 
   // --- the page's view -------------------------------------------------------------------
@@ -494,6 +865,7 @@ export class CharacterDO {
       characters: CHARACTERS,
       cell: man.cell,
       pivot: man.pivot,
+      revision: await this.revision(),
       tags,
     };
   }
@@ -503,7 +875,10 @@ export class CharacterDO {
     const body = request.method === "POST" ? await request.json() : {};
     try {
       const op = url.pathname.slice(1);
-      if (MUTATIONS.includes(op)) return json({ job: await this.mutate(op, body) });
+      if (MUTATIONS.includes(op)) {
+        // 202: the edit IS in the manifest, and the drawing that follows from it is not made yet.
+        return json(await this.mutate(op, body), 202);
+      }
       switch (url.pathname) {
         case "/health": {
           // Reads storage, so a 200 here means the route AND the cell's state are live. It must
@@ -514,51 +889,75 @@ export class CharacterDO {
         }
         case "/state":
           return json(await this.state());
+        case "/jobs": {
+          const now = Date.now();
+          return json({ revision: await this.revision(), jobs: viewAll(await this.jobs(), now) });
+        }
+        case "/job": {
+          const id = url.searchParams.get("id");
+          const jobs = await this.jobs();
+          const at = jobs.findIndex((j) => j.id === id);
+          if (at < 0) throw new HttpError(404, "no job with that id");
+          return json({
+            revision: await this.revision(),
+            job: viewAll(jobs, Date.now())[at],
+          });
+        }
+        case "/cancel":
+          return json(await this.cancel(body.id));
         case "/manifest": {
           const man = await this.manifest();
           if (!man) throw new HttpError(404, "not seeded");
-          return json(man);
-        }
-        case "/job": {
-          const job = await this.job();
-          if (!job || job.id !== url.searchParams.get("id")) {
-            return json({ state: "error", message: "no such job" }, 404);
-          }
-          return json(job);
+          // The frame list travels beside the manifest and not inside it: the agent writes what
+          // it is given straight to sheets/<cid>.json, so a bookkeeping key in there would end up
+          // in every manifest on disk.
+          return json({
+            manifest: stripped(man),
+            revision: await this.revision(),
+            frames: frameMeta(man),
+          });
         }
         case "/seed": {
-          const held = await this.activeJob();
-          if (held) throw new HttpError(409, `refusing to seed while "${held.label}" is ${held.state}`);
-          await this.ctx.storage.put("manifest", body.manifest);
+          const live = (await this.jobs()).filter(isLive);
+          if (live.length) throw new HttpError(409, `refusing to seed with ${live.length} jobs queued`);
+          const rev = (await this.revision()) + 1;
+          const man = body.manifest;
+          man.frames = man.frames.map((f) => frameRecord(f, rev));
+          await this.ctx.storage.put("manifest", man);
+          await this.ctx.storage.put("revision", rev);
           if (body.catalogue) await this.ctx.storage.put("catalogue", body.catalogue);
-          return json({ ok: true, frames: body.manifest.frames.length });
+          return json({ ok: true, frames: man.frames.length, revision: rev });
         }
         case "/claim": {
           const wait = Math.min(MAX_CLAIM_WAIT_MS, Math.max(0, body.waitMs ?? 0));
-          return json({ job: await this.claim(wait) });
+          return json({ job: await this.claim(wait, body.agent ?? "") });
         }
         case "/progress": {
-          const job = await this.job();
-          if (!job || job.id !== body.id) throw new HttpError(404, "no such job");
-          await this.setJob({
-            ...job,
-            state: "running",
-            message: body.message,
-            deadline: Date.now() + LEASE_MS,
+          const now = Date.now();
+          const cancel = await this.editJobs((jobs) => {
+            const job = jobs.find((j) => j.id === body.id);
+            if (!job || !isLive(job)) throw new HttpError(404, "no such job");
+            job.state = "running";
+            job.label = body.message ?? job.label;
+            if (job.startedAt === null) job.startedAt = now;
+            job.deadline = now + RUNNING_LEASE_MS;
+            return job.cancelRequested === true;
           });
-          return json({ ok: true });
+          // The heartbeat is also how a cancel reaches a job that is already on the GPU. There is
+          // no other channel: the agent is behind a long poll and this Worker cannot call it.
+          return json({ ok: true, cancel });
         }
         case "/done": {
           // Validate the report BEFORE storing anything from it. Storing the catalogue first
           // meant a REJECTED report still replaced the repick and variant allowlists, so the
           // next edit was validated against a packing run this object had refused to believe.
-          await this.absorbPacked(body.manifest);
+          await this.absorbPacked(body.manifest, body.frames);
           if (body.catalogue) await this.ctx.storage.put("catalogue", body.catalogue);
-          await this.finish(body.id, "done", body.message);
+          await this.finish(body.id, "done", null);
           return json({ ok: true });
         }
         case "/failed":
-          await this.finish(body.id, "error", body.message);
+          await this.finish(body.id, "failed", body.message);
           return json({ ok: true });
         default:
           return json({ error: "not found" }, 404);
@@ -578,8 +977,6 @@ function repaintPath(cid, move, src, seed) {
   return `/tmp/repaint/${cid}-${move}-${stem}${seed === BASE_SEED ? "" : `-s${seed}`}.png`;
 }
 
-const MUTATIONS = ["reroll", "repick", "use", "drop", "reorder", "pivot", "hold", "tag"];
-
 function characterStub(env, cid) {
   if (!CHARACTERS.includes(cid)) throw new HttpError(400, `unknown character: ${cid}`);
   return env.CHARACTER.get(env.CHARACTER.idFromName(cid));
@@ -597,6 +994,7 @@ function post(body) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const cid = url.searchParams.get("cid") || CHARACTERS[0];
     try {
       if (url.pathname === "/api/health") {
         // Touches a DO on purpose. The asset path answers 200 all through a restart while DO
@@ -608,7 +1006,6 @@ export default {
       }
 
       if (url.pathname === "/api/state") {
-        const cid = url.searchParams.get("cid") || CHARACTERS[0];
         const r = await callDO(env, cid, "/state");
         const body = await r.json();
         // The page needs a second origin: the cells, the source frames and the atlas are files
@@ -616,10 +1013,19 @@ export default {
         return json({ ...body, agent: env.AGENT_BASE }, r.status);
       }
 
+      if (url.pathname === "/api/jobs") return await callDO(env, cid, "/jobs");
+
       if (url.pathname.startsWith("/api/job/")) {
-        const cid = url.searchParams.get("cid") || CHARACTERS[0];
-        const id = url.pathname.split("/").pop();
-        return await callDO(env, cid, `/job?id=${encodeURIComponent(id)}`);
+        const rest = url.pathname.slice("/api/job/".length).split("/");
+        const id = rest[0];
+        if (rest.length === 2 && rest[1] === "cancel") {
+          if (request.method !== "POST") return json({ error: "POST only" }, 405);
+          return await callDO(env, cid, "/cancel", post({ id }));
+        }
+        if (rest.length === 1) {
+          return await callDO(env, cid, `/job?id=${encodeURIComponent(id)}`);
+        }
+        return json({ error: "not found" }, 404);
       }
 
       if (url.pathname.startsWith("/api/agent/")) {
@@ -639,7 +1045,7 @@ export default {
       if (mutation && MUTATIONS.includes(mutation)) {
         if (request.method !== "POST") return json({ error: "POST only" }, 405);
         const body = await request.json();
-        return await callDO(env, body.cid, `/${mutation}`, post(body));
+        return await callDO(env, body.cid || cid, `/${mutation}`, post(body));
       }
 
       if (url.pathname === "/" || url.pathname === "/index.html") {

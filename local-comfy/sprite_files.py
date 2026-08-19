@@ -153,13 +153,3 @@ def variants(cid, tag_name, src):
         out.append({"png": os.path.join(RC.REPAINT_DIR, n),
                     "seed": int(tail[2:]) if tail.startswith("-s") else RC.SEED})
     return out
-
-
-def repack(cid):
-    """Repaint anything missing and repack the character. Never write a packer here."""
-    argv = sys.argv
-    sys.argv = ["repaint_cells", cid]
-    try:
-        RC.main()
-    finally:
-        sys.argv = argv
