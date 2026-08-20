@@ -6,7 +6,7 @@
   256,
   481
  ],
- "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+ "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
  "plate": {
   "source": "/tmp/sprite-uploads/src-5eea76c5c32344ed.png",
   "prop": null
@@ -177,8 +177,8 @@
   },
   {
    "src": "/tmp/sprite-nowater-walk-pick/f_0018.png",
-   "seed": 77,
-   "png": "/tmp/repaint/nowater-walk-f_0018.png",
+   "seed": 811298902,
+   "png": "/tmp/repaint/nowater-walk-f_0018-s811298902.png",
    "hold": 1,
    "pivot_nudge": [
     0,
@@ -197,8 +197,8 @@
   },
   {
    "src": "/tmp/sprite-nowater-walk-pick/f_0021.png",
-   "seed": 77,
-   "png": "/tmp/repaint/nowater-walk-f_0021.png",
+   "seed": 718347972,
+   "png": "/tmp/repaint/nowater-walk-f_0021-s718347972.png",
    "hold": 1,
    "pivot_nudge": [
     0,
@@ -362,7 +362,7 @@
    "params": {
     "recipe": "walk-cycle",
     "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": true,
     "size": 832,
     "steps": 20,
@@ -376,7 +376,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "431eeca927d84dec",
+   "key": "733ccec253257e38",
    "built_key": "431eeca927d84dec",
    "artifact": "/tmp/nowater-walk-cycle-832-20.mp4",
    "artifact_hash": "6151fddfcd788078",
@@ -479,11 +479,11 @@
    "cost_s": 45
   },
   {
-   "id": "repaint:nowater-walk-f_0018",
+   "id": "repaint:nowater-walk-f_0018-s811298902",
    "kind": "repaint",
    "tag": "walk",
    "params": {
-    "seed": 77,
+    "seed": 811298902,
     "pad": 0.86,
     "steps": 8,
     "cfg": 1.0,
@@ -498,10 +498,10 @@
      "hash": "d006f25f0285ab09"
     }
    ],
-   "key": "c6aebc41a73b1162",
-   "built_key": "c6aebc41a73b1162",
-   "artifact": "/tmp/repaint/nowater-walk-f_0018.png",
-   "artifact_hash": "7e9ecb0cb9659f5d",
+   "key": "522929c8525865b7",
+   "built_key": "522929c8525865b7",
+   "artifact": "/tmp/repaint/nowater-walk-f_0018-s811298902.png",
+   "artifact_hash": "335c3f82e7887070",
    "cost_s": 45
   },
   {
@@ -531,11 +531,11 @@
    "cost_s": 45
   },
   {
-   "id": "repaint:nowater-walk-f_0021",
+   "id": "repaint:nowater-walk-f_0021-s718347972",
    "kind": "repaint",
    "tag": "walk",
    "params": {
-    "seed": 77,
+    "seed": 718347972,
     "pad": 0.86,
     "steps": 8,
     "cfg": 1.0,
@@ -550,10 +550,10 @@
      "hash": "3873f91800f7b048"
     }
    ],
-   "key": "16d8d90b06107e5a",
-   "built_key": "16d8d90b06107e5a",
-   "artifact": "/tmp/repaint/nowater-walk-f_0021.png",
-   "artifact_hash": "fa5d654b02bba1f5",
+   "key": "e303b01e1e0158ad",
+   "built_key": "e303b01e1e0158ad",
+   "artifact": "/tmp/repaint/nowater-walk-f_0021-s718347972.png",
+   "artifact_hash": "228cc31b52ada3ee",
    "cost_s": 45
   },
   {
@@ -693,7 +693,7 @@
    "params": {
     "recipe": "idle-breathe",
     "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": true,
     "size": 832,
     "steps": 20,
@@ -707,7 +707,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "0f3e99ea82aa4e3f",
+   "key": "d1ef1fdd83a5bf0e",
    "built_key": "0f3e99ea82aa4e3f",
    "artifact": "/tmp/nowater-idle-breathe-832-20.mp4",
    "artifact_hash": "d30dc0113cae4221",
@@ -972,7 +972,7 @@
    "params": {
     "recipe": "punch",
     "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": false,
     "size": 832,
     "steps": 20,
@@ -986,7 +986,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "c4eed35f9fe7df48",
+   "key": "03997c46507e4c53",
    "built_key": null,
    "artifact": "/tmp/nowater-punch-832-20.mp4",
    "artifact_hash": null,
@@ -1043,7 +1043,7 @@
    "params": {
     "recipe": "kick",
     "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": false,
     "size": 832,
     "steps": 20,
@@ -1057,7 +1057,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "6eb13d0d2106c7bf",
+   "key": "8e22c7650b9db3f6",
    "built_key": null,
    "artifact": "/tmp/nowater-kick-832-20.mp4",
    "artifact_hash": null,
@@ -1114,7 +1114,7 @@
    "params": {
     "recipe": "jump",
     "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": false,
     "size": 832,
     "steps": 20,
@@ -1128,7 +1128,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "94dba62faaeabfbf",
+   "key": "714103c3e6c23a78",
    "built_key": null,
    "artifact": "/tmp/nowater-jump-832-20.mp4",
    "artifact_hash": null,
@@ -1185,7 +1185,7 @@
    "params": {
     "recipe": "block",
     "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": false,
     "size": 832,
     "steps": 20,
@@ -1199,7 +1199,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "4d69d502f1d2bc21",
+   "key": "6ac3d2ee53b3953b",
    "built_key": null,
    "artifact": "/tmp/nowater-block-832-20.mp4",
    "artifact_hash": null,
@@ -1256,7 +1256,7 @@
    "params": {
     "recipe": "crouch",
     "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
-    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier.",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
     "cyclic": false,
     "size": 832,
     "steps": 20,
@@ -1270,7 +1270,7 @@
      "hash": "51f58f57e71bfd85"
     }
    ],
-   "key": "46fef6cc18d7c871",
+   "key": "77250876b40fe7a0",
    "built_key": null,
    "artifact": "/tmp/nowater-crouch-832-20.mp4",
    "artifact_hash": null,
@@ -1539,9 +1539,9 @@
      "hash": "c6fc32cee84dbde2"
     },
     {
-     "from": "repaint:nowater-walk-f_0018",
-     "path": "/tmp/repaint/nowater-walk-f_0018.png",
-     "hash": "7e9ecb0cb9659f5d"
+     "from": "repaint:nowater-walk-f_0018-s811298902",
+     "path": "/tmp/repaint/nowater-walk-f_0018-s811298902.png",
+     "hash": "335c3f82e7887070"
     },
     {
      "from": "repaint:nowater-walk-f_0020",
@@ -1549,9 +1549,9 @@
      "hash": "297f4e03ce670e25"
     },
     {
-     "from": "repaint:nowater-walk-f_0021",
-     "path": "/tmp/repaint/nowater-walk-f_0021.png",
-     "hash": "fa5d654b02bba1f5"
+     "from": "repaint:nowater-walk-f_0021-s718347972",
+     "path": "/tmp/repaint/nowater-walk-f_0021-s718347972.png",
+     "hash": "228cc31b52ada3ee"
     },
     {
      "from": "repaint:nowater-walk-f_0022",
@@ -1619,10 +1619,10 @@
      "hash": "42570091a7d309ca"
     }
    ],
-   "key": "70bc38f7e0955409",
-   "built_key": "70bc38f7e0955409",
+   "key": "77c3f32450645059",
+   "built_key": "77c3f32450645059",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
-   "artifact_hash": "a967dd97757eefaf",
+   "artifact_hash": "476415bef89ccfd7",
    "cost_s": 5
   },
   {
@@ -1636,11 +1636,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
-     "hash": "a967dd97757eefaf"
+     "hash": "476415bef89ccfd7"
     }
    ],
-   "key": "7d2d87cbda786a38",
-   "built_key": "7d2d87cbda786a38",
+   "key": "10613133323432d8",
+   "built_key": "10613133323432d8",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -1656,11 +1656,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
-     "hash": "a967dd97757eefaf"
+     "hash": "476415bef89ccfd7"
     }
    ],
-   "key": "6d310a7e7309e3ab",
-   "built_key": "6d310a7e7309e3ab",
+   "key": "2581e06a83c4f7d7",
+   "built_key": "2581e06a83c4f7d7",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -1676,11 +1676,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
-     "hash": "a967dd97757eefaf"
+     "hash": "476415bef89ccfd7"
     }
    ],
-   "key": "5ce24a05f0a28e75",
-   "built_key": "5ce24a05f0a28e75",
+   "key": "0453858167d34db3",
+   "built_key": "0453858167d34db3",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -1696,11 +1696,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
-     "hash": "a967dd97757eefaf"
+     "hash": "476415bef89ccfd7"
     }
    ],
-   "key": "07b5773471d372cf",
-   "built_key": "07b5773471d372cf",
+   "key": "2a594151c692feb5",
+   "built_key": "2a594151c692feb5",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -1716,11 +1716,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
-     "hash": "a967dd97757eefaf"
+     "hash": "476415bef89ccfd7"
     }
    ],
-   "key": "8ff0dbdf3a2b598d",
-   "built_key": "8ff0dbdf3a2b598d",
+   "key": "94b52d8652f7e667",
+   "built_key": "94b52d8652f7e667",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0

@@ -134,8 +134,11 @@ a { color: var(--gold); }
 /* Beside the preview, not under it: on a 900px-tall screen an editor below a 420px loop is an
    editor nobody sees, and "pausing makes this frame editable" has to be VISIBLE to be true. */
 #editor { flex: 1 1 340px; min-width: 300px; max-width: 620px; padding: 10px; align-self: flex-start; }
-#editor .head { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line);
-                padding-bottom: 6px; margin-bottom: 8px; }
+#editor .head, #animeditor .head { display: flex; align-items: center; gap: 8px;
+                border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 8px; }
+/* The animation's own card. It is not beside the preview like the frame editor — it is ABOVE both
+   screens, because the recipe belongs to the animation and not to Select or to Enhance. */
+#animeditor { padding: 10px; max-width: 720px; margin-bottom: 4px; }
 .shelf { display: flex; flex-wrap: wrap; gap: 4px; }
 .seed { width: 72px; padding: 0; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
 .seed .art { width: 70px; height: 70px; display: flex; }
@@ -324,6 +327,10 @@ let route = { cid: null, anim: null, screen: "select" };
 let confirming = null;      // {key, ...} while a priced or lossy confirm is open
 let queueOpen = false, trayOpen = false, treeOpen = false;
 let making = null;          // "character" | "move" while a create form is open
+// The animation's own card: open on both screens, and the unsaved recipe it is holding. The draft
+// is kept OUTSIDE the DOM because a job finishing reloads and re-renders the page, and a half-typed
+// recipe living only in a textarea would be thrown away by a repack landing at the wrong moment.
+let animOpen = false, animDraft = null;
 let poll = null;
 
 // One clock for both screens. `at` is an index into the tag's `sources` — the timeline's own
@@ -474,6 +481,14 @@ function blockedBy(anim) {
   for (const rung of LADDER) {
     if (built(rung.kind, anim)) continue;
     return { ...rung, price: priceOf(rung.kind, anim), busy: running(rung.kind, anim) };
+  }
+  // A clip being RE-rendered is the same state as one that has never been rendered, and has to read
+  // as one: the agent writes the new performance over the old file, so the video, the frames beside
+  // it and the cells picked off it are all mid-flight. `built` cannot see that — the step keeps the
+  // built_key of the clip being overwritten — so the running job is asked about directly.
+  if (running("clip", anim)) {
+    return { kind: "clip", scope: "move", need: "this move's clip is being re-rendered",
+             price: priceOf("clip"), busy: true };
   }
   return null;
 }
@@ -792,6 +807,12 @@ function renderTabs() {
       text: s, onclick: () => goTo(route.cid, route.anim, s),
     }));
   }
+  // The recipe is neither screen's, so its way in sits on the row the two screens share.
+  box.append(h("button", {
+    class: animOpen ? "on" : "", text: animOpen ? "close the recipe" : "the recipe",
+    title: "this animation's words, and the only place its clip can be re-rendered",
+    onclick: () => { animOpen = !animOpen; render(); },
+  }));
   box.append(h("span", { class: "grow" }));
   box.append(h("span", { class: "faint", text: tag.name + " · " + tag.fps + "fps · " + tag.direction +
     " · " + tag.cells.length + " cells of " + tag.sources.length + " frames" }));
@@ -811,8 +832,13 @@ function renderStage() {
     return;
   }
   const tag = TAG();
+  // Both of these are the ANIMATION's, not the screen's, so both are drawn before the screen is
+  // chosen and neither moves when the tabs do.
+  if (animOpen) box.append(animEditor(tag));
   const wait = blockedBy(tag.name);
   if (wait) { box.append(processing(tag, wait)); return; }
+  const stale = clipStaleNote(tag);
+  if (stale) box.append(stale);
   box.append(route.screen === "enhance" ? enhanceScreen(tag) : selectScreen(tag));
 }
 
@@ -853,6 +879,123 @@ function processing(tag, wait) {
         autoplay: true, loop: true, muted: true, playsinline: true,
         src: AGENT + "/clip?cid=" + route.cid + "&tag=" + tag.name })),
       h("div", { class: "cap" }, h("span", { text: "the rendered clip" }))));
+  }
+  return box;
+}
+
+// --- the animation itself, reachable from both screens ---------------------------------------------
+// The recipe is the words the whole performance is rendered from. It belongs to the ANIMATION, so it
+// is neither Select's nor Enhance's: it hangs off the row they share and is drawn above both.
+//
+// Saving it runs NOTHING. `/api/step` records the words and marks the clip — and everything picked
+// off the clip — stale, and the re-render underneath is a separate, priced, confirmed act. That
+// split is the whole point: a person has to be able to argue with the words for a while before
+// spending nine minutes of the one GPU on them.
+function animEditor(tag) {
+  const rec = recs("clip", tag.name)[0];
+  const saved = rec ? rec.params.recipe_text : "";
+  const draft = animDraft === null ? saved : animDraft;
+  const box = h("div", { id: "animeditor", class: "card col" });
+  box.append(h("div", { class: "head" },
+    h("h2", { text: "animation · " + tag.name }),
+    h("span", { class: "faint", text: tag.cells.length + " cells of " + tag.sources.length +
+      " frames · " + tag.fps + "fps" }),
+    h("span", { class: "grow" }),
+    h("button", { text: "close", onclick: () => { animOpen = false; render(); } })));
+
+  // The name is SHOWN and not editable, and the reason is said out loud rather than left as a
+  // missing control: `STEP_EDITABLE.clip` is recipe_text, trait and cyclic, and the tag name is
+  // absent from it on purpose — the extracted frames of this move live in a directory named after
+  // it, so a rename orphans every frame and every drawing made from them.
+  box.append(h("div", { class: "row wrap" },
+    h("span", { class: "dim", text: "name" }), h("span", { class: "gold", text: tag.name }),
+    h("span", { class: "faint", text: "fixed — this move's extracted frames are filed under this " +
+      "name, so renaming it would orphan them and every drawing made from them" })));
+
+  const ta = h("textarea", { rows: 6 });
+  ta.value = draft;
+  const save = h("button", { text: "save the recipe — this runs nothing" });
+  save.onclick = async () => {
+    const v = ta.value.trim();
+    if (!v || v === saved) return;
+    const keep = animDraft;
+    animDraft = null;
+    const j = await mutate("step", { kind: "clip", field: "recipe_text", value: v },
+      "the " + tag.name + " recipe");
+    if (!j) { animDraft = keep; render(); }
+  };
+  const revert = h("button", { text: "revert", onclick: () => { animDraft = null; render(); } });
+  const hint = h("span", { class: "faint" });
+  const unsaved = h("div", { class: "note" },
+    h("div", { text: "unsaved — saving marks this move's clip stale and queues nothing." }),
+    h("div", { class: "dim", text: "the clip you are looking at stays exactly as it is until you " +
+      "ask for a new one, below, and pay for it." }));
+  box.append(h("div", { class: "col", style: "gap:4px" },
+    h("span", { class: "dim", text: "what this animation does, in one paragraph. Every clip of it " +
+      "is rendered from these words and the character's movement sentence." }), ta,
+    h("div", { class: "row wrap" }, save, revert, hint)));
+  box.append(unsaved);
+
+  // The re-render. It is in this card and nowhere else, because the only honest reason to spend
+  // 170 seconds on a new performance is that the words it is rendered from have changed.
+  const line = h("div", { class: "col", style: "gap:4px" },
+    h("span", { class: "dim", text: "the clip these words name" }));
+  if (!rec || rec.built_key === null) {
+    line.append(h("span", { class: "faint", text: "this move has never had a clip. The run that " +
+      "makes the first one is on the screen behind this card — there is nothing to re-render yet." }));
+  } else if (!rec.stale) {
+    line.append(h("div", { class: "row wrap" },
+      h("button", { disabled: true, text: "re-render the clip · already this performance" }),
+      h("span", { class: "faint", text: "the clip on disk was rendered from exactly these words. " +
+        "Change them and save, and this becomes the run that makes the new performance." })));
+  } else {
+    line.append(runBar("clip", "re-render the clip from these words", priceOf("clip")));
+  }
+  // A re-render renders the words ON DISK. Offering it beside an unsaved edit would be a button
+  // whose label — "from these words" — is about text the render will never see.
+  const saveFirst = h("span", { class: "faint", text: "save the recipe first: a re-render renders " +
+    "the words on disk, not the ones being typed." });
+  line.append(saveFirst);
+  box.append(line);
+
+  // Dirtiness is answered on every keystroke rather than on the next render, because a render is
+  // what would take the caret out of the sentence being written.
+  const sync = () => {
+    const dirty = ta.value.trim() !== saved;
+    save.disabled = !dirty || !ta.value.trim();
+    revert.hidden = !dirty;
+    unsaved.hidden = !dirty;
+    hint.textContent = dirty ? "unsaved — nothing on disk has changed yet"
+      : "these are the words the recipe is saved with";
+    // The re-render and the unsaved edit are never offered at the same time.
+    for (const n of line.children) if (n !== saveFirst) n.hidden = dirty;
+    saveFirst.hidden = !dirty;
+  };
+  ta.oninput = () => { animDraft = ta.value; sync(); };
+  sync();
+  return box;
+}
+
+// Staleness, said plainly, on both screens. It never hides the clip or the cells: they are the old
+// performance, and the old performance is the best reference there is until a new one lands.
+function clipStaleNote(tag) {
+  const rec = recs("clip", tag.name)[0];
+  // `built_key === null` is "never rendered", which is the processing screen's story and not this
+  // one's — this note is only ever about a clip that EXISTS and no longer matches the words.
+  if (!rec || !rec.stale || rec.built_key === null) return null;
+  // The two reasons the Durable Object can give, and neither is guessed at. "params or inputs
+  // changed" cannot say WHICH of the three inputs to a clip moved, so this does not pretend to.
+  const own = rec.reason === "params or inputs changed";
+  const box = h("div", { class: "note" },
+    h("div", { text: own
+      ? "these are not the words this clip was rendered from — the recipe, the movement sentence " +
+        "or the plate has changed since."
+      : "this clip is behind what it is composited from — " + rec.reason + "." }),
+    h("div", { class: "dim", text: "what plays below is the old performance and the cells picked " +
+      "off it. Nothing has been thrown away, and nothing runs until you ask for it." }));
+  if (!animOpen) {
+    box.append(h("button", { text: "open the recipe",
+      onclick: () => { animOpen = true; render(); } }));
   }
   return box;
 }
@@ -1106,19 +1249,68 @@ function runBar(kind, label, price, index) {
   });
   bar.append(btn);
   if (!confirming || confirming.key !== key) return bar;
-  const box = h("div", { class: "confirm" },
-    h("div", {}, "this costs ", h("b", { text: fmtTime(price) }), " of the one GPU, serially."),
-    h("div", { class: "dim", text: kind === "clip"
-      ? "a new clip re-extracts and re-picks this move: any hand edit whose pose does not land within " +
-        "3 frames of a new pick goes to the tray."
-      : "nothing downstream of it runs on its own." }),
-    h("div", { class: "row" },
-      h("button", { text: "run it", onclick: () => (kind === "reroll"
-        ? mutate("reroll", { index }, "re-roll cell " + (index + 1))
-        : runStep(kind)) }),
-      h("button", { text: "cancel", onclick: () => { confirming = null; render(); } })));
+  const box = h("div", { class: "confirm" });
+  if (kind === "clip") box.append(...clipReceipt(route.anim));
+  else {
+    box.append(h("div", {}, "this costs ", h("b", { text: fmtTime(price) }), " of the one GPU, serially."));
+    box.append(h("div", { class: "dim", text: "nothing downstream of it runs on its own." }));
+  }
+  box.append(h("div", { class: "row" },
+    h("button", { text: "run it", onclick: () => (kind === "reroll"
+      ? mutate("reroll", { index }, "re-roll cell " + (index + 1))
+      : runStep(kind)) }),
+    h("button", { text: "cancel", onclick: () => { confirming = null; render(); } })));
   bar.append(box);
   return bar;
+}
+
+// THE RECEIPT FOR THE ONE DESTRUCTIVE RUN ON THIS PAGE, and every number in it is read off the
+// state rather than assumed.
+//
+// A clip is a new PERFORMANCE. It is not a re-pick, which chooses different frames of the same
+// performance and can therefore carry an edit forward by the time its pose happens at; and it is
+// not a re-roll, which re-draws one frame. Against a new performance a frame time means nothing —
+// the same second of a re-rendered clip is a different pose — so every hand edit this move carries
+// goes to the tray, and this says how many before anything is spent.
+function clipReceipt(anim) {
+  const cost = ST.cost_s || {};
+  const tag = ST.tags.find((t) => t.name === anim) || { cells: [] };
+  // What the picker is ASKED for, not what the tag holds today: the cells about to be painted are
+  // the ones the new picks will choose, and a hand selection may have left more or fewer behind.
+  const picks = recs("picks", anim)[0];
+  const n = picks ? picks.params.cells : tag.cells.length;
+  const paint = n * (cost.repaint || 0);
+  const after = (cost.frames || 0) + (cost.picks || 0) + paint;
+  const edits = tag.cells.filter(handEdited);
+  // The FIRST render of a move loses nothing, and must not be dressed up as if it did: there is no
+  // performance to throw away and no cell was ever picked off one.
+  const clip = recs("clip", anim)[0];
+  const first = !clip || clip.built_key === null;
+  const which = edits.map((c) => "cell " + (tag.cells.indexOf(c) + 1) +
+    " (seed " + c.seed + ", hold " + c.hold + (c.prompt ? ", its own prompt" : "") +
+    (c.pivot_nudge[0] || c.pivot_nudge[1] ? ", nudged" : "") + ")").join(" · ");
+  return [
+    h("div", {}, "the clip is ", h("b", { text: fmtTime(cost.clip || 0) }),
+      " of the one GPU, serially. That is the run this button buys."),
+    h("div", { class: "dim", text: "what follows it is priced and confirmed separately and none of " +
+      "it starts on its own: extract " + fmtTime(cost.frames || 0) + ", picks " +
+      fmtTime(cost.picks || 0) + ", then painting " + n + " cells at " + fmtTime(cost.repaint || 0) +
+      " each — " + fmtTime(after) + " after this one, " + fmtTime((cost.clip || 0) + after) + " in all." }),
+    first
+      ? h("div", { class: "dim", text: "this move has never had a clip, so nothing is lost: there is " +
+          "no performance to replace and no cell picked off one." })
+      : edits.length
+        ? h("div", {}, h("b", { text: edits.length + " cell edit" + (edits.length === 1 ? "" : "s") +
+            " cannot be carried" }), " — a re-rendered clip is a different performance, so the time a " +
+            "pose happens at means nothing against it. All " + edits.length + " go to the orphan tray " +
+            "with their seeds, holds, nudges and prompts, and can be put back by hand; nothing is deleted.")
+        : h("div", { class: "dim", text: "no cell of this move carries a hand edit, so the tray takes " +
+            "nothing. The cells themselves are still replaced by the new performance's picks." }),
+    first || !edits.length ? null : h("div", { class: "faint", text: which }),
+    first ? null : h("div", { class: "dim", text: "this is the destructive one. Re-picking chooses " +
+      "different frames of the SAME clip and a re-roll re-draws a single frame; this throws the " +
+      "performance away and every cell picked off it with it." }),
+  ].filter(Boolean);
 }
 
 async function runStep(kind) {
@@ -1346,6 +1538,9 @@ async function goTo(cid, anim, screen, replace) {
   making = null;
   confirming = null;
   treeOpen = false;
+  // The card is one animation's, and so is the half-typed recipe in it. Carrying either onto the
+  // next move would offer somebody a save button that writes one move's words onto another's.
+  if (!sameMove) { animOpen = false; animDraft = null; }
   el("tree").classList.remove("open");
   route = { cid, anim, screen: SCREENS.includes(screen) ? screen : "select" };
   if (!sameChar) { JOBS = []; dropArt(); }
