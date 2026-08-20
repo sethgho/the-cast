@@ -301,9 +301,9 @@
    ]
   },
   {
-   "src": "/tmp/sprite-seth-idle-pick/f_0015.png",
+   "src": "/tmp/sprite-seth-idle-pick/f_0022.png",
    "seed": 77,
-   "png": "/tmp/repaint/seth-idle-f_0015.png",
+   "png": "/tmp/repaint/seth-idle-f_0022.png",
    "hold": 1,
    "pivot_nudge": [
     0,
@@ -311,9 +311,9 @@
    ]
   },
   {
-   "src": "/tmp/sprite-seth-idle-pick/f_0015.png",
+   "src": "/tmp/sprite-seth-idle-pick/f_0025.png",
    "seed": 77,
-   "png": "/tmp/repaint/seth-idle-f_0015.png",
+   "png": "/tmp/repaint/seth-idle-f_0025.png",
    "hold": 1,
    "pivot_nudge": [
     0,
@@ -321,9 +321,9 @@
    ]
   },
   {
-   "src": "/tmp/sprite-seth-idle-pick/f_0016.png",
+   "src": "/tmp/sprite-seth-idle-pick/f_0027.png",
    "seed": 77,
-   "png": "/tmp/repaint/seth-idle-f_0016.png",
+   "png": "/tmp/repaint/seth-idle-f_0027.png",
    "hold": 1,
    "pivot_nudge": [
     0,
@@ -684,7 +684,7 @@
    "src": "/tmp/sprite-seth-crouch-pick/f_0025.png",
    "seed": 77,
    "png": "/tmp/repaint/seth-crouch-f_0025.png",
-   "hold": 1,
+   "hold": 4,
    "pivot_nudge": [
     0,
     0
@@ -1109,7 +1109,7 @@
    "key": "ff8deb53ee827e49",
    "built_key": "ff8deb53ee827e49",
    "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth.json",
-   "artifact_hash": "88814bb411946b90",
+   "artifact_hash": "4322a1964507dd93",
    "cost_s": 5
   },
   {
@@ -1243,7 +1243,7 @@
    "cost_s": 45
   },
   {
-   "id": "repaint:seth-idle-f_0015",
+   "id": "repaint:seth-idle-f_0022",
    "kind": "repaint",
    "tag": "idle",
    "params": {
@@ -1258,18 +1258,18 @@
    "inputs": [
     {
      "from": "picks:idle",
-     "path": "/tmp/sprite-seth-idle-pick/f_0015.png",
-     "hash": "8175d79831f8d7e9"
+     "path": "/tmp/sprite-seth-idle-pick/f_0022.png",
+     "hash": "21222787e190d33d"
     }
    ],
-   "key": "d88d7b4872391a0c",
-   "built_key": "d88d7b4872391a0c",
-   "artifact": "/tmp/repaint/seth-idle-f_0015.png",
-   "artifact_hash": "aec51b7741f28926",
+   "key": "7f8f610076619388",
+   "built_key": "7f8f610076619388",
+   "artifact": "/tmp/repaint/seth-idle-f_0022.png",
+   "artifact_hash": "e75891e64baa99c8",
    "cost_s": 45
   },
   {
-   "id": "repaint:seth-idle-f_0015",
+   "id": "repaint:seth-idle-f_0025",
    "kind": "repaint",
    "tag": "idle",
    "params": {
@@ -1284,18 +1284,18 @@
    "inputs": [
     {
      "from": "picks:idle",
-     "path": "/tmp/sprite-seth-idle-pick/f_0015.png",
-     "hash": "8175d79831f8d7e9"
+     "path": "/tmp/sprite-seth-idle-pick/f_0025.png",
+     "hash": "b873b382d164fa41"
     }
    ],
-   "key": "d88d7b4872391a0c",
-   "built_key": "d88d7b4872391a0c",
-   "artifact": "/tmp/repaint/seth-idle-f_0015.png",
-   "artifact_hash": "aec51b7741f28926",
+   "key": "28e086bc261c8526",
+   "built_key": "28e086bc261c8526",
+   "artifact": "/tmp/repaint/seth-idle-f_0025.png",
+   "artifact_hash": "6aa32e9ea4d7bc20",
    "cost_s": 45
   },
   {
-   "id": "repaint:seth-idle-f_0016",
+   "id": "repaint:seth-idle-f_0027",
    "kind": "repaint",
    "tag": "idle",
    "params": {
@@ -1310,14 +1310,14 @@
    "inputs": [
     {
      "from": "picks:idle",
-     "path": "/tmp/sprite-seth-idle-pick/f_0016.png",
-     "hash": "31791f2d391144ab"
+     "path": "/tmp/sprite-seth-idle-pick/f_0027.png",
+     "hash": "65251cfd3dae3cbf"
     }
    ],
-   "key": "e52de104fb9beb46",
-   "built_key": "e52de104fb9beb46",
-   "artifact": "/tmp/repaint/seth-idle-f_0016.png",
-   "artifact_hash": "23ce7f91104f632e",
+   "key": "bf2fb412ec51e22b",
+   "built_key": "bf2fb412ec51e22b",
+   "artifact": "/tmp/repaint/seth-idle-f_0027.png",
+   "artifact_hash": "e8129c4daa6c8752",
    "cost_s": 45
   },
   {
@@ -3065,7 +3065,7 @@
         ]
        },
        {
-        "hold": 1,
+        "hold": 4,
         "pivot_nudge": [
          0,
          0
@@ -3152,19 +3152,19 @@
      "hash": "3451f75983265c20"
     },
     {
-     "from": "repaint:seth-idle-f_0015",
-     "path": "/tmp/repaint/seth-idle-f_0015.png",
-     "hash": "aec51b7741f28926"
+     "from": "repaint:seth-idle-f_0022",
+     "path": "/tmp/repaint/seth-idle-f_0022.png",
+     "hash": "e75891e64baa99c8"
     },
     {
-     "from": "repaint:seth-idle-f_0015",
-     "path": "/tmp/repaint/seth-idle-f_0015.png",
-     "hash": "aec51b7741f28926"
+     "from": "repaint:seth-idle-f_0025",
+     "path": "/tmp/repaint/seth-idle-f_0025.png",
+     "hash": "6aa32e9ea4d7bc20"
     },
     {
-     "from": "repaint:seth-idle-f_0016",
-     "path": "/tmp/repaint/seth-idle-f_0016.png",
-     "hash": "23ce7f91104f632e"
+     "from": "repaint:seth-idle-f_0027",
+     "path": "/tmp/repaint/seth-idle-f_0027.png",
+     "hash": "e8129c4daa6c8752"
     },
     {
      "from": "repaint:seth-punch-f_0008",
@@ -3347,10 +3347,10 @@
      "hash": "5a0825722d98e5f0"
     }
    ],
-   "key": "061d857d83b2afb7",
-   "built_key": "061d857d83b2afb7",
+   "key": "42072cf05aa805a9",
+   "built_key": "42072cf05aa805a9",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-   "artifact_hash": "819075d2fad16d98",
+   "artifact_hash": "35e6fa4720b20f76",
    "cost_s": 5
   },
   {
@@ -3364,11 +3364,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "819075d2fad16d98"
+     "hash": "35e6fa4720b20f76"
     }
    ],
-   "key": "0817f91500bcaa20",
-   "built_key": "0817f91500bcaa20",
+   "key": "5055216a69e37052",
+   "built_key": "5055216a69e37052",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3384,11 +3384,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "819075d2fad16d98"
+     "hash": "35e6fa4720b20f76"
     }
    ],
-   "key": "b356a5b235ef083e",
-   "built_key": "b356a5b235ef083e",
+   "key": "4978877db05c96c4",
+   "built_key": "4978877db05c96c4",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3404,11 +3404,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "819075d2fad16d98"
+     "hash": "35e6fa4720b20f76"
     }
    ],
-   "key": "02d424e68b33bccd",
-   "built_key": "02d424e68b33bccd",
+   "key": "3a3811d5dcd1394c",
+   "built_key": "3a3811d5dcd1394c",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3424,11 +3424,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "819075d2fad16d98"
+     "hash": "35e6fa4720b20f76"
     }
    ],
-   "key": "9a82be7421b0cdc2",
-   "built_key": "9a82be7421b0cdc2",
+   "key": "cc0bba85d75f6987",
+   "built_key": "cc0bba85d75f6987",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3444,11 +3444,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "819075d2fad16d98"
+     "hash": "35e6fa4720b20f76"
     }
    ],
-   "key": "842bc07fc6e3ad09",
-   "built_key": "842bc07fc6e3ad09",
+   "key": "f312fdbcccbd60ef",
+   "built_key": "f312fdbcccbd60ef",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
