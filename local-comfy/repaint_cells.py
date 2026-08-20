@@ -155,7 +155,12 @@ NEG = ("blurry, smeared, soft focus, video artifacts, photographic, different po
        "resized, cropped")
 
 
-def graph(image_name, seed=SEED):
+def graph(image_name, seed=SEED, prompt=None):
+    """`prompt` is one CELL's own words, and None means this character's default REPAINT.
+
+    None rather than a copy of REPAINT at every call site: an override is stored on the frame only
+    when a person wrote one, so the default stays a single string that re-wording really changes.
+    """
     return {
         "unet": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": UNET}},
         "lora": {"class_type": "LoraLoaderModelOnly",
@@ -165,7 +170,7 @@ def graph(image_name, seed=SEED):
         "vae": {"class_type": "VAELoader", "inputs": {"vae_name": VAE}},
         "img": {"class_type": "LoadImage", "inputs": {"image": image_name}},
         "pos": {"class_type": "TextEncodeQwenImageEditPlus",
-                "inputs": {"clip": ["clip", 0], "vae": ["vae", 0], "prompt": REPAINT,
+                "inputs": {"clip": ["clip", 0], "vae": ["vae", 0], "prompt": prompt or REPAINT,
                            "image1": ["img", 0]}},
         "neg": {"class_type": "TextEncodeQwenImageEditPlus",
                 "inputs": {"clip": ["clip", 0], "vae": ["vae", 0], "prompt": NEG,
@@ -210,10 +215,10 @@ def pad_for_repaint(src, dst):
     return dst
 
 
-def repaint(src, dst, seed=SEED):
+def repaint(src, dst, seed=SEED, prompt=None):
     import run as R
     padded = pad_for_repaint(src, dst.replace(".png", "-padded.png"))
-    g = graph(R.upload(padded), seed)
+    g = graph(R.upload(padded), seed, prompt)
     for node in g.values():
         node.setdefault("_meta", {"title": "node"})
     pid = S.api("/prompt", {"prompt": g, "client_id": "repaint"})["prompt_id"]
@@ -367,7 +372,7 @@ def build_block():
     }
 
 
-def _frame(src, seed, png=None, hold=1, pivot_nudge=(0, 0)):
+def _frame(src, seed, png=None, hold=1, pivot_nudge=(0, 0), prompt=None):
     """One cell record, always the same shape and the same key order.
 
     `hold` is a DURATION multiplier over its tag's fps -- 2 means this drawing is on screen for
@@ -380,6 +385,12 @@ def _frame(src, seed, png=None, hold=1, pivot_nudge=(0, 0)):
         f["png"] = png
     f["hold"] = int(hold)
     f["pivot_nudge"] = list(pivot_nudge)
+    # This cell's OWN repaint words, and only when it has some. Absent means "use REPAINT", which
+    # is why the default is never copied in here: a frame carrying a copy would keep drawing the
+    # old words after the default was re-worded. Appended last, so a manifest with no override is
+    # byte-identical to what this function has always written.
+    if prompt:
+        f["prompt"] = prompt
     return f
 
 
@@ -538,10 +549,34 @@ def _tag_index(man, move):
     return None
 
 
-def repaint_path(cid, move, src, seed):
-    """One file per (source frame, seed), so a re-roll never overwrites the cell it replaces."""
+def prompt_tag(prompt):
+    """A short discriminator for one cell's own prompt, mirrored by `promptTag` in worker.js.
+
+    FNV-1a and not SHA-256 on purpose: the Durable Object computes this inside a synchronous
+    splice, where `crypto.subtle.digest` cannot be awaited, and both sides must agree on the name
+    of every file. It is NOT key material -- the whole prompt text goes into the repaint step's
+    cache key -- so a collision could only serve one cell the drawing of another prompt of the same
+    source frame and seed, and can never make a stale step read fresh.
+    """
+    if not prompt:
+        return ""
+    h = 0xCBF29CE484222325
+    for b in prompt.encode():
+        h = ((h ^ b) * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return f"-p{h:016x}"
+
+
+def repaint_path(cid, move, src, seed, prompt=None):
+    """One file per (source frame, prompt, seed), so a re-roll never overwrites the cell it
+    replaces -- and neither does a prompt override, which is a different drawing of the same pose
+    at the same seed and would otherwise be served the default prompt's picture from the cache.
+
+    The prompt tag comes BEFORE the seed suffix, and that order is load-bearing: `seedOfRepaint` in
+    worker.js reads the seed off the tail of the name, and a prompt tag after it would be parsed as
+    a seed.
+    """
     stem = os.path.basename(src).replace(".png", "")
-    tag = "" if seed == SEED else f"-s{seed}"
+    tag = f"{prompt_tag(prompt)}{'' if seed == SEED else f'-s{seed}'}"
     return os.path.join(REPAINT_DIR, f"{cid}-{move}-{stem}{tag}.png")
 
 
@@ -614,12 +649,13 @@ def main():
         print(f"  {cid}-{tag['name']}: {len(span)} cells from the manifest", flush=True)
         for n, idx in enumerate(span, start=1):
             f = man["frames"][idx]
-            dst = repaint_path(cid, tag["name"], f["src"], f["seed"])
+            prompt = f.get("prompt")
+            dst = repaint_path(cid, tag["name"], f["src"], f["seed"], prompt)
             if not os.path.exists(dst):
-                repaint(f["src"], dst, seed=f["seed"])
+                repaint(f["src"], dst, seed=f["seed"], prompt=prompt)
                 built.add(PL.repaint_id(dst))
             man["frames"][idx] = _frame(f["src"], f["seed"], dst, f.get("hold", 1),
-                                        f.get("pivot_nudge", (0, 0)))
+                                        f.get("pivot_nudge", (0, 0)), prompt)
             print(f"  {cid}-{tag['name']} cell {n}/{len(span)}  {time.time()-t0:.0f}s", flush=True)
 
         frames = man["frames"][tag["from"]:tag["to"] + 1]

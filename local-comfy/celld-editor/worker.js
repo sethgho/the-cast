@@ -84,6 +84,14 @@ const GENERATES = {
   // recorded and whatever it invalidated is drawn stale. Whether it queues a REPACK is decided
   // by the pack's key afterwards, in `mutate` — see the norun branch there.
   step: false,
+  // The whole frame selection for one tag, set by hand. Never GPU, and it is the mutation this
+  // object is most careful with: it is the only one that can add AND remove cells in one write,
+  // so every deactivated frame goes to the tray with its identity intact, exactly as a re-pick
+  // does. A newly activated frame simply has no drawing, and the rail prices painting it.
+  select: false,
+  // One cell's own repaint prompt. Never GPU for the same reason a re-roll's SEED would not be
+  // if it were free: the edit only says which drawing is wanted, and the drawing is a priced run.
+  prompt: false,
   // Reattaching an orphaned edit to a live cell, and hand-collecting a tray entry. Both are free:
   // a restore carries the HOLD and the NUDGE, which are playback metadata the pack reads and no
   // drawing depends on. It deliberately does NOT carry the seed — a seed names a drawing of one
@@ -119,6 +127,12 @@ const JOB_KIND = {
 // 24fps, so three frames is an eighth of a second and no pose changes meaningfully inside it,
 // while a fourth frame is far enough that a pivot nudge measured on one pose lands on another.
 const MATCH_FRAMES = 3;
+
+// The most cells one hand-made selection may activate. The picker's own ceiling is 24 cells
+// (`stepValue`), and this is deliberately a little above it: a person scrubbing a timeline may
+// want a few more than the algorithm would choose, but a selection of sixty is an hour of GPU
+// asked for by one click on a page where every frame is a toggle.
+const MAX_SELECT = 32;
 
 const LIVE = ["preparing", "queued", "claimed", "running"];
 
@@ -182,6 +196,12 @@ function frameRecord(f, rev) {
   if (f.png) out.png = f.png;
   out.hold = f.hold ?? 1;
   out.pivot_nudge = f.pivot_nudge ?? [0, 0];
+  // The cell's OWN repaint prompt, and only when it has one. Absent means "use the character's
+  // prompt", and that is why it is omitted rather than defaulted: copying the default onto every
+  // frame at write time would freeze it there, and re-wording the default would then change
+  // nothing. It is appended last so that a manifest without one is byte-identical to what
+  // `repaint_cells._frame()` already writes.
+  if (f.prompt) out.prompt = f.prompt;
   out._fid = f._fid ?? shortId();
   out._rev = f._rev ?? rev;
   return out;
@@ -391,6 +411,10 @@ function atticEntry(f, tag, why, at) {
     png: f.png ?? null,
     hold: f.hold ?? 1,
     pivot_nudge: f.pivot_nudge ?? [0, 0],
+    // Shown, never carried by `restore`. A prompt names a DRAWING of one particular pose, exactly
+    // as the seed does, and pushing it onto a different cell would queue a 45-second paint behind
+    // a button whose whole point is that it is one free click.
+    prompt: f.prompt ?? null,
     why,
     at,
   };
@@ -401,7 +425,7 @@ function atticEntry(f, tag, why, at) {
 // receipt and the tray both need to say how many of them a person actually touched.
 function isHandEdited(f) {
   return (f.seed ?? BASE_SEED) !== BASE_SEED || (f.hold ?? 1) > 1 ||
-    (f.pivot_nudge ?? [0, 0])[0] !== 0 || (f.pivot_nudge ?? [0, 0])[1] !== 0;
+    (f.pivot_nudge ?? [0, 0])[0] !== 0 || (f.pivot_nudge ?? [0, 0])[1] !== 0 || Boolean(f.prompt);
 }
 
 // Splice one tag's frame list and renumber every tag after it. Dropping or adding a frame moves
@@ -434,6 +458,7 @@ function frameInverse(f) {
     png: f.png,
     hold: f.hold ?? 1,
     pivot_nudge: f.pivot_nudge ?? [0, 0],
+    prompt: f.prompt ?? null,
   };
 }
 
@@ -474,6 +499,36 @@ function applyInverse(man, inv, rev, attic) {
     // The drop that this undoes wrote the frame into the dropped ledger, so that its id stayed
     // accounted for while it was out of the manifest. It is live again now.
     attic.dropRemove.push(inv.frame._fid);
+    return;
+  }
+  // Undo a `select`: one whole tag's frame list, put back exactly as it stood. It is the only
+  // inverse that restores a LIST rather than one cell, because it is the only mutation that can
+  // add and remove cells in the same write — and both halves have to come back or the tag's order
+  // would be a mixture of two selections.
+  if (inv.k === "tagFrames") {
+    const at = tagIndex(man, inv.tag);
+    // A later edit removed the tag itself: a `newmove` that was cancelled in the same batch. There
+    // is nothing to put the frames back into, and re-creating the tag to hold them would resurrect
+    // a move somebody deliberately backed out of.
+    if (at < 0) return;
+    const back = new Set(inv.frames.map((f) => f._fid));
+    // Cells this selection ACTIVATED are about to stop being live, and they are in no other
+    // bucket — the identity assertion refuses a write that loses an id, so they are parked in the
+    // tray. They keep whatever was done to them between the select and the cancel.
+    const now = Date.now();
+    for (const f of man.frames.slice(man.tags[at].from, man.tags[at].to + 1)) {
+      if (!back.has(f._fid)) {
+        attic.trayAdd.push(atticEntry(f, inv.tag, "left behind by a cancelled selection", now));
+      }
+    }
+    // Everything coming back is live again, so it must be in neither of the other two buckets:
+    // the select parked these in the tray, and an edit undone before this one may have retired
+    // one of them. A frame that is live AND held is the corruption the assertion refuses.
+    for (const fid of back) {
+      attic.trayRemove.push(fid);
+      attic.dropRemove.push(fid);
+    }
+    editTagFrames(man, inv.tag, () => inv.frames, rev);
     return;
   }
   // Undo a `newmove`: drop the tag it appended. Only while it is still EMPTY — a picks run that
@@ -667,9 +722,15 @@ export async function buildSteps(man, prior) {
       was.get(picksId)?.artifact, await digest(srcs));
 
     for (const f of frames) {
-      const png = f.png ?? repaintPath(man.character, move, f.src, f.seed);
+      const png = f.png ?? repaintPath(man.character, move, f.src, f.seed, f.prompt);
       const id = repaintId(png);
-      await add(id, "repaint", move, { seed: f.seed, ...build.repaint },
+      // `prompt` enters the params ONLY when the cell has an override. A `prompt: null` on every
+      // cell would be a new param on every repaint step of every character, which re-keys ~150
+      // drawings nobody has touched — two hours of GPU to answer a feature nobody used yet.
+      const params = f.prompt
+        ? { seed: f.seed, ...build.repaint, prompt: f.prompt }
+        : { seed: f.seed, ...build.repaint };
+      await add(id, "repaint", move, params,
         [edge(picksId, f.src, srcHash.get(f.src) ?? null)], png,
         was.get(id)?.artifact_hash);
     }
@@ -749,6 +810,9 @@ function view(job, pos, now) {
     kind: job.kind ?? "pack",
     tag: job.tag ?? null,
     index: job.index ?? null,
+    // Which job this one waits for. Only ever set on a job the queue RUNS: a clip queued behind
+    // the plate it is composited from, or behind the edit that created its move.
+    after: job.after ?? null,
     queuePos: pos,
     startedAt: started,
     elapsedMs: started === null ? null : (job.finishedAt ?? now) - started,
@@ -942,12 +1006,17 @@ export class CharacterDO {
         head.state = "failed";
         head.error = "the agent stopped reporting; lease expired";
         head.finishedAt = now;
+        // The artifact was never reported, so anything queued behind it on the strength of it is
+        // dead too. Reaped here as well as in `finish` because a died-mid-job agent never calls
+        // `/failed` at all, and the clip behind a plate that never appeared must not then run.
+        this.strandFollowers(jobs, head.id, now);
       } else if (head.state === "preparing") {
         // One splice long. Reaching here means the request that took the lock died inside it, so
         // the manifest was never written and the slot must not be held for the whole lease.
         head.state = "failed";
         head.error = "the edit was never completed";
         head.finishedAt = now;
+        this.strandFollowers(jobs, head.id, now);
       }
       changed = true;
     }
@@ -1062,6 +1131,8 @@ export class CharacterDO {
       job.error = error ?? null;
       job.finishedAt = now;
       if (job.startedAt === null) job.startedAt = now;
+      // Anything waiting on this one is only meaningful if it really produced its artifact.
+      if (job.state !== "done") this.strandFollowers(jobs, job.id, now);
     });
     await this.pump();
   }
@@ -1205,9 +1276,12 @@ export class CharacterDO {
           // A pick that did not move keeps the drawing it already has, byte for byte. One that
           // moved names the drawing of its NEW source frame, which does not exist yet — so the
           // repaint reads never built and the rail prices it before anything runs.
-          png: moved ? repaintPath(man.character, tagName, w.src, f.seed) : f.png,
+          png: moved ? repaintPath(man.character, tagName, w.src, f.seed, f.prompt) : f.png,
           hold: f.hold,
           pivot_nudge: f.pivot_nudge,
+          // The override follows its frame for the same reason the seed does: it is the cell's
+          // own answer to how this pose should be drawn, and the pose is what matched.
+          prompt: f.prompt,
           _fid: f._fid,
           _rev: moved ? rev : f._rev,
         });
@@ -1329,18 +1403,99 @@ export class CharacterDO {
       // would just be the one-click cascade DESIGN-pipeline.md forbids, wearing a repack's
       // clothes. The pack's key is the test because it is where every field a pack really reads
       // lands: unchanged means nothing runnable changed.
+      let out;
       if (done.norun && packKey(man) === wasPack) {
         await this.releaseJob(taken);
         await this.pump();
-        return { job: null, revision: rev };
+        out = { job: null, revision: rev, ...(done.report || {}) };
+      } else {
+        out = await this.publish(taken, done, tagName, rev);
       }
-      return await this.publish(taken, done, tagName, rev);
+      // Creating a move is the intent to render it (DESIGN-playback.md, "the flow"), so the clip
+      // is queued BEHIND the repack that carries the tag itself. Behind, and dependent on it: a
+      // cancelled `newmove` takes the tag back out of the manifest, and a clip job for a move that
+      // no longer exists is a 170-second render of nothing.
+      //
+      // This and `create` are the ONLY two places work starts without a priced confirm. Nothing
+      // else auto-runs, ever.
+      if (op === "newmove") out.queued = await this.queueRun(this.clipJob(tagName), out.job?.id);
+      return out;
     } catch (e) {
       // A rejected edit must not leave a job in the queue, and must not leave a repack that other
       // edits have already joined half-cancelled. `man` is a fresh copy out of storage and was
       // never written, so backing the record out drops the whole attempt.
       await this.releaseJob(taken);
       throw e;
+    }
+  }
+
+  // A job the queue runs rather than an edit it records: no inverse, no revision, empty `edits`.
+  // `after` names the job this one waits for, and only a job in this shape may carry it — a
+  // stranded follower is CANCELLED without unwinding anything, so an edit riding on one would be
+  // dropped instead of reverted.
+  //
+  // Returns the job's view, or null when the queue is full. Null rather than a throw: every
+  // caller here has already written the manifest, and a refusal at this point would turn an edit
+  // that really landed into an error the page shows as a failure.
+  async queueRun(spec, after) {
+    const now = Date.now();
+    const job = {
+      id: shortId(),
+      label: spec.label,
+      generates: spec.generates,
+      kind: spec.kind,
+      tag: spec.tag ?? null,
+      index: null,
+      after: after ?? null,
+      state: "queued",
+      agent: null,
+      error: null,
+      edits: [],
+      cancelRequested: false,
+      startedAt: null,
+      deadline: now + LEASE_MS,
+      finishedAt: null,
+    };
+    const room = await this.editJobs((jobs) => {
+      if (jobs.filter(isLive).length >= MAX_PENDING) return false;
+      jobs.push(job);
+      return true;
+    });
+    if (!room) return null;
+    await this.pump();
+    const jobs = await this.jobs();
+    const at = jobs.findIndex((j) => j.id === job.id);
+    return viewAll(jobs, Date.now())[at];
+  }
+
+  // The clip of one move, in the words `run` uses for it, so an auto-queued render and a
+  // hand-confirmed one are the same job and read the same in the queue.
+  clipJob(tagName) {
+    return { kind: "clip", tag: tagName, generates: true,
+             label: `run clip(${tagName}) — one 170s render` };
+  }
+
+  // Cancel every live job that was waiting, directly or through a chain, on one that did not
+  // finish. The plate a character's first clip is composited from is the case this exists for:
+  // cancel the cut-out and the clip behind it would render against a plate that does not exist,
+  // or against the previous character's, which is worse.
+  //
+  // Synchronous, and takes the jobs array, so it runs INSIDE the same `editJobs` lock that
+  // finished the leader — a follower must not be claimable for the instant between the two.
+  strandFollowers(jobs, id, now) {
+    const doomed = new Set([id]);
+    let again = true;
+    while (again) {
+      again = false;
+      for (const j of jobs) {
+        if (!isLive(j) || !doomed.has(j.after) || doomed.has(j.id)) continue;
+        j.state = "cancelled";
+        j.error = "the job it was waiting for did not finish";
+        j.finishedAt = now;
+        if (j.startedAt === null) j.startedAt = now;
+        doomed.add(j.id);
+        again = true;
+      }
     }
   }
 
@@ -1379,7 +1534,7 @@ export class CharacterDO {
     await this.pump();
     const jobs = await this.jobs();
     const at = jobs.findIndex((j) => j.id === id);
-    return { job: viewAll(jobs, Date.now())[at], revision: rev };
+    return { job: viewAll(jobs, Date.now())[at], revision: rev, ...(done.report || {}) };
   }
 
   // Cancel is first-class because a re-roll is an experiment. A job that has not started yet is
@@ -1403,6 +1558,7 @@ export class CharacterDO {
       job.error = null;
       job.finishedAt = now;
       if (job.startedAt === null) job.startedAt = now;
+      this.strandFollowers(jobs, job.id, now);
       return job.edits;
     });
     if (!outcome) return { ok: true, reverted: false };
@@ -1432,7 +1588,7 @@ export class CharacterDO {
         if (seed === f.seed) throw new HttpError(400, "that is the seed the cell already has");
         inverse = frameInverse(f);
         f.seed = seed;
-        f.png = repaintPath(man.character, tagName, f.src, seed);
+        f.png = repaintPath(man.character, tagName, f.src, seed, f.prompt);
         f._rev = rev;
         return frames;
       },
@@ -1457,7 +1613,7 @@ export class CharacterDO {
         const f = frames[i];
         inverse = frameInverse(f);
         f.src = src;
-        f.png = repaintPath(man.character, tagName, src, f.seed);
+        f.png = repaintPath(man.character, tagName, src, f.seed, f.prompt);
         f._rev = rev;
         return frames;
       },
@@ -1518,6 +1674,152 @@ export class CharacterDO {
       // again (DESIGN-pipeline.md: "a drop is recorded against a frame id, so a re-matched frame
       // stays dropped").
       attic: { dropAdd: [atticEntry(gone, tagName, "dropped by hand", Date.now())] },
+    };
+  }
+
+  // --- the whole selection for one tag, set by hand ---------------------------------------------
+  // DESIGN-playback.md, "what this needs that does not exist" 1. The picker chooses cells and the
+  // only hand control over them was a drop; the timeline makes every extracted frame a toggle, so
+  // there has to be a mutation that says WHICH frames this tag is, in one write.
+  //
+  // The addressing is the extraction's own index — the position of a frame in this tag's pick
+  // directory, which is what the page draws its timeline from — and never a cell index, because
+  // most of the frames a person can activate are not cells yet and so have no cell index.
+  //
+  // THE CARRY-OVER, and how it differs from a re-pick's on purpose:
+  //
+  //   * A frame that stays selected is matched EXACTLY, by its source path. Not the re-pick's ±3
+  //     window: that window exists because a picker's new choice is an approximation of an old
+  //     pose, whereas here a person named this frame. It keeps its id, seed, drawing, hold, nudge
+  //     and prompt, so an edit follows its frame.
+  //   * A newly activated frame is a new cell with no drawing at all. It is not painted here and
+  //     nothing is queued for it beyond the repack every edit owes; the rail prices the paint.
+  //   * A deactivated frame goes to the TRAY, with its identity and its edits, exactly as an
+  //     unmatched frame does in `reconcile`. Nothing is deleted, ever.
+  //   * The dropped ledger is NOT consulted. It suppresses a frame the PICKER chose again; this
+  //     is a person choosing, and a tool that silently refused a frame somebody had just clicked
+  //     would be lying about what it had been told.
+  async select(man, tagName, req, rev) {
+    const sources = (await this.catalogue()).sources[tagName] || [];
+    if (!sources.length) {
+      throw new HttpError(409, `nothing is extracted for ${tagName} yet — render its clip and ` +
+        "extract the frames before choosing between them");
+    }
+    if (!Array.isArray(req.frames) || !req.frames.length) {
+      throw new HttpError(400, "a selection is a non-empty list of frame indices");
+    }
+    if (req.frames.length > MAX_SELECT) {
+      throw new HttpError(400, `${req.frames.length} frames is more than the ${MAX_SELECT} one ` +
+        "selection may hold");
+    }
+    // Validated to the last index before one byte of the manifest is touched, exactly as `step`
+    // and `newmove` are: a refusal must not be able to leave half a selection behind.
+    let last = -1;
+    for (const [k, v] of req.frames.entries()) {
+      const i = whole(v, `frames[${k}]`);
+      if (i < 0 || i >= sources.length) {
+        throw new HttpError(400, `frame ${i} is not in the ${tagName} extraction — it has ` +
+          `${sources.length}`);
+      }
+      if (i <= last) {
+        throw new HttpError(400, `frames must ascend with no repeats — frames[${k}] is ${i} ` +
+          `after ${last}`);
+      }
+      last = i;
+    }
+    const tag = man.tags[tagIndex(man, tagName)];
+    const old = man.frames.slice(tag.from, tag.to + 1).map((f) => ({ ...f }));
+    const want = req.frames.map((i) => sources[i]);
+    if (old.map((f) => f.src).join("\u0000") === want.join("\u0000")) {
+      throw new HttpError(400, "that is the selection this move already has");
+    }
+    // One queue per source path rather than one frame, because nothing stops two cells of a tag
+    // naming the same source frame — a re-pick can land one there — and the second of them must
+    // be orphaned rather than silently matched onto the same new cell as the first.
+    const bySrc = new Map();
+    for (const f of old) {
+      if (!bySrc.has(f.src)) bySrc.set(f.src, []);
+      bySrc.get(f.src).push(f);
+    }
+    const kept = new Set();
+    const next = want.map((src) => {
+      const q = bySrc.get(src);
+      const f = q && q.length ? q.shift() : null;
+      if (!f) return { src, seed: BASE_SEED, hold: 1, pivot_nudge: [0, 0], _rev: rev };
+      kept.add(f._fid);
+      // Untouched, `_rev` included: the same source frame at the same seed under the same prompt
+      // is the same drawing, so nothing about this cell's picture has changed and a paint report
+      // already in flight for it is still correct.
+      return f;
+    });
+    const orphans = old.filter((f) => !kept.has(f._fid));
+    editTagFrames(man, tagName, () => next, rev);
+    const added = next.length - kept.size;
+    return {
+      text: `${man.character}-${tagName} select ${next.length} frames ` +
+        `(+${added} -${orphans.length})`,
+      index: null,
+      inverse: { k: "tagFrames", tag: tagName, frames: old },
+      attic: {
+        trayAdd: orphans.map((f) => atticEntry(f, tagName, "deselected by hand", Date.now())),
+      },
+      report: {
+        cells: next.length,
+        kept: kept.size,
+        added,
+        orphaned: orphans.length,
+        edits_orphaned: orphans.filter(isHandEdited).length,
+      },
+    };
+  }
+
+  // --- one cell's own repaint prompt ------------------------------------------------------------
+  // DESIGN-playback.md 2. The repaint brief is one set of words for the whole character; a frame
+  // whose drawing is wrong in its own particular way needs to be argued with on its own.
+  //
+  // Clearing it is the same call with an empty prompt, and clearing means the field goes AWAY
+  // rather than being written as the character's prompt — a copy of the default stored on the
+  // frame would freeze it there, and re-wording the default would then change nothing.
+  async prompt(man, tagName, req, rev) {
+    const i = cellIndex(man, tagName, req);
+    // Not `text()`: an empty prompt is the legal way to clear one, and `text()` refuses empty.
+    const raw = req.prompt === null || req.prompt === undefined ? "" : req.prompt;
+    const want = typeof raw === "string" && raw.trim() === "" ? null : text(raw, "the prompt");
+    let inverse;
+    editTagFrames(
+      man,
+      tagName,
+      (frames) => {
+        const f = frames[i];
+        if ((f.prompt ?? null) === want) {
+          throw new HttpError(400, want === null
+            ? "that cell has no prompt of its own already"
+            : "that is the prompt the cell already has");
+        }
+        inverse = frameInverse(f);
+        if (want === null) delete f.prompt;
+        else f.prompt = want;
+        // The drawing this cell now wants is a different file, exactly as a re-roll's is. Without
+        // this the cell would keep pointing at the picture drawn from the OLD words: the packer
+        // paints only what is missing from disk, so the step would read stale forever and no
+        // amount of GPU could answer it.
+        f.png = repaintPath(man.character, tagName, f.src, f.seed, want);
+        f._rev = rev;
+        return frames;
+      },
+      rev,
+    );
+    return {
+      text: want === null
+        ? `${man.character}-${tagName} cell ${i + 1} clear prompt`
+        : `${man.character}-${tagName} cell ${i + 1} prompt ` +
+          `${want.length > 24 ? `${want.slice(0, 24)}\u2026` : want}`,
+      index: i,
+      inverse,
+      // Nothing runnable changed unless this cell already had a drawing. `mutate` decides that off
+      // the pack's own key: a painted cell's atlas input has just gone missing, so the repack is
+      // owed and it will paint the new words; an unpainted one owes nothing and queues nothing.
+      norun: true,
     };
   }
 
@@ -1694,7 +1996,24 @@ export class CharacterDO {
     await this.refreshSteps(man);
     await this.saveManifest(man);
     await this.ctx.storage.put("revision", rev);
-    return { ok: true, character: req.cid, moves: man.tags.length, revision: rev };
+    // DESIGN-playback.md, "the flow": creating a character IS the intent to render it, so the
+    // plate and the first animation are queued here rather than waiting for two priced confirms
+    // on a character who cannot be looked at until both have run.
+    //
+    // CHAINED, not fired together: every clip is composited from the plate, so a clip that
+    // started first would render against a cut-out that does not exist. The queue's head rule is
+    // what serialises them, and `after` is what makes a cancelled plate take the clip with it
+    // instead of leaving it to render against nothing.
+    const plate = await this.queueRun({
+      kind: "plate", tag: null, generates: true, label: "run plate — cut the subject out",
+    });
+    // Idle is the default first animation, and it is the one a character with no state machine
+    // still plays. A character created without one takes his first move instead — the roster is
+    // data, so the move list is too, and there is no name this object may assume exists.
+    const first = man.tags.find((t) => t.name === "idle") || man.tags[0];
+    const clip = await this.queueRun(this.clipJob(first.name), plate?.id);
+    return { ok: true, character: req.cid, moves: man.tags.length, revision: rev,
+             queued: [plate, clip].filter(Boolean) };
   }
 
   // Empty this cell completely. The other half of "a character is data": something that can be
@@ -1918,37 +2237,21 @@ export class CharacterDO {
       repaint: `run repaint(${tag}) — ${paints} cell${paints === 1 ? "" : "s"}`,
       pack: "run pack — repack",
     };
-    const now = Date.now();
-    const job = {
-      id: shortId(),
+    const queued = await this.queueRun({
+      kind: jobKind, tag, generates,
       label: generates ? LABEL[jobKind] : `run ${req.kind} — repack`,
-      generates,
-      kind: jobKind,
-      tag,
-      index: null,
-      state: "queued",
-      agent: null,
-      error: null,
-      edits: [],
-      cancelRequested: false,
-      startedAt: null,
-      deadline: now + LEASE_MS,
-      finishedAt: null,
-    };
-    await this.editJobs((jobs) => {
-      const live = jobs.filter(isLive);
-      if (live.length >= MAX_PENDING) {
-        throw new HttpError(
-          409,
-          `refused — ${live.length} jobs are already queued on this character, which is the limit`,
-        );
-      }
-      jobs.push(job);
     });
-    await this.pump();
-    const jobs = await this.jobs();
-    const at = jobs.findIndex((j) => j.id === job.id);
-    return { job: viewAll(jobs, Date.now())[at], steps: todo.length, paints };
+    // A hand-confirmed run is the one caller that must be TOLD the queue is full. The person is
+    // standing in front of a priced confirm and nothing else has happened, so a refusal costs
+    // them a click; swallowing it would cost them the run they thought they had bought.
+    if (!queued) {
+      const live = (await this.jobs()).filter(isLive).length;
+      throw new HttpError(
+        409,
+        `refused — ${live} jobs are already queued on this character, which is the limit`,
+      );
+    }
+    return { job: queued, steps: todo.length, paints };
   }
 
   // --- the page's view -------------------------------------------------------------------
@@ -1958,27 +2261,49 @@ export class CharacterDO {
   async state() {
     const man = await this.manifest();
     if (!man) throw new HttpError(409, "this character has not been seeded yet");
-    const tags = man.tags.map((tag) => ({
-      name: tag.name,
-      fps: tag.fps,
-      loop: tag.loop,
-      direction: tag.direction,
-      hold_key: tag.hold_key,
-      cells: man.frames.slice(tag.from, tag.to + 1).map((f, i) => ({
-        index: i,
-        // The frame's identity, which the page needs for exactly one thing: saying which live
-        // cell an orphaned edit came from, and which one a restore is about to land on. It is
-        // still stripped from every copy of the MANIFEST that leaves this object.
-        fid: f._fid,
-        src: f.src,
-        seed: f.seed,
-        png: f.png ?? null,
-        hold: f.hold ?? 1,
-        // Always the OFFSET from the sheet pivot, never an absolute point, so a later change to
-        // the sheet pivot carries every nudged cell with it.
-        pivot_nudge: f.pivot_nudge ?? [0, 0],
-      })),
-    }));
+    // The extraction each tag's cells were chosen out of, as the agent last reported it. It
+    // travels with the state because the timeline is EVERY frame of the clip and a cell is one of
+    // them: without the list, a page drawing 67 toggles would have to guess which of them are the
+    // 8 that are cells, and `/api/select` addresses frames by their index in exactly this array.
+    // Asking the agent for it separately would be a second answer, free to disagree with the one
+    // this object validates against.
+    const sources = (await this.catalogue()).sources;
+    const tags = man.tags.map((tag) => {
+      const listing = sources[tag.name] || [];
+      const at = new Map(listing.map((src, i) => [src, i]));
+      return {
+        name: tag.name,
+        fps: tag.fps,
+        loop: tag.loop,
+        direction: tag.direction,
+        hold_key: tag.hold_key,
+        // Ascending, and the same paths `/api/select` indexes into.
+        sources: listing,
+        cells: man.frames.slice(tag.from, tag.to + 1).map((f, i) => ({
+          index: i,
+          // Where this cell sits in the extraction above, which is what makes a cell and a timeline
+          // frame the same thing on the page. Null when the cell's source frame is not in the
+          // listing at all — a re-extraction the agent has not reported yet — because an index that
+          // pointed at the wrong frame would activate the wrong toggle.
+          source_index: at.has(f.src) ? at.get(f.src) : null,
+          // The frame's identity, which the page needs for exactly one thing: saying which live
+          // cell an orphaned edit came from, and which one a restore is about to land on. It is
+          // still stripped from every copy of the MANIFEST that leaves this object.
+          fid: f._fid,
+          src: f.src,
+          seed: f.seed,
+          png: f.png ?? null,
+          hold: f.hold ?? 1,
+          // Always the OFFSET from the sheet pivot, never an absolute point, so a later change to
+          // the sheet pivot carries every nudged cell with it.
+          pivot_nudge: f.pivot_nudge ?? [0, 0],
+          // This cell's own repaint words, or null for "use the character's". Null and not the
+          // default text: the page has to be able to tell a cell that was argued with from one that
+          // was left alone, and the default itself is the agent's `/derived` locks.
+          prompt: f.prompt ?? null,
+        })),
+      };
+    });
     const steps = man.steps || [];
     const stale = staleness(steps);
     return {
@@ -2149,12 +2474,33 @@ export class CharacterDO {
   }
 }
 
+// repaint_cells.prompt_tag(), and the reason it is FNV-1a rather than SHA-256: this string only
+// has to DISCRIMINATE file names, and it has to be computable synchronously — `repaintPath` is
+// called from inside `editTagFrames`'s synchronous splice, and `crypto.subtle.digest` is not.
+//
+// It is not key material. The whole prompt text goes into the repaint step's cache key, so a
+// collision here could only ever serve one cell the drawing of another prompt of the SAME source
+// frame and seed, and never make a stale step read fresh. Without any tag at all a cell repainted
+// under an override would overwrite — and then be served — the drawing made under the default.
+function promptTag(prompt) {
+  if (!prompt) return "";
+  let h = 0xcbf29ce484222325n;
+  for (const b of new TextEncoder().encode(prompt)) {
+    h = BigInt.asUintN(64, (h ^ BigInt(b)) * 0x100000001b3n);
+  }
+  return `-p${h.toString(16).padStart(16, "0")}`;
+}
+
 // repaint_cells.repaint_path(), which is what names the file the packer will look for. It is
 // duplicated here rather than asked of the agent because a mutation must be able to say which
 // drawing it now wants without a round trip to a machine that may be asleep.
-function repaintPath(cid, move, src, seed) {
+//
+// The prompt tag comes BEFORE the seed suffix, and that order is load-bearing: `seedOfRepaint`
+// reads the seed off the tail of the name, and a prompt tag after it would be parsed as one.
+function repaintPath(cid, move, src, seed, prompt) {
   const stem = src.split("/").pop().replace(/\.png$/, "");
-  return `/tmp/repaint/${cid}-${move}-${stem}${seed === BASE_SEED ? "" : `-s${seed}`}.png`;
+  const tail = `${promptTag(prompt)}${seed === BASE_SEED ? "" : `-s${seed}`}`;
+  return `/tmp/repaint/${cid}-${move}-${stem}${tail}.png`;
 }
 
 function characterStub(env, cid) {

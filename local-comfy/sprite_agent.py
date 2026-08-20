@@ -107,7 +107,7 @@ def catalogue(cid, man):
     for tag in man["tags"]:
         sources[tag["name"]] = SF.source_frames(cid, tag["name"])
         for f in man["frames"][tag["from"]:tag["to"] + 1]:
-            variants[f["src"]] = SF.variants(cid, tag["name"], f["src"])
+            variants[f["src"]] = SF.variants(cid, tag["name"], f["src"], f.get("prompt"))
     return {"sources": sources, "variants": variants}
 
 
@@ -132,7 +132,7 @@ def derived(cid, man):
                 "atlas": ai,
                 "xy": None if ai is None else [sh["frames"][ai]["x"], sh["frames"][ai]["y"]],
                 "metrics": None if ai is None else SF.cell_metrics(cid, ai),
-                "variants": SF.variants(cid, tag["name"], f["src"])})
+                "variants": SF.variants(cid, tag["name"], f["src"], f.get("prompt"))})
         tags[tag["name"]] = {"cells": cells}
     return {"atlas": SF.sheet_paths(cid)[0], "outdir": RC.OUT, "tags": tags, "locks": LOCKS}
 

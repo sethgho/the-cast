@@ -247,9 +247,15 @@ def build_steps(cid, man, built=()):
             RC.manifest_path(cid), digest(sorted(set(srcs))))
 
         for f in man["frames"][tag["from"]:tag["to"] + 1]:
-            png = f.get("png") or RC.repaint_path(cid, move, f["src"], f["seed"])
-            add(repaint_id(png), "repaint", move,
-                {"seed": f["seed"], **build["repaint"]},
+            png = f.get("png") or RC.repaint_path(cid, move, f["src"], f["seed"], f.get("prompt"))
+            # The cell's own prompt joins THAT cell's key, and only when it has one. A
+            # `prompt: None` on every repaint step would be a new param on every drawing of every
+            # character -- ~150 cells re-keyed, two hours of GPU, to answer a field nobody had used
+            # yet. Absent means the character's REPAINT, which is already in `template_version`.
+            params = {"seed": f["seed"], **build["repaint"]}
+            if f.get("prompt"):
+                params["prompt"] = f["prompt"]
+            add(repaint_id(png), "repaint", move, params,
                 # The edge carries the hash of what this step actually CONSUMED from its upstream
                 # -- one source frame -- not the upstream's whole artifact. A repaint is cached per
                 # (source frame, seed), so re-picking a different cell of the same tag must not

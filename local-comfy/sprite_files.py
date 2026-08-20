@@ -148,16 +148,21 @@ def source_frames(cid, tag_name):
     return [os.path.join(d, n) for n in names[PICK_SKIP:]]
 
 
-def variants(cid, tag_name, src):
-    """Every repaint that already exists on disk for this source frame.
+def variants(cid, tag_name, src, prompt=None):
+    """Every repaint that already exists on disk for this source frame, under this cell's prompt.
 
     A re-roll used to feel destructive: the previous drawing vanished from the sheet with no way
     back, and getting it back meant remembering the seed. But nothing is ever deleted -- each
-    (source frame, seed) pair has its own file. So list them, and let a click swap between them.
-    Switching to one that already exists costs no GPU at all.
+    (source frame, prompt, seed) triple has its own file. So list them, and let a click swap
+    between them. Switching to one that already exists costs no GPU at all.
+
+    The listing is scoped to the cell's OWN prompt, because that is what makes the swap safe: this
+    list is the allowlist the Durable Object validates a `use` against, and a drawing made from
+    different words is not a variant of this cell -- taking it would leave the manifest's prompt
+    and the picture beside it describing two different briefs.
     """
     stem = os.path.basename(src).replace(".png", "")
-    prefix = f"{cid}-{tag_name}-{stem}"
+    prefix = f"{cid}-{tag_name}-{stem}{RC.prompt_tag(prompt)}"
     out = []
     for n in sorted(os.listdir(RC.REPAINT_DIR)):
         if not n.startswith(prefix + "-s") and n != prefix + ".png":
