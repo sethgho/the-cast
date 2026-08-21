@@ -147,6 +147,21 @@
    "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
    "cells": 6,
    "cyclic": false
+  },
+  {
+   "name": "uppercut",
+   "from": 54,
+   "to": 58,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/seth-uppercut-832-20.mp4",
+   "recipe": "uppercut",
+   "recipe_text": "he crouches down, reaching his right fist back behind him, holds it a beat, and uppercuts dramatically",
+   "cells": 6,
+   "cyclic": false
   }
  ],
  "frames": [
@@ -685,6 +700,56 @@
    "seed": 77,
    "png": "/tmp/repaint/seth-crouch-f_0025.png",
    "hold": 4,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-uppercut-pick/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-uppercut-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-uppercut-pick/f_0022.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-uppercut-f_0022.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-uppercut-pick/f_0028.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-uppercut-f_0028.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-uppercut-pick/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-uppercut-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-uppercut-pick/f_0041.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-uppercut-f_0041.png",
+   "hold": 1,
    "pivot_nudge": [
     0,
     0
@@ -2612,6 +2677,207 @@
    "cost_s": 45
   },
   {
+   "id": "clip:uppercut",
+   "kind": "clip",
+   "tag": "uppercut",
+   "params": {
+    "recipe": "uppercut",
+    "recipe_text": "he crouches down, reaching his right fist back behind him, holds it a beat, and uppercuts dramatically",
+    "trait": "a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth.png",
+     "hash": "f6fce19fbab2c8e8"
+    }
+   ],
+   "key": "8d1b5f344f157fe7",
+   "built_key": "8d1b5f344f157fe7",
+   "artifact": "/tmp/seth-uppercut-832-20.mp4",
+   "artifact_hash": "78fba2b42dbd58a5",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:uppercut",
+   "kind": "frames",
+   "tag": "uppercut",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:uppercut",
+     "path": "/tmp/seth-uppercut-832-20.mp4",
+     "hash": "78fba2b42dbd58a5"
+    }
+   ],
+   "key": "1adc0b7b5dd10a74",
+   "built_key": "1adc0b7b5dd10a74",
+   "artifact": "/tmp/sprite-seth-uppercut-pick",
+   "artifact_hash": "a53f19359306d780",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:uppercut",
+   "kind": "picks",
+   "tag": "uppercut",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:uppercut",
+     "path": "/tmp/sprite-seth-uppercut-pick",
+     "hash": "a53f19359306d780"
+    }
+   ],
+   "key": "2a106257711a42a4",
+   "built_key": "2a106257711a42a4",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth.json",
+   "artifact_hash": "aac714cfde86b841",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-uppercut-f_0009",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-uppercut-pick/f_0009.png",
+     "hash": "d3a4b91beda9cd44"
+    }
+   ],
+   "key": "bb512cf905b509a2",
+   "built_key": "bb512cf905b509a2",
+   "artifact": "/tmp/repaint/seth-uppercut-f_0009.png",
+   "artifact_hash": "fbf860d4582625d2",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-uppercut-f_0022",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-uppercut-pick/f_0022.png",
+     "hash": "3ddd7ebe1fdbc207"
+    }
+   ],
+   "key": "2c2c3756910a60d3",
+   "built_key": "2c2c3756910a60d3",
+   "artifact": "/tmp/repaint/seth-uppercut-f_0022.png",
+   "artifact_hash": "15e42d90d0ad779a",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-uppercut-f_0028",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-uppercut-pick/f_0028.png",
+     "hash": "0bb1d1de45d393bc"
+    }
+   ],
+   "key": "1068d612c75edbdd",
+   "built_key": "1068d612c75edbdd",
+   "artifact": "/tmp/repaint/seth-uppercut-f_0028.png",
+   "artifact_hash": "0d7729510898ee73",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-uppercut-f_0035",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-uppercut-pick/f_0035.png",
+     "hash": "3083016862f3cd3e"
+    }
+   ],
+   "key": "3f32102f36ec7d2f",
+   "built_key": "3f32102f36ec7d2f",
+   "artifact": "/tmp/repaint/seth-uppercut-f_0035.png",
+   "artifact_hash": "737001f45903f7fd",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-uppercut-f_0041",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-uppercut-pick/f_0041.png",
+     "hash": "d9ab8ce5e9be8606"
+    }
+   ],
+   "key": "00f4eb64e2a893c9",
+   "built_key": "00f4eb64e2a893c9",
+   "artifact": "/tmp/repaint/seth-uppercut-f_0041.png",
+   "artifact_hash": "12fa988a2d9fc3e1",
+   "cost_s": 45
+  },
+  {
    "id": "pack",
    "kind": "pack",
    "tag": null,
@@ -3072,6 +3338,51 @@
         ]
        }
       ]
+     },
+     {
+      "name": "uppercut",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
      }
     ]
    },
@@ -3345,12 +3656,37 @@
      "from": "repaint:seth-crouch-f_0025",
      "path": "/tmp/repaint/seth-crouch-f_0025.png",
      "hash": "5a0825722d98e5f0"
+    },
+    {
+     "from": "repaint:seth-uppercut-f_0009",
+     "path": "/tmp/repaint/seth-uppercut-f_0009.png",
+     "hash": "fbf860d4582625d2"
+    },
+    {
+     "from": "repaint:seth-uppercut-f_0022",
+     "path": "/tmp/repaint/seth-uppercut-f_0022.png",
+     "hash": "15e42d90d0ad779a"
+    },
+    {
+     "from": "repaint:seth-uppercut-f_0028",
+     "path": "/tmp/repaint/seth-uppercut-f_0028.png",
+     "hash": "0d7729510898ee73"
+    },
+    {
+     "from": "repaint:seth-uppercut-f_0035",
+     "path": "/tmp/repaint/seth-uppercut-f_0035.png",
+     "hash": "737001f45903f7fd"
+    },
+    {
+     "from": "repaint:seth-uppercut-f_0041",
+     "path": "/tmp/repaint/seth-uppercut-f_0041.png",
+     "hash": "12fa988a2d9fc3e1"
     }
    ],
-   "key": "42072cf05aa805a9",
-   "built_key": "42072cf05aa805a9",
+   "key": "31070cfaa1236f5a",
+   "built_key": "31070cfaa1236f5a",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-   "artifact_hash": "35e6fa4720b20f76",
+   "artifact_hash": "d460569fa99607f8",
    "cost_s": 5
   },
   {
@@ -3364,11 +3700,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "35e6fa4720b20f76"
+     "hash": "d460569fa99607f8"
     }
    ],
-   "key": "5055216a69e37052",
-   "built_key": "5055216a69e37052",
+   "key": "0826efcfd30af9c4",
+   "built_key": "0826efcfd30af9c4",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3384,11 +3720,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "35e6fa4720b20f76"
+     "hash": "d460569fa99607f8"
     }
    ],
-   "key": "4978877db05c96c4",
-   "built_key": "4978877db05c96c4",
+   "key": "a1ec33877a0aecbf",
+   "built_key": "a1ec33877a0aecbf",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3404,11 +3740,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "35e6fa4720b20f76"
+     "hash": "d460569fa99607f8"
     }
    ],
-   "key": "3a3811d5dcd1394c",
-   "built_key": "3a3811d5dcd1394c",
+   "key": "2b3a14da9d96450b",
+   "built_key": "2b3a14da9d96450b",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3424,11 +3760,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "35e6fa4720b20f76"
+     "hash": "d460569fa99607f8"
     }
    ],
-   "key": "cc0bba85d75f6987",
-   "built_key": "cc0bba85d75f6987",
+   "key": "4ea6dd04726ea460",
+   "built_key": "4ea6dd04726ea460",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3444,11 +3780,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/seth.png",
-     "hash": "35e6fa4720b20f76"
+     "hash": "d460569fa99607f8"
     }
    ],
-   "key": "f312fdbcccbd60ef",
-   "built_key": "f312fdbcccbd60ef",
+   "key": "adf8a1011a5bb748",
+   "built_key": "adf8a1011a5bb748",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0

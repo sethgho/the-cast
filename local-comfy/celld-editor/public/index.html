@@ -103,21 +103,44 @@ a { color: var(--gold); }
 .pane .badge { position: absolute; left: 6px; bottom: 6px; background: #000a; color: var(--ink);
                border-radius: 3px; padding: 1px 5px; }
 
-/* --- the timeline: every extracted frame, on or off ------------------------------------------- */
+/* --- the grid: every extracted frame, on or off ----------------------------------------------- */
+/* A WRAPPING GRID, not a single scrolling row. 67 frames at 76px is five screens of horizontal
+   hunting, and picking 8 of them meant scrolling back and forth to see what was already on. Wrapped,
+   the whole clip is one visual sweep and the playhead never leaves the eye. */
 #strip { flex: none; border-top: 1px solid var(--line); background: var(--panel);
-         padding: 6px 14px; overflow-x: auto; overflow-y: hidden; }
-#striprow { display: flex; gap: 4px; align-items: flex-end; }
-.fr { flex: none; width: 76px; padding: 0; background: none; border: 1px solid var(--line);
-      border-radius: 4px; overflow: hidden; }
-.fr .th { width: 74px; height: 60px; display: flex; align-items: center; justify-content: center; }
+         padding: 6px 14px; display: flex; flex-direction: column; gap: 6px; }
+#selbar { flex: none; display: flex; flex-direction: column; gap: 6px; }
+#gridwrap { overflow: hidden auto; max-height: 34vh; }
+#striprow { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 4px; }
+/* The FRAME is the toggle, so the whole thumbnail is the target — a 10px number under a 60px
+   picture is a dart board, and clicking the obvious thing used to do the other thing (seek). */
+.fr { position: relative; padding: 0; background: var(--sunk); border: 2px solid var(--line);
+      border-radius: 4px; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
+.fr .th { width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+          opacity: .3; filter: grayscale(1); }
 .fr .th img { width: 100%; height: 100%; object-fit: contain; }
-.fr .lbl { display: block; padding: 2px 0; color: var(--faint); font-size: 10px; }
-.fr.on { border-color: var(--gold); }
-.fr.on .lbl { color: var(--bg); background: var(--gold); font-weight: 700; }
+/* On and off must be readable at arm's length, so they differ in FOUR ways at once — brightness,
+   colour, border and a filled corner mark. A border tint alone was invisible in a grid this dense. */
+.fr.on { border-color: var(--gold); background: #3d2e12; }
+.fr.on .th { opacity: 1; filter: none; }
+.fr[role=button] { cursor: pointer; }
+/* Unsaved: a frame turned on that is not in the manifest yet, and one turned off that still is. */
+.fr.new { border-style: dashed; }
+.fr.gone { border-color: var(--rust); border-style: dashed; }
+.fr.gone .th { opacity: .5; }
+/* The number is a ROW UNDER the picture, not a chip on top of it. Overlaid, it sat over the middle
+   of a 46px cell on a phone and swallowed taps meant for the thumbnail — the exact miss-the-target
+   problem the redesign exists to remove. Now the picture is all toggle and the number is all seek. */
+.fr .num { display: block; width: 100%; height: 16px; padding: 0; border: 0; border-radius: 0;
+           font: 600 10px/16px ui-monospace, monospace; color: var(--faint);
+           background: var(--sunk); cursor: pointer; }
+.fr .num:hover { color: var(--gold); }
+.fr.on .num { color: var(--bg); background: var(--gold); }
+.fr .tick { position: absolute; right: 2px; top: 2px; min-width: 14px; height: 14px; padding: 0 3px;
+            border-radius: 7px; background: var(--gold); color: var(--bg); font-size: 10px;
+            line-height: 14px; text-align: center; font-weight: 700; }
+.fr .tick.dupe, .fr .tick.off { background: var(--rust); color: var(--cream); }
 .fr.at { outline: 2px solid var(--ink); outline-offset: -2px; }
-.fr .th { opacity: .45; }
-.fr.on .th { opacity: 1; }
-.fr .dupe { color: var(--rust); font-weight: 700; }
 
 /* --- playback controls ------------------------------------------------------------------------- */
 #ctl { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 14px;
@@ -188,6 +211,14 @@ form.mk { max-width: 420px; padding: 12px; display: flex; flex-direction: column
   #chead .plate { width: 44px; height: 44px; }
   #stage { padding: 10px; }
   #strip, #ctl { padding: 6px 10px; }
+  /* Smaller cells and a taller box: a thumb needs 44px, and 67 of those still has to leave the two
+     loops on screen. The apply bar is above the scrolling grid, so it is always in reach. */
+  #striprow { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); }
+  #gridwrap { max-height: 22vh; }
+  #scrub { width: 100%; }
+  /* The keyboard sentences go: 390px cannot spend three lines on advice about a keyboard nobody
+     has here, and spending them pushed both loops off the screen entirely. */
+  .hint { display: none; }
   .pane { max-width: none; flex-basis: 100%; }
   /* Capped so the frame's editor is on the same screen as the frame. An uncapped square loop on a
      844px phone pushes every control the editor has below the fold. */
@@ -212,7 +243,10 @@ form.mk { max-width: 420px; padding: 12px; display: flex; flex-direction: column
     <section id="chead"></section>
     <nav id="tabs"></nav>
     <section id="stage"></section>
-    <section id="strip" hidden><div id="striprow"></div></section>
+    <section id="strip" hidden>
+      <div id="selbar"></div>
+      <div id="gridwrap"><div id="striprow"></div></div>
+    </section>
     <section id="ctl" hidden></section>
   </main>
 </div>
@@ -331,11 +365,27 @@ let making = null;          // "character" | "move" while a create form is open
 // is kept OUTSIDE the DOM because a job finishing reloads and re-renders the page, and a half-typed
 // recipe living only in a textarea would be thrown away by a repack landing at the wrong moment.
 let animOpen = false, animDraft = null;
+// The frame selection being edited by hand, as a sorted list of frame indices — or null when the
+// page is showing exactly what the manifest holds. See "the working selection" below for WHY it
+// is not sent frame by frame.
+let workSel = null;
 let poll = null;
 
 // One clock for both screens. `at` is an index into the tag's `sources` — the timeline's own
 // address — and `cellAt` walks the selected cells' play order. Pausing is what opens the editor.
 const PLAY = { on: true, at: 0, cellAt: 0, speed: 1, next: 0 };
+// Drag-painting a range with the mouse. A mouse gesture toggles on pointerdown so the drag can
+// start immediately, which means the `click` it also produces has to be swallowed; a touch gesture
+// toggles on `click` alone, because the browser only sends one after a TAP and never after a
+// scroll — and the grid is the thing a thumb scrolls.
+const PAINT = { mouse: false, to: false, swallow: false };
+document.addEventListener("pointerup", () => { PAINT.mouse = false; });
+document.addEventListener("pointercancel", () => { PAINT.mouse = false; });
+// A mouse drag that ends outside the grid leaves nothing to swallow the click; any later touch
+// would then be eaten by a stale flag, so every touch gesture clears it before its own click.
+document.addEventListener("pointerdown", (e) => {
+  if (e.pointerType !== "mouse") PAINT.swallow = false;
+}, true);
 
 const TAG = () => (ST ? ST.tags.find((t) => t.name === route.anim) || null : null);
 const SRC = () => (TAG() ? TAG().sources : []);
@@ -429,6 +479,7 @@ async function reload() {
   await openCharacter(route.cid);
   TREE.set(route.cid, ST);
   clampPlay();
+  clampWork();
   render();
 }
 
@@ -542,36 +593,209 @@ function collapseNote(tag) {
   return dupes.length || unmapped.length ? { dupes, unmapped } : null;
 }
 
-async function applySelect(frames, why) {
+// --- the working selection ---------------------------------------------------------------------
+// SELECTION IS LOCAL UNTIL IT IS COMMITTED, and that is the whole of this section.
+//
+// It used to be remote. Every single toggle POSTed /api/select, which queues a repack, and the
+// answer dropped the image cache and re-rendered the page. Measured on the deployed build against
+// nowater/walk: ten toggles cost 21.4 seconds of wall clock and 1,597 network requests, because
+// each apply refetched all 67 thumbnails while the queue was busy ~2s. Worse, `pv.added > 0`
+// counted as a "surprise", so every frame turned ON opened a confirm — choosing 8 frames out of 67
+// meant eight modals. Building a selection is ONE act by a person, so it is now one commit: free,
+// instant toggles into `workSel`, then a single POST behind a single confirm priced for the batch.
+const workList = (tag) => (workSel === null ? selectedList(tag) : workSel);
+// Back to exactly the saved list is not an edit. Collapsing it to null keeps "dirty" a single
+// question, and puts the duplicate-carrying saved cells back in the loop untouched.
+function setWork(tag, next) {
+  workSel = next.join() === selectedList(tag).join() ? null : next;
+}
+// A re-extract, or another browser committing, can leave the working list pointing at frames that
+// no longer exist. Dropping the whole list would throw away hand work, so only the gone frames go.
+function clampWork() {
+  if (workSel === null) return;
+  const tag = TAG();
+  if (!tag) { workSel = null; return; }
+  const next = workSel.filter((i) => i < tag.sources.length);
+  if (!next.length) { workSel = null; return; }
+  setWork(tag, next);
+}
+
+// The cells the working selection WOULD produce, matched to the saved cells exactly as
+// `/api/select` matches them: one queue per source path, in order. A frame with no saved cell is
+// NEW — it has no drawing, and the loop plays its raw source frame and says so rather than leaving
+// a hole where a picture should be.
+function workCells(tag) {
+  const bySrc = new Map();
+  for (const c of tag.cells) {
+    if (!bySrc.has(c.src)) bySrc.set(c.src, []);
+    bySrc.get(c.src).push(c);
+  }
+  return workList(tag).map((i) => {
+    const q = bySrc.get(tag.sources[i]);
+    return { i, src: tag.sources[i], cell: q && q.length ? q.shift() : null };
+  });
+}
+// The packer's own play order — direction, then each cell repeated for its hold — over the cells a
+// commit would make. A frame that has no cell yet has no hold to read, so it holds for one beat.
+function workSequence(tag, cells) {
+  const n = cells.length;
+  if (!n) return [];
+  let order = cells.map((c, i) => i);
+  if (tag.direction === "reverse") order = order.slice().reverse();
+  else if (tag.direction === "pingpong" && n > 2) order = order.concat(order.slice(1, -1).reverse());
+  const seq = [];
+  for (const i of order) {
+    for (let k = 0; k < Math.max(1, (cells[i].cell && cells[i].cell.hold) || 1); k++) seq.push(i);
+  }
+  return seq;
+}
+
+// Free, instant, and NOT a network call. `want` forces a state, which is what painting a range by
+// dragging needs: without it, a drag that crosses an already-on frame would flip it back off.
+function toggleFrame(i, want) {
+  const tag = TAG();
+  if (!tag || i < 0 || i >= tag.sources.length) return;
+  const cur = workList(tag);
+  const on = cur.includes(i);
+  const next = want === undefined ? !on : want;
+  if (next === on) return;
+  if (next && cur.length >= MAX_SELECT) {
+    toast("one selection may hold " + MAX_SELECT + " frames", true);
+    return;
+  }
+  setWork(tag, next ? cur.concat([i]).sort((a, b) => a - b) : cur.filter((x) => x !== i));
+  // A confirm is priced from the list it was opened on, so an edit underneath it would be a lie.
+  if (confirming && confirming.key === "select") confirming = null;
+  syncSelection();
+}
+
+// Everything a toggle changes, updated IN PLACE. A full render() here would rebuild 67 thumbnails
+// and both loops for a gesture that changed one boolean — which is what made toggling feel slow
+// even before the round trip.
+function syncSelection() {
+  const tag = TAG();
+  if (!tag) return;
+  markFrames(tag);
+  drawSelBar(tag);
+  if (route.screen === "select") wireSelectReel(tag);
+  paintReels();
+}
+
+// The on/off state of every frame in the grid, plus the two unsaved states: a frame turned on that
+// the manifest does not have (`new`), and one turned off that it still does (`gone`).
+function markFrames(tag) {
+  const saved = selectedSet(tag);
+  const work = new Set(workList(tag));
+  const live = workSel !== null;
+  const pick = route.screen === "select";
+  tag.sources.forEach((p, i) => {
+    const n = el("fr" + i);
+    if (!n) return;
+    const on = work.has(i);
+    const was = (saved.get(i) || 0) > 0;
+    const dupes = !live && (saved.get(i) || 0) > 1;
+    n.classList.toggle("on", on);
+    n.classList.toggle("new", live && on && !was);
+    n.classList.toggle("gone", live && !on && was);
+    n.setAttribute("aria-pressed", on ? "true" : "false");
+    const tick = n.querySelector(".tick");
+    tick.hidden = !on && !(live && was);
+    tick.textContent = live && on && !was ? "+" : live && !on && was ? "\u2212"
+      : dupes ? "\u00d7" + saved.get(i) : "\u2713";
+    tick.className = "tick" + (dupes ? " dupe" : live && !on && was ? " off" : "");
+    n.title = "frame " + (i + 1) + " \u00b7 " + (on ? "on" : "off") +
+      (live && on && !was ? ", not saved yet" : live && !on && was ? ", not saved yet" : "") +
+      (pick ? " \u2014 click to turn it " + (on ? "off" : "on") + ", the number seeks here"
+            : " \u2014 click to pause here; the selection is edited on the select screen");
+  });
+}
+
+// The one line that says what is on and what is unsaved, and the only two buttons that write.
+function drawSelBar(tag) {
+  const bar = clear(el("selbar"));
+  const saved = selectedSet(tag);
+  const work = workList(tag);
+  const has = new Set(work);
+  const added = work.filter((i) => !saved.has(i)).length;
+  const removed = [...saved.keys()].filter((i) => !has.has(i)).length;
+  const dirty = workSel !== null;
+  const line = h("div", { class: "row wrap" });
+  line.append(h("span", { id: "selcount", class: dirty ? "gold" : "dim",
+    text: work.length + " of " + tag.sources.length + " on" +
+      (dirty ? " \u00b7 " + added + " added, " + removed + " removed \u2014 not saved yet"
+             : " \u00b7 saved") }));
+  if (dirty) {
+    line.append(h("button", { id: "applysel", disabled: !work.length, text: "apply the selection",
+      title: "one request, one confirm, priced for the whole batch",
+      onclick: () => {
+        confirming = confirming && confirming.key === "select" ? null : { key: "select" };
+        drawSelBar(TAG());
+      } }));
+    line.append(h("button", { id: "discardsel", text: "discard changes",
+      title: "puts the saved selection back \u2014 no request, nothing is spent",
+      onclick: () => { workSel = null; confirming = null; syncSelection(); } }));
+    if (!work.length) line.append(h("span", { class: "err", text: "a move needs at least one frame" }));
+    line.append(h("span", { class: "faint hint", text: "toggling is free and local \u2014 only apply writes anything" }));
+  } else {
+    line.append(h("span", { class: "faint hint", text: route.screen === "select"
+      ? "click a frame to turn it on or off \u00b7 drag across to paint a range \u00b7 the number seeks"
+      : "the selection is edited on the select screen" }));
+  }
+  bar.append(line);
+  // The grid is on both screens, so the unsaved work has to be answerable from both. Enhance edits
+  // the cells that EXIST, and those are the saved ones until this is applied.
+  if (dirty && route.screen !== "select") {
+    bar.append(h("div", { class: "faint", text: "enhance is showing the saved cells \u2014 these " +
+      "changes are not in them until they are applied." }));
+  }
+  if (confirming && confirming.key === "select") bar.append(selectConfirm(tag, work));
+}
+
+// ONE confirm for the whole batch, and it is the receipt for the single request about to go out.
+// There used to be one confirm per toggle, because an addition always counted as a surprise.
+function selectConfirm(tag, frames) {
+  const pv = previewSelect(tag, frames);
+  const edits = pv.orphans.filter(handEdited).length;
+  const note = collapseNote(tag);
+  const box = h("div", { class: "confirm" },
+    h("div", {}, "this selection keeps ", h("b", { text: String(pv.kept) }), " cells, adds ",
+      h("b", { text: String(pv.added) }), " and sends ", h("b", { text: String(pv.orphans.length) }),
+      " to the tray."),
+    pv.orphans.length ? h("div", { class: "dim", text: pv.orphans.map((o) => "cell on " +
+      o.src.split("/").pop() + (handEdited(o) ? " (seed " + o.seed + ", hold " + o.hold +
+      (o.prompt ? ", its own prompt" : "") + ")" : "")).join(" \u00b7 ") }) : null,
+    edits ? h("div", { text: edits + " of them carr" + (edits === 1 ? "ies" : "y") + " a hand edit. " +
+      "It is kept in the tray and can be put back on a live cell; it is never deleted." }) : null,
+    note && note.dupes.length ? h("div", { text: "a frame two cells share collapses to one cell: " +
+      note.dupes.map((d) => "frame " + (d.i + 1) + " \u00d7 " + d.n).join(", ") +
+      ". A list of frames cannot say it twice." }) : null,
+    note && note.unmapped.length ? h("div", { text: note.unmapped.length + " cell" +
+      (note.unmapped.length === 1 ? "" : "s") + " from outside this extraction drop to the tray." }) : null,
+    pv.added ? h("div", {}, h("b", { text: String(pv.added) }), pv.added === 1 ? " new frame has" : " new frames have",
+      " no drawing, and the repack this queues paints whatever is missing \u2014 up to ",
+      h("b", { text: fmtTime(pv.added * PAINT_S()) }), " of the one GPU. A frame drawn before at " +
+      "seed 77 costs nothing.") : null,
+    h("div", { class: "faint", text: pv.added
+      ? "the selection itself is free; the drawing behind it is not."
+      : "free \u2014 nothing is painted by dropping a frame." }),
+    h("div", { class: "row" },
+      h("button", { id: "confirmsel", text: "apply it", onclick: () => commitSelection(frames) }),
+      h("button", { text: "cancel", onclick: () => { confirming = null; drawSelBar(TAG()); } })));
+  return box;
+}
+
+// The only place a selection is written. One request, the final list, once.
+async function commitSelection(frames) {
   try {
     const j = await api("select", { cid: route.cid, tag: route.anim, frames });
     confirming = null;
-    toast(why + " — " + j.cells + " cells · " + j.kept + " kept, +" + j.added + " new, " +
-      j.orphaned + " to the tray" +
+    workSel = null;
+    toast("the selection \u2014 " + j.cells + " cells \u00b7 " + j.kept + " kept, +" + j.added +
+      " new, " + j.orphaned + " to the tray" +
       (j.edits_orphaned ? " (" + j.edits_orphaned + " carried a hand edit)" : "") +
-      (j.added ? " · the new cells have no drawing until a paint is run" : ""));
+      (j.added ? " \u00b7 the new cells have no drawing until a paint is run" : ""));
     await reload();
   } catch (e) { toast(e.message, true); }
-}
-
-function toggleFrame(i) {
-  const tag = TAG();
-  const on = selectedSet(tag);
-  const cur = selectedList(tag);
-  const off = on.has(i);
-  const next = off ? cur.filter((x) => x !== i) : cur.concat([i]).sort((a, b) => a - b);
-  if (!next.length) { toast("a move needs at least one frame — turn another one on first", true); return; }
-  if (next.length > MAX_SELECT) { toast("one selection may hold " + MAX_SELECT + " frames", true); return; }
-  const pv = previewSelect(tag, next);
-  // Deselecting one plain cell loses exactly what was asked for, so it is applied. Anything MORE
-  // than that — a duplicate collapsing, an unmapped cell dropping out, an edit going to the tray —
-  // is a loss nobody asked for and it gets a confirm with the count in it.
-  const expected = off ? (on.get(i) || 0) : 0;
-  const surprise = pv.orphans.length > expected || pv.orphans.some(handEdited) || pv.added > 0;
-  const why = (off ? "frame " + (i + 1) + " off" : "frame " + (i + 1) + " on");
-  if (!surprise) { applySelect(next, why); return; }
-  confirming = { key: "select", frames: next, why, pv, off, i };
-  render();
 }
 
 // --- playback ------------------------------------------------------------------------------------
@@ -598,6 +822,16 @@ function cellAtPlayhead(tag) {
   });
   return best === null ? (tag.cells.length ? 0 : null) : best;
 }
+// The cell the playhead stands on IN THE LIST THE RIGHT LOOP IS PLAYING. Paused with an unsaved
+// selection, `cellAtPlayhead` answers about the saved cells, and its index would address the wrong
+// picture in a working list that has grown or shrunk.
+function reelCellAt(tag) {
+  if (route.screen !== "select" || workSel === null) return cellAtPlayhead(tag);
+  const w = workList(tag);
+  let best = null;
+  w.forEach((f, i) => { if (f <= PLAY.at && (best === null || f > w[best])) best = i; });
+  return best === null ? (w.length ? 0 : null) : best;
+}
 const exactCell = (tag) => {
   const i = tag.cells.findIndex((c) => c.source_index === PLAY.at);
   return i < 0 ? null : i;
@@ -610,12 +844,38 @@ function clampPlay() {
 
 // One rAF loop for the whole page, started once. It reads REEL, which every render rebuilds — a
 // second loop per render is how the old page ended up with three canvases fighting over one clock.
-const REEL = { left: null, right: null, urlsL: [], urlsR: [], seq: [] };
+const REEL = { left: null, right: null, urlsL: [], urlsR: [], seq: [], newR: [], nR: 0 };
+
+// The right loop's frames, rebuilt from the WORKING selection so a toggle shows up in the loop at
+// once. While nothing is unsaved it plays the saved cells exactly as they stand — duplicates and
+// all — because those cells are what the manifest holds and the preview must not invent a change.
+function wireSelectReel(tag) {
+  REEL.urlsR = [];
+  const srcs = workSel === null ? tag.cells.map((c) => c.src) : workCells(tag).map((w) => w.src);
+  REEL.seq = workSel === null ? sequence(tag) : workSequence(tag, workCells(tag));
+  REEL.newR = workSel === null ? srcs.map(() => false) : workCells(tag).map((w) => w.cell === null);
+  REEL.nR = srcs.length;
+  // Clamped, not reset: a toggle mid-loop should not snap the preview back to its first frame.
+  PLAY.cellAt = REEL.seq.length ? PLAY.cellAt % REEL.seq.length : 0;
+  srcs.forEach((src, i) => {
+    // Cached: the grid already fetched every source frame at this width, so re-wiring the loop
+    // after a toggle is zero requests. A second width here would double every fetch.
+    Promise.resolve(artUrl(imgUrl(src, FRAME_W))).then((o) => { REEL.urlsR[i] = o; paintReels(); })
+      .catch(() => { /* a frame that will not load never draws; the grid says "missing" */ });
+  });
+}
+
+// Seeking is the rare act now, so it has its own affordances: the scrubber and the frame's number.
+function seekTo(i) {
+  PLAY.at = i;
+  if (PLAY.on) setPlaying(false);
+  else render();
+}
 function paintReels() {
   const tag = TAG();
   if (!tag) return;
   if (REEL.left && REEL.urlsL[PLAY.at]) REEL.left.src = REEL.urlsL[PLAY.at];
-  const cell = PLAY.on ? REEL.seq[PLAY.cellAt % Math.max(1, REEL.seq.length)] : cellAtPlayhead(tag);
+  const cell = PLAY.on ? REEL.seq[PLAY.cellAt % Math.max(1, REEL.seq.length)] : reelCellAt(tag);
   if (REEL.right && cell !== null && cell !== undefined && REEL.urlsR[cell]) {
     REEL.right.src = REEL.urlsR[cell];
   }
@@ -624,8 +884,12 @@ function paintReels() {
   const nowc = el("nowcell");
   if (nowc) {
     nowc.textContent = cell === null || cell === undefined ? "no cells"
-      : "cell " + (cell + 1) + " / " + tag.cells.length;
+      : "cell " + (cell + 1) + " / " + REEL.nR +
+        (REEL.newR[cell] ? " \u00b7 new \u2014 not painted yet" : "");
   }
+  // Not while it is being dragged: writing the value back under the thumb fights the gesture.
+  const sc = el("scrub");
+  if (sc && document.activeElement !== sc) sc.value = String(PLAY.at);
   markPlayhead();
 }
 let headEl = null;
@@ -636,8 +900,13 @@ function markPlayhead() {
   headEl = want;
   if (!headEl) return;
   headEl.classList.add("at");
-  // `nearest` and not `center`: the timeline is the one thing a person is dragging their eye along,
-  // and re-centring it on every tick makes it impossible to look at a frame while it plays.
+  // NEVER while the loop is running. The playhead walks 67 frames at 14fps, and on a phone the grid
+  // is taller than its box, so scrolling to follow it moved the frame somebody was aiming at out
+  // from under the thumb — the tap landed on a neighbour. A deliberate move still scrolls to it,
+  // and at 1440 the whole clip fits in the grid with nothing to scroll.
+  if (PLAY.on) return;
+  // `nearest` and not `center`: re-centring on every step makes it impossible to keep an eye on a
+  // frame while working along a run.
   headEl.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 function tick(t) {
@@ -821,7 +1090,7 @@ function renderTabs() {
 function renderStage() {
   const box = clear(el("stage"));
   REEL.left = REEL.right = null;
-  REEL.urlsL = []; REEL.urlsR = []; REEL.seq = [];
+  REEL.urlsL = []; REEL.urlsR = []; REEL.seq = []; REEL.newR = []; REEL.nR = 0;
   headEl = null;
   if (making) { box.append(making === "character" ? newCharacterForm() : newMoveForm()); return; }
   if (!ST) { box.append(h("div", { class: "faint", text: "reading the roster…" })); return; }
@@ -1007,23 +1276,18 @@ function selectScreen(tag) {
   const box = h("div", { class: "col" });
   const note = collapseNote(tag);
   if (note) box.append(collapseBanner(tag, note));
-  if (confirming && confirming.key === "select") box.append(selectConfirm(tag));
 
   const left = h("img", { alt: "" });
   const right = h("img", { alt: "" });
   REEL.left = left;
   REEL.right = right;
-  REEL.seq = sequence(tag);
   tag.sources.forEach((p, i) => {
     Promise.resolve(artUrl(imgUrl(p, FRAME_W))).then((o) => { REEL.urlsL[i] = o; if (PLAY.at === i) paintReels(); })
-      .catch(() => { /* a frame that will not load simply never draws; the timeline says "missing" */ });
+      .catch(() => { /* a frame that will not load simply never draws; the grid says "missing" */ });
   });
   // On SELECT the right pane is the chosen source frames — the picks themselves, not their
   // drawings. What they will look like painted is the other screen's question.
-  tag.cells.forEach((c, i) => {
-    Promise.resolve(artUrl(imgUrl(c.src, FRAME_W))).then((o) => { REEL.urlsR[i] = o; paintReels(); })
-      .catch(() => { /* ditto */ });
-  });
+  wireSelectReel(tag);
 
   box.append(h("div", { class: "pair" },
     h("div", { class: "pane" },
@@ -1034,15 +1298,17 @@ function selectScreen(tag) {
     h("div", { class: "pane" },
       h("div", { class: "art checker" }, right,
         h("span", { class: "badge", id: "nowcell" })),
-      h("div", { class: "cap" }, h("span", { class: "gold", text: "the selected frames" }),
-        h("span", { class: "faint", text: tag.cells.length + " cells · " + tag.fps + "fps " + tag.direction })))));
+      h("div", { class: "cap" }, h("span", { class: "gold", text: workSel === null
+          ? "the selected frames" : "the selection being built" }),
+        h("span", { class: "faint", text: REEL.nR + (workSel === null ? " cells" : " frames, not saved yet") +
+          " · " + tag.fps + "fps " + tag.direction })))));
 
-  if (!tag.cells.length) {
+  if (!REEL.nR) {
     box.append(h("div", { class: "note" },
-      h("div", { text: "nothing is selected yet. Turn frames on in the timeline below, or let the " +
+      h("div", { text: "nothing is selected yet. Turn frames on in the grid below, or let the " +
         "picker propose a set and edit it by hand." }),
       runBar("picks", "let the picker choose", priceOf("picks"))));
-  } else {
+  } else if (workSel === null) {
     const paint = unpainted();
     box.append(h("div", { class: "dim", text: paint
       ? paint + " of these cells " + (paint === 1 ? "has" : "have") + " no drawing yet — the enhance " +
@@ -1057,39 +1323,17 @@ function collapseBanner(tag, note) {
   if (note.dupes.length) {
     const which = note.dupes.map((d) => "frame " + (d.i + 1) + " × " + d.n).join(", ");
     box.append(h("div", { text: "two cells share one frame: " + which + "." }));
-    box.append(h("div", { class: "dim", text: "A toggle list cannot say that. The next selection " +
+    box.append(h("div", { class: "dim", text: "A list of frames cannot say that. The next selection " +
       "you make collapses each shared frame to one cell and sends the other to the tray with its " +
       "edits — the tray keeps it, nothing is deleted." }));
   }
   if (note.unmapped.length) {
     box.append(h("div", { text: note.unmapped.length + " cell" + (note.unmapped.length === 1 ? "" : "s") +
       " came from a frame that is not in this extraction." }));
-    box.append(h("div", { class: "dim", text: "They are not on the timeline and cannot be toggled. " +
+    box.append(h("div", { class: "dim", text: "They are not in the grid and cannot be toggled. " +
       "The next selection drops them to the tray: " +
       note.unmapped.map((c) => c.src.split("/").pop()).join(", ") }));
   }
-  return box;
-}
-
-function selectConfirm(tag) {
-  const c = confirming;
-  const edits = c.pv.orphans.filter(handEdited).length;
-  const box = h("div", { class: "confirm" },
-    h("div", {}, "this selection keeps ", h("b", { text: String(c.pv.kept) }), " cells, adds ",
-      h("b", { text: String(c.pv.added) }), " and sends ", h("b", { text: String(c.pv.orphans.length) }),
-      " to the tray."),
-    c.pv.orphans.length ? h("div", { class: "dim", text: c.pv.orphans.map((o) => "cell on " + o.src.split("/").pop() +
-      (handEdited(o) ? " (seed " + o.seed + ", hold " + o.hold + (o.prompt ? ", its own prompt" : "") + ")" : "")).join(" · ") }) : null,
-    edits ? h("div", { text: edits + " of them carries a hand edit. It is kept in the tray and can be " +
-      "put back on a live cell; it is never deleted." }) : null,
-    c.pv.added ? h("div", {}, "an added frame that has never been drawn is painted by the repack this " +
-      "edit queues — up to ", h("b", { text: fmtTime(c.pv.added * PAINT_S()) }), " of GPU. A frame " +
-      "drawn before at seed 77 costs nothing.") : null,
-    h("div", { class: "faint", text: c.pv.added ? "the selection itself is free; the drawing behind it is not."
-      : "free — nothing is painted by dropping a frame." }),
-    h("div", { class: "row" },
-      h("button", { text: "apply it", onclick: () => applySelect(c.frames, c.why) }),
-      h("button", { text: "cancel", onclick: () => { confirming = null; render(); } })));
   return box;
 }
 
@@ -1116,19 +1360,24 @@ function enhanceScreen(tag) {
   REEL.right = right;
   REEL.left = null;
   REEL.seq = sequence(tag);
+  REEL.nR = tag.cells.length;
+  REEL.newR = tag.cells.map((c) => !c.painted && c.atlas === null);
   // The drawing, and only the drawing, when there is one: the packed atlas cell is the aligned,
   // scaled one the game gets. A cell with no drawing falls back to its source frame and says so,
   // because a hole in the loop looks like a bug and an unpainted cell is not one.
   tag.cells.forEach((c, i) => {
+    // FRAME_W and not 256 for the undrawn fallback: the grid has already fetched every source
+    // frame at that width, so a cell with no drawing costs no request to preview.
     const u = c.atlas !== null ? cellUrl(route.cid, c.atlas, 256)
-      : c.painted ? imgUrl(c.png, 256) : imgUrl(c.src, 256);
+      : c.painted ? imgUrl(c.png, 256) : imgUrl(c.src, FRAME_W);
     Promise.resolve(artUrl(u)).then((o) => { REEL.urlsR[i] = o; paintReels(); })
       .catch(() => { /* ditto */ });
   });
   const i = cellAtPlayhead(tag);
   const beside = PLAY.on
     ? h("div", { class: "note", style: "flex:1 1 300px" },
-        "pause on a frame — or click one in the timeline — to edit its prompt, its seed and its hold.")
+        "pause on a frame — or click one in the grid, or drag the scrubber — to edit its prompt, " +
+        "its seed and its hold.")
     : i !== null ? cellEditor(tag, i) : null;
   box.append(h("div", { class: "pair" },
     h("div", { class: "pane", style: "max-width:440px" },
@@ -1326,29 +1575,53 @@ async function runStep(kind) {
   drawQueue();
 }
 
-// --- the timeline and the controls, shared by both screens -------------------------------------------
-// One definition, drawn in the same place on both screens, so the two are one muscle memory.
+// --- the grid and the controls, shared by both screens -------------------------------------------
+// One definition, drawn in the same place on both screens, so the two are one muscle memory. The
+// GESTURE differs by screen on purpose: Select is where frames are chosen, so a click on a frame
+// toggles it; Enhance edits the cell the playhead stands on, so a click there still seeks. Nothing
+// on Enhance changed.
 function renderStrip() {
   const strip = el("strip");
   const row = clear(el("striprow"));
   const tag = TAG();
-  const on = tag ? selectedSet(tag) : new Map();
   strip.hidden = !tag || !tag.sources.length || !!making || !!blockedBy(route.anim);
   if (strip.hidden) return;
+  const pick = route.screen === "select";
   tag.sources.forEach((p, i) => {
-    const n = on.get(i) || 0;
-    const cell = h("div", { class: "th checker" }, pic(imgUrl(p, FRAME_W)));
-    const item = h("button", {
-      id: "fr" + i, class: "fr" + (n ? " on" : "") + (i === PLAY.at ? " at" : ""),
-      title: "frame " + (i + 1) + (n ? " · selected" : " · not selected") + " — click to pause here, " +
-        "click the label to turn it " + (n ? "off" : "on"),
-      onclick: () => { PLAY.at = i; if (PLAY.on) setPlaying(false); else render(); },
-    }, cell, h("span", {
-      class: "lbl" + (n > 1 ? " dupe" : ""), text: (i + 1) + (n > 1 ? " ×" + n : ""),
-      onclick: (e) => { e.stopPropagation(); toggleFrame(i); },
-    }));
+    // The number is the seek target, and it stops the frame's own gesture dead: the two acts are
+    // separate controls now, because toggling is the frequent one and seeking the rare one.
+    const num = h("button", { class: "num", text: String(i + 1), title: "seek to frame " + (i + 1),
+      onclick: (e) => { e.stopPropagation(); seekTo(i); } });
+    num.onpointerdown = (e) => e.stopPropagation();
+    // A div and not a button: the number inside it is a button, and a button inside a button is
+    // invalid and swallows the inner click in some engines.
+    const item = h("div", { id: "fr" + i, class: "fr", role: pick ? "button" : "presentation" },
+      h("div", { class: "th checker" }, pic(imgUrl(p, FRAME_W))),
+      h("span", { class: "tick", hidden: true }), num);
+    if (pick) {
+      item.onpointerdown = (e) => {
+        if (e.pointerType !== "mouse") return;
+        // preventDefault stops the drag from selecting text across half the grid.
+        e.preventDefault();
+        PAINT.mouse = true;
+        PAINT.swallow = true;
+        PAINT.to = !workList(TAG()).includes(i);
+        toggleFrame(i, PAINT.to);
+      };
+      // Painting a range: the first frame decides the direction, so a drag across a mixed run turns
+      // the whole run the same way instead of inverting each frame under the pointer.
+      item.onpointerenter = () => { if (PAINT.mouse) toggleFrame(i, PAINT.to); };
+      item.onclick = () => {
+        if (PAINT.swallow) { PAINT.swallow = false; return; }
+        toggleFrame(i);
+      };
+    } else {
+      item.onclick = () => seekTo(i);
+    }
     row.append(item);
   });
+  markFrames(tag);
+  drawSelBar(tag);
   markPlayhead();
 }
 
@@ -1367,9 +1640,26 @@ function renderControls() {
       class: PLAY.speed === s ? "on" : "", text: s + "×",
       onclick: () => { PLAY.speed = s; PLAY.next = 0; renderControls(); },
     }))));
-  const onN = selectedSet(tag).size;
-  box.append(h("span", { class: "faint", text: tag.fps + "fps · " + onN + " of " +
-    tag.sources.length + " frames on · space plays, ← → step, the number under a frame turns it on and off" }));
+  // The scrubber is where seeking went when the frame became the toggle.
+  const scrub = h("input", { type: "range", id: "scrub", min: 0, step: 1,
+    max: Math.max(0, tag.sources.length - 1), value: PLAY.at, style: "width:200px",
+    title: "seek" });
+  scrub.oninput = () => {
+    PLAY.at = parseInt(scrub.value, 10);
+    // Paused WITHOUT a render: a render replaces this very input and the drag dies mid-gesture.
+    if (PLAY.on) { PLAY.on = false; PLAY.next = 0; el("play").textContent = "▶ play"; }
+    paintReels();
+  };
+  // Landing is what opens Enhance's editor on the frame scrubbed to; doing it per input event
+  // would rebuild the editor at 60Hz.
+  scrub.onchange = () => { if (route.screen === "enhance") render(); };
+  box.append(scrub);
+  // The count lives in the selection bar, which every toggle updates. A second copy here would be
+  // redrawn only by a full render, and would read the old number for as long as somebody worked.
+  box.append(h("span", { class: "faint", text: tag.fps + "fps" }));
+  box.append(h("span", { class: "faint hint", text: "· " + (route.screen === "select"
+    ? "space turns the frame at the playhead on and off, enter plays"
+    : "space plays") + ", ← → step" }));
 }
 
 // --- the queue and the tray -------------------------------------------------------------------------
@@ -1540,7 +1830,9 @@ async function goTo(cid, anim, screen, replace) {
   treeOpen = false;
   // The card is one animation's, and so is the half-typed recipe in it. Carrying either onto the
   // next move would offer somebody a save button that writes one move's words onto another's.
-  if (!sameMove) { animOpen = false; animDraft = null; }
+  // The working selection is one animation's frames. Carrying it onto another move would offer an
+  // apply button that writes one move's picks onto another's.
+  if (!sameMove) { animOpen = false; animDraft = null; workSel = null; }
   el("tree").classList.remove("open");
   route = { cid, anim, screen: SCREENS.includes(screen) ? screen : "select" };
   if (!sameChar) { JOBS = []; dropArt(); }
@@ -1564,7 +1856,19 @@ async function goTo(cid, anim, screen, replace) {
 
 document.addEventListener("keydown", (e) => {
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
-  if (e.key === " ") { setPlaying(!PLAY.on); e.preventDefault(); }
+  if (e.key === " ") {
+    // Toggling is the frequent act on Select, so it takes the biggest key; enter still plays. On
+    // Enhance there is nothing to toggle, so space keeps its old meaning there.
+    if (route.screen === "select" && TAG() && SRC().length) {
+      // Paused first: at 14fps the frame somebody meant is three frames behind by the time the key
+      // lands, and a toggle on the wrong frame is a toggle that has to be found and undone.
+      if (PLAY.on) setPlaying(false);
+      toggleFrame(PLAY.at);
+    } else setPlaying(!PLAY.on);
+    e.preventDefault();
+  }
+  // Not on a focused button: the browser already turns enter there into a click on it.
+  if (e.key === "Enter" && e.target.tagName !== "BUTTON") { setPlaying(!PLAY.on); e.preventDefault(); }
   if (e.key === "ArrowRight") { stepBy(1); e.preventDefault(); }
   if (e.key === "ArrowLeft") { stepBy(-1); e.preventDefault(); }
   if (e.key === "Escape") {
