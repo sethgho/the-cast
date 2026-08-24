@@ -1,0 +1,339 @@
+{
+ "2": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-seth-headshot-neutral.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 SOURCE FACE \u2014 the expression to copy"
+  }
+ },
+ "3": {
+  "class_type": "LoadMediaPipeFaceLandmarker",
+  "inputs": {
+   "model_name": "mediapipe_face_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "face detector"
+  }
+ },
+ "4": {
+  "class_type": "MediaPipeFaceLandmarker",
+  "inputs": {
+   "detector_variant": "both",
+   "num_faces": 1,
+   "min_confidence": 0.3,
+   "missing_frame_fallback": "empty",
+   "face_detection_model": [
+    "3",
+    0
+   ],
+   "image": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "find the face"
+  }
+ },
+ "5": {
+  "class_type": "CropByBBoxes",
+  "inputs": {
+   "output_width": 1024,
+   "output_height": 1024,
+   "padding": 48,
+   "keep_aspect": "pad",
+   "image": [
+    "2",
+    0
+   ],
+   "bboxes": [
+    "4",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 FACE CROP PADDING"
+  }
+ },
+ "6": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1024,
+   "height": 1024,
+   "crop": "disabled",
+   "image": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "expression chart at headshot size"
+  }
+ },
+ "7": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "output size \u2014 matches Seth's headshot"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 1 is the drawing to edit, and the man in image 1 is the only character in the finished picture. Redraw him exactly as he is: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, wearing a plain v-neck t-shirt of very dark olive charcoal \u2014 near-black, the same flat dark tone as the t-shirt in image 1. Keep the shape of his face, his long wavy shoulder-length hair, his full bushy handlebar moustache, his dark v-neck t-shirt, the size and position of his head in the frame and the plain aged-paper background behind him identical to image 1, and keep every colour as muted and desaturated as image 1. One thing about him changes: his expression."
+  },
+  "_meta": {
+   "title": "IDENTITY LOCK \u2014 who Seth is"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 2 is an expression chart: a photograph of a stranger, held up beside the drawing so that one thing can be read off it. Read from image 2 only the angle of the brows \u2014 raised, level, or pulled down and knotted \u2014 how wide the eyes are open or how tightly they are shut, where the gaze goes, and the shape of the mouth, both how far it opens and which way its corners turn. Give that same expression to the man in image 1, drawn in his own cartoon features and as strongly as the photograph shows it. The face, hair, skin, age and clothing of the photograph stay inside the photograph."
+  },
+  "_meta": {
+   "title": "EXPRESSION SOURCE \u2014 the one job image 2 has"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all: the man in the finished drawing is the man from image 1 \u2014 the same long wavy hair, the same bushy handlebar moustache, the same dark v-neck t-shirt. And his face is doing what the face in image 2 is doing: his brows at that angle, his eyes open exactly that wide, his mouth in exactly that shape, and the same mood as that face \u2014 his mouth turns down if that mouth turns down."
+  },
+  "_meta": {
+   "title": "RESTATEMENT \u2014 identity and expression, last"
+  }
+ },
+ "12": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-seth-headshot-neutral.png"
+  },
+  "_meta": {
+   "title": "SETH'S HEADSHOT \u2014 the edit target (image 1)"
+  }
+ },
+ "13": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "8",
+    0
+   ],
+   "string_b": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "identity + expression source"
+  }
+ },
+ "14": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "13",
+    0
+   ],
+   "string_b": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ style lock"
+  }
+ },
+ "15": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "14",
+    0
+   ],
+   "string_b": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "16": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "17": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "18": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "19": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "20": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "15",
+    0
+   ],
+   "clip": [
+    "18",
+    0
+   ],
+   "vae": [
+    "19",
+    0
+   ],
+   "image1": [
+    "12",
+    0
+   ],
+   "image2": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode (headshot + face crop + the prompt)"
+  }
+ },
+ "21": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "18",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "22": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 1,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "17",
+    0
+   ],
+   "positive": [
+    "20",
+    0
+   ],
+   "negative": [
+    "21",
+    0
+   ],
+   "latent_image": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 SEED"
+  }
+ },
+ "23": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "22",
+    0
+   ],
+   "vae": [
+    "19",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "24": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/seth-expression",
+   "images": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ },
+ "25": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/seth-expression-face",
+   "images": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FACE READ \u2014 what the model was shown as image 2"
+  }
+ }
+}

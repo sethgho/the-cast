@@ -22,10 +22,10 @@
   "repaint": {
    "pad": 0.86,
    "steps": 8,
-   "cfg": 1.0,
+   "cfg": 1,
    "sampler": "euler",
    "scheduler": "simple",
-   "denoise": 1.0
+   "denoise": 1
   },
   "pack": {
    "columns": 10,
@@ -147,6 +147,21 @@
    "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
    "cells": 6,
    "cyclic": false
+  },
+  {
+   "name": "uppercut",
+   "from": 54,
+   "to": 53,
+   "fps": 14,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/cadbury-uppercut-832-20.mp4",
+   "recipe": "uppercut",
+   "recipe_text": "Performs a crouching upper cut",
+   "cells": 10,
+   "cyclic": true
   }
  ],
  "frames": [
@@ -789,10 +804,10 @@
     "seed": 1642176185,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -815,10 +830,10 @@
     "seed": 576867989,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -841,10 +856,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -867,10 +882,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -893,10 +908,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -919,10 +934,10 @@
     "seed": 1738028730,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -945,10 +960,10 @@
     "seed": 1742824854,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -971,10 +986,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -997,10 +1012,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1023,10 +1038,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1120,10 +1135,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1146,10 +1161,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1172,10 +1187,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1198,10 +1213,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1224,10 +1239,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1250,10 +1265,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1276,10 +1291,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1302,10 +1317,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1399,10 +1414,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1425,10 +1440,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1451,10 +1466,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1477,10 +1492,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1503,10 +1518,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1529,10 +1544,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1555,10 +1570,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1581,10 +1596,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1678,10 +1693,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1704,10 +1719,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1730,10 +1745,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1756,10 +1771,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1782,10 +1797,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1808,10 +1823,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1834,10 +1849,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1860,10 +1875,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1957,10 +1972,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1983,10 +1998,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2009,10 +2024,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2035,10 +2050,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2061,10 +2076,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2087,10 +2102,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2113,10 +2128,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2139,10 +2154,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2236,10 +2251,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2262,10 +2277,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2288,10 +2303,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2314,10 +2329,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2340,10 +2355,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2366,10 +2381,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2463,10 +2478,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2489,10 +2504,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2515,10 +2530,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2541,10 +2556,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2567,10 +2582,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2593,10 +2608,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2610,6 +2625,77 @@
    "artifact": "/tmp/repaint/cadbury-crouch-f_0035.png",
    "artifact_hash": "a609bfd4e7acb9b2",
    "cost_s": 45
+  },
+  {
+   "id": "clip:uppercut",
+   "kind": "clip",
+   "tag": "uppercut",
+   "params": {
+    "recipe": "uppercut",
+    "recipe_text": "Performs a crouching upper cut",
+    "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-cadbury.png",
+     "hash": "2f572753d9ab53da"
+    }
+   ],
+   "key": "211f3ef9d999dac4",
+   "built_key": "211f3ef9d999dac4",
+   "artifact": "/tmp/cadbury-uppercut-832-20.mp4",
+   "artifact_hash": "d37f745fc31126d8",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:uppercut",
+   "kind": "frames",
+   "tag": "uppercut",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:uppercut",
+     "path": "/tmp/cadbury-uppercut-832-20.mp4",
+     "hash": "d37f745fc31126d8"
+    }
+   ],
+   "key": "26c120c4c4dec9f3",
+   "built_key": null,
+   "artifact": "/tmp/sprite-cadbury-uppercut-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:uppercut",
+   "kind": "picks",
+   "tag": "uppercut",
+   "params": {
+    "cells": 10,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:uppercut",
+     "path": "/tmp/sprite-cadbury-uppercut-pick",
+     "hash": null
+    }
+   ],
+   "key": "38b70ac7e77339fb",
+   "built_key": "38b70ac7e77339fb",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
   },
   {
    "id": "pack",
@@ -3072,6 +3158,15 @@
         ]
        }
       ]
+     },
+     {
+      "name": "uppercut",
+      "fps": 14,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
      }
     ]
    },
@@ -3347,8 +3442,8 @@
      "hash": "a609bfd4e7acb9b2"
     }
    ],
-   "key": "e8e0589b2b9ea2da",
-   "built_key": "e8e0589b2b9ea2da",
+   "key": "90b7f9e28c8a65dd",
+   "built_key": "90b7f9e28c8a65dd",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
    "artifact_hash": "28b9f38f869b5558",
    "cost_s": 5
