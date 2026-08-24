@@ -134,16 +134,23 @@ Swapping the two inputs round is how you get a drawing of a stranger with Seth's
 """
 
 
-def build():
-    g = Graph()
-    note(g, "HOW TO USE — Seth's expression", HOW_TO)
+def expression_stage(g, E, x=-40, lock_x=1240, top=-620, sampler_pos=(520, 640), seed_src=None):
+    """Stage one as nodes on a graph the caller owns: a picture in, Seth's headshot out.
 
+    Split out of build() so build_scene.py can run this stage in front of its own without
+    copying the prompt or the wiring — one edit to the prompt above moves both apps at once,
+    which is the whole point. The caller supplies the shared engine loaders, positions the
+    block, and promotes whichever handles its own App Mode form needs; nothing here is
+    promoted, because the two forms ask for different fields in a different order.
+
+    Returns: source (the picture LoadImage), crop (holds the padding widget), face (the crop
+    the model was actually shown), sampler (holds the seed widget), image (the headshot).
+    """
     # --- 1 · the column you touch ----------------------------------------
-    X, y = -40, -620
+    X, y = x, top
     source = g.add("LoadImage", "▶ 1 · SOURCE FACE — the expression to copy",
                    (X, y), (460, 400), {"image": SETH_PLATE, "upload": "image"},
                    outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")])
-    g.app_input(source, "image", image="1 · SOURCE FACE")
     y += 430
 
     # --- 2 · crop the source to its face ---------------------------------
@@ -168,7 +175,6 @@ def build():
                  links={"image": (source, 0, "IMAGE", False),
                         "bboxes": (landmarks, 1, "BOUNDING_BOX", False)},
                  outputs=[("IMAGE", "IMAGE")], color=GREY)
-    g.app_input(crop, "padding", padding="2 · FACE CROP PADDING (px around the face)")
     y += 230
     # CropByBBoxes hands back the ORIGINAL image, at its original size, when detection finds no
     # face. This scale is what makes that path safe: the expression chart is always 1024x1024,
@@ -186,7 +192,7 @@ def build():
             (X - 30, -690, 520, y + 300), GROUP_SHOT)
 
     # --- 3 · the locks ----------------------------------------------------
-    LX, LY, DY = 1240, -620, 46
+    LX, LY, DY = lock_x, top, 46
     identity = g.add("PrimitiveStringMultiline", "IDENTITY LOCK — who Seth is",
                      (LX, LY), (430, 300), {"value": IDENTITY_LOCK},
                      outputs=[("STRING", "STRING")], color=BLUE, collapsed=True)
@@ -221,9 +227,8 @@ def build():
     g.group("② SETH & STYLE LOCK · expand only to re-canonise him",
             (LX - 30, LY - 70, 480, 8 * DY + 90), GROUP_LOCK)
 
-    # --- 4 · engine -------------------------------------------------------
+    # --- 4 · encode -------------------------------------------------------
     EY = LY + 8 * DY
-    E = engine(g, LX, EY, want_bg=False)
     pos = g.add("TextEncodeQwenImageEditPlus", "encode (headshot + face crop + the prompt)",
                 (LX, EY + 4 * DY), (400, 150), {"prompt": ""},
                 links={"clip": (E["clip"], 0, "CLIP", False),
@@ -239,19 +244,40 @@ def build():
     g.group("engine · don't touch", (LX - 30, EY - 70, 480, 7 * DY + 90), GROUP_ENGINE)
 
     # --- 5 · sample and save ---------------------------------------------
-    sampler = g.add("KSampler", "▶ 3 · SEED", (520, 640), (460, 270),
+    sampler_links = {"model": (E["lora"], 0, "MODEL", False),
+                     "positive": (pos, 0, "CONDITIONING", False),
+                     "negative": (neg, 0, "CONDITIONING", False),
+                     "latent_image": (latent, 0, "LATENT", False)}
+    # A caller running this stage in front of another one drives both samplers from a single
+    # seed field; the widget value stays in place as the placeholder App Mode's positional
+    # widgets_values mapping needs, and to_api lets the link win over it.
+    if seed_src is not None:
+        sampler_links["seed"] = (seed_src, 0, "INT", True)
+    # The title is the app's seed control only when this graph owns the seed. With a seed_src
+    # the caller owns it, and two nodes whose title starts "▶ 3 · SEED" make a title lookup
+    # (smoke_test.find, and so both runners) return whichever was added first.
+    sampler = g.add("KSampler", "▶ 3 · SEED" if seed_src is None else "sample the headshot",
+                    sampler_pos, (460, 270),
                     {"seed": 1, "control_after_generate": "randomize", "steps": STEPS, "cfg": 1.0,
                      "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0},
-                    links={"model": (E["lora"], 0, "MODEL", False),
-                           "positive": (pos, 0, "CONDITIONING", False),
-                           "negative": (neg, 0, "CONDITIONING", False),
-                           "latent_image": (latent, 0, "LATENT", False)},
-                    outputs=[("LATENT", "LATENT")])
-    g.app_input(sampler, "seed", seed="3 · SEED")
-    decode = g.add("VAEDecode", "decode", (520, 950), (400, 80),
+                    links=sampler_links, outputs=[("LATENT", "LATENT")])
+    decode = g.add("VAEDecode", "decode", (sampler_pos[0], sampler_pos[1] + 310), (400, 80),
                    links={"samples": (sampler, 0, "LATENT", False),
                           "vae": (E["vae"], 0, "VAE", False)},
                    outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    return {"source": source, "crop": crop, "face": face, "sampler": sampler, "image": decode}
+
+
+def build():
+    g = Graph()
+    note(g, "HOW TO USE — Seth's expression", HOW_TO)
+    E = engine(g, 1240, -620 + 8 * 46, want_bg=False)
+    st = expression_stage(g, E)
+    g.app_input(st["source"], "image", image="1 · SOURCE FACE")
+    g.app_input(st["crop"], "padding", padding="2 · FACE CROP PADDING (px around the face)")
+    g.app_input(st["sampler"], "seed", seed="3 · SEED")
+    decode, face = st["image"], st["face"]
+
     g.app_output(g.add("SaveImage", "RESULT", (520, -620), (620, 1200),
                        {"filename_prefix": "cast/seth-expression"},
                        links={"images": (decode, 0, "IMAGE", False)}))

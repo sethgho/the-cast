@@ -1,0 +1,786 @@
+{
+ "2": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "3": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "6": {
+  "class_type": "LoadBackgroundRemovalModel",
+  "inputs": {
+   "bg_removal_name": "birefnet.safetensors"
+  },
+  "_meta": {
+   "title": "BiRefNet (for TRANSPARENT PNG)"
+  }
+ },
+ "7": {
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 1
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 SEED"
+  }
+ },
+ "8": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-seth-headshot-neutral.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 SOURCE FACE \u2014 the expression to copy"
+  }
+ },
+ "9": {
+  "class_type": "LoadMediaPipeFaceLandmarker",
+  "inputs": {
+   "model_name": "mediapipe_face_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "face detector"
+  }
+ },
+ "10": {
+  "class_type": "MediaPipeFaceLandmarker",
+  "inputs": {
+   "detector_variant": "both",
+   "num_faces": 1,
+   "min_confidence": 0.3,
+   "missing_frame_fallback": "empty",
+   "face_detection_model": [
+    "9",
+    0
+   ],
+   "image": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "find the face"
+  }
+ },
+ "11": {
+  "class_type": "CropByBBoxes",
+  "inputs": {
+   "output_width": 1024,
+   "output_height": 1024,
+   "padding": 48,
+   "keep_aspect": "pad",
+   "image": [
+    "8",
+    0
+   ],
+   "bboxes": [
+    "10",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 FACE CROP PADDING"
+  }
+ },
+ "12": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1024,
+   "height": 1024,
+   "crop": "disabled",
+   "image": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "expression chart at headshot size"
+  }
+ },
+ "13": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "output size \u2014 matches Seth's headshot"
+  }
+ },
+ "14": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 1 is the drawing to edit, and the man in image 1 is the only character in the finished picture. Redraw him exactly as he is: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, wearing a plain v-neck t-shirt of very dark olive charcoal \u2014 near-black, the same flat dark tone as the t-shirt in image 1. Keep the shape of his face, his long wavy shoulder-length hair, his full bushy handlebar moustache, his dark v-neck t-shirt, the size and position of his head in the frame and the plain aged-paper background behind him identical to image 1, and keep every colour as muted and desaturated as image 1. One thing about him changes: his expression."
+  },
+  "_meta": {
+   "title": "IDENTITY LOCK \u2014 who Seth is"
+  }
+ },
+ "15": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 2 is an expression chart: a photograph of a stranger, held up beside the drawing so that one thing can be read off it. Read from image 2 only the angle of the brows \u2014 raised, level, or pulled down and knotted \u2014 how wide the eyes are open or how tightly they are shut, where the gaze goes, and the shape of the mouth, both how far it opens and which way its corners turn. Give that same expression to the man in image 1, drawn in his own cartoon features and as strongly as the photograph shows it. The face, hair, skin, age and clothing of the photograph stay inside the photograph."
+  },
+  "_meta": {
+   "title": "EXPRESSION SOURCE \u2014 the one job image 2 has"
+  }
+ },
+ "16": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "17": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all: the man in the finished drawing is the man from image 1 \u2014 the same long wavy hair, the same bushy handlebar moustache, the same dark v-neck t-shirt. And his face is doing what the face in image 2 is doing: his brows at that angle, his eyes open exactly that wide, his mouth in exactly that shape, and the same mood as that face \u2014 his mouth turns down if that mouth turns down."
+  },
+  "_meta": {
+   "title": "RESTATEMENT \u2014 identity and expression, last"
+  }
+ },
+ "18": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-seth-headshot-neutral.png"
+  },
+  "_meta": {
+   "title": "SETH'S HEADSHOT \u2014 the edit target (image 1)"
+  }
+ },
+ "19": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "14",
+    0
+   ],
+   "string_b": [
+    "15",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "identity + expression source"
+  }
+ },
+ "20": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "19",
+    0
+   ],
+   "string_b": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ style lock"
+  }
+ },
+ "21": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "20",
+    0
+   ],
+   "string_b": [
+    "17",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "22": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "21",
+    0
+   ],
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "image1": [
+    "18",
+    0
+   ],
+   "image2": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode (headshot + face crop + the prompt)"
+  }
+ },
+ "23": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "24": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": [
+    "7",
+    0
+   ],
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ],
+   "positive": [
+    "22",
+    0
+   ],
+   "negative": [
+    "23",
+    0
+   ],
+   "latent_image": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "sample the headshot"
+  }
+ },
+ "25": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "24",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "26": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "a cluttered home-office desk seen from across the room, deep stacks of monitors and tangled cables, a gooseneck lamp leaning in from the left."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 THE SCENE (TYPE HERE)"
+  }
+ },
+ "27": {
+  "class_type": "RemoveBackground",
+  "inputs": {
+   "bg_removal_model": [
+    "6",
+    0
+   ],
+   "image": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Seth's silhouette (BiRefNet)"
+  }
+ },
+ "28": {
+  "class_type": "MaskToImage",
+  "inputs": {
+   "mask": [
+    "27",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "silhouette as an image"
+  }
+ },
+ "29": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 768,
+   "height": 768,
+   "crop": "disabled",
+   "image": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "head at scene scale"
+  }
+ },
+ "30": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 768,
+   "height": 768,
+   "crop": "disabled",
+   "image": [
+    "28",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "silhouette at scene scale"
+  }
+ },
+ "31": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "30",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "silhouette as a mask"
+  }
+ },
+ "32": {
+  "class_type": "EmptyImage",
+  "inputs": {
+   "width": 1920,
+   "height": 832,
+   "batch_size": 1,
+   "color": 14600096
+  },
+  "_meta": {
+   "title": "the blank sheet"
+  }
+ },
+ "33": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "x": 920,
+   "y": 64,
+   "resize_source": false,
+   "destination": [
+    "32",
+    0
+   ],
+   "source": [
+    "29",
+    0
+   ],
+   "mask": [
+    "31",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "paste Seth onto the sheet"
+  }
+ },
+ "34": {
+  "class_type": "EmptyImage",
+  "inputs": {
+   "width": 1920,
+   "height": 832,
+   "batch_size": 1,
+   "color": 0
+  },
+  "_meta": {
+   "title": "black sheet for the frozen-pixel mask"
+  }
+ },
+ "35": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "x": 920,
+   "y": 64,
+   "resize_source": false,
+   "destination": [
+    "34",
+    0
+   ],
+   "source": [
+    "30",
+    0
+   ],
+   "mask": [
+    "31",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "stamp the silhouette at the same place"
+  }
+ },
+ "36": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "35",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "what must not be repainted"
+  }
+ },
+ "37": {
+  "class_type": "GrowMask",
+  "inputs": {
+   "expand": -4,
+   "tapered_corners": true,
+   "mask": [
+    "36",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "hold his ink outline too"
+  }
+ },
+ "38": {
+  "class_type": "MaskToImage",
+  "inputs": {
+   "mask": [
+    "37",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "grown mask as an image"
+  }
+ },
+ "39": {
+  "class_type": "ImageBlur",
+  "inputs": {
+   "blur_radius": 9,
+   "sigma": 5.0,
+   "image": [
+    "38",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "feather the boundary"
+  }
+ },
+ "40": {
+  "class_type": "ImageToMask",
+  "inputs": {
+   "channel": "red",
+   "image": [
+    "39",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "feathered keep-mask"
+  }
+ },
+ "41": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "40",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "everything except him"
+  }
+ },
+ "42": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 1 is one wide drawing that is only half finished. The man is already drawn and is complete: leave his face, hair, moustache, shirt and expression exactly as they are. Everything else in image 1 is blank paper. Finish the drawing by drawing the place he is in onto that blank paper, in the same ink and the same halftone, so that it meets his outline and continues behind him: the floor runs under and behind him, the wall and its things stand behind his shoulders and behind his hair, one light falls across the whole width of the picture, and his own soft shadow lies on the surface behind him. He is the only person here; every other shape is furniture, scenery or a prop. The place he is in is:"
+  },
+  "_meta": {
+   "title": "SCENE LOCK \u2014 how the room is asked for"
+  }
+ },
+ "43": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE LOCK \u2014 house style"
+  }
+ },
+ "44": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all this is a single continuous illustration on one unbroken sheet of paper. The room reaches the left edge, the right edge, the top edge and the bottom edge of the picture and is cut off only by those edges. The scenery passes behind the man's head, his hair and his shoulders and comes out the other side, the same floor and the same wall surround him on every side, and the whole width of the picture is one room drawn in one perspective under one light, with the same paper texture and the same two inks everywhere."
+  },
+  "_meta": {
+   "title": "CONTINUITY \u2014 one unbroken drawing, stated last"
+  }
+ },
+ "45": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "42",
+    0
+   ],
+   "string_b": [
+    "26",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "scene lock + the scene"
+  }
+ },
+ "46": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "45",
+    0
+   ],
+   "string_b": [
+    "43",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "+ style lock"
+  }
+ },
+ "47": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "46",
+    0
+   ],
+   "string_b": [
+    "44",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "FINAL PROMPT \u2014 expand to read what the model got"
+  }
+ },
+ "48": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "47",
+    0
+   ],
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "image1": [
+    "33",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "encode (the half-finished sheet + the prompt)"
+  }
+ },
+ "49": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative (only bites when cfg > 1)"
+  }
+ },
+ "50": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "33",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "the half-finished sheet as latent"
+  }
+ },
+ "51": {
+  "class_type": "SetLatentNoiseMask",
+  "inputs": {
+   "samples": [
+    "50",
+    0
+   ],
+   "mask": [
+    "41",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "freeze him, paint the rest"
+  }
+ },
+ "52": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": [
+    "7",
+    0
+   ],
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ],
+   "positive": [
+    "48",
+    0
+   ],
+   "negative": [
+    "49",
+    0
+   ],
+   "latent_image": [
+    "51",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "draw the room"
+  }
+ },
+ "53": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "52",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "54": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/seth-scene",
+   "images": [
+    "53",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT \u2014 the wide scene"
+  }
+ },
+ "55": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/seth-scene-head",
+   "images": [
+    "25",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "HEADSHOT \u2014 what stage one drew"
+  }
+ }
+}
