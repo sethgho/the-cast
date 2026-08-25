@@ -5,10 +5,12 @@
 
 Writes workflows/seth-scene.json, workflows/seth-scene.app.json and api/seth-scene.api.json.
 
-Two stages on one graph. Stage one is `build_expression.expression_stage` unchanged — the
+Three stages on one graph. Stage one is `build_expression.expression_stage` unchanged — the
 proven "any face in, Seth's headshot wearing that expression out" block, imported rather than
 copied so its prompt has exactly one home. Stage two pastes that headshot onto a wide sheet of
-blank paper and asks the model to draw the room around it.
+blank paper and asks the model to draw the room around it. Stage three re-samples the WHOLE
+sheet at low denoise so the two halves are drawn by one hand — see "Why the picture looked
+composited" below.
 
 ## Why the head is held by pixels and not by words
 
@@ -44,6 +46,42 @@ Measured, all three at the same seed and scene:
   - silhouette + prompt, **eroded** by 4px and blurred by 9: clean. Putting the ramp INSIDE his
     outline means the held pixels that get half-painted are his own dark ink, not the paper, so
     the blend has nothing bright to leave behind. Hence GROW is negative and small.
+
+## Why the picture looked composited, and what stage three is for
+
+Stage two's freeze is exactly what it says: his pixels never enter the sampler. So they never
+respond to the room. The verdict on the two-stage output was "the face and the background don't
+exactly match — it almost seems like they were rendered separately and then composited", and
+that is literally true. Three measurable seams:
+
+  - no shared light. One lamp is described and drawn, but nothing of it lands on him.
+  - no contact. Nothing of the room touches his outline; there is no shadow under him.
+  - a different line weight. He is a 1024x1024 render scaled down to 768; the room is drawn at
+    1920x832 natively. His ink is finer than the desk's, and his halftone dots are smaller.
+
+Stage three fixes all three at once by sampling the whole sheet — no noise mask at all — at a
+denoise low enough to keep the face. Measured on gpu-worker at denoise 0.25 and 0.40 as a
+standalone pass: both harmonise, 0.40 is about 40s cheaper but starts to soften his features,
+0.25 holds them, so 0.25 ships. Inside this graph, where the VAE and the text encoder are
+already resident, the pass adds 186s: 126s for the two stages alone against 312s for all three.
+
+What it does and does not fix, judged on two faces and two scenes against their own stage-two
+output: the line weight and the halftone are genuinely one hand afterwards — his outline, brows
+and moustache carry the same ink as the desk, and halftone dots appear on his cheek where there
+was a smooth gradient. His skin warms into the room's palette. It does NOT give him a contact
+shadow or turn the room's lamp onto his face; those seams are smaller than the line weight but
+they survive. It also lays a light foxing speckle over the whole sheet, man and room alike,
+which reads as older newsprint rather than as an artefact — but it is a change to the look, not
+only a fix, which is the other reason the pass is switchable.
+
+### Why this pass is the one place the Lightning LoRA is dropped
+
+Every other sampler in this codebase runs `E["lora"]` at 8 steps and cfg 1.0. That LoRA is
+distilled for full denoise at cfg 1.0; run at denoise 0.25 it has too few steps left to resolve
+anything and returns mush — a smeared, de-inked sheet, worse than the input. So stage three
+takes `E["unet"]`, the base model before the LoRA, and pays for it with ordinary sampling: 20
+steps at cfg 2.5. cfg above 1.0 also means the negative prompt is live here, which is why this
+stage has a negative of its own naming the failure it must not produce.
 
 ## The head box
 
@@ -92,6 +130,32 @@ FEATHER_SIGMA = 5.0
 # white sheet biases the first sampling steps toward a modern palette.
 PAPER = 0xDEC7A0
 
+# ---------------------------------------------------------------- stage three
+
+# 20 steps at cfg 2.5, euler/simple, on the BASE model. See the docstring: the Lightning LoRA
+# cannot do partial denoise. 0.25 merges the two hands and still holds the face; 0.40 was
+# tried, is 40s cheaper, and softens his features for no visible gain.
+HARMONISE_STEPS = 20
+HARMONISE_CFG = 2.5
+HARMONISE_DENOISE = 0.25
+
+# Every clause says what IS true of the finished sheet — one hand, one ink weight, one halftone,
+# one light — and the preservation clause goes last, because that is the thing the pass can lose.
+# Naming the composite ("not pasted on", "no cut-out") belongs in the negative, not here: this
+# model draws what the positive prompt names.
+HARMONISE = (
+    "A single continuous 1933 rubber-hose cartoon illustration on one sheet of aged newsprint: "
+    "the man and the room around him are drawn by one hand in one sitting, the same ink weight "
+    "on his outline as on the desk and the walls, the same halftone dot shading across his face "
+    "and the furniture alike, one light in the room falling on him and on everything else from "
+    "the same side, and his shoulders and hair sitting in the room's own light and shadow so he "
+    "belongs in the space. Keep the composition, the room, the man's face, his hair, his "
+    "moustache and his expression exactly as they are — only the drawing settles into one hand."
+)
+
+# Only reached because cfg is 2.5 here; at the cfg 1.0 the other stages use, a negative is inert.
+HARMONISE_NEGATIVE = "pasted cut-out, sticker, collage, different man, photographic"
+
 # ---------------------------------------------------------------- the prompt
 
 # Stated as a drawing that is half finished, because that is what the latent actually is: his
@@ -135,19 +199,24 @@ HOW_TO = """# Seth in a scene, from any face
 **Drop in a picture of a face and describe a place. Get a 1920x832 cartoon of Seth standing in
 that place, wearing that picture's expression.**
 
-Two stages run back to back. First the expression app draws Seth's headshot with the source
+Three stages run back to back. First the expression app draws Seth's headshot with the source
 face's expression. Then that headshot is pasted onto a wide blank sheet and the model draws the
 room around it — the head's own pixels never go through the second sampler, so the face you saw
-in stage one is the face in the wide image, to the pixel.
+in stage one is the face in the wide image, to the pixel. That freeze is also why the picture
+used to look composited, so a third pass re-draws the whole sheet at low denoise until the man
+and the room share one ink weight, one halftone and one light.
 
 | Control | What it does |
 |---|---|
 | **1 · SOURCE PICTURE** | Any picture with a face in it. Its expression is what Seth wears. |
 | **2 · THE SCENE** | Where he is. One or two sentences of place, not of action. |
-| **3 · SEED** | Re-roll. Drives both stages, so the same seed gives the same face and the same room. |
+| **3 · SEED** | Re-roll. Drives all three stages, so the same seed gives the same face and the same room. |
+| **4 · HARMONISE** | The third pass. On by default. Off gives you the old two-stage picture and takes half the time. |
 
-Two outputs: **RESULT** is the wide image, **HEADSHOT** is what stage one drew — check that one
-first when the face is wrong, because stage two cannot have touched it.
+Three outputs: **RESULT** is the wide image, **BEFORE HARMONISE** is the same picture without the
+third pass — the two side by side tell you whether it helped — and **HEADSHOT** is what stage one
+drew, which is the first thing to check when the face is wrong, because nothing downstream of it
+can change who he is.
 
 ## The head sits in a known box
 
@@ -161,9 +230,20 @@ wrench lying in it. Say what is around him.
 
 ## Speed
 
-8 steps, cfg 1.0, denoise 1.0 in both stages. Measured on gpu-worker: 174s for the first run
-after the weights are unloaded, 126s with the model resident, and 57s when only the scene text or
-the seed changed and ComfyUI still has stage one cached. Peak 11,417 MiB of the 12GB card.
+Stages one and two are 8 steps at cfg 1.0 and denoise 1.0 on the Lightning LoRA. Measured on
+gpu-worker with HARMONISE off: 174s for the first run after the weights are unloaded, 126s with
+the model resident, and 57s when only the scene text or the seed changed and ComfyUI still has
+stage one cached. Peak 11,417 MiB of the 12GB card.
+
+HARMONISE on adds a third sampler that is 20 steps at cfg 2.5 and denoise 0.25 on the base model
+with no LoRA. Measured: 126s with it off against 312s with it on, so about 186s on top — call it
+double. It is a separate branch of a lazy switch, so turning it off really does skip it rather
+than render it and throw it away, and the picture it gives back is pixel-identical to the old
+two-stage render.
+
+Peak VRAM with the third stage is 11,449 MiB of 12,288, against 11,417 for two stages: the base
+model and the LoRA-patched model are never resident together, because ComfyUI swaps them between
+samplers.
 """.format(**HEAD_BOX)
 
 
@@ -185,11 +265,19 @@ def build():
     scene = g.add("PrimitiveStringMultiline", "▶ 2 · THE SCENE (TYPE HERE)", (-40, 1020),
                   (460, 260), {"value": DEFAULT_SCENE},
                   outputs=[("STRING", "STRING")], color=GREEN)
+    # Off is the whole two-stage graph, unchanged and bit-identical: ComfySwitchNode's branches
+    # are lazy inputs, so the untaken one is never executed and stage three costs nothing when
+    # it is off. On by default because the composited look is the bug this app was sent back for.
+    harmonise = g.add("PrimitiveBoolean",
+                      "▶ 4 · HARMONISE   on = one more pass so he belongs in the room",
+                      (-40, 1300), (460, 80), {"value": True},
+                      outputs=[("BOOLEAN", "BOOLEAN")], color=GREY)
     g.app_input(st["source"], "image", image="1 · SOURCE PICTURE")
     g.app_input(scene, "value", value="2 · THE SCENE — where he is")
     g.app_input(seed, "value", value="3 · SEED")
+    g.app_input(harmonise, "value", value="4 · HARMONISE — slower, but he sits in the room")
     g.group("① YOUR PICTURE AND YOUR SCENE · everything you touch",
-            (-70, -690, 520, 2050), GROUP_SHOT)
+            (-70, -690, 520, 2130), GROUP_SHOT)
 
     # --- lay the head out in pixels ---------------------------------------
     CX, CY, DY = 560, 1100, 46
@@ -328,16 +416,66 @@ def build():
                           "vae": (E["vae"], 0, "VAE", False)},
                    outputs=[("IMAGE", "IMAGE")], collapsed=True)
 
+    # --- stage three · settle the whole sheet into one hand ---------------
+    # No SetLatentNoiseMask anywhere in this stage: sampling his pixels is the entire point.
+    HX, HY = 1500, 1560
+    harm_pos = g.add("TextEncodeQwenImageEditPlus", "encode (the finished sheet + one-hand prompt)",
+                     (HX, HY), (400, 150), {"prompt": HARMONISE},
+                     links={"clip": (E["clip"], 0, "CLIP", False),
+                            "vae": (E["vae"], 0, "VAE", False),
+                            "image1": (decode, 0, "IMAGE", False)},
+                     outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
+    harm_neg = g.add("TextEncodeQwenImageEditPlus", "harmonise negative (live — cfg is 2.5 here)",
+                     (HX, HY + DY), (400, 130), {"prompt": HARMONISE_NEGATIVE},
+                     links={"clip": (E["clip"], 0, "CLIP", False)},
+                     outputs=[("CONDITIONING", "CONDITIONING")], collapsed=True)
+    harm_latent = g.add("VAEEncode", "the finished sheet as latent", (HX, HY + 2 * DY), (400, 80),
+                        links={"pixels": (decode, 0, "IMAGE", False),
+                               "vae": (E["vae"], 0, "VAE", False)},
+                        outputs=[("LATENT", "LATENT")], collapsed=True)
+    # E["unet"], not E["lora"]: the base model. The Lightning LoRA is distilled for cfg 1.0 at
+    # full denoise and returns mush at denoise 0.25 — this is the only sampler in the codebase
+    # that must not have it.
+    harm_sampler = g.add("KSampler", "settle it into one hand", (HX, HY + 3 * DY), (400, 270),
+                         {"seed": 1, "control_after_generate": "fixed",
+                          "steps": HARMONISE_STEPS, "cfg": HARMONISE_CFG,
+                          "sampler_name": "euler", "scheduler": "simple",
+                          "denoise": HARMONISE_DENOISE},
+                         links={"model": (E["unet"], 0, "MODEL", False),
+                                "positive": (harm_pos, 0, "CONDITIONING", False),
+                                "negative": (harm_neg, 0, "CONDITIONING", False),
+                                "latent_image": (harm_latent, 0, "LATENT", False),
+                                "seed": (seed, 0, "INT", True)},
+                         outputs=[("LATENT", "LATENT")], collapsed=True)
+    harm_decode = g.add("VAEDecode", "decode the harmonised sheet", (HX, HY + 4 * DY), (400, 80),
+                        links={"samples": (harm_sampler, 0, "LATENT", False),
+                               "vae": (E["vae"], 0, "VAE", False)},
+                        outputs=[("IMAGE", "IMAGE")], collapsed=True)
+    g.group("⑤ HARMONISE · the third pass, no Lightning LoRA",
+            (HX - 30, HY - 70, 480, 5 * DY + 90), GROUP_ENGINE)
+
+    result = g.add("ComfySwitchNode", "harmonise switch", (HX, HY + 5 * DY), (400, 130),
+                   {"switch": True},
+                   links={"on_false": (decode, 0, "IMAGE", False),
+                          "on_true": (harm_decode, 0, "IMAGE", False),
+                          "switch": (harmonise, 0, "BOOLEAN", True)},
+                   outputs=[("output", "IMAGE")], collapsed=True)
+
     # Titled RESULT, not SCENE: scene_run finds nodes by title prefix and "SCENE LOCK"
     # matched first, which fetched the wrong node's output.
     g.app_output(g.add("SaveImage", "RESULT — the wide scene", (2000, 1100), (960, 500),
                        {"filename_prefix": "cast/seth-scene"},
+                       links={"images": (result, 0, "IMAGE", False)}))
+    # Always saved, harmonise on or off. It is one PNG, and it is the only way to tell whether
+    # the third pass helped this particular render or only cost 265s.
+    g.app_output(g.add("SaveImage", "BEFORE HARMONISE — stage two, untouched", (2000, 1640),
+                       (470, 260), {"filename_prefix": "cast/seth-scene-flat"},
                        links={"images": (decode, 0, "IMAGE", False)}))
-    g.app_output(g.add("SaveImage", "HEADSHOT — what stage one drew", (2000, 1640), (400, 460),
+    g.app_output(g.add("SaveImage", "HEADSHOT — what stage one drew", (2490, 1640), (470, 260),
                        {"filename_prefix": "cast/seth-scene-head"},
                        links={"images": (head, 0, "IMAGE", False)}, color=GREEN))
-    g.group("④ RESULT · the wide scene, and the headshot inside it",
-            (1970, 1030, 1020, 1100), GROUP_OUT)
+    g.group("④ RESULT · the wide scene, what it looked like before, and the headshot inside it",
+            (1970, 1030, 1020, 920), GROUP_OUT)
     return g
 
 

@@ -96,7 +96,10 @@ def engine(g, x, y, dy=46, want_bg=True):
                  outputs=[("CLIP", "CLIP")], color=ENGINE, collapsed=True)
     vae = g.add("VAELoader", "VAE", (x, y + 3 * dy), (400, 80), {"vae_name": VAE},
                 outputs=[("VAE", "VAE")], color=ENGINE, collapsed=True)
-    out = {"lora": lora, "clip": clip, "vae": vae}
+    # `unet` is the base model BEFORE the Lightning LoRA. Nearly every app wants `lora`; a
+    # partial-denoise pass must have the unpatched one, because the Lightning LoRA is trained for
+    # cfg 1.0 at full denoise and turns a low-denoise refinement into mush. See build_scene.py.
+    out = {"unet": unet, "lora": lora, "clip": clip, "vae": vae}
     if want_bg:
         out["bg"] = g.add("LoadBackgroundRemovalModel", "BiRefNet (for TRANSPARENT PNG)",
                           (x, y + 4 * dy), (400, 80), {"bg_removal_name": BGREMOVAL},

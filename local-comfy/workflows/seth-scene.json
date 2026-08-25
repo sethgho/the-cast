@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 55,
- "last_link_id": 67,
+ "last_node_id": 63,
+ "last_link_id": 84,
  "nodes": [
   {
    "id": 1,
@@ -25,7 +25,7 @@
     "Node name for S&R": "MarkdownNote"
    },
    "widgets_values": [
-    "# Seth in a scene, from any face\n\n**Drop in a picture of a face and describe a place. Get a 1920x832 cartoon of Seth standing in\nthat place, wearing that picture's expression.**\n\nTwo stages run back to back. First the expression app draws Seth's headshot with the source\nface's expression. Then that headshot is pasted onto a wide blank sheet and the model draws the\nroom around it \u2014 the head's own pixels never go through the second sampler, so the face you saw\nin stage one is the face in the wide image, to the pixel.\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 SOURCE PICTURE** | Any picture with a face in it. Its expression is what Seth wears. |\n| **2 \u00b7 THE SCENE** | Where he is. One or two sentences of place, not of action. |\n| **3 \u00b7 SEED** | Re-roll. Drives both stages, so the same seed gives the same face and the same room. |\n\nTwo outputs: **RESULT** is the wide image, **HEADSHOT** is what stage one drew \u2014 check that one\nfirst when the face is wrong, because stage two cannot have touched it.\n\n## The head sits in a known box\n\nAlways at x=920, y=64, 768x768 in the 1920x832 output. Crop that square and you have the\navatar, with no second generation. `scene_run.py` writes it to JSON beside every render.\n\n## Describe a place, not an event\n\nThe man is already drawn and cannot move. \"Seth throwing a wrench\" gives him a room with a\nwrench lying in it. Say what is around him.\n\n## Speed\n\n8 steps, cfg 1.0, denoise 1.0 in both stages. Measured on gpu-worker: 174s for the first run\nafter the weights are unloaded, 126s with the model resident, and 57s when only the scene text or\nthe seed changed and ComfyUI still has stage one cached. Peak 11,417 MiB of the 12GB card.\n"
+    "# Seth in a scene, from any face\n\n**Drop in a picture of a face and describe a place. Get a 1920x832 cartoon of Seth standing in\nthat place, wearing that picture's expression.**\n\nThree stages run back to back. First the expression app draws Seth's headshot with the source\nface's expression. Then that headshot is pasted onto a wide blank sheet and the model draws the\nroom around it \u2014 the head's own pixels never go through the second sampler, so the face you saw\nin stage one is the face in the wide image, to the pixel. That freeze is also why the picture\nused to look composited, so a third pass re-draws the whole sheet at low denoise until the man\nand the room share one ink weight, one halftone and one light.\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 SOURCE PICTURE** | Any picture with a face in it. Its expression is what Seth wears. |\n| **2 \u00b7 THE SCENE** | Where he is. One or two sentences of place, not of action. |\n| **3 \u00b7 SEED** | Re-roll. Drives all three stages, so the same seed gives the same face and the same room. |\n| **4 \u00b7 HARMONISE** | The third pass. On by default. Off gives you the old two-stage picture and takes half the time. |\n\nThree outputs: **RESULT** is the wide image, **BEFORE HARMONISE** is the same picture without the\nthird pass \u2014 the two side by side tell you whether it helped \u2014 and **HEADSHOT** is what stage one\ndrew, which is the first thing to check when the face is wrong, because nothing downstream of it\ncan change who he is.\n\n## The head sits in a known box\n\nAlways at x=920, y=64, 768x768 in the 1920x832 output. Crop that square and you have the\navatar, with no second generation. `scene_run.py` writes it to JSON beside every render.\n\n## Describe a place, not an event\n\nThe man is already drawn and cannot move. \"Seth throwing a wrench\" gives him a room with a\nwrench lying in it. Say what is around him.\n\n## Speed\n\nStages one and two are 8 steps at cfg 1.0 and denoise 1.0 on the Lightning LoRA. Measured on\ngpu-worker with HARMONISE off: 174s for the first run after the weights are unloaded, 126s with\nthe model resident, and 57s when only the scene text or the seed changed and ComfyUI still has\nstage one cached. Peak 11,417 MiB of the 12GB card.\n\nHARMONISE on adds a third sampler that is 20 steps at cfg 2.5 and denoise 0.25 on the base model\nwith no LoRA. Measured: 126s with it off against 312s with it on, so about 186s on top \u2014 call it\ndouble. It is a separate branch of a lazy switch, so turning it off really does skip it rather\nthan render it and throw it away, and the picture it gives back is pixel-identical to the old\ntwo-stage render.\n\nPeak VRAM with the third stage is 11,449 MiB of 12,288, against 11,417 for two stages: the base\nmodel and the LoRA-patched model are never resident together, because ComfyUI swaps them between\nsamplers.\n"
    ]
   },
   {
@@ -50,7 +50,8 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      1
+      1,
+      72
      ]
     }
    ],
@@ -133,7 +134,9 @@
       13,
       18,
       50,
-      54
+      54,
+      66,
+      69
      ]
     }
    ],
@@ -175,7 +178,10 @@
       25,
       51,
       56,
-      65
+      65,
+      67,
+      71,
+      78
      ]
     }
    ],
@@ -257,7 +263,8 @@
      "type": "INT",
      "links": [
       23,
-      63
+      63,
+      76
      ]
     }
    ],
@@ -1096,7 +1103,7 @@
      "links": [
       27,
       29,
-      67
+      84
      ]
     }
    ],
@@ -1153,6 +1160,51 @@
   },
   {
    "id": 27,
+   "type": "PrimitiveBoolean",
+   "pos": [
+    -40,
+    1300
+   ],
+   "size": [
+    460,
+    80
+   ],
+   "flags": {},
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "value"
+     },
+     "link": null,
+     "label": "4 \u00b7 HARMONISE \u2014 slower, but he sits in the room"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "BOOLEAN",
+     "type": "BOOLEAN",
+     "links": [
+      81
+     ]
+    }
+   ],
+   "title": "\u25b6 4 \u00b7 HARMONISE   on = one more pass so he belongs in the room",
+   "properties": {
+    "Node name for S&R": "PrimitiveBoolean"
+   },
+   "widgets_values": [
+    true
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 28,
    "type": "RemoveBackground",
    "pos": [
     560,
@@ -1165,7 +1217,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 27,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
@@ -1195,7 +1247,7 @@
    "widgets_values": []
   },
   {
-   "id": 28,
+   "id": 29,
    "type": "MaskToImage",
    "pos": [
     560,
@@ -1208,7 +1260,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 28,
+   "order": 29,
    "mode": 0,
    "inputs": [
     {
@@ -1233,7 +1285,7 @@
    "widgets_values": []
   },
   {
-   "id": 29,
+   "id": 30,
    "type": "ImageScale",
    "pos": [
     560,
@@ -1246,7 +1298,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 29,
+   "order": 30,
    "mode": 0,
    "inputs": [
     {
@@ -1276,7 +1328,7 @@
    ]
   },
   {
-   "id": 30,
+   "id": 31,
    "type": "ImageScale",
    "pos": [
     560,
@@ -1289,7 +1341,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 30,
+   "order": 31,
    "mode": 0,
    "inputs": [
     {
@@ -1320,7 +1372,7 @@
    ]
   },
   {
-   "id": 31,
+   "id": 32,
    "type": "ImageToMask",
    "pos": [
     560,
@@ -1333,7 +1385,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 31,
+   "order": 32,
    "mode": 0,
    "inputs": [
     {
@@ -1361,7 +1413,7 @@
    ]
   },
   {
-   "id": 32,
+   "id": 33,
    "type": "EmptyImage",
    "pos": [
     560,
@@ -1374,7 +1426,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 32,
+   "order": 33,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1398,7 +1450,7 @@
    ]
   },
   {
-   "id": 33,
+   "id": 34,
    "type": "ImageCompositeMasked",
    "pos": [
     560,
@@ -1411,7 +1463,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 33,
+   "order": 34,
    "mode": 0,
    "inputs": [
     {
@@ -1451,7 +1503,7 @@
    ]
   },
   {
-   "id": 34,
+   "id": 35,
    "type": "EmptyImage",
    "pos": [
     560,
@@ -1464,7 +1516,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 34,
+   "order": 35,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1488,7 +1540,7 @@
    ]
   },
   {
-   "id": 35,
+   "id": 36,
    "type": "ImageCompositeMasked",
    "pos": [
     560,
@@ -1501,7 +1553,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 35,
+   "order": 36,
    "mode": 0,
    "inputs": [
     {
@@ -1540,7 +1592,7 @@
    ]
   },
   {
-   "id": 36,
+   "id": 37,
    "type": "ImageToMask",
    "pos": [
     560,
@@ -1553,7 +1605,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 36,
+   "order": 37,
    "mode": 0,
    "inputs": [
     {
@@ -1580,7 +1632,7 @@
    ]
   },
   {
-   "id": 37,
+   "id": 38,
    "type": "GrowMask",
    "pos": [
     560,
@@ -1593,7 +1645,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 37,
+   "order": 38,
    "mode": 0,
    "inputs": [
     {
@@ -1621,7 +1673,7 @@
    ]
   },
   {
-   "id": 38,
+   "id": 39,
    "type": "MaskToImage",
    "pos": [
     560,
@@ -1634,7 +1686,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 38,
+   "order": 39,
    "mode": 0,
    "inputs": [
     {
@@ -1659,7 +1711,7 @@
    "widgets_values": []
   },
   {
-   "id": 39,
+   "id": 40,
    "type": "ImageBlur",
    "pos": [
     560,
@@ -1672,7 +1724,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 39,
+   "order": 40,
    "mode": 0,
    "inputs": [
     {
@@ -1700,7 +1752,7 @@
    ]
   },
   {
-   "id": 40,
+   "id": 41,
    "type": "ImageToMask",
    "pos": [
     560,
@@ -1713,7 +1765,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 40,
+   "order": 41,
    "mode": 0,
    "inputs": [
     {
@@ -1740,7 +1792,7 @@
    ]
   },
   {
-   "id": 41,
+   "id": 42,
    "type": "InvertMask",
    "pos": [
     560,
@@ -1753,7 +1805,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 41,
+   "order": 42,
    "mode": 0,
    "inputs": [
     {
@@ -1778,7 +1830,7 @@
    "widgets_values": []
   },
   {
-   "id": 42,
+   "id": 43,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1020,
@@ -1791,7 +1843,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 42,
+   "order": 43,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1814,7 +1866,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 43,
+   "id": 44,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1020,
@@ -1827,7 +1879,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 43,
+   "order": 44,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1850,7 +1902,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 44,
+   "id": 45,
    "type": "PrimitiveStringMultiline",
    "pos": [
     1020,
@@ -1863,7 +1915,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 44,
+   "order": 45,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -1886,7 +1938,7 @@
    "bgcolor": "#335"
   },
   {
-   "id": 45,
+   "id": 46,
    "type": "StringConcatenate",
    "pos": [
     1020,
@@ -1899,7 +1951,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 45,
+   "order": 46,
    "mode": 0,
    "inputs": [
     {
@@ -1939,7 +1991,7 @@
    ]
   },
   {
-   "id": 46,
+   "id": 47,
    "type": "StringConcatenate",
    "pos": [
     1020,
@@ -1952,7 +2004,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 46,
+   "order": 47,
    "mode": 0,
    "inputs": [
     {
@@ -1992,7 +2044,7 @@
    ]
   },
   {
-   "id": 47,
+   "id": 48,
    "type": "StringConcatenate",
    "pos": [
     1020,
@@ -2005,7 +2057,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 47,
+   "order": 48,
    "mode": 0,
    "inputs": [
     {
@@ -2045,7 +2097,7 @@
    ]
   },
   {
-   "id": 48,
+   "id": 49,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1500,
@@ -2058,7 +2110,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 48,
+   "order": 49,
    "mode": 0,
    "inputs": [
     {
@@ -2103,7 +2155,7 @@
    ]
   },
   {
-   "id": 49,
+   "id": 50,
    "type": "TextEncodeQwenImageEditPlus",
    "pos": [
     1500,
@@ -2116,7 +2168,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 49,
+   "order": 50,
    "mode": 0,
    "inputs": [
     {
@@ -2143,7 +2195,7 @@
    ]
   },
   {
-   "id": 50,
+   "id": 51,
    "type": "VAEEncode",
    "pos": [
     1500,
@@ -2156,7 +2208,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 50,
+   "order": 51,
    "mode": 0,
    "inputs": [
     {
@@ -2186,7 +2238,7 @@
    "widgets_values": []
   },
   {
-   "id": 51,
+   "id": 52,
    "type": "SetLatentNoiseMask",
    "pos": [
     1500,
@@ -2199,7 +2251,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 51,
+   "order": 52,
    "mode": 0,
    "inputs": [
     {
@@ -2229,7 +2281,7 @@
    "widgets_values": []
   },
   {
-   "id": 52,
+   "id": 53,
    "type": "KSampler",
    "pos": [
     1500,
@@ -2242,7 +2294,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 52,
+   "order": 53,
    "mode": 0,
    "inputs": [
     {
@@ -2298,7 +2350,7 @@
    ]
   },
   {
-   "id": 53,
+   "id": 54,
    "type": "VAEDecode",
    "pos": [
     1500,
@@ -2311,7 +2363,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 53,
+   "order": 54,
    "mode": 0,
    "inputs": [
     {
@@ -2330,7 +2382,10 @@
      "name": "IMAGE",
      "type": "IMAGE",
      "links": [
-      66
+      68,
+      70,
+      79,
+      83
      ]
     }
    ],
@@ -2341,7 +2396,305 @@
    "widgets_values": []
   },
   {
-   "id": 54,
+   "id": 55,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1500,
+    1560
+   ],
+   "size": [
+    400,
+    150
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 55,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 66
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 67
+    },
+    {
+     "name": "image1",
+     "type": "IMAGE",
+     "link": 68
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      73
+     ]
+    }
+   ],
+   "title": "encode (the finished sheet + one-hand prompt)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    "A single continuous 1933 rubber-hose cartoon illustration on one sheet of aged newsprint: the man and the room around him are drawn by one hand in one sitting, the same ink weight on his outline as on the desk and the walls, the same halftone dot shading across his face and the furniture alike, one light in the room falling on him and on everything else from the same side, and his shoulders and hair sitting in the room's own light and shadow so he belongs in the space. Keep the composition, the room, the man's face, his hair, his moustache and his expression exactly as they are \u2014 only the drawing settles into one hand."
+   ]
+  },
+  {
+   "id": 56,
+   "type": "TextEncodeQwenImageEditPlus",
+   "pos": [
+    1500,
+    1606
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 56,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 69
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      74
+     ]
+    }
+   ],
+   "title": "harmonise negative (live \u2014 cfg is 2.5 here)",
+   "properties": {
+    "Node name for S&R": "TextEncodeQwenImageEditPlus"
+   },
+   "widgets_values": [
+    "pasted cut-out, sticker, collage, different man, photographic"
+   ]
+  },
+  {
+   "id": 57,
+   "type": "VAEEncode",
+   "pos": [
+    1500,
+    1652
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 57,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "pixels",
+     "type": "IMAGE",
+     "link": 70
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 71
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      75
+     ]
+    }
+   ],
+   "title": "the finished sheet as latent",
+   "properties": {
+    "Node name for S&R": "VAEEncode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 58,
+   "type": "KSampler",
+   "pos": [
+    1500,
+    1698
+   ],
+   "size": [
+    400,
+    270
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 58,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 72
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 73
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 74
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 75
+    },
+    {
+     "name": "seed",
+     "type": "INT",
+     "link": 76,
+     "widget": {
+      "name": "seed"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      77
+     ]
+    }
+   ],
+   "title": "settle it into one hand",
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    1,
+    "fixed",
+    20,
+    2.5,
+    "euler",
+    "simple",
+    0.25
+   ]
+  },
+  {
+   "id": 59,
+   "type": "VAEDecode",
+   "pos": [
+    1500,
+    1744
+   ],
+   "size": [
+    400,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 59,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 77
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 78
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      80
+     ]
+    }
+   ],
+   "title": "decode the harmonised sheet",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 60,
+   "type": "ComfySwitchNode",
+   "pos": [
+    1500,
+    1790
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 60,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "on_false",
+     "type": "IMAGE",
+     "link": 79
+    },
+    {
+     "name": "on_true",
+     "type": "IMAGE",
+     "link": 80
+    },
+    {
+     "name": "switch",
+     "type": "BOOLEAN",
+     "link": 81,
+     "widget": {
+      "name": "switch"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "IMAGE",
+     "links": [
+      82
+     ]
+    }
+   ],
+   "title": "harmonise switch",
+   "properties": {
+    "Node name for S&R": "ComfySwitchNode"
+   },
+   "widgets_values": [
+    true
+   ]
+  },
+  {
+   "id": 61,
    "type": "SaveImage",
    "pos": [
     2000,
@@ -2352,13 +2705,13 @@
     500
    ],
    "flags": {},
-   "order": 54,
+   "order": 61,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 66
+     "link": 82
     }
    ],
    "outputs": [],
@@ -2371,24 +2724,54 @@
    ]
   },
   {
-   "id": 55,
+   "id": 62,
    "type": "SaveImage",
    "pos": [
     2000,
     1640
    ],
    "size": [
-    400,
-    460
+    470,
+    260
    ],
    "flags": {},
-   "order": 55,
+   "order": 62,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 67
+     "link": 83
+    }
+   ],
+   "outputs": [],
+   "title": "BEFORE HARMONISE \u2014 stage two, untouched",
+   "properties": {
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "cast/seth-scene-flat"
+   ]
+  },
+  {
+   "id": 63,
+   "type": "SaveImage",
+   "pos": [
+    2490,
+    1640
+   ],
+   "size": [
+    470,
+    260
+   ],
+   "flags": {},
+   "order": 63,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 84
     }
    ],
    "outputs": [],
@@ -2608,7 +2991,7 @@
    26,
    6,
    0,
-   27,
+   28,
    0,
    "BACKGROUND_REMOVAL"
   ],
@@ -2616,15 +2999,15 @@
    27,
    25,
    0,
-   27,
+   28,
    1,
    "IMAGE"
   ],
   [
    28,
-   27,
-   0,
    28,
+   0,
+   29,
    0,
    "MASK"
   ],
@@ -2632,127 +3015,127 @@
    29,
    25,
    0,
+   30,
+   0,
+   "IMAGE"
+  ],
+  [
+   30,
    29,
-   0,
-   "IMAGE"
-  ],
-  [
-   30,
-   28,
-   0,
-   30,
-   0,
-   "IMAGE"
-  ],
-  [
-   31,
-   30,
    0,
    31,
    0,
    "IMAGE"
   ],
   [
-   32,
+   31,
+   31,
+   0,
    32,
    0,
+   "IMAGE"
+  ],
+  [
+   32,
    33,
+   0,
+   34,
    0,
    "IMAGE"
   ],
   [
    33,
-   29,
+   30,
    0,
-   33,
+   34,
    1,
    "IMAGE"
   ],
   [
    34,
-   31,
+   32,
    0,
-   33,
+   34,
    2,
    "MASK"
   ],
   [
    35,
-   34,
-   0,
    35,
+   0,
+   36,
    0,
    "IMAGE"
   ],
   [
    36,
-   30,
+   31,
    0,
-   35,
+   36,
    1,
    "IMAGE"
   ],
   [
    37,
-   31,
+   32,
    0,
-   35,
+   36,
    2,
    "MASK"
   ],
   [
    38,
-   35,
-   0,
    36,
+   0,
+   37,
    0,
    "IMAGE"
   ],
   [
    39,
-   36,
-   0,
    37,
+   0,
+   38,
    0,
    "MASK"
   ],
   [
    40,
-   37,
-   0,
    38,
+   0,
+   39,
    0,
    "MASK"
   ],
   [
    41,
-   38,
-   0,
    39,
+   0,
+   40,
    0,
    "IMAGE"
   ],
   [
    42,
-   39,
-   0,
    40,
+   0,
+   41,
    0,
    "IMAGE"
   ],
   [
    43,
-   40,
-   0,
    41,
+   0,
+   42,
    0,
    "MASK"
   ],
   [
    44,
-   42,
+   43,
    0,
-   45,
+   46,
    0,
    "STRING"
   ],
@@ -2760,28 +3143,12 @@
    45,
    26,
    0,
-   45,
-   1,
-   "STRING"
-  ],
-  [
-   46,
-   45,
-   0,
-   46,
-   0,
-   "STRING"
-  ],
-  [
-   47,
-   43,
-   0,
    46,
    1,
    "STRING"
   ],
   [
-   48,
+   46,
    46,
    0,
    47,
@@ -2789,7 +3156,7 @@
    "STRING"
   ],
   [
-   49,
+   47,
    44,
    0,
    47,
@@ -2797,10 +3164,26 @@
    "STRING"
   ],
   [
+   48,
+   47,
+   0,
+   48,
+   0,
+   "STRING"
+  ],
+  [
+   49,
+   45,
+   0,
+   48,
+   1,
+   "STRING"
+  ],
+  [
    50,
    4,
    0,
-   48,
+   49,
    0,
    "CLIP"
   ],
@@ -2808,23 +3191,23 @@
    51,
    5,
    0,
-   48,
+   49,
    1,
    "VAE"
   ],
   [
    52,
-   33,
+   34,
    0,
-   48,
+   49,
    2,
    "IMAGE"
   ],
   [
    53,
-   47,
-   0,
    48,
+   0,
+   49,
    3,
    "STRING"
   ],
@@ -2832,15 +3215,15 @@
    54,
    4,
    0,
-   49,
+   50,
    0,
    "CLIP"
   ],
   [
    55,
-   33,
+   34,
    0,
-   50,
+   51,
    0,
    "IMAGE"
   ],
@@ -2848,23 +3231,23 @@
    56,
    5,
    0,
-   50,
+   51,
    1,
    "VAE"
   ],
   [
    57,
-   50,
-   0,
    51,
+   0,
+   52,
    0,
    "LATENT"
   ],
   [
    58,
-   41,
+   42,
    0,
-   51,
+   52,
    1,
    "MASK"
   ],
@@ -2872,31 +3255,31 @@
    59,
    3,
    0,
-   52,
+   53,
    0,
    "MODEL"
   ],
   [
    60,
-   48,
+   49,
    0,
-   52,
+   53,
    1,
    "CONDITIONING"
   ],
   [
    61,
-   49,
+   50,
    0,
-   52,
+   53,
    2,
    "CONDITIONING"
   ],
   [
    62,
-   51,
-   0,
    52,
+   0,
+   53,
    3,
    "LATENT"
   ],
@@ -2904,15 +3287,15 @@
    63,
    7,
    0,
-   52,
+   53,
    4,
    "INT"
   ],
   [
    64,
-   52,
-   0,
    53,
+   0,
+   54,
    0,
    "LATENT"
   ],
@@ -2920,23 +3303,159 @@
    65,
    5,
    0,
-   53,
+   54,
    1,
    "VAE"
   ],
   [
    66,
-   53,
+   4,
    0,
+   55,
+   0,
+   "CLIP"
+  ],
+  [
+   67,
+   5,
+   0,
+   55,
+   1,
+   "VAE"
+  ],
+  [
+   68,
    54,
+   0,
+   55,
+   2,
+   "IMAGE"
+  ],
+  [
+   69,
+   4,
+   0,
+   56,
+   0,
+   "CLIP"
+  ],
+  [
+   70,
+   54,
+   0,
+   57,
    0,
    "IMAGE"
   ],
   [
-   67,
+   71,
+   5,
+   0,
+   57,
+   1,
+   "VAE"
+  ],
+  [
+   72,
+   2,
+   0,
+   58,
+   0,
+   "MODEL"
+  ],
+  [
+   73,
+   55,
+   0,
+   58,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   74,
+   56,
+   0,
+   58,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   75,
+   57,
+   0,
+   58,
+   3,
+   "LATENT"
+  ],
+  [
+   76,
+   7,
+   0,
+   58,
+   4,
+   "INT"
+  ],
+  [
+   77,
+   58,
+   0,
+   59,
+   0,
+   "LATENT"
+  ],
+  [
+   78,
+   5,
+   0,
+   59,
+   1,
+   "VAE"
+  ],
+  [
+   79,
+   54,
+   0,
+   60,
+   0,
+   "IMAGE"
+  ],
+  [
+   80,
+   59,
+   0,
+   60,
+   1,
+   "IMAGE"
+  ],
+  [
+   81,
+   27,
+   0,
+   60,
+   2,
+   "BOOLEAN"
+  ],
+  [
+   82,
+   60,
+   0,
+   61,
+   0,
+   "IMAGE"
+  ],
+  [
+   83,
+   54,
+   0,
+   62,
+   0,
+   "IMAGE"
+  ],
+  [
+   84,
    25,
    0,
-   55,
+   63,
    0,
    "IMAGE"
   ]
@@ -2988,7 +3507,7 @@
     -70,
     -690,
     520,
-    2050
+    2130
    ],
    "color": "#4a7c3f",
    "font_size": 24,
@@ -3035,12 +3554,25 @@
   },
   {
    "id": 8,
-   "title": "\u2463 RESULT \u00b7 the wide scene, and the headshot inside it",
+   "title": "\u2464 HARMONISE \u00b7 the third pass, no Lightning LoRA",
+   "bounding": [
+    1470,
+    1490,
+    480,
+    320
+   ],
+   "color": "#444",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 9,
+   "title": "\u2463 RESULT \u00b7 the wide scene, what it looked like before, and the headshot inside it",
    "bounding": [
     1970,
     1030,
     1020,
-    1100
+    920
    ],
    "color": "#8a6d3b",
    "font_size": 24,
@@ -3070,11 +3602,16 @@
     [
      "7",
      "value"
+    ],
+    [
+     "27",
+     "value"
     ]
    ],
    "outputs": [
-    "54",
-    "55"
+    "61",
+    "62",
+    "63"
    ]
   }
  },
