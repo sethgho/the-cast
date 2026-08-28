@@ -1,0 +1,330 @@
+{
+ "2": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "3": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "6": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "f2.jpg"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 SOURCE PHOTO"
+  }
+ },
+ "7": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1152,
+   "height": 648,
+   "crop": "center",
+   "image": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "fit to 1152x648"
+  }
+ },
+ "8": {
+  "class_type": "ImageBlur",
+  "inputs": {
+   "blur_radius": 2,
+   "sigma": 1.2,
+   "image": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "soften first (Canny is noisy on video)"
+  }
+ },
+ "9": {
+  "class_type": "Canny",
+  "inputs": {
+   "low_threshold": 0.2,
+   "high_threshold": 0.5,
+   "image": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 EDGES \u00b7 threshold"
+  }
+ },
+ "10": {
+  "class_type": "ImageInvert",
+  "inputs": {
+   "image": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "black on white"
+  }
+ },
+ "11": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "EDGES map"
+  }
+ },
+ "12": {
+  "class_type": "ImageBlur",
+  "inputs": {
+   "blur_radius": 24,
+   "sigma": 8.0,
+   "image": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 DEPTH \u00b7 blur"
+  }
+ },
+ "13": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "DEPTH map"
+  }
+ },
+ "14": {
+  "class_type": "ImageBlur",
+  "inputs": {
+   "blur_radius": 8,
+   "sigma": 4.0,
+   "image": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "soften"
+  }
+ },
+ "15": {
+  "class_type": "ImageQuantize",
+  "inputs": {
+   "colors": 6,
+   "dither": "none",
+   "image": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 CONTOURS \u00b7 band count"
+  }
+ },
+ "16": {
+  "class_type": "Canny",
+  "inputs": {
+   "low_threshold": 0.05,
+   "high_threshold": 0.15,
+   "image": [
+    "15",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "band boundaries"
+  }
+ },
+ "17": {
+  "class_type": "ImageInvert",
+  "inputs": {
+   "image": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "black on white"
+  }
+ },
+ "18": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "17",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "CONTOURS map \u2014 the one that is wired up"
+  }
+ },
+ "19": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Redraw image 1 as a Kirlian corona-discharge photograph: fine electric filaments branching off every boundary into a black photographic ground, violet-white at the core fading to deep indigo, with film grain and a slight halation bloom. Violet and white on black, nothing else."
+  },
+  "_meta": {
+   "title": "\u25b6 STYLE \u2014 the material"
+  }
+ },
+ "20": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "19",
+    0
+   ],
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "image1": [
+    "17",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "positive"
+  }
+ },
+ "21": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "a person, a face, a room, furniture, text, watermark, blurry, muddy, rainbow, tie-dye, neon, psychedelic, oversaturated, garish",
+   "clip": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative"
+  }
+ },
+ "22": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1152,
+   "height": 648,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "canvas"
+  }
+ },
+ "23": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 7,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ],
+   "positive": [
+    "20",
+    0
+   ],
+   "negative": [
+    "21",
+    0
+   ],
+   "latent_image": [
+    "22",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 SEED / STEPS"
+  }
+ },
+ "24": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "23",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "25": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/abstract-r1",
+   "images": [
+    "24",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

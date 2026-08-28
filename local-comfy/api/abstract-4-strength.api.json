@@ -1,0 +1,282 @@
+{
+ "2": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "3": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "6": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "f2.jpg"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 SOURCE PHOTO"
+  }
+ },
+ "7": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1152,
+   "height": 648,
+   "crop": "center",
+   "image": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "fit to 1152x648"
+  }
+ },
+ "8": {
+  "class_type": "ImageBlur",
+  "inputs": {
+   "blur_radius": 8,
+   "sigma": 4.0,
+   "image": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "soften"
+  }
+ },
+ "9": {
+  "class_type": "ImageQuantize",
+  "inputs": {
+   "colors": 6,
+   "dither": "none",
+   "image": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 BAND COUNT"
+  }
+ },
+ "10": {
+  "class_type": "Canny",
+  "inputs": {
+   "low_threshold": 0.05,
+   "high_threshold": 0.15,
+   "image": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "band boundaries"
+  }
+ },
+ "11": {
+  "class_type": "ImageInvert",
+  "inputs": {
+   "image": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "black on white"
+  }
+ },
+ "12": {
+  "class_type": "EmptyImage",
+  "inputs": {
+   "width": 1152,
+   "height": 648,
+   "batch_size": 1,
+   "color": 8421504
+  },
+  "_meta": {
+   "title": "flat grey field"
+  }
+ },
+ "13": {
+  "class_type": "ImageBlend",
+  "inputs": {
+   "blend_factor": 0.6,
+   "blend_mode": "normal",
+   "image1": [
+    "12",
+    0
+   ],
+   "image2": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 MAP STRENGTH"
+  }
+ },
+ "14": {
+  "class_type": "PreviewImage",
+  "inputs": {
+   "images": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "the faded map"
+  }
+ },
+ "15": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Redraw image 1 as ferrofluid on glass: glossy black magnetic liquid pulled into dense fields of sharp spikes and smooth beading pools, wet and mirror-bright, lit by one hard studio light from the left. Almost entirely black on black, readable only by specular highlights and reflection. No colour at all."
+  },
+  "_meta": {
+   "title": "\u25b6 STYLE \u2014 the material"
+  }
+ },
+ "16": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "15",
+    0
+   ],
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "image1": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "positive"
+  }
+ },
+ "17": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "a person, a face, a room, furniture, text, watermark, blurry, muddy, rainbow, tie-dye, neon, psychedelic, oversaturated, garish",
+   "clip": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative"
+  }
+ },
+ "18": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1152,
+   "height": 648,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "canvas"
+  }
+ },
+ "19": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 7,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ],
+   "positive": [
+    "16",
+    0
+   ],
+   "negative": [
+    "17",
+    0
+   ],
+   "latent_image": [
+    "18",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 SEED / STEPS"
+  }
+ },
+ "20": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "19",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "21": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/abstract-r4",
+   "images": [
+    "20",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}
