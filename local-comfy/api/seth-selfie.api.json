@@ -1,0 +1,336 @@
+{
+ "2": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "ENGINE"
+  }
+ },
+ "3": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "LIGHTNING"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "CLIP"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "6": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "cast-seth-headshot-neutral.png"
+  },
+  "_meta": {
+   "title": "PLATE"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 1 is the drawing to edit, and the man in image 1 is the only character in the finished picture. Redraw him exactly as he is: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, wearing a plain v-neck t-shirt of very dark olive charcoal \u2014 near-black, the same flat dark tone as the t-shirt in image 1."
+  },
+  "_meta": {
+   "title": "IDENTITY"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "He sits at his desk, hands on the keyboard, looking at the screen."
+  },
+  "_meta": {
+   "title": "POSE"
+  }
+ },
+ "12": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "An ordinary evening at the workbench."
+  },
+  "_meta": {
+   "title": "SCENE"
+  }
+ },
+ "13": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE"
+  }
+ },
+ "14": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all, the man in the finished drawing is the man from image 1 \u2014 the same long wavy hair, the same bushy handlebar moustache, the same dark v-neck t-shirt \u2014 and he is doing exactly what the description of his pose says."
+  },
+  "_meta": {
+   "title": "RESTATE"
+  }
+ },
+ "15": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "10",
+    0
+   ],
+   "string_b": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-1"
+  }
+ },
+ "16": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "15",
+    0
+   ],
+   "string_b": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-2"
+  }
+ },
+ "17": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "16",
+    0
+   ],
+   "string_b": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-3"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "17",
+    0
+   ],
+   "string_b": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-4"
+  }
+ },
+ "19": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1920,
+   "height": 832,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "SHEET"
+  }
+ },
+ "20": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "18",
+    0
+   ],
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "image1": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "POSITIVE"
+  }
+ },
+ "21": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "NEGATIVE"
+  }
+ },
+ "22": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 7,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ],
+   "positive": [
+    "20",
+    0
+   ],
+   "negative": [
+    "21",
+    0
+   ],
+   "latent_image": [
+    "19",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "SAMPLER"
+  }
+ },
+ "23": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "22",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "DECODE"
+  }
+ },
+ "30": {
+  "class_type": "LoadMediaPipeFaceLandmarker",
+  "inputs": {
+   "model_name": "mediapipe_face_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "face-model"
+  }
+ },
+ "31": {
+  "class_type": "MediaPipeFaceLandmarker",
+  "inputs": {
+   "detector_variant": "both",
+   "num_faces": 1,
+   "min_confidence": 0.1,
+   "missing_frame_fallback": "empty",
+   "face_detection_model": [
+    "30",
+    0
+   ],
+   "image": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "find-face"
+  }
+ },
+ "32": {
+  "class_type": "CropByBBoxes",
+  "inputs": {
+   "output_width": 768,
+   "output_height": 768,
+   "padding": 96,
+   "keep_aspect": "pad",
+   "image": [
+    "23",
+    0
+   ],
+   "bboxes": [
+    "31",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "crop-face"
+  }
+ },
+ "40": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/seth-selfie",
+   "images": [
+    "23",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ },
+ "41": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "cast/seth-selfie-avatar",
+   "images": [
+    "32",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "AVATAR"
+  }
+ }
+}
