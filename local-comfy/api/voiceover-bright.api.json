@@ -1,0 +1,65 @@
+{
+ "2": {
+  "class_type": "ChatterBoxEngineNode",
+  "inputs": {
+   "language": "English",
+   "device": "auto",
+   "exaggeration": 1.35,
+   "temperature": 0.9,
+   "cfg_weight": 0.4,
+   "crash_protection_template": "{seg}"
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 DELIVERY"
+  }
+ },
+ "3": {
+  "class_type": "UnifiedTTSSRTNode",
+  "inputs": {
+   "srt_content": "1\n00:00:00,200 --> 00:00:06,000\nAfter your token sale delivers, there's a one-month window where WHUF can only be vouched.\n\n2\n00:00:06,200 --> 00:00:10,000\nFirst: you now type the exact WHUF amount you want.\n\n3\n00:00:10,300 --> 00:00:16,700\nWatch the amount field. Confirm dims while it re-prices, then unlocks the moment the quote agrees.\n\n4\n00:00:16,900 --> 00:00:20,700\nSecond: when two wallets are involved, the app labels each one.\n\n5\n00:00:20,900 --> 00:00:25,200\nLeft, the refund returns to your Ethos wallet. Right, your connected wallet funds the vouch.\n\n6\n00:00:25,400 --> 00:00:29,200\nThird: the exit fee. Before Unlock, there's no WHUF exchange rate yet.\n\n7\n00:00:29,400 --> 00:00:33,800\nSo hover the breakdown, and the fee now reads in the ETH you actually hold.\n\n8\n00:00:34,000 --> 00:00:40,600\nTwo more guards: a balance change mid-conversion vouches less instead of failing, and the safety switch is checked throughout.\n",
+   "narrator_voice": "none",
+   "seed": 11,
+   "timing_mode": "stretch_to_fit",
+   "enable_audio_cache": false,
+   "fade_for_StretchToFit": 0.02,
+   "max_stretch_ratio": 1.15,
+   "min_stretch_ratio": 0.85,
+   "timing_tolerance": 2.0,
+   "batch_size": 0,
+   "use_native_duration_targeting": false,
+   "TTS_engine": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 SCRIPT (SRT)"
+  }
+ },
+ "4": {
+  "class_type": "SaveAudioMP3",
+  "inputs": {
+   "filename_prefix": "vo/bright",
+   "quality": "V0",
+   "audio": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ },
+ "5": {
+  "class_type": "PreviewAny",
+  "inputs": {
+   "source": [
+    "3",
+    2
+   ]
+  },
+  "_meta": {
+   "title": "TIMING REPORT \u2014 read this"
+  }
+ }
+}

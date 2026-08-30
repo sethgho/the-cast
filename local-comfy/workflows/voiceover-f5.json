@@ -1,0 +1,365 @@
+{
+ "id": "cast-local-qwen-edit",
+ "revision": 0,
+ "last_node_id": 5,
+ "last_link_id": 3,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -560,
+    -620
+   ],
+   "size": [
+    480,
+    900
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "HOW TO USE \u2014 voiceover (f5)",
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "# Timed voiceover\n\n**An SRT in, one audio track fitted to those cues out.**\n\n| Control | What it does |\n|---|---|\n| **1 \u00b7 SCRIPT (SRT)** | Cue numbers, `HH:MM:SS,mmm --> HH:MM:SS,mmm`, then the line. Timings are honoured. |\n| **2 \u00b7 DELIVERY** | ChatterBox `exaggeration` is the cartoon dial: 0.5 is flat, 1.3 is animated, 1.6+ starts chewing scenery. |\n| **3 \u00b7 VOICE** | `narrator_voice` clones one of the suite's samples. `none` uses the engine's own voice. |\n| **4 \u00b7 TIMING** | `stretch_to_fit` honours the window. `smart_natural` lets a cue run long and pushes the rest. |\n| **5 \u00b7 RADIO EQ** | Bypass this to keep the clean read. It cuts below ~300Hz and above ~3kHz so the voice sits in a period receiver's passband. |\n\n**Read `timing_report`.** It says which cues did not fit. A line that needs more than\n`max_stretch_ratio` gets sped up, and a sped-up read is the first thing that sounds wrong.\n\nRule of thumb: **2.7 words a second.** A 4-second card holds about eleven words. Scripts written\nwithout that in mind run three times too long and no amount of stretching saves them.\n"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "F5TTSEngineNode",
+   "pos": [
+    -60,
+    60
+   ],
+   "size": [
+    420,
+    300
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "TTS_ENGINE",
+     "type": "TTS_ENGINE",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "title": "\u25b6 2 \u00b7 DELIVERY (F5)",
+   "properties": {
+    "Node name for S&R": "F5TTSEngineNode"
+   },
+   "widgets_values": [
+    "F5TTS_v1_Base",
+    "auto",
+    0.9,
+    1.0,
+    0.1,
+    0.15,
+    32,
+    2.0
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 3,
+   "type": "UnifiedTTSSRTNode",
+   "pos": [
+    420,
+    60
+   ],
+   "size": [
+    600,
+    620
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "TTS_engine",
+     "type": "TTS_ENGINE",
+     "link": 1
+    },
+    {
+     "name": "srt_content",
+     "localized_name": "srt_content",
+     "type": "STRING",
+     "widget": {
+      "name": "srt_content"
+     },
+     "link": null
+    },
+    {
+     "name": "narrator_voice",
+     "localized_name": "narrator_voice",
+     "type": "COMBO",
+     "widget": {
+      "name": "narrator_voice"
+     },
+     "link": null
+    },
+    {
+     "name": "seed",
+     "localized_name": "seed",
+     "type": "INT",
+     "widget": {
+      "name": "seed"
+     },
+     "link": null
+    },
+    {
+     "name": "timing_mode",
+     "localized_name": "timing_mode",
+     "type": "COMBO",
+     "widget": {
+      "name": "timing_mode"
+     },
+     "link": null
+    },
+    {
+     "name": "enable_audio_cache",
+     "localized_name": "enable_audio_cache",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "enable_audio_cache"
+     },
+     "link": null
+    },
+    {
+     "name": "fade_for_StretchToFit",
+     "localized_name": "fade_for_StretchToFit",
+     "type": "FLOAT",
+     "widget": {
+      "name": "fade_for_StretchToFit"
+     },
+     "link": null
+    },
+    {
+     "name": "max_stretch_ratio",
+     "localized_name": "max_stretch_ratio",
+     "type": "FLOAT",
+     "widget": {
+      "name": "max_stretch_ratio"
+     },
+     "link": null
+    },
+    {
+     "name": "min_stretch_ratio",
+     "localized_name": "min_stretch_ratio",
+     "type": "FLOAT",
+     "widget": {
+      "name": "min_stretch_ratio"
+     },
+     "link": null
+    },
+    {
+     "name": "timing_tolerance",
+     "localized_name": "timing_tolerance",
+     "type": "FLOAT",
+     "widget": {
+      "name": "timing_tolerance"
+     },
+     "link": null
+    },
+    {
+     "name": "batch_size",
+     "localized_name": "batch_size",
+     "type": "INT",
+     "widget": {
+      "name": "batch_size"
+     },
+     "link": null
+    },
+    {
+     "name": "use_native_duration_targeting",
+     "localized_name": "use_native_duration_targeting",
+     "type": "BOOLEAN",
+     "widget": {
+      "name": "use_native_duration_targeting"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "links": [
+      2
+     ]
+    },
+    {
+     "name": "generation_info",
+     "type": "STRING",
+     "links": null
+    },
+    {
+     "name": "timing_report",
+     "type": "STRING",
+     "links": [
+      3
+     ]
+    },
+    {
+     "name": "Adjusted_SRT",
+     "type": "STRING",
+     "links": null
+    }
+   ],
+   "title": "\u25b6 1 \u00b7 SCRIPT (SRT)",
+   "properties": {
+    "Node name for S&R": "UnifiedTTSSRTNode"
+   },
+   "widgets_values": [
+    "1\n00:00:00,200 --> 00:00:06,000\nAfter your token sale delivers, there's a one-month window where WHUF can only be vouched.\n\n2\n00:00:06,200 --> 00:00:10,000\nFirst: you now type the exact WHUF amount you want.\n\n3\n00:00:10,300 --> 00:00:16,700\nWatch the amount field. Confirm dims while it re-prices, then unlocks the moment the quote agrees.\n\n4\n00:00:16,900 --> 00:00:20,700\nSecond: when two wallets are involved, the app labels each one.\n\n5\n00:00:20,900 --> 00:00:25,200\nLeft, the refund returns to your Ethos wallet. Right, your connected wallet funds the vouch.\n\n6\n00:00:25,400 --> 00:00:29,200\nThird: the exit fee. Before Unlock, there's no WHUF exchange rate yet.\n\n7\n00:00:29,400 --> 00:00:33,800\nSo hover the breakdown, and the fee now reads in the ETH you actually hold.\n\n8\n00:00:34,000 --> 00:00:40,600\nTwo more guards: a balance change mid-conversion vouches less instead of failing, and the safety switch is checked throughout.\n",
+    "none",
+    11,
+    "stretch_to_fit",
+    false,
+    0.02,
+    1.15,
+    0.85,
+    2.0,
+    0,
+    false
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 4,
+   "type": "SaveAudioMP3",
+   "pos": [
+    1080,
+    340
+   ],
+   "size": [
+    480,
+    200
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "link": 2
+    }
+   ],
+   "outputs": [],
+   "title": "RESULT",
+   "properties": {
+    "Node name for S&R": "SaveAudioMP3"
+   },
+   "widgets_values": [
+    "vo/f5",
+    "V0"
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 5,
+   "type": "PreviewAny",
+   "pos": [
+    1560,
+    60
+   ],
+   "size": [
+    420,
+    240
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "STRING",
+     "link": 3
+    }
+   ],
+   "outputs": [],
+   "title": "TIMING REPORT \u2014 read this",
+   "properties": {
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": [],
+   "color": "#323",
+   "bgcolor": "#535"
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   3,
+   0,
+   "TTS_ENGINE"
+  ],
+  [
+   2,
+   3,
+   0,
+   4,
+   0,
+   "AUDIO"
+  ],
+  [
+   3,
+   3,
+   2,
+   5,
+   0,
+   "STRING"
+  ]
+ ],
+ "groups": [],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.55,
+   "offset": [
+    1600,
+    700
+   ]
+  },
+  "linearMode": true,
+  "linearData": {
+   "inputs": [
+    [
+     "3",
+     "srt_content"
+    ],
+    [
+     "3",
+     "narrator_voice"
+    ],
+    [
+     "3",
+     "seed"
+    ],
+    [
+     "3",
+     "timing_mode"
+    ]
+   ],
+   "outputs": [
+    "4",
+    "5"
+   ]
+  }
+ },
+ "version": 0.4
+}
