@@ -1,0 +1,445 @@
+{
+ "2": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  },
+  "_meta": {
+   "title": "H3 reference model (ref2va)"
+  }
+ },
+ "3": {
+  "class_type": "MiniMaxH3TurboLoRA",
+  "inputs": {
+   "lora_name": "minimax_h3_turbo_4step.safetensors",
+   "strength": 1.0,
+   "low_vram": true,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "turbo LoRA (12 steps)"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "type": "minimax",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+  },
+  "_meta": {
+   "title": "video VAE"
+  }
+ },
+ "6": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "audio VAE"
+  }
+ },
+ "7": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-seth.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE 1"
+  }
+ },
+ "8": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-wilson.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE 2"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "1933 rubber-hose cartoon animation in the style of a modern mockumentary, confident black ink outlines, soft halftone shading, warm sepia and cream on aged newsprint, handheld documentary camera with a slight drift."
+  },
+  "_meta": {
+   "title": "\u25b6 LOOK"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Shot 1, two and a half seconds. An empty family living room at night; he is the only person in the room. A lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a dark v-neck t-shirt, sits alone on the sofa. The camera is beside the television at seated height, looking back at him; the television is out of frame and its light flickers on his face. He is mid-bite of a crisp. A woman (S2) says from off-screen, exasperated: <d>[English] Seth, dateline is in French again!</d> He stops chewing. He does not look into the lens."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 1"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 2, two and a half seconds, closer on the man, same side. One thing happens: his face screws up into a hard wince, eyes squeezed shut, teeth bared, shoulders hunching up around his ears. He does not look into the lens."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 2"
+  }
+ },
+ "12": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 3, three seconds, the same closer angle on the man. Nobody speaks. The wince drains away and his face settles into flat, unimpressed annoyance. Then, slowly and deliberately, keeping his head still, he swivels his eyes all the way to the left and holds them there, glaring off past the edge of the frame. He does not look into the lens."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 3"
+  }
+ },
+ "13": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 4, three seconds. A small studio room, a completely different place. A living picket-fence panel \u2014 the fence panel is his body \u2014 with two short stubby legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow under its brim, stands in profile at a wooden easel with a paintbrush raised. Beside him a tall black server rack lies on its back along a red velvet chaise longue, stretched out full length the way a person lies down on a couch, one thick cable draped over it, its row of small red status lights glowing. He turns his head to look back over his shoulder toward the left edge of the frame."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 4"
+  }
+ },
+ "14": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 5, two seconds, closer on the picket-fence character at the easel, still turned to look off to the left. One thing happens: he blinks, three slow deliberate blinks in a row."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 5"
+  }
+ },
+ "15": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 6, two seconds, a close shot of the tall black server rack still lying on its back along the red velvet chaise longue. Its row of small red status lights flares bright and hot, glowing much more strongly and pulsing, washing red light across the velvet."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 6"
+  }
+ },
+ "16": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Overall soundscape: a muffled television speaking French in another room, quiet room tone, one crisp packet rustle, a soft electrical hum. Non-diegetic music: none."
+  },
+  "_meta": {
+   "title": "\u25b6 SOUND"
+  }
+ },
+ "17": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "9",
+    0
+   ],
+   "string_b": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-1"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "17",
+    0
+   ],
+   "string_b": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-2"
+  }
+ },
+ "19": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "18",
+    0
+   ],
+   "string_b": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-3"
+  }
+ },
+ "20": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "19",
+    0
+   ],
+   "string_b": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-4"
+  }
+ },
+ "21": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "20",
+    0
+   ],
+   "string_b": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-5"
+  }
+ },
+ "22": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "21",
+    0
+   ],
+   "string_b": [
+    "15",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-6"
+  }
+ },
+ "23": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "22",
+    0
+   ],
+   "string_b": [
+    "16",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-7"
+  }
+ },
+ "24": {
+  "class_type": "MiniMaxH3ReferenceToVideo",
+  "inputs": {
+   "prompt": [
+    "23",
+    0
+   ],
+   "width": 1024,
+   "height": 576,
+   "length": 345,
+   "ref_image_size": "max",
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "audio_vae": [
+    "6",
+    0
+   ],
+   "ref_images": {
+    "ref_image_0": [
+     "7",
+     0
+    ],
+    "ref_image_1": [
+     "8",
+     0
+    ]
+   }
+  },
+  "_meta": {
+   "title": "\u25b6 LENGTH / SIZE"
+  }
+ },
+ "25": {
+  "class_type": "RandomNoise",
+  "inputs": {
+   "noise_seed": 7
+  },
+  "_meta": {
+   "title": "\u25b6 SEED"
+  }
+ },
+ "26": {
+  "class_type": "BasicGuider",
+  "inputs": {
+   "model": [
+    "3",
+    0
+   ],
+   "conditioning": [
+    "24",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "guider"
+  }
+ },
+ "27": {
+  "class_type": "KSamplerSelect",
+  "inputs": {
+   "sampler_name": "res_multistep"
+  },
+  "_meta": {
+   "title": "sampler"
+  }
+ },
+ "28": {
+  "class_type": "BasicScheduler",
+  "inputs": {
+   "scheduler": "simple",
+   "steps": 12,
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 STEPS"
+  }
+ },
+ "29": {
+  "class_type": "SamplerCustomAdvanced",
+  "inputs": {
+   "noise": [
+    "25",
+    0
+   ],
+   "guider": [
+    "26",
+    0
+   ],
+   "sampler": [
+    "27",
+    0
+   ],
+   "sigmas": [
+    "28",
+    0
+   ],
+   "latent_image": [
+    "24",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "sample"
+  }
+ },
+ "30": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "29",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode video"
+  }
+ },
+ "31": {
+  "class_type": "VAEDecodeAudio",
+  "inputs": {
+   "samples": [
+    "29",
+    0
+   ],
+   "vae": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode audio"
+  }
+ },
+ "32": {
+  "class_type": "CreateVideo",
+  "inputs": {
+   "fps": 24,
+   "bit_depth": 8,
+   "images": [
+    "30",
+    0
+   ],
+   "audio": [
+    "31",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "mux"
+  }
+ },
+ "33": {
+  "class_type": "SaveVideo",
+  "inputs": {
+   "filename_prefix": "video/h3-french-again",
+   "format": "auto",
+   "codec": "auto",
+   "video": [
+    "32",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

@@ -1,0 +1,248 @@
+{
+ "2": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "3": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "6": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-seth.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 PLATE"
+  }
+ },
+ "7": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Image 1 is the drawing to edit, and the character in image 1 is the only character in the finished picture. Redraw him exactly as he is: a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 WHO"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "He sits on a sofa at night, mid-bite of a crisp, lit by a television just out of frame to the left."
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 SHOT"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark."
+  },
+  "_meta": {
+   "title": "STYLE"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Above all, the character in the finished drawing is the character from image 1, unchanged, and he is doing exactly what the shot description says."
+  },
+  "_meta": {
+   "title": "RESTATE"
+  }
+ },
+ "11": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "7",
+    0
+   ],
+   "string_b": [
+    "8",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-1"
+  }
+ },
+ "12": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "11",
+    0
+   ],
+   "string_b": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-2"
+  }
+ },
+ "13": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "12",
+    0
+   ],
+   "string_b": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-3"
+  }
+ },
+ "14": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1152,
+   "height": 648,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "canvas"
+  }
+ },
+ "15": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "13",
+    0
+   ],
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "image1": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "positive"
+  }
+ },
+ "16": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark",
+   "clip": [
+    "4",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative"
+  }
+ },
+ "17": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 7,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ],
+   "positive": [
+    "15",
+    0
+   ],
+   "negative": [
+    "16",
+    0
+   ],
+   "latent_image": [
+    "14",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 4 \u00b7 SEED"
+  }
+ },
+ "18": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "17",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "19": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "previz/shot",
+   "images": [
+    "18",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

@@ -1,0 +1,1959 @@
+{
+ "id": "cast-local-qwen-edit",
+ "revision": 0,
+ "last_node_id": 33,
+ "last_link_id": 34,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -560,
+    -620
+   ],
+   "size": [
+    480,
+    900
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "title": "HOW TO USE \u2014 H3 storyboard (french-again)",
+   "properties": {
+    "Node name for S&R": "MarkdownNote"
+   },
+   "widgets_values": [
+    "# H3 storyboard \u2014 three shots, one beat each\n\n**The rule this exists for: a shot cannot hold more than two or three facial beats.**\nNine beats in one seven-second close-up renders a frozen face \u2014 37\u201342 dB PSNR at the emotional\npeak, and no error to tell you. The same beats across three 2\u20133 second shots measure 22\u201323 dB and\nevery one of them lands. Splitting is the mechanism; everything else below is trim.\n\n| Control | What it does |\n|---|---|\n| **LOOK** | Style and who the character is. Same every shot. |\n| **SHOT 1 / 2 / 3** | One beat each. Start each with `Cut.` and its length in seconds. |\n| **SOUND** | `Overall soundscape:` and `Non-diegetic music:` \u2014 H3's documented audio fields. |\n| **REFERENCE** | Identity reference, not frame zero. `ref_image_size: max` costs time and buys likeness. |\n| **LENGTH** | H3's 17n+5 grid. 209 = 8.71s. Leave 1.3\u20131.5s of slack past the last beat. |\n\n**Camera before expression.** If what he looks at is off-screen, H3 has him look at the lens.\nDo not fix that by adding \"he turns to face camera\" \u2014 that fights the story and the model picks\nthe story. Move the *camera* to where he is looking, then forbid looking at the lens explicitly;\n\"look beside the lens\" and \"look at the lens\" are near-identical to the model.\n\n**Dialogue steals frames.** A `<d>` line pulls frames toward its shot and away from the one after\nit \u2014 55\u219284 on the line's shot, 56\u219242 on the next, and at 42 a background character vanished\noutright. Put the line on the LAST shot so the squeeze has nowhere to land.\n\n**Beats after a spoken line go in the next shot.** H3 treats a whole shot as \"this person is\ntalking\" and will not close the mouth partway through for a blink or a swallow.\n\n**Check the tail.** H3 degrades into noise blocks in the final 1.2\u20131.7s, and it is easy to miss\nwhen scrubbing a dark scene. Pull the last frames and look.\n"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "UNETLoader",
+   "pos": [
+    -60,
+    -180
+   ],
+   "size": [
+    420,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "title": "H3 reference model (ref2va)",
+   "properties": {
+    "Node name for S&R": "UNETLoader"
+   },
+   "widgets_values": [
+    "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+    "default"
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 3,
+   "type": "MiniMaxH3TurboLoRA",
+   "pos": [
+    -60,
+    -130
+   ],
+   "size": [
+    420,
+    140
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      20,
+      22
+     ]
+    }
+   ],
+   "title": "turbo LoRA (12 steps)",
+   "properties": {
+    "Node name for S&R": "MiniMaxH3TurboLoRA"
+   },
+   "widgets_values": [
+    "minimax_h3_turbo_4step.safetensors",
+    1.0,
+    true
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 4,
+   "type": "CLIPLoader",
+   "pos": [
+    -60,
+    -80
+   ],
+   "size": [
+    420,
+    130
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      17
+     ]
+    }
+   ],
+   "title": "text encoder",
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "minimax",
+    "default"
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 5,
+   "type": "VAELoader",
+   "pos": [
+    -60,
+    -30
+   ],
+   "size": [
+    420,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      18,
+      29
+     ]
+    }
+   ],
+   "title": "video VAE",
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "minimax_h3_video_vae_fp16.safetensors"
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 6,
+   "type": "VAELoader",
+   "pos": [
+    -60,
+    20
+   ],
+   "size": [
+    420,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      19,
+      31
+     ]
+    }
+   ],
+   "title": "audio VAE",
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "minimax_h3_audio_vae_fp32.safetensors"
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  },
+  {
+   "id": 7,
+   "type": "LoadImage",
+   "pos": [
+    -60,
+    100
+   ],
+   "size": [
+    400,
+    320
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": null
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "\u25b6 REFERENCE 1",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "rubberhose-kf-seth.png",
+    "image"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 8,
+   "type": "LoadImage",
+   "pos": [
+    -60,
+    460
+   ],
+   "size": [
+    400,
+    320
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "localized_name": "image",
+     "type": "COMBO",
+     "widget": {
+      "name": "image"
+     },
+     "link": null
+    },
+    {
+     "name": "upload",
+     "localized_name": "choose file to upload",
+     "type": "IMAGEUPLOAD",
+     "widget": {
+      "name": "upload"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": null
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": null
+    }
+   ],
+   "title": "\u25b6 REFERENCE 2",
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "rubberhose-kf-wilson.png",
+    "image"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    60
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      2
+     ]
+    }
+   ],
+   "title": "\u25b6 LOOK",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "1933 rubber-hose cartoon animation in the style of a modern mockumentary, confident black ink outlines, soft halftone shading, warm sepia and cream on aged newsprint, handheld documentary camera with a slight drift."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 10,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    310
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      3
+     ]
+    }
+   ],
+   "title": "\u25b6 SHOT 1",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Shot 1, two and a half seconds. An empty family living room at night; he is the only person in the room. A lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a dark v-neck t-shirt, sits alone on the sofa. The camera is beside the television at seated height, looking back at him; the television is out of frame and its light flickers on his face. He is mid-bite of a crisp. A woman (S2) says from off-screen, exasperated: <d>[English] Seth, dateline is in French again!</d> He stops chewing. He does not look into the lens."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 11,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    560
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      5
+     ]
+    }
+   ],
+   "title": "\u25b6 SHOT 2",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Cut. Shot 2, two and a half seconds, closer on the man, same side. One thing happens: his face screws up into a hard wince, eyes squeezed shut, teeth bared, shoulders hunching up around his ears. He does not look into the lens."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 12,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    810
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      7
+     ]
+    }
+   ],
+   "title": "\u25b6 SHOT 3",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Cut. Shot 3, three seconds, the same closer angle on the man. Nobody speaks. The wince drains away and his face settles into flat, unimpressed annoyance. Then, slowly and deliberately, keeping his head still, he swivels his eyes all the way to the left and holds them there, glaring off past the edge of the frame. He does not look into the lens."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 13,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    1060
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      9
+     ]
+    }
+   ],
+   "title": "\u25b6 SHOT 4",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Cut. Shot 4, three seconds. A small studio room, a completely different place. A living picket-fence panel \u2014 the fence panel is his body \u2014 with two short stubby legs in heavy black boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow under its brim, stands in profile at a wooden easel with a paintbrush raised. Beside him a tall black server rack lies on its back along a red velvet chaise longue, stretched out full length the way a person lies down on a couch, one thick cable draped over it, its row of small red status lights glowing. He turns his head to look back over his shoulder toward the left edge of the frame."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 14,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    1310
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      11
+     ]
+    }
+   ],
+   "title": "\u25b6 SHOT 5",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Cut. Shot 5, two seconds, closer on the picket-fence character at the easel, still turned to look off to the left. One thing happens: he blinks, three slow deliberate blinks in a row."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 15,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    1560
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      13
+     ]
+    }
+   ],
+   "title": "\u25b6 SHOT 6",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Cut. Shot 6, two seconds, a close shot of the tall black server rack still lying on its back along the red velvet chaise longue. Its row of small red status lights flares bright and hot, glowing much more strongly and pulsing, washing red light across the velvet."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 16,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    1810
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      15
+     ]
+    }
+   ],
+   "title": "\u25b6 SOUND",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Overall soundscape: a muffled television speaking French in another room, quiet room tone, one crisp packet rustle, a soft electrical hum. Non-diegetic music: none."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 17,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    60
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 2,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 3,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      4
+     ]
+    }
+   ],
+   "title": "join-1",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 18,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    120
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 4,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 5,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      6
+     ]
+    }
+   ],
+   "title": "join-2",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 19,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    180
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 6,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 7,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      8
+     ]
+    }
+   ],
+   "title": "join-3",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 20,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    240
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 8,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 9,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "title": "join-4",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 21,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    300
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 10,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 11,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "title": "join-5",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 22,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    360
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 12,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 13,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      14
+     ]
+    }
+   ],
+   "title": "join-6",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 23,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    420
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 14,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 15,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      16
+     ]
+    }
+   ],
+   "title": "join-7",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 24,
+   "type": "MiniMaxH3ReferenceToVideo",
+   "pos": [
+    1340,
+    60
+   ],
+   "size": [
+    440,
+    280
+   ],
+   "flags": {},
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "prompt",
+     "type": "STRING",
+     "link": 16,
+     "widget": {
+      "name": "prompt"
+     }
+    },
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 17
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 18
+    },
+    {
+     "name": "audio_vae",
+     "type": "VAE",
+     "link": 19
+    },
+    {
+     "name": "width",
+     "localized_name": "width",
+     "type": "INT",
+     "widget": {
+      "name": "width"
+     },
+     "link": null
+    },
+    {
+     "name": "height",
+     "localized_name": "height",
+     "type": "INT",
+     "widget": {
+      "name": "height"
+     },
+     "link": null
+    },
+    {
+     "name": "length",
+     "localized_name": "length",
+     "type": "INT",
+     "widget": {
+      "name": "length"
+     },
+     "link": null
+    },
+    {
+     "name": "ref_image_size",
+     "localized_name": "ref_image_size",
+     "type": "COMBO",
+     "widget": {
+      "name": "ref_image_size"
+     },
+     "link": null
+    },
+    {
+     "name": "ref_images",
+     "type": "COMFY_AUTOGROW_V3",
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "links": [
+      21
+     ]
+    },
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      27
+     ]
+    }
+   ],
+   "title": "\u25b6 LENGTH / SIZE",
+   "properties": {
+    "Node name for S&R": "MiniMaxH3ReferenceToVideo"
+   },
+   "widgets_values": [
+    "",
+    1024,
+    576,
+    345,
+    "max"
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 25,
+   "type": "RandomNoise",
+   "pos": [
+    1340,
+    360
+   ],
+   "size": [
+    400,
+    130
+   ],
+   "flags": {},
+   "order": 25,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "noise_seed",
+     "localized_name": "noise_seed",
+     "type": "INT",
+     "widget": {
+      "name": "noise_seed"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "NOISE",
+     "type": "NOISE",
+     "links": [
+      23
+     ]
+    }
+   ],
+   "title": "\u25b6 SEED",
+   "properties": {
+    "Node name for S&R": "RandomNoise"
+   },
+   "widgets_values": [
+    7
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 26,
+   "type": "BasicGuider",
+   "pos": [
+    1340,
+    500
+   ],
+   "size": [
+    320,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 26,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 20
+    },
+    {
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 21
+    }
+   ],
+   "outputs": [
+    {
+     "name": "GUIDER",
+     "type": "GUIDER",
+     "links": [
+      24
+     ]
+    }
+   ],
+   "title": "guider",
+   "properties": {
+    "Node name for S&R": "BasicGuider"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 27,
+   "type": "KSamplerSelect",
+   "pos": [
+    1340,
+    560
+   ],
+   "size": [
+    320,
+    80
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 27,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "SAMPLER",
+     "type": "SAMPLER",
+     "links": [
+      25
+     ]
+    }
+   ],
+   "title": "sampler",
+   "properties": {
+    "Node name for S&R": "KSamplerSelect"
+   },
+   "widgets_values": [
+    "res_multistep"
+   ]
+  },
+  {
+   "id": 28,
+   "type": "BasicScheduler",
+   "pos": [
+    1340,
+    620
+   ],
+   "size": [
+    400,
+    160
+   ],
+   "flags": {},
+   "order": 28,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 22
+    },
+    {
+     "name": "scheduler",
+     "localized_name": "scheduler",
+     "type": "COMBO",
+     "widget": {
+      "name": "scheduler"
+     },
+     "link": null
+    },
+    {
+     "name": "steps",
+     "localized_name": "steps",
+     "type": "INT",
+     "widget": {
+      "name": "steps"
+     },
+     "link": null
+    },
+    {
+     "name": "denoise",
+     "localized_name": "denoise",
+     "type": "FLOAT",
+     "widget": {
+      "name": "denoise"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "SIGMAS",
+     "type": "SIGMAS",
+     "links": [
+      26
+     ]
+    }
+   ],
+   "title": "\u25b6 STEPS",
+   "properties": {
+    "Node name for S&R": "BasicScheduler"
+   },
+   "widgets_values": [
+    "simple",
+    12,
+    1.0
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 29,
+   "type": "SamplerCustomAdvanced",
+   "pos": [
+    1340,
+    800
+   ],
+   "size": [
+    340,
+    100
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 29,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "noise",
+     "type": "NOISE",
+     "link": 23
+    },
+    {
+     "name": "guider",
+     "type": "GUIDER",
+     "link": 24
+    },
+    {
+     "name": "sampler",
+     "type": "SAMPLER",
+     "link": 25
+    },
+    {
+     "name": "sigmas",
+     "type": "SIGMAS",
+     "link": 26
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 27
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "LATENT",
+     "links": [
+      28,
+      30
+     ]
+    },
+    {
+     "name": "denoised_output",
+     "type": "LATENT",
+     "links": null
+    }
+   ],
+   "title": "sample",
+   "properties": {
+    "Node name for S&R": "SamplerCustomAdvanced"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 30,
+   "type": "VAEDecode",
+   "pos": [
+    1780,
+    60
+   ],
+   "size": [
+    300,
+    60
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 30,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 28
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 29
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      32
+     ]
+    }
+   ],
+   "title": "decode video",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 31,
+   "type": "VAEDecodeAudio",
+   "pos": [
+    1780,
+    120
+   ],
+   "size": [
+    300,
+    60
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 31,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 30
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 31
+    }
+   ],
+   "outputs": [
+    {
+     "name": "AUDIO",
+     "type": "AUDIO",
+     "links": [
+      33
+     ]
+    }
+   ],
+   "title": "decode audio",
+   "properties": {
+    "Node name for S&R": "VAEDecodeAudio"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 32,
+   "type": "CreateVideo",
+   "pos": [
+    1780,
+    180
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 32,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 32
+    },
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "link": 33
+    }
+   ],
+   "outputs": [
+    {
+     "name": "VIDEO",
+     "type": "VIDEO",
+     "links": [
+      34
+     ]
+    }
+   ],
+   "title": "mux",
+   "properties": {
+    "Node name for S&R": "CreateVideo"
+   },
+   "widgets_values": [
+    24,
+    8
+   ]
+  },
+  {
+   "id": 33,
+   "type": "SaveVideo",
+   "pos": [
+    1780,
+    300
+   ],
+   "size": [
+    520,
+    420
+   ],
+   "flags": {},
+   "order": 33,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "video",
+     "type": "VIDEO",
+     "link": 34
+    }
+   ],
+   "outputs": [],
+   "title": "RESULT",
+   "properties": {
+    "Node name for S&R": "SaveVideo"
+   },
+   "widgets_values": [
+    "video/h3-french-again",
+    "auto",
+    "auto"
+   ],
+   "color": "#323",
+   "bgcolor": "#535"
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   3,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   9,
+   0,
+   17,
+   0,
+   "STRING"
+  ],
+  [
+   3,
+   10,
+   0,
+   17,
+   1,
+   "STRING"
+  ],
+  [
+   4,
+   17,
+   0,
+   18,
+   0,
+   "STRING"
+  ],
+  [
+   5,
+   11,
+   0,
+   18,
+   1,
+   "STRING"
+  ],
+  [
+   6,
+   18,
+   0,
+   19,
+   0,
+   "STRING"
+  ],
+  [
+   7,
+   12,
+   0,
+   19,
+   1,
+   "STRING"
+  ],
+  [
+   8,
+   19,
+   0,
+   20,
+   0,
+   "STRING"
+  ],
+  [
+   9,
+   13,
+   0,
+   20,
+   1,
+   "STRING"
+  ],
+  [
+   10,
+   20,
+   0,
+   21,
+   0,
+   "STRING"
+  ],
+  [
+   11,
+   14,
+   0,
+   21,
+   1,
+   "STRING"
+  ],
+  [
+   12,
+   21,
+   0,
+   22,
+   0,
+   "STRING"
+  ],
+  [
+   13,
+   15,
+   0,
+   22,
+   1,
+   "STRING"
+  ],
+  [
+   14,
+   22,
+   0,
+   23,
+   0,
+   "STRING"
+  ],
+  [
+   15,
+   16,
+   0,
+   23,
+   1,
+   "STRING"
+  ],
+  [
+   16,
+   23,
+   0,
+   24,
+   0,
+   "STRING"
+  ],
+  [
+   17,
+   4,
+   0,
+   24,
+   1,
+   "CLIP"
+  ],
+  [
+   18,
+   5,
+   0,
+   24,
+   2,
+   "VAE"
+  ],
+  [
+   19,
+   6,
+   0,
+   24,
+   3,
+   "VAE"
+  ],
+  [
+   20,
+   3,
+   0,
+   26,
+   0,
+   "MODEL"
+  ],
+  [
+   21,
+   24,
+   0,
+   26,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   22,
+   3,
+   0,
+   28,
+   0,
+   "MODEL"
+  ],
+  [
+   23,
+   25,
+   0,
+   29,
+   0,
+   "NOISE"
+  ],
+  [
+   24,
+   26,
+   0,
+   29,
+   1,
+   "GUIDER"
+  ],
+  [
+   25,
+   27,
+   0,
+   29,
+   2,
+   "SAMPLER"
+  ],
+  [
+   26,
+   28,
+   0,
+   29,
+   3,
+   "SIGMAS"
+  ],
+  [
+   27,
+   24,
+   1,
+   29,
+   4,
+   "LATENT"
+  ],
+  [
+   28,
+   29,
+   0,
+   30,
+   0,
+   "LATENT"
+  ],
+  [
+   29,
+   5,
+   0,
+   30,
+   1,
+   "VAE"
+  ],
+  [
+   30,
+   29,
+   0,
+   31,
+   0,
+   "LATENT"
+  ],
+  [
+   31,
+   6,
+   0,
+   31,
+   1,
+   "VAE"
+  ],
+  [
+   32,
+   30,
+   0,
+   32,
+   0,
+   "IMAGE"
+  ],
+  [
+   33,
+   31,
+   0,
+   32,
+   1,
+   "AUDIO"
+  ],
+  [
+   34,
+   32,
+   0,
+   33,
+   0,
+   "VIDEO"
+  ]
+ ],
+ "groups": [],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.55,
+   "offset": [
+    1600,
+    700
+   ]
+  },
+  "linearMode": true,
+  "linearData": {
+   "inputs": [
+    [
+     "7",
+     "image"
+    ],
+    [
+     "7",
+     "upload"
+    ],
+    [
+     "8",
+     "image"
+    ],
+    [
+     "8",
+     "upload"
+    ],
+    [
+     "9",
+     "value"
+    ],
+    [
+     "10",
+     "value"
+    ],
+    [
+     "11",
+     "value"
+    ],
+    [
+     "12",
+     "value"
+    ],
+    [
+     "13",
+     "value"
+    ],
+    [
+     "14",
+     "value"
+    ],
+    [
+     "15",
+     "value"
+    ],
+    [
+     "16",
+     "value"
+    ],
+    [
+     "24",
+     "length"
+    ],
+    [
+     "24",
+     "width"
+    ],
+    [
+     "24",
+     "height"
+    ],
+    [
+     "24",
+     "ref_image_size"
+    ],
+    [
+     "25",
+     "noise_seed"
+    ],
+    [
+     "28",
+     "steps"
+    ]
+   ],
+   "outputs": [
+    "33"
+   ]
+  }
+ },
+ "version": 0.4
+}

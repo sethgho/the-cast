@@ -124,7 +124,8 @@ when scrubbing a dark scene. Pull the last frames and look.
 # rations BEATS, not shots, so four short shots is as valid as three.
 
 STORYBOARDS = {
-    "deploy": (1152, 640, 209, LOOK, [SHOT1, SHOT2, SHOT3], SOUND),
+    # (w, h, length, look, [shots], sound, [reference plates])
+    "deploy": (1152, 640, 209, LOOK, [SHOT1, SHOT2, SHOT3], SOUND, [PLATE]),
 }
 
 # The Office: cold open, escalation, deadpan hold, confessional button.
@@ -166,11 +167,61 @@ OFFICE = [
 OFFICE_SOUND = ("Overall soundscape: a muffled television in another language, a room tone, one "
                 "crisp packet rustle. Non-diegetic music: none.")
 
-STORYBOARDS["office"] = (1024, 576, 294, OFFICE_LOOK, OFFICE, OFFICE_SOUND)
+STORYBOARDS["office"] = (1024, 576, 294, OFFICE_LOOK, OFFICE, OFFICE_SOUND, [PLATE])
+
+
+# "French Again": the family finds the shows dubbed wrong, Seth blames Wilson without a word, and
+# Wilson is caught mid-portrait of his server rack posed like the drawing scene in Titanic.
+#
+# Two fixes came out of the Qwen previz (http://wilson/previz-french/), and neither would have
+# shown up in the text:
+#   - "a family living room" invented four extra people on the sofa. The room is now stated EMPTY.
+#   - "the rack reclines on the chaise" drew it standing beside the couch every time. It is now
+#     spelled out as lying on its back along the chaise the way a person lies on a couch.
+# The previz's other three failures were Qwen re-posing the character for a shot whose only
+# content is a small movement, which is a single-image-edit problem H3 does not have.
+FRENCH_LOOK = ("1933 rubber-hose cartoon animation in the style of a modern mockumentary, "
+               "confident black ink outlines, soft halftone shading, warm sepia and cream on aged "
+               "newsprint, handheld documentary camera with a slight drift.")
+FRENCH = [
+    ("Shot 1, two and a half seconds. An empty family living room at night; he is the only person "
+     "in the room. A lanky cartoon man with long wavy shoulder-length brown hair and a bushy "
+     "handlebar moustache, in a dark v-neck t-shirt, sits alone on the sofa. The camera is beside "
+     "the television at seated height, looking back at him; the television is out of frame and its "
+     "light flickers on his face. He is mid-bite of a crisp. A woman (S2) says from off-screen, "
+     "exasperated: <d>[English] Seth, dateline is in French again!</d> He stops chewing. He does "
+     "not look into the lens."),
+    ("Cut. Shot 2, two and a half seconds, closer on the man, same side. One thing happens: his "
+     "face screws up into a hard wince, eyes squeezed shut, teeth bared, shoulders hunching up "
+     "around his ears. He does not look into the lens."),
+    ("Cut. Shot 3, three seconds, the same closer angle on the man. Nobody speaks. The wince "
+     "drains away and his face settles into flat, unimpressed annoyance. Then, slowly and "
+     "deliberately, keeping his head still, he swivels his eyes all the way to the left and holds "
+     "them there, glaring off past the edge of the frame. He does not look into the lens."),
+    ("Cut. Shot 4, three seconds. A small studio room, a completely different place. A living "
+     "picket-fence panel — the fence panel is his body — with two short stubby legs in heavy black "
+     "boots, a floppy bucket hat on top and two cartoon eyes floating in the shadow under its "
+     "brim, stands in profile at a wooden easel with a paintbrush raised. Beside him a tall black "
+     "server rack lies on its back along a red velvet chaise longue, stretched out full length the "
+     "way a person lies down on a couch, one thick cable draped over it, its row of small red "
+     "status lights glowing. He turns his head to look back over his shoulder toward the left edge "
+     "of the frame."),
+    ("Cut. Shot 5, two seconds, closer on the picket-fence character at the easel, still turned to "
+     "look off to the left. One thing happens: he blinks, three slow deliberate blinks in a row."),
+    ("Cut. Shot 6, two seconds, a close shot of the tall black server rack still lying on its back "
+     "along the red velvet chaise longue. Its row of small red status lights flares bright and "
+     "hot, glowing much more strongly and pulsing, washing red light across the velvet."),
+]
+FRENCH_SOUND = ("Overall soundscape: a muffled television speaking French in another room, quiet "
+                "room tone, one crisp packet rustle, a soft electrical hum. Non-diegetic music: "
+                "none.")
+
+STORYBOARDS["french-again"] = (1024, 576, 345, FRENCH_LOOK, FRENCH, FRENCH_SOUND,
+                               ["rubberhose-kf-seth.png", "rubberhose-kf-wilson.png"])
 
 
 def build(name="deploy"):
-    w, h, length, look, shots, sound = STORYBOARDS[name]
+    w, h, length, look, shots, sound, plates = STORYBOARDS[name]
     g = Graph()
     note(g, f"HOW TO USE — H3 storyboard ({name})", HOW_TO)
 
@@ -190,10 +241,17 @@ def build(name="deploy"):
     avae = g.add("VAELoader", "audio VAE", (-60, 20), (420, 80), {"vae_name": H3_AUDIO_VAE},
                  outputs=[("VAE", "VAE")], color=GREY, collapsed=True)
 
-    plate = g.add("LoadImage", "▶ REFERENCE", (-60, 100), (400, 320),
-                  {"image": PLATE, "upload": "image"},
+    # One reference per character. They never share a frame in these boards, which is the safe
+    # way to use more than one: a second character inside a single shot merges both into one
+    # creature. Ref2VA accepts up to nine.
+    plate_nodes = []
+    for i, pl in enumerate(plates):
+        n = g.add("LoadImage", f"▶ REFERENCE {i+1}", (-60, 100 + i * 360), (400, 320),
+                  {"image": pl, "upload": "image"},
                   outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")], color=BLUE)
-    g.app_input(plate, "image", "upload")
+        g.app_input(n, "image", "upload")
+        plate_nodes.append(n)
+    plate = plate_nodes[0]
 
     fields = [("▶ LOOK", look)]
     fields += [(f"▶ SHOT {i+1}", t) for i, t in enumerate(shots)]
@@ -223,7 +281,8 @@ def build(name="deploy"):
     # Autogrow: the reference arrives as ONE dict, not as a flat ref_image_0 key. Validation
     # accepts the flat form and execution then rejects it, so this only fails at run time.
     cond["inputs"].append({"name": "ref_images", "type": "COMFY_AUTOGROW_V3", "link": None})
-    cond["_autogrow"] = {"ref_images": {"ref_image_0": (plate, 0)}}
+    cond["_autogrow"] = {"ref_images": {f"ref_image_{i}": (n, 0)
+                                        for i, n in enumerate(plate_nodes)}}
 
     noise = g.add("RandomNoise", "▶ SEED", (1340, 360), (400, 130), {"noise_seed": SEED},
                   outputs=[("NOISE", "NOISE")], color=GREEN)
@@ -267,8 +326,8 @@ if __name__ == "__main__":
     # to_api() cannot express an autogrow socket; patch it on after serialisation.
     for nid, n in api.items():
         if n["class_type"] == "MiniMaxH3ReferenceToVideo":
-            n["inputs"]["ref_images"] = {"ref_image_0": [
-                next(k for k, v in api.items() if v["class_type"] == "LoadImage"), 0]}
+            loads = [k for k, v in api.items() if v["class_type"] == "LoadImage"]
+            n["inputs"]["ref_images"] = {f"ref_image_{i}": [k, 0] for i, k in enumerate(loads)}
     for path, blob in ((os.path.join(HERE, "workflows", f"h3-storyboard-{name}.json"), ui),
                        (os.path.join(HERE, "workflows", f"h3-storyboard-{name}.app.json"), ui),
                        (os.path.join(HERE, "api", f"h3-storyboard-{name}.api.json"), api)):
