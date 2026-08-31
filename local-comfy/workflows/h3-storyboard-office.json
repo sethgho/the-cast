@@ -1,8 +1,8 @@
 {
  "id": "cast-local-qwen-edit",
  "revision": 0,
- "last_node_id": 26,
- "last_link_id": 28,
+ "last_node_id": 28,
+ "last_link_id": 30,
  "nodes": [
   {
    "id": 1,
@@ -20,7 +20,7 @@
    "mode": 0,
    "inputs": [],
    "outputs": [],
-   "title": "HOW TO USE \u2014 H3 storyboard",
+   "title": "HOW TO USE \u2014 H3 storyboard (office)",
    "properties": {
     "Node name for S&R": "MarkdownNote"
    },
@@ -93,8 +93,8 @@
      "name": "MODEL",
      "type": "MODEL",
      "links": [
-      14,
-      16
+      16,
+      18
      ]
     }
    ],
@@ -132,7 +132,7 @@
      "name": "CLIP",
      "type": "CLIP",
      "links": [
-      11
+      13
      ]
     }
    ],
@@ -170,8 +170,8 @@
      "name": "VAE",
      "type": "VAE",
      "links": [
-      12,
-      23
+      14,
+      25
      ]
     }
    ],
@@ -207,8 +207,8 @@
      "name": "VAE",
      "type": "VAE",
      "links": [
-      13,
-      25
+      15,
+      27
      ]
     }
    ],
@@ -318,7 +318,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "1933 rubber-hose cartoon animation, confident black ink outlines, soft halftone shading, warm sepia and cream on aged newsprint. A lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, in a dark v-neck t-shirt, at a cluttered desk in a small workshop."
+    "1933 rubber-hose cartoon animation in the style of a modern mockumentary, confident black ink outlines, soft halftone shading, warm sepia and cream on aged newsprint, handheld documentary camera with a slight drift. A lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, in a dark v-neck t-shirt."
    ],
    "color": "#232",
    "bgcolor": "#353"
@@ -362,7 +362,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "Shot 1, two and a half seconds. The camera is beside the monitor, at screen height, looking back at him across the desk; the screen itself is out of frame. He is slumped, watching it. His eyes widen and his eyebrows shoot up as the light on his face turns hard red. He does not look into the lens."
+    "Shot 1, three seconds. A family living room at night. The camera is beside the television, at seated height, looking back across the room at the man on the sofa; the television is out of frame and its light flickers on his face. He is mid-bite of a crisp. A woman (S2) says from off-screen, exasperated: <d>[English] Seth. It is in German. Again.</d> He stops chewing. He does not look into the lens."
    ],
    "color": "#232",
    "bgcolor": "#353"
@@ -406,7 +406,7 @@
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "Cut. Shot 2, two and a half seconds, a closer low angle from the desk surface looking up at him. One thing happens: his shoulders drop, he lets out a long breath and drags one hand down over his face. He does not look into the lens."
+    "Cut. Shot 2, two and a half seconds, closer, still beside the television. One thing happens: he raises both hands in a helpless shrug, palms open, eyebrows high, and holds it. He does not look into the lens."
    ],
    "color": "#232",
    "bgcolor": "#353"
@@ -445,12 +445,12 @@
      ]
     }
    ],
-   "title": "\u25b6 SHOT 3 (carries the line)",
+   "title": "\u25b6 SHOT 3",
    "properties": {
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "Cut. Shot 3, three and a half seconds, back to the wide shot beside the monitor. The red light on his face turns green. He sits up, and a broad delighted grin spreads across his face. He (S1) says: <d>[English] Oh, thank goodness.</d> He does not look into the lens."
+    "Cut. Shot 3, two and a half seconds, the same closer angle. Nobody speaks. His hands come slowly down. His face settles into a flat, cornered stare directed just past the camera, and holds there. He does not look into the lens."
    ],
    "color": "#232",
    "bgcolor": "#353"
@@ -489,18 +489,62 @@
      ]
     }
    ],
-   "title": "\u25b6 SOUND",
+   "title": "\u25b6 SHOT 4",
    "properties": {
     "Node name for S&R": "PrimitiveStringMultiline"
    },
    "widgets_values": [
-    "Overall soundscape: a quiet workshop, a desk fan, one soft electronic chime. Non-diegetic music: none."
+    "Cut. Shot 4, four seconds. A talking-head confessional: he sits alone against a plain wall in even flat light, framed centre, and looks straight down the barrel of the lens directly into the camera. He holds the look for a moment, entirely deadpan, then gives one small shrug. He (S1) says, flatly, straight to camera: <d>[English] That is Wilson's department.</d>"
    ],
    "color": "#232",
    "bgcolor": "#353"
   },
   {
    "id": 13,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    420,
+    1310
+   ],
+   "size": [
+    460,
+    220
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "value",
+     "localized_name": "value",
+     "type": "STRING",
+     "widget": {
+      "name": "value"
+     },
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      11
+     ]
+    }
+   ],
+   "title": "\u25b6 SOUND",
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "Overall soundscape: a muffled television in another language, a room tone, one crisp packet rustle. Non-diegetic music: none."
+   ],
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 14,
    "type": "StringConcatenate",
    "pos": [
     920,
@@ -513,7 +557,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 13,
+   "order": 14,
    "mode": 0,
    "inputs": [
     {
@@ -553,7 +597,7 @@
    ]
   },
   {
-   "id": 14,
+   "id": 15,
    "type": "StringConcatenate",
    "pos": [
     920,
@@ -566,7 +610,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 14,
+   "order": 15,
    "mode": 0,
    "inputs": [
     {
@@ -606,7 +650,7 @@
    ]
   },
   {
-   "id": 15,
+   "id": 16,
    "type": "StringConcatenate",
    "pos": [
     920,
@@ -619,7 +663,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 15,
+   "order": 16,
    "mode": 0,
    "inputs": [
     {
@@ -659,7 +703,7 @@
    ]
   },
   {
-   "id": 16,
+   "id": 17,
    "type": "StringConcatenate",
    "pos": [
     920,
@@ -672,7 +716,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 16,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
@@ -712,7 +756,60 @@
    ]
   },
   {
-   "id": 17,
+   "id": 18,
+   "type": "StringConcatenate",
+   "pos": [
+    920,
+    300
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "string_a",
+     "type": "STRING",
+     "link": 10,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "name": "string_b",
+     "type": "STRING",
+     "link": 11,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "title": "join-5",
+   "properties": {
+    "Node name for S&R": "StringConcatenate"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 19,
    "type": "MiniMaxH3ReferenceToVideo",
    "pos": [
     1340,
@@ -723,13 +820,13 @@
     280
    ],
    "flags": {},
-   "order": 17,
+   "order": 19,
    "mode": 0,
    "inputs": [
     {
      "name": "prompt",
      "type": "STRING",
-     "link": 10,
+     "link": 12,
      "widget": {
       "name": "prompt"
      }
@@ -737,17 +834,17 @@
     {
      "name": "clip",
      "type": "CLIP",
-     "link": 11
+     "link": 13
     },
     {
      "name": "vae",
      "type": "VAE",
-     "link": 12
+     "link": 14
     },
     {
      "name": "audio_vae",
      "type": "VAE",
-     "link": 13
+     "link": 15
     },
     {
      "name": "width",
@@ -796,14 +893,14 @@
      "name": "positive",
      "type": "CONDITIONING",
      "links": [
-      15
+      17
      ]
     },
     {
      "name": "LATENT",
      "type": "LATENT",
      "links": [
-      21
+      23
      ]
     }
    ],
@@ -813,16 +910,16 @@
    },
    "widgets_values": [
     "",
-    1152,
-    640,
-    209,
+    1024,
+    576,
+    294,
     "max"
    ],
    "color": "#223",
    "bgcolor": "#335"
   },
   {
-   "id": 18,
+   "id": 20,
    "type": "RandomNoise",
    "pos": [
     1340,
@@ -833,7 +930,7 @@
     130
    ],
    "flags": {},
-   "order": 18,
+   "order": 20,
    "mode": 0,
    "inputs": [
     {
@@ -851,7 +948,7 @@
      "name": "NOISE",
      "type": "NOISE",
      "links": [
-      17
+      19
      ]
     }
    ],
@@ -866,7 +963,7 @@
    "bgcolor": "#353"
   },
   {
-   "id": 19,
+   "id": 21,
    "type": "BasicGuider",
    "pos": [
     1340,
@@ -879,18 +976,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 19,
+   "order": 21,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 14
+     "link": 16
     },
     {
      "name": "conditioning",
      "type": "CONDITIONING",
-     "link": 15
+     "link": 17
     }
    ],
    "outputs": [
@@ -898,7 +995,7 @@
      "name": "GUIDER",
      "type": "GUIDER",
      "links": [
-      18
+      20
      ]
     }
    ],
@@ -909,7 +1006,7 @@
    "widgets_values": []
   },
   {
-   "id": 20,
+   "id": 22,
    "type": "KSamplerSelect",
    "pos": [
     1340,
@@ -922,7 +1019,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 20,
+   "order": 22,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -930,7 +1027,7 @@
      "name": "SAMPLER",
      "type": "SAMPLER",
      "links": [
-      19
+      21
      ]
     }
    ],
@@ -943,7 +1040,7 @@
    ]
   },
   {
-   "id": 21,
+   "id": 23,
    "type": "BasicScheduler",
    "pos": [
     1340,
@@ -954,13 +1051,13 @@
     160
    ],
    "flags": {},
-   "order": 21,
+   "order": 23,
    "mode": 0,
    "inputs": [
     {
      "name": "model",
      "type": "MODEL",
-     "link": 16
+     "link": 18
     },
     {
      "name": "scheduler",
@@ -995,7 +1092,7 @@
      "name": "SIGMAS",
      "type": "SIGMAS",
      "links": [
-      20
+      22
      ]
     }
    ],
@@ -1012,7 +1109,7 @@
    "bgcolor": "#353"
   },
   {
-   "id": 22,
+   "id": 24,
    "type": "SamplerCustomAdvanced",
    "pos": [
     1340,
@@ -1025,33 +1122,33 @@
    "flags": {
     "collapsed": true
    },
-   "order": 22,
+   "order": 24,
    "mode": 0,
    "inputs": [
     {
      "name": "noise",
      "type": "NOISE",
-     "link": 17
+     "link": 19
     },
     {
      "name": "guider",
      "type": "GUIDER",
-     "link": 18
+     "link": 20
     },
     {
      "name": "sampler",
      "type": "SAMPLER",
-     "link": 19
+     "link": 21
     },
     {
      "name": "sigmas",
      "type": "SIGMAS",
-     "link": 20
+     "link": 22
     },
     {
      "name": "latent_image",
      "type": "LATENT",
-     "link": 21
+     "link": 23
     }
    ],
    "outputs": [
@@ -1059,8 +1156,8 @@
      "name": "output",
      "type": "LATENT",
      "links": [
-      22,
-      24
+      24,
+      26
      ]
     },
     {
@@ -1076,7 +1173,7 @@
    "widgets_values": []
   },
   {
-   "id": 23,
+   "id": 25,
    "type": "VAEDecode",
    "pos": [
     1780,
@@ -1089,50 +1186,7 @@
    "flags": {
     "collapsed": true
    },
-   "order": 23,
-   "mode": 0,
-   "inputs": [
-    {
-     "name": "samples",
-     "type": "LATENT",
-     "link": 22
-    },
-    {
-     "name": "vae",
-     "type": "VAE",
-     "link": 23
-    }
-   ],
-   "outputs": [
-    {
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "links": [
-      26
-     ]
-    }
-   ],
-   "title": "decode video",
-   "properties": {
-    "Node name for S&R": "VAEDecode"
-   },
-   "widgets_values": []
-  },
-  {
-   "id": 24,
-   "type": "VAEDecodeAudio",
-   "pos": [
-    1780,
-    120
-   ],
-   "size": [
-    300,
-    60
-   ],
-   "flags": {
-    "collapsed": true
-   },
-   "order": 24,
+   "order": 25,
    "mode": 0,
    "inputs": [
     {
@@ -1148,10 +1202,53 @@
    ],
    "outputs": [
     {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      28
+     ]
+    }
+   ],
+   "title": "decode video",
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 26,
+   "type": "VAEDecodeAudio",
+   "pos": [
+    1780,
+    120
+   ],
+   "size": [
+    300,
+    60
+   ],
+   "flags": {
+    "collapsed": true
+   },
+   "order": 26,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 26
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 27
+    }
+   ],
+   "outputs": [
+    {
      "name": "AUDIO",
      "type": "AUDIO",
      "links": [
-      27
+      29
      ]
     }
    ],
@@ -1162,7 +1259,7 @@
    "widgets_values": []
   },
   {
-   "id": 25,
+   "id": 27,
    "type": "CreateVideo",
    "pos": [
     1780,
@@ -1175,18 +1272,18 @@
    "flags": {
     "collapsed": true
    },
-   "order": 25,
+   "order": 27,
    "mode": 0,
    "inputs": [
     {
      "name": "images",
      "type": "IMAGE",
-     "link": 26
+     "link": 28
     },
     {
      "name": "audio",
      "type": "AUDIO",
-     "link": 27
+     "link": 29
     }
    ],
    "outputs": [
@@ -1194,7 +1291,7 @@
      "name": "VIDEO",
      "type": "VIDEO",
      "links": [
-      28
+      30
      ]
     }
    ],
@@ -1208,7 +1305,7 @@
    ]
   },
   {
-   "id": 26,
+   "id": 28,
    "type": "SaveVideo",
    "pos": [
     1780,
@@ -1219,13 +1316,13 @@
     420
    ],
    "flags": {},
-   "order": 26,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "name": "video",
      "type": "VIDEO",
-     "link": 28
+     "link": 30
     }
    ],
    "outputs": [],
@@ -1234,7 +1331,7 @@
     "Node name for S&R": "SaveVideo"
    },
    "widgets_values": [
-    "video/h3-storyboard",
+    "video/h3-office",
     "auto",
     "auto"
    ],
@@ -1255,7 +1352,7 @@
    2,
    8,
    0,
-   13,
+   14,
    0,
    "STRING"
   ],
@@ -1263,15 +1360,15 @@
    3,
    9,
    0,
-   13,
+   14,
    1,
    "STRING"
   ],
   [
    4,
-   13,
-   0,
    14,
+   0,
+   15,
    0,
    "STRING"
   ],
@@ -1279,15 +1376,15 @@
    5,
    10,
    0,
-   14,
+   15,
    1,
    "STRING"
   ],
   [
    6,
-   14,
-   0,
    15,
+   0,
+   16,
    0,
    "STRING"
   ],
@@ -1295,15 +1392,15 @@
    7,
    11,
    0,
-   15,
+   16,
    1,
    "STRING"
   ],
   [
    8,
-   15,
-   0,
    16,
+   0,
+   17,
    0,
    "STRING"
   ],
@@ -1311,57 +1408,57 @@
    9,
    12,
    0,
-   16,
+   17,
    1,
    "STRING"
   ],
   [
    10,
-   16,
-   0,
    17,
+   0,
+   18,
    0,
    "STRING"
   ],
   [
    11,
+   13,
+   0,
+   18,
+   1,
+   "STRING"
+  ],
+  [
+   12,
+   18,
+   0,
+   19,
+   0,
+   "STRING"
+  ],
+  [
+   13,
    4,
    0,
-   17,
+   19,
    1,
    "CLIP"
   ],
   [
-   12,
+   14,
    5,
    0,
-   17,
+   19,
    2,
    "VAE"
   ],
   [
-   13,
+   15,
    6,
    0,
-   17,
+   19,
    3,
    "VAE"
-  ],
-  [
-   14,
-   3,
-   0,
-   19,
-   0,
-   "MODEL"
-  ],
-  [
-   15,
-   17,
-   0,
-   19,
-   1,
-   "CONDITIONING"
   ],
   [
    16,
@@ -1373,97 +1470,113 @@
   ],
   [
    17,
-   18,
+   19,
    0,
-   22,
+   21,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   18,
+   3,
+   0,
+   23,
+   0,
+   "MODEL"
+  ],
+  [
+   19,
+   20,
+   0,
+   24,
    0,
    "NOISE"
   ],
   [
-   18,
-   19,
+   20,
+   21,
    0,
-   22,
+   24,
    1,
    "GUIDER"
   ],
   [
-   19,
-   20,
-   0,
+   21,
    22,
+   0,
+   24,
    2,
    "SAMPLER"
   ],
   [
-   20,
-   21,
-   0,
    22,
+   23,
+   0,
+   24,
    3,
    "SIGMAS"
   ],
   [
-   21,
-   17,
+   23,
+   19,
    1,
-   22,
+   24,
    4,
    "LATENT"
   ],
   [
-   22,
-   22,
-   0,
-   23,
-   0,
-   "LATENT"
-  ],
-  [
-   23,
-   5,
-   0,
-   23,
-   1,
-   "VAE"
-  ],
-  [
    24,
-   22,
-   0,
    24,
+   0,
+   25,
    0,
    "LATENT"
   ],
   [
    25,
-   6,
+   5,
    0,
-   24,
+   25,
    1,
    "VAE"
   ],
   [
    26,
-   23,
+   24,
    0,
-   25,
+   26,
    0,
-   "IMAGE"
+   "LATENT"
   ],
   [
    27,
-   24,
+   6,
    0,
-   25,
+   26,
    1,
-   "AUDIO"
+   "VAE"
   ],
   [
    28,
    25,
    0,
+   27,
+   0,
+   "IMAGE"
+  ],
+  [
+   29,
    26,
+   0,
+   27,
+   1,
+   "AUDIO"
+  ],
+  [
+   30,
+   27,
+   0,
+   28,
    0,
    "VIDEO"
   ]
@@ -1510,32 +1623,36 @@
      "value"
     ],
     [
-     "17",
+     "13",
+     "value"
+    ],
+    [
+     "19",
      "length"
     ],
     [
-     "17",
+     "19",
      "width"
     ],
     [
-     "17",
+     "19",
      "height"
     ],
     [
-     "17",
+     "19",
      "ref_image_size"
     ],
     [
-     "18",
+     "20",
      "noise_seed"
     ],
     [
-     "21",
+     "23",
      "steps"
     ]
    ],
    "outputs": [
-    "26"
+    "28"
    ]
   }
  },

@@ -1,0 +1,380 @@
+{
+ "2": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  },
+  "_meta": {
+   "title": "H3 reference model (ref2va)"
+  }
+ },
+ "3": {
+  "class_type": "MiniMaxH3TurboLoRA",
+  "inputs": {
+   "lora_name": "minimax_h3_turbo_4step.safetensors",
+   "strength": 1.0,
+   "low_vram": true,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "turbo LoRA (12 steps)"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "type": "minimax",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+  },
+  "_meta": {
+   "title": "video VAE"
+  }
+ },
+ "6": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "audio VAE"
+  }
+ },
+ "7": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-seth.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "1933 rubber-hose cartoon animation in the style of a modern mockumentary, confident black ink outlines, soft halftone shading, warm sepia and cream on aged newsprint, handheld documentary camera with a slight drift. A lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache, in a dark v-neck t-shirt."
+  },
+  "_meta": {
+   "title": "\u25b6 LOOK"
+  }
+ },
+ "9": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Shot 1, three seconds. A family living room at night. The camera is beside the television, at seated height, looking back across the room at the man on the sofa; the television is out of frame and its light flickers on his face. He is mid-bite of a crisp. A woman (S2) says from off-screen, exasperated: <d>[English] Seth. It is in German. Again.</d> He stops chewing. He does not look into the lens."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 1"
+  }
+ },
+ "10": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 2, two and a half seconds, closer, still beside the television. One thing happens: he raises both hands in a helpless shrug, palms open, eyebrows high, and holds it. He does not look into the lens."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 2"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 3, two and a half seconds, the same closer angle. Nobody speaks. His hands come slowly down. His face settles into a flat, cornered stare directed just past the camera, and holds there. He does not look into the lens."
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 3"
+  }
+ },
+ "12": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Cut. Shot 4, four seconds. A talking-head confessional: he sits alone against a plain wall in even flat light, framed centre, and looks straight down the barrel of the lens directly into the camera. He holds the look for a moment, entirely deadpan, then gives one small shrug. He (S1) says, flatly, straight to camera: <d>[English] That is Wilson's department.</d>"
+  },
+  "_meta": {
+   "title": "\u25b6 SHOT 4"
+  }
+ },
+ "13": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "Overall soundscape: a muffled television in another language, a room tone, one crisp packet rustle. Non-diegetic music: none."
+  },
+  "_meta": {
+   "title": "\u25b6 SOUND"
+  }
+ },
+ "14": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "8",
+    0
+   ],
+   "string_b": [
+    "9",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-1"
+  }
+ },
+ "15": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "14",
+    0
+   ],
+   "string_b": [
+    "10",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-2"
+  }
+ },
+ "16": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "15",
+    0
+   ],
+   "string_b": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-3"
+  }
+ },
+ "17": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "16",
+    0
+   ],
+   "string_b": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-4"
+  }
+ },
+ "18": {
+  "class_type": "StringConcatenate",
+  "inputs": {
+   "delimiter": " ",
+   "string_a": [
+    "17",
+    0
+   ],
+   "string_b": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "join-5"
+  }
+ },
+ "19": {
+  "class_type": "MiniMaxH3ReferenceToVideo",
+  "inputs": {
+   "prompt": [
+    "18",
+    0
+   ],
+   "width": 1024,
+   "height": 576,
+   "length": 294,
+   "ref_image_size": "max",
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "audio_vae": [
+    "6",
+    0
+   ],
+   "ref_images": {
+    "ref_image_0": [
+     "7",
+     0
+    ]
+   }
+  },
+  "_meta": {
+   "title": "\u25b6 LENGTH / SIZE"
+  }
+ },
+ "20": {
+  "class_type": "RandomNoise",
+  "inputs": {
+   "noise_seed": 7
+  },
+  "_meta": {
+   "title": "\u25b6 SEED"
+  }
+ },
+ "21": {
+  "class_type": "BasicGuider",
+  "inputs": {
+   "model": [
+    "3",
+    0
+   ],
+   "conditioning": [
+    "19",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "guider"
+  }
+ },
+ "22": {
+  "class_type": "KSamplerSelect",
+  "inputs": {
+   "sampler_name": "res_multistep"
+  },
+  "_meta": {
+   "title": "sampler"
+  }
+ },
+ "23": {
+  "class_type": "BasicScheduler",
+  "inputs": {
+   "scheduler": "simple",
+   "steps": 12,
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 STEPS"
+  }
+ },
+ "24": {
+  "class_type": "SamplerCustomAdvanced",
+  "inputs": {
+   "noise": [
+    "20",
+    0
+   ],
+   "guider": [
+    "21",
+    0
+   ],
+   "sampler": [
+    "22",
+    0
+   ],
+   "sigmas": [
+    "23",
+    0
+   ],
+   "latent_image": [
+    "19",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "sample"
+  }
+ },
+ "25": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "24",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode video"
+  }
+ },
+ "26": {
+  "class_type": "VAEDecodeAudio",
+  "inputs": {
+   "samples": [
+    "24",
+    0
+   ],
+   "vae": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode audio"
+  }
+ },
+ "27": {
+  "class_type": "CreateVideo",
+  "inputs": {
+   "fps": 24,
+   "bit_depth": 8,
+   "images": [
+    "25",
+    0
+   ],
+   "audio": [
+    "26",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "mux"
+  }
+ },
+ "28": {
+  "class_type": "SaveVideo",
+  "inputs": {
+   "filename_prefix": "video/h3-office",
+   "format": "auto",
+   "codec": "auto",
+   "video": [
+    "27",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}

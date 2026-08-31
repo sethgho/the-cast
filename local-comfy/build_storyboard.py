@@ -118,9 +118,61 @@ when scrubbing a dark scene. Pull the last frames and look.
 """
 
 
-def build():
+# ---------------------------------------------------------------- storyboards
+#
+# A storyboard is (width, height, length, look, [shots], sound). Shot count is free: the method
+# rations BEATS, not shots, so four short shots is as valid as three.
+
+STORYBOARDS = {
+    "deploy": (1152, 640, 209, LOOK, [SHOT1, SHOT2, SHOT3], SOUND),
+}
+
+# The Office: cold open, escalation, deadpan hold, confessional button.
+#
+# Two deliberate inversions of the camera rule. In the scene shots the family are OFF-SCREEN
+# voices, so he looks off-lens naturally and only ONE character is ever in frame -- which also
+# dodges the one-reference-one-subject trap that merges two characters into one creature. In the
+# confessional the lens look is the whole joke, so it is asked for explicitly instead of forbidden.
+#
+# Both <d> lines sit as late as they can: the family's complaint opens shot 1 (nothing before it
+# to squeeze) and the punchline is the last shot (nothing after it to squeeze). The middle two
+# shots are silent on purpose.
+OFFICE_LOOK = ("1933 rubber-hose cartoon animation in the style of a modern mockumentary, "
+               "confident black ink outlines, soft halftone shading, warm sepia and cream on aged "
+               "newsprint, handheld documentary camera with a slight drift. A lanky cartoon man "
+               "with long wavy shoulder-length brown hair and a full bushy handlebar moustache, in "
+               "a dark v-neck t-shirt.")
+OFFICE = [
+    # 1 — cold open. Complaint from off-screen, so the camera sits beside the television.
+    ("Shot 1, three seconds. A family living room at night. The camera is beside the television, "
+     "at seated height, looking back across the room at the man on the sofa; the television is out "
+     "of frame and its light flickers on his face. He is mid-bite of a crisp. A woman (S2) says "
+     "from off-screen, exasperated: <d>[English] Seth. It is in German. Again.</d> He stops "
+     "chewing. He does not look into the lens."),
+    # 2 — escalation, one physical beat, no dialogue.
+    ("Cut. Shot 2, two and a half seconds, closer, still beside the television. One thing happens: "
+     "he raises both hands in a helpless shrug, palms open, eyebrows high, and holds it. He does "
+     "not look into the lens."),
+    # 3 — the hold. The Office's actual engine: nothing happens for a beat too long.
+    ("Cut. Shot 3, two and a half seconds, the same closer angle. Nobody speaks. His hands come "
+     "slowly down. His face settles into a flat, cornered stare directed just past the camera, "
+     "and holds there. He does not look into the lens."),
+    # 4 — confessional button. Here the lens look is the joke, so it is asked for.
+    ("Cut. Shot 4, four seconds. A talking-head confessional: he sits alone against a plain wall "
+     "in even flat light, framed centre, and looks straight down the barrel of the lens directly "
+     "into the camera. He holds the look for a moment, entirely deadpan, then gives one small "
+     "shrug. He (S1) says, flatly, straight to camera: <d>[English] That is Wilson's department.</d>"),
+]
+OFFICE_SOUND = ("Overall soundscape: a muffled television in another language, a room tone, one "
+                "crisp packet rustle. Non-diegetic music: none.")
+
+STORYBOARDS["office"] = (1024, 576, 294, OFFICE_LOOK, OFFICE, OFFICE_SOUND)
+
+
+def build(name="deploy"):
+    w, h, length, look, shots, sound = STORYBOARDS[name]
     g = Graph()
-    note(g, "HOW TO USE — H3 storyboard", HOW_TO)
+    note(g, f"HOW TO USE — H3 storyboard ({name})", HOW_TO)
 
     unet = g.add("UNETLoader", "H3 reference model (ref2va)", (-60, -180), (420, 110),
                  {"unet_name": UNET, "weight_dtype": "default"},
@@ -143,9 +195,11 @@ def build():
                   outputs=[("IMAGE", "IMAGE"), ("MASK", "MASK")], color=BLUE)
     g.app_input(plate, "image", "upload")
 
+    fields = [("▶ LOOK", look)]
+    fields += [(f"▶ SHOT {i+1}", t) for i, t in enumerate(shots)]
+    fields += [("▶ SOUND", sound)]
     texts, y = [], 60
-    for title, val in (("▶ LOOK", LOOK), ("▶ SHOT 1", SHOT1), ("▶ SHOT 2", SHOT2),
-                       ("▶ SHOT 3 (carries the line)", SHOT3), ("▶ SOUND", SOUND)):
+    for title, val in fields:
         n = g.add("PrimitiveStringMultiline", title, (420, y), (460, 220), {"value": val},
                   outputs=[("STRING", "STRING")], color=GREEN)
         g.app_input(n, "value")
@@ -161,7 +215,7 @@ def build():
                        outputs=[("STRING", "STRING")], collapsed=True)
 
     cond = g.add("MiniMaxH3ReferenceToVideo", "▶ LENGTH / SIZE", (1340, 60), (440, 280),
-                 {"prompt": "", "width": W, "height": H, "length": LENGTH, "ref_image_size": "max"},
+                 {"prompt": "", "width": w, "height": h, "length": length, "ref_image_size": "max"},
                  links={"prompt": (joined, 0, "STRING", True), "clip": (clip, 0, "CLIP", False),
                         "vae": (vvae, 0, "VAE", False), "audio_vae": (avae, 0, "VAE", False)},
                  outputs=[("positive", "CONDITIONING"), ("LATENT", "LATENT")], color=BLUE)
@@ -200,22 +254,23 @@ def build():
                links={"images": (vid, 0, "IMAGE", False), "audio": (aud, 0, "AUDIO", False)},
                outputs=[("VIDEO", "VIDEO")], collapsed=True)
     out = g.add("SaveVideo", "RESULT", (1780, 300), (520, 420),
-                {"filename_prefix": "video/h3-storyboard", "format": "auto", "codec": "auto"},
+                {"filename_prefix": f"video/h3-{name}", "format": "auto", "codec": "auto"},
                 links={"video": (mk, 0, "VIDEO", False)}, color=GREY)
     g.app_output(out)
     return g
 
 
 if __name__ == "__main__":
-    g = build()
+    name = sys.argv[1] if len(sys.argv) > 1 else "deploy"
+    g = build(name)
     ui, api = g.to_ui(), g.to_api()
     # to_api() cannot express an autogrow socket; patch it on after serialisation.
     for nid, n in api.items():
         if n["class_type"] == "MiniMaxH3ReferenceToVideo":
             n["inputs"]["ref_images"] = {"ref_image_0": [
                 next(k for k, v in api.items() if v["class_type"] == "LoadImage"), 0]}
-    for path, blob in ((os.path.join(HERE, "workflows", "h3-storyboard.json"), ui),
-                       (os.path.join(HERE, "workflows", "h3-storyboard.app.json"), ui),
-                       (os.path.join(HERE, "api", "h3-storyboard.api.json"), api)):
+    for path, blob in ((os.path.join(HERE, "workflows", f"h3-storyboard-{name}.json"), ui),
+                       (os.path.join(HERE, "workflows", f"h3-storyboard-{name}.app.json"), ui),
+                       (os.path.join(HERE, "api", f"h3-storyboard-{name}.api.json"), api)):
         json.dump(blob, open(path, "w"), indent=1)
-    print("wrote h3-storyboard")
+    print("wrote h3-storyboard-" + name)

@@ -95,7 +95,7 @@
    "value": "Cut. Shot 3, three and a half seconds, back to the wide shot beside the monitor. The red light on his face turns green. He sits up, and a broad delighted grin spreads across his face. He (S1) says: <d>[English] Oh, thank goodness.</d> He does not look into the lens."
   },
   "_meta": {
-   "title": "\u25b6 SHOT 3 (carries the line)"
+   "title": "\u25b6 SHOT 3"
   }
  },
  "12": {
@@ -339,7 +339,7 @@
  "26": {
   "class_type": "SaveVideo",
   "inputs": {
-   "filename_prefix": "video/h3-storyboard",
+   "filename_prefix": "video/h3-deploy",
    "format": "auto",
    "codec": "auto",
    "video": [
