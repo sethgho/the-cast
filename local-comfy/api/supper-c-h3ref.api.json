@@ -1,0 +1,267 @@
+{
+ "2": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  },
+  "_meta": {
+   "title": "H3 reference model"
+  }
+ },
+ "3": {
+  "class_type": "MiniMaxH3TurboLoRA",
+  "inputs": {
+   "lora_name": "minimax_h3_turbo_4step.safetensors",
+   "strength": 1.0,
+   "low_vram": true,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "turbo LoRA"
+  }
+ },
+ "4": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "type": "minimax",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "5": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+  },
+  "_meta": {
+   "title": "video VAE"
+  }
+ },
+ "6": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+  },
+  "_meta": {
+   "title": "audio VAE"
+  }
+ },
+ "7": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-seth.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE 1"
+  }
+ },
+ "8": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-wilson.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE 2"
+  }
+ },
+ "9": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-cadbury.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE 3"
+  }
+ },
+ "10": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rubberhose-kf-ake.png"
+  },
+  "_meta": {
+   "title": "\u25b6 REFERENCE 4"
+  }
+ },
+ "11": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "A completely still tableau, nobody moves and the camera does not move. A wide horizontal painting recreating the composition of Leonardo's Last Supper. Thirteen characters sit along one long table that runs straight across the picture, parallel to the viewer, covered in a white cloth with bread, tin cups and a scatter of playing cards. Behind them a plain plaster wall with three tall arched windows, the middle one directly behind the central figure, opening onto a pale evening sky. Deep one-point perspective: the ceiling beams and the side walls converge on the central figure's head. Everyone is seated or leaning along the far side of the table, nobody in front of it, all thirteen visible and none overlapping another's face. At the exact centre, alone and framed by the middle window, sits SETH: a lanky cartoon man with long wavy shoulder-length brown hair and a full bushy handlebar moustache in a dark v-neck t-shirt, arms open and palms down on the table, calm. Far left group of three: OLD MAN CRANK, a bent stagehand in patched overalls clutching a mop; MOPSY, a hobo clown in a moth-eaten overcoat with a squeezebox on his knee; and SERGEANT WHISTLE, a bird-legged comic policeman swamped by an oversized custodian helmet. Inner left group of three: CADBURY, a thin composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle, half-risen with a napkin; AKE, a plump goldfish in a spherical glass fishbowl on a small wheeled wooden dolly wearing a little dark cap, the bowl up on the table; and MISS PEARL BELLWEATHER, a tall soprano in a beaded gown with her hair in a tight marcel wave, one hand to her throat. Inner right group of three: WILSON, a living picket-fence panel \u2014 the fence panel is his body \u2014 with a floppy bucket hat on top and two cartoon eyes floating in the shadow under its brim, leaning in stiffly because he has no waist; THE GREAT BOMBARDO, a stout strongman in a leopard-print singlet with a waxed moustache, both fists on the table; and DOC FENNIMORE, a patent-medicine barker in a loud checked suit and bowler hat, mid-gesture. Far right group of three: LULU PINWHEEL, a plate-spinner in bloomers and boots with three plates still turning on sticks; VERA FANDANGO, a dancer in a fringed dress holding castanets; and RUFUS TANGLE, a lanky contortionist in a striped union suit with his legs folded up impossibly beside him. Draw it in exactly the same style as image 1: a 1933 Fleischer-era rubber-hose cartoon posed with real weight and balance, confident smooth ink outlines of even weight, shaded only with soft halftone dots, warm sepia duotone on aged grey-brown newsprint, muted desaturated ink and no bright modern colour. The art fills the frame with no border and no margin. There are no speech balloons, no caption boxes, no lettering, no signature and no watermark. Thirteen characters exactly, evenly spread across the full width of the frame. Every face is drawn clearly and each character is distinct from the others."
+  },
+  "_meta": {
+   "title": "\u25b6 THE PICTURE"
+  }
+ },
+ "12": {
+  "class_type": "MiniMaxH3ReferenceToVideo",
+  "inputs": {
+   "prompt": [
+    "11",
+    0
+   ],
+   "width": 1152,
+   "height": 640,
+   "length": 22,
+   "ref_image_size": "max",
+   "clip": [
+    "4",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ],
+   "audio_vae": [
+    "6",
+    0
+   ],
+   "ref_images": {
+    "ref_image_0": [
+     "7",
+     0
+    ],
+    "ref_image_1": [
+     "8",
+     0
+    ],
+    "ref_image_2": [
+     "9",
+     0
+    ],
+    "ref_image_3": [
+     "10",
+     0
+    ]
+   }
+  },
+  "_meta": {
+   "title": "\u25b6 SIZE"
+  }
+ },
+ "13": {
+  "class_type": "RandomNoise",
+  "inputs": {
+   "noise_seed": 7
+  },
+  "_meta": {
+   "title": "\u25b6 SEED"
+  }
+ },
+ "14": {
+  "class_type": "BasicGuider",
+  "inputs": {
+   "model": [
+    "3",
+    0
+   ],
+   "conditioning": [
+    "12",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "guider"
+  }
+ },
+ "15": {
+  "class_type": "KSamplerSelect",
+  "inputs": {
+   "sampler_name": "res_multistep"
+  },
+  "_meta": {
+   "title": "sampler"
+  }
+ },
+ "16": {
+  "class_type": "BasicScheduler",
+  "inputs": {
+   "scheduler": "simple",
+   "steps": 12,
+   "denoise": 1.0,
+   "model": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 STEPS"
+  }
+ },
+ "17": {
+  "class_type": "SamplerCustomAdvanced",
+  "inputs": {
+   "noise": [
+    "13",
+    0
+   ],
+   "guider": [
+    "14",
+    0
+   ],
+   "sampler": [
+    "15",
+    0
+   ],
+   "sigmas": [
+    "16",
+    0
+   ],
+   "latent_image": [
+    "12",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "sample"
+  }
+ },
+ "18": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "17",
+    0
+   ],
+   "vae": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "19": {
+  "class_type": "ImageFromBatch",
+  "inputs": {
+   "batch_index": 10,
+   "length": 1,
+   "image": [
+    "18",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "keep one frame"
+  }
+ },
+ "20": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "supper/c-h3ref",
+   "images": [
+    "19",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}
