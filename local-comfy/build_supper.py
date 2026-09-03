@@ -99,8 +99,9 @@ COMPOSITION = (
     "characters sit along one long table that runs straight across the picture, parallel to the "
     "viewer, covered in a white cloth with bread, tin cups and a scatter of playing cards. Behind "
     "them a plain plaster wall with three tall arched windows, the middle one directly behind the "
-    "central figure, opening onto a pale evening sky. Deep one-point perspective: the ceiling "
-    "beams and the side walls converge on the central figure's head. Everyone is seated or leaning "
+    "central figure, opening onto a pale evening sky. Strong deep one-point perspective, the whole "
+    "room built around the central figure: a coffered ceiling of square beams overhead and four "
+    "receding tapestry panels down each side wall, all of them converging on his head. Everyone is seated or leaning "
     "along the far side of the table, nobody in front of it, all thirteen visible and none "
     "overlapping another's face.")
 TAIL = ("Thirteen characters exactly, evenly spread across the full width of the frame. Every face "
