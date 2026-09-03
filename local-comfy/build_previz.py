@@ -27,7 +27,8 @@ from build_extras import engine, note  # noqa: E402
 from build_transition import TRAITS  # noqa: E402
 
 W, H, SEED = 1152, 648, 7
-PLATES = {"seth": "rubberhose-kf-seth.png", "wilson": "rubberhose-kf-wilson.png"}
+# Copies of cast/<id>/assets/poses/standing-neutral.png. See build_supper.py.
+PLATES = {"seth": "canon-seth.png", "wilson": "canon-wilson.png"}
 
 HOW_TO = """# Storyboard previz
 

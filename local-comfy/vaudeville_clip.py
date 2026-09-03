@@ -49,7 +49,7 @@ g = {
  "13": {"class_type": "CLIPLoader", "inputs": {"clip_name": H3_CLIP, "type": "minimax", "device": "default"}},
  "11": {"class_type": "VAELoader", "inputs": {"vae_name": H3_VIDEO_VAE}},
  "24": {"class_type": "VAELoader", "inputs": {"vae_name": H3_AUDIO_VAE}},
- "plate": {"class_type": "LoadImage", "inputs": {"image": os.environ.get("PLATE", "rubberhose-kf-seth-3q.png")}},
+ "plate": {"class_type": "LoadImage", "inputs": {"image": os.environ.get("PLATE", "canon-seth.png")}},
  "fit": {"class_type": "ImageScale", "inputs": {"image": ["plate", 0], "upscale_method": "lanczos", "width": W, "height": H, "crop": "center"}},
  "104": {"class_type": "MiniMaxH3ImageToVideo", "inputs": {"clip": ["13", 0], "vae": ["11", 0], "prompt": PROMPT,
          "width": W, "height": H, "length": LENGTH, "first_frame": ["fit", 0], **({"last_frame": ["fit", 0]} if PIN else {})}},

@@ -1,0 +1,3841 @@
+{
+ "character": "seth-ink",
+ "cell": 512,
+ "pivot": [
+  256,
+  481
+ ],
+ "trait": "",
+ "build": {
+  "template_version": "cdae6be0a5e63c9e",
+  "clip": {
+   "size": 832,
+   "steps": 20,
+   "length": 61,
+   "seed": 77
+  },
+  "picks": {
+   "skip": 6,
+   "anchor": "feet",
+   "smooth": true
+  },
+  "repaint": {
+   "pad": 0.86,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0
+  },
+  "pack": {
+   "columns": 10,
+   "height_cap": 0.92,
+   "up_cap": 0.88
+  },
+  "cost_s": {
+   "plate": 20,
+   "clip": 170,
+   "frames": 10,
+   "picks": 5,
+   "repaint": 45,
+   "pack": 5,
+   "export": 0
+  }
+ },
+ "tags": [
+  {
+   "name": "uppercut",
+   "from": 0,
+   "to": 5,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/seth-ink-832/seth-ink-uppercut-832x832.mp4",
+   "recipe": "uppercut",
+   "recipe_text": "he crouches down, reaching his right fist back behind him, holds it a beat, and uppercuts dramatically",
+   "cells": 6,
+   "cyclic": false
+  },
+  {
+   "name": "punch",
+   "from": 6,
+   "to": 13,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/seth-ink-832/seth-ink-punch-832x832.mp4",
+   "recipe": "punch",
+   "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "kick",
+   "from": 14,
+   "to": 21,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/seth-ink-832/seth-ink-kick-832x832.mp4",
+   "recipe": "kick",
+   "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "block",
+   "from": 22,
+   "to": 27,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/seth-ink-832/seth-ink-block-832x832.mp4",
+   "recipe": "block",
+   "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+   "cells": 6,
+   "cyclic": false
+  },
+  {
+   "name": "crouch",
+   "from": 28,
+   "to": 33,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/seth-ink-832/seth-ink-crouch-832x832.mp4",
+   "recipe": "crouch",
+   "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+   "cells": 6,
+   "cyclic": false
+  },
+  {
+   "name": "jump",
+   "from": 34,
+   "to": 41,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/seth-ink-832/seth-ink-jump-832x832.mp4",
+   "recipe": "jump",
+   "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "walk",
+   "from": 42,
+   "to": 51,
+   "fps": 14,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": "head",
+   "clip": "/tmp/seth-ink-832/seth-ink-walk-832x832.mp4",
+   "recipe": "walk-cycle",
+   "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+   "cells": 10,
+   "cyclic": true
+  },
+  {
+   "name": "idle",
+   "from": 52,
+   "to": 59,
+   "fps": 8,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": true,
+   "clip": "/tmp/seth-ink-832/seth-ink-idle-832x832.mp4",
+   "recipe": "idle-breathe",
+   "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+   "cells": 8,
+   "cyclic": true
+  }
+ ],
+ "frames": [
+  {
+   "src": "/tmp/sprite-seth-ink-uppercut-final/f_0009.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-uppercut-f_0009.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-uppercut-final/f_0024.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-uppercut-f_0024.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-uppercut-final/f_0030.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-uppercut-f_0030.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-uppercut-final/f_0037.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-uppercut-f_0037.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-uppercut-final/f_0040.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-uppercut-f_0040.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-uppercut-final/f_0045.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-uppercut-f_0045.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0023.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0025.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0025.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0027.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0027.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0028.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0028.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0029.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0032.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0032.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-punch-final/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-punch-f_0047.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0025.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0025.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0028.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0028.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0031.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0031.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0042.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0042.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0059.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0059.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0063.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0063.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-kick-final/f_0065.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-kick-f_0065.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-block-final/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-block-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-block-final/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-block-f_0023.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-block-final/f_0024.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-block-f_0024.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-block-final/f_0025.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-block-f_0025.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-block-final/f_0027.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-block-f_0027.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-block-final/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-block-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-crouch-final/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-crouch-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-crouch-final/f_0022.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-crouch-f_0022.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-crouch-final/f_0024.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-crouch-f_0024.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-crouch-final/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-crouch-f_0029.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-crouch-final/f_0053.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-crouch-f_0053.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-crouch-final/f_0055.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-crouch-f_0055.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0007.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0007.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0024.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0024.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0032.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0032.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0047.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0047.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0048.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0048.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-jump-final/f_0051.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-jump-f_0051.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0029.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0031.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0031.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0032.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0032.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0034.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0034.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0035.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0035.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0036.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0036.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0038.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0038.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0039.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0039.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0040.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0040.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-walk-final/f_0041.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-walk-f_0041.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-idle-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0029.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-idle-f_0029.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0040.png",
+   "seed": 78,
+   "png": "/tmp/repaint/seth-ink-idle-f_0040-s78.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0042.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-idle-f_0042.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0050.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-idle-f_0050.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0051.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-idle-f_0051.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0055.png",
+   "seed": 78,
+   "png": "/tmp/repaint/seth-ink-idle-f_0055-s78.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-seth-ink-idle-final/f_0068.png",
+   "seed": 77,
+   "png": "/tmp/repaint/seth-ink-idle-f_0068.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "id": "plate",
+   "kind": "plate",
+   "tag": null,
+   "params": {},
+   "inputs": [
+    {
+     "from": null,
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "7fe0557feec1cd95",
+   "built_key": null,
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+   "artifact_hash": null,
+   "cost_s": 20
+  },
+  {
+   "id": "clip:uppercut",
+   "kind": "clip",
+   "tag": "uppercut",
+   "params": {
+    "recipe": "uppercut",
+    "recipe_text": "he crouches down, reaching his right fist back behind him, holds it a beat, and uppercuts dramatically",
+    "trait": "",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "134da59de4755ed4",
+   "built_key": "134da59de4755ed4",
+   "artifact": "/tmp/seth-ink-832/seth-ink-uppercut-832x832.mp4",
+   "artifact_hash": "fabf2feed01f6727",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:uppercut",
+   "kind": "frames",
+   "tag": "uppercut",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:uppercut",
+     "path": "/tmp/seth-ink-832/seth-ink-uppercut-832x832.mp4",
+     "hash": "fabf2feed01f6727"
+    }
+   ],
+   "key": "df87fa62cc089d01",
+   "built_key": "df87fa62cc089d01",
+   "artifact": "/tmp/sprite-seth-ink-uppercut-pick",
+   "artifact_hash": "b5d5b6c52f473bfe",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:uppercut",
+   "kind": "picks",
+   "tag": "uppercut",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-pick",
+     "hash": "b5d5b6c52f473bfe"
+    }
+   ],
+   "key": "cdd51bbc23f016fd",
+   "built_key": "cdd51bbc23f016fd",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "f16f6174715915d6",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-uppercut-f_0009",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-final/f_0009.png",
+     "hash": "5dc94fccd5af5fd9"
+    }
+   ],
+   "key": "3d52f38ed7eb0f34",
+   "built_key": "3d52f38ed7eb0f34",
+   "artifact": "/tmp/repaint/seth-ink-uppercut-f_0009.png",
+   "artifact_hash": "67845405d8fa16eb",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-uppercut-f_0024",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-final/f_0024.png",
+     "hash": "624711d887071fcd"
+    }
+   ],
+   "key": "30309267416fc1cd",
+   "built_key": "30309267416fc1cd",
+   "artifact": "/tmp/repaint/seth-ink-uppercut-f_0024.png",
+   "artifact_hash": "d0a264f7894ae302",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-uppercut-f_0030",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-final/f_0030.png",
+     "hash": "b1252588d68e9186"
+    }
+   ],
+   "key": "8f85b558585bed0e",
+   "built_key": "8f85b558585bed0e",
+   "artifact": "/tmp/repaint/seth-ink-uppercut-f_0030.png",
+   "artifact_hash": "e3266941bbab13bb",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-uppercut-f_0037",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-final/f_0037.png",
+     "hash": "60c179ca89df3f21"
+    }
+   ],
+   "key": "76a1463c5debfd1d",
+   "built_key": "76a1463c5debfd1d",
+   "artifact": "/tmp/repaint/seth-ink-uppercut-f_0037.png",
+   "artifact_hash": "a94b4eab18cb4d7d",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-uppercut-f_0040",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-final/f_0040.png",
+     "hash": "b8fbce058a8fc926"
+    }
+   ],
+   "key": "d36a335de9a3a9fe",
+   "built_key": "d36a335de9a3a9fe",
+   "artifact": "/tmp/repaint/seth-ink-uppercut-f_0040.png",
+   "artifact_hash": "b3c9d2c096c17899",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-uppercut-f_0045",
+   "kind": "repaint",
+   "tag": "uppercut",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:uppercut",
+     "path": "/tmp/sprite-seth-ink-uppercut-final/f_0045.png",
+     "hash": "4fd77508ce6663f2"
+    }
+   ],
+   "key": "0ab639bdfd1ff906",
+   "built_key": "0ab639bdfd1ff906",
+   "artifact": "/tmp/repaint/seth-ink-uppercut-f_0045.png",
+   "artifact_hash": "edffd8d106d916b7",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:punch",
+   "kind": "clip",
+   "tag": "punch",
+   "params": {
+    "recipe": "punch",
+    "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+    "trait": "",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "261ca9da487a1bd7",
+   "built_key": "261ca9da487a1bd7",
+   "artifact": "/tmp/seth-ink-832/seth-ink-punch-832x832.mp4",
+   "artifact_hash": "04d0b8fedf3f9b1d",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:punch",
+   "kind": "frames",
+   "tag": "punch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:punch",
+     "path": "/tmp/seth-ink-832/seth-ink-punch-832x832.mp4",
+     "hash": "04d0b8fedf3f9b1d"
+    }
+   ],
+   "key": "85981dd86ea91c59",
+   "built_key": "85981dd86ea91c59",
+   "artifact": "/tmp/sprite-seth-ink-punch-pick",
+   "artifact_hash": "a17635449723b5e1",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:punch",
+   "kind": "picks",
+   "tag": "punch",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:punch",
+     "path": "/tmp/sprite-seth-ink-punch-pick",
+     "hash": "a17635449723b5e1"
+    }
+   ],
+   "key": "a3b74961bfef3f88",
+   "built_key": "a3b74961bfef3f88",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "06613f4f9a03a216",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0007",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0007.png",
+     "hash": "4134dc59b03560ae"
+    }
+   ],
+   "key": "f3574df860a901ab",
+   "built_key": "f3574df860a901ab",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0007.png",
+   "artifact_hash": "57bbc875a508e892",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0023",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0023.png",
+     "hash": "4840edcff24c752c"
+    }
+   ],
+   "key": "a9d5cce60e017dce",
+   "built_key": "a9d5cce60e017dce",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0023.png",
+   "artifact_hash": "7f56a3a0592360fd",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0025",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0025.png",
+     "hash": "70df10833644a6ea"
+    }
+   ],
+   "key": "434131e12c3ffeb6",
+   "built_key": "434131e12c3ffeb6",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0025.png",
+   "artifact_hash": "241b32af435329c1",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0027",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0027.png",
+     "hash": "dd9117f595c74248"
+    }
+   ],
+   "key": "16c16992e6917e59",
+   "built_key": "16c16992e6917e59",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0027.png",
+   "artifact_hash": "adce39ad7ab86ecd",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0028",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0028.png",
+     "hash": "75bdf61f4a793dfc"
+    }
+   ],
+   "key": "6bde950dae706b08",
+   "built_key": "6bde950dae706b08",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0028.png",
+   "artifact_hash": "56453caf3e2638b6",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0029",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0029.png",
+     "hash": "a428e18de8c0e3b7"
+    }
+   ],
+   "key": "d98fb57745941b67",
+   "built_key": "d98fb57745941b67",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0029.png",
+   "artifact_hash": "117a560f9fd8c085",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0032",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0032.png",
+     "hash": "41c90ec577f390bd"
+    }
+   ],
+   "key": "e3324613617369e6",
+   "built_key": "e3324613617369e6",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0032.png",
+   "artifact_hash": "595bb8d7668adfbe",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-punch-f_0047",
+   "kind": "repaint",
+   "tag": "punch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:punch",
+     "path": "/tmp/sprite-seth-ink-punch-final/f_0047.png",
+     "hash": "8db26f1d32229805"
+    }
+   ],
+   "key": "d0e84e145e43f7a4",
+   "built_key": "d0e84e145e43f7a4",
+   "artifact": "/tmp/repaint/seth-ink-punch-f_0047.png",
+   "artifact_hash": "56db0adb1bffdc26",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:kick",
+   "kind": "clip",
+   "tag": "kick",
+   "params": {
+    "recipe": "kick",
+    "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+    "trait": "",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "e709f3d7f57583e2",
+   "built_key": "e709f3d7f57583e2",
+   "artifact": "/tmp/seth-ink-832/seth-ink-kick-832x832.mp4",
+   "artifact_hash": "e36ab2a2d1489940",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:kick",
+   "kind": "frames",
+   "tag": "kick",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:kick",
+     "path": "/tmp/seth-ink-832/seth-ink-kick-832x832.mp4",
+     "hash": "e36ab2a2d1489940"
+    }
+   ],
+   "key": "2434c3936e1984e8",
+   "built_key": "2434c3936e1984e8",
+   "artifact": "/tmp/sprite-seth-ink-kick-pick",
+   "artifact_hash": "376569b91e5e8db3",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:kick",
+   "kind": "picks",
+   "tag": "kick",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:kick",
+     "path": "/tmp/sprite-seth-ink-kick-pick",
+     "hash": "376569b91e5e8db3"
+    }
+   ],
+   "key": "077a462779b4e648",
+   "built_key": "077a462779b4e648",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "7cdde59f0c990610",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0007",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0007.png",
+     "hash": "37f9faf499d81aa6"
+    }
+   ],
+   "key": "98bc5d4901a7ec9f",
+   "built_key": "98bc5d4901a7ec9f",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0007.png",
+   "artifact_hash": "a8323bf1d420ab14",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0025",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0025.png",
+     "hash": "55ab63e8820a0a9b"
+    }
+   ],
+   "key": "04d60514ed6212c2",
+   "built_key": "04d60514ed6212c2",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0025.png",
+   "artifact_hash": "f7cec214b88dcc36",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0028",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0028.png",
+     "hash": "a479064848560634"
+    }
+   ],
+   "key": "4ecd02065b94acda",
+   "built_key": "4ecd02065b94acda",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0028.png",
+   "artifact_hash": "90833a4bfd269be7",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0031",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0031.png",
+     "hash": "441de636a5c5b1da"
+    }
+   ],
+   "key": "40bf88e202283cbc",
+   "built_key": "40bf88e202283cbc",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0031.png",
+   "artifact_hash": "6d15526bd9f3de56",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0042",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0042.png",
+     "hash": "166c0646d5f7c982"
+    }
+   ],
+   "key": "1c30e1c8b84f4ab1",
+   "built_key": "1c30e1c8b84f4ab1",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0042.png",
+   "artifact_hash": "fca69ec7c7c2ca4a",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0059",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0059.png",
+     "hash": "86897c10baf6582a"
+    }
+   ],
+   "key": "9a7dcadc922f2f22",
+   "built_key": "9a7dcadc922f2f22",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0059.png",
+   "artifact_hash": "0ac2a05961731737",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0063",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0063.png",
+     "hash": "24b8ea231d9f4233"
+    }
+   ],
+   "key": "34db2d29c77c7e50",
+   "built_key": "34db2d29c77c7e50",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0063.png",
+   "artifact_hash": "6ffc6ce068d2e2b5",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-kick-f_0065",
+   "kind": "repaint",
+   "tag": "kick",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:kick",
+     "path": "/tmp/sprite-seth-ink-kick-final/f_0065.png",
+     "hash": "50b38381663156d4"
+    }
+   ],
+   "key": "7e048932804ed4e0",
+   "built_key": "7e048932804ed4e0",
+   "artifact": "/tmp/repaint/seth-ink-kick-f_0065.png",
+   "artifact_hash": "c62e12273a347560",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:block",
+   "kind": "clip",
+   "tag": "block",
+   "params": {
+    "recipe": "block",
+    "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+    "trait": "",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "3d3f483e66d3f595",
+   "built_key": "3d3f483e66d3f595",
+   "artifact": "/tmp/seth-ink-832/seth-ink-block-832x832.mp4",
+   "artifact_hash": "a4b5a03ec48ff085",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:block",
+   "kind": "frames",
+   "tag": "block",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:block",
+     "path": "/tmp/seth-ink-832/seth-ink-block-832x832.mp4",
+     "hash": "a4b5a03ec48ff085"
+    }
+   ],
+   "key": "ec0066605e5b3a9d",
+   "built_key": "ec0066605e5b3a9d",
+   "artifact": "/tmp/sprite-seth-ink-block-pick",
+   "artifact_hash": "a9afeb09868e5921",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:block",
+   "kind": "picks",
+   "tag": "block",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:block",
+     "path": "/tmp/sprite-seth-ink-block-pick",
+     "hash": "a9afeb09868e5921"
+    }
+   ],
+   "key": "d24c5c138749e89e",
+   "built_key": "d24c5c138749e89e",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "dd673af8296fb31f",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-block-f_0007",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-seth-ink-block-final/f_0007.png",
+     "hash": "490fc33425d895c0"
+    }
+   ],
+   "key": "a966cfc38d67b187",
+   "built_key": "a966cfc38d67b187",
+   "artifact": "/tmp/repaint/seth-ink-block-f_0007.png",
+   "artifact_hash": "23d661f287a63ba3",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-block-f_0023",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-seth-ink-block-final/f_0023.png",
+     "hash": "5252c50985b8d85a"
+    }
+   ],
+   "key": "63dbcc2512c52fa2",
+   "built_key": "63dbcc2512c52fa2",
+   "artifact": "/tmp/repaint/seth-ink-block-f_0023.png",
+   "artifact_hash": "0a1582815aa9b18c",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-block-f_0024",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-seth-ink-block-final/f_0024.png",
+     "hash": "30c5589a18d48a5e"
+    }
+   ],
+   "key": "59df685331a9777d",
+   "built_key": "59df685331a9777d",
+   "artifact": "/tmp/repaint/seth-ink-block-f_0024.png",
+   "artifact_hash": "154cb0b3c16e3078",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-block-f_0025",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-seth-ink-block-final/f_0025.png",
+     "hash": "c9494fd009b4328b"
+    }
+   ],
+   "key": "ed874b7788927c0e",
+   "built_key": "ed874b7788927c0e",
+   "artifact": "/tmp/repaint/seth-ink-block-f_0025.png",
+   "artifact_hash": "c6382c79724b3d38",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-block-f_0027",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-seth-ink-block-final/f_0027.png",
+     "hash": "91ff8a44f212731e"
+    }
+   ],
+   "key": "e46c4d8702327ecf",
+   "built_key": "e46c4d8702327ecf",
+   "artifact": "/tmp/repaint/seth-ink-block-f_0027.png",
+   "artifact_hash": "64236a147934f496",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-block-f_0035",
+   "kind": "repaint",
+   "tag": "block",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:block",
+     "path": "/tmp/sprite-seth-ink-block-final/f_0035.png",
+     "hash": "96acff571de9bb5b"
+    }
+   ],
+   "key": "67a8f0f99a2628cc",
+   "built_key": "67a8f0f99a2628cc",
+   "artifact": "/tmp/repaint/seth-ink-block-f_0035.png",
+   "artifact_hash": "53cec3672986b9d0",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:crouch",
+   "kind": "clip",
+   "tag": "crouch",
+   "params": {
+    "recipe": "crouch",
+    "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+    "trait": "",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "1992497b57ede4dc",
+   "built_key": "1992497b57ede4dc",
+   "artifact": "/tmp/seth-ink-832/seth-ink-crouch-832x832.mp4",
+   "artifact_hash": "8e05eb5a460feae8",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:crouch",
+   "kind": "frames",
+   "tag": "crouch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:crouch",
+     "path": "/tmp/seth-ink-832/seth-ink-crouch-832x832.mp4",
+     "hash": "8e05eb5a460feae8"
+    }
+   ],
+   "key": "20de3e07aedb5ba6",
+   "built_key": "20de3e07aedb5ba6",
+   "artifact": "/tmp/sprite-seth-ink-crouch-pick",
+   "artifact_hash": "249a21a72d593c9d",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:crouch",
+   "kind": "picks",
+   "tag": "crouch",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-pick",
+     "hash": "249a21a72d593c9d"
+    }
+   ],
+   "key": "ef04622b96c2e600",
+   "built_key": "ef04622b96c2e600",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "1d9e9cc9f1526891",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-crouch-f_0007",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-final/f_0007.png",
+     "hash": "6bcfd79829df39f5"
+    }
+   ],
+   "key": "4c5f14f7d5894118",
+   "built_key": "4c5f14f7d5894118",
+   "artifact": "/tmp/repaint/seth-ink-crouch-f_0007.png",
+   "artifact_hash": "a4943d1cbc4efda7",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-crouch-f_0022",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-final/f_0022.png",
+     "hash": "f78054b88c281703"
+    }
+   ],
+   "key": "f0477c78cdac0ccd",
+   "built_key": "f0477c78cdac0ccd",
+   "artifact": "/tmp/repaint/seth-ink-crouch-f_0022.png",
+   "artifact_hash": "6aeaa0d1f6c27c37",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-crouch-f_0024",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-final/f_0024.png",
+     "hash": "8c73b85ad0487f11"
+    }
+   ],
+   "key": "e1a9d8a8dda66a53",
+   "built_key": "e1a9d8a8dda66a53",
+   "artifact": "/tmp/repaint/seth-ink-crouch-f_0024.png",
+   "artifact_hash": "722c558be233a68a",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-crouch-f_0029",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-final/f_0029.png",
+     "hash": "574b8a1c9ea96fe5"
+    }
+   ],
+   "key": "1949e562ecb4ee7d",
+   "built_key": "1949e562ecb4ee7d",
+   "artifact": "/tmp/repaint/seth-ink-crouch-f_0029.png",
+   "artifact_hash": "914e13ed5ecaa8d5",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-crouch-f_0053",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-final/f_0053.png",
+     "hash": "24c52978d3858001"
+    }
+   ],
+   "key": "4b60bfe38b7d6511",
+   "built_key": "4b60bfe38b7d6511",
+   "artifact": "/tmp/repaint/seth-ink-crouch-f_0053.png",
+   "artifact_hash": "c9aa3c8dbc0296d2",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-crouch-f_0055",
+   "kind": "repaint",
+   "tag": "crouch",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:crouch",
+     "path": "/tmp/sprite-seth-ink-crouch-final/f_0055.png",
+     "hash": "732aded7282eb804"
+    }
+   ],
+   "key": "16e2d7b4d2c991b6",
+   "built_key": "16e2d7b4d2c991b6",
+   "artifact": "/tmp/repaint/seth-ink-crouch-f_0055.png",
+   "artifact_hash": "8da43183dd418fef",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:jump",
+   "kind": "clip",
+   "tag": "jump",
+   "params": {
+    "recipe": "jump",
+    "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+    "trait": "",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "44b5f92e246d034a",
+   "built_key": "44b5f92e246d034a",
+   "artifact": "/tmp/seth-ink-832/seth-ink-jump-832x832.mp4",
+   "artifact_hash": "5f6d6892a063ac0d",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:jump",
+   "kind": "frames",
+   "tag": "jump",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:jump",
+     "path": "/tmp/seth-ink-832/seth-ink-jump-832x832.mp4",
+     "hash": "5f6d6892a063ac0d"
+    }
+   ],
+   "key": "9a487dc41b3c278d",
+   "built_key": "9a487dc41b3c278d",
+   "artifact": "/tmp/sprite-seth-ink-jump-pick",
+   "artifact_hash": "c998fd2f08ace9c4",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:jump",
+   "kind": "picks",
+   "tag": "jump",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:jump",
+     "path": "/tmp/sprite-seth-ink-jump-pick",
+     "hash": "c998fd2f08ace9c4"
+    }
+   ],
+   "key": "48e1fb8667c30cb0",
+   "built_key": "48e1fb8667c30cb0",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "26e76b75b2692ceb",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0007",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0007.png",
+     "hash": "52ac1f3526527a1f"
+    }
+   ],
+   "key": "986a3330f49104db",
+   "built_key": "986a3330f49104db",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0007.png",
+   "artifact_hash": "8e180250b087e249",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0024",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0024.png",
+     "hash": "4becbc349c1242e8"
+    }
+   ],
+   "key": "4c36313bbf5743de",
+   "built_key": "4c36313bbf5743de",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0024.png",
+   "artifact_hash": "9dd31a9415010dc3",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0032",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0032.png",
+     "hash": "1a389dedb90aa468"
+    }
+   ],
+   "key": "34931a47a1735001",
+   "built_key": "34931a47a1735001",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0032.png",
+   "artifact_hash": "e5437f81c261b540",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0035",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0035.png",
+     "hash": "3890dcc215448540"
+    }
+   ],
+   "key": "1276a497af675ca6",
+   "built_key": "1276a497af675ca6",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0035.png",
+   "artifact_hash": "eae5f249ff4db054",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0039",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0039.png",
+     "hash": "7114a11d801d89c8"
+    }
+   ],
+   "key": "df6bef69b86639a9",
+   "built_key": "df6bef69b86639a9",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0039.png",
+   "artifact_hash": "6045bbda5a3463d9",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0047",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0047.png",
+     "hash": "ae17eb2abfee723a"
+    }
+   ],
+   "key": "12c8d9949075e868",
+   "built_key": "12c8d9949075e868",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0047.png",
+   "artifact_hash": "11e6e4d0047858e6",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0048",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0048.png",
+     "hash": "302703cde2f50608"
+    }
+   ],
+   "key": "c0a670b00f2c157d",
+   "built_key": "c0a670b00f2c157d",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0048.png",
+   "artifact_hash": "6c10639e7c0e79cd",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-jump-f_0051",
+   "kind": "repaint",
+   "tag": "jump",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:jump",
+     "path": "/tmp/sprite-seth-ink-jump-final/f_0051.png",
+     "hash": "1f1b5756151cde02"
+    }
+   ],
+   "key": "ebeb782a12a19462",
+   "built_key": "ebeb782a12a19462",
+   "artifact": "/tmp/repaint/seth-ink-jump-f_0051.png",
+   "artifact_hash": "fcafa65b33332dc7",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:walk",
+   "kind": "clip",
+   "tag": "walk",
+   "params": {
+    "recipe": "walk-cycle",
+    "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+    "trait": "",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "eeeb15578898caab",
+   "built_key": "eeeb15578898caab",
+   "artifact": "/tmp/seth-ink-832/seth-ink-walk-832x832.mp4",
+   "artifact_hash": "a2a11d61815f79ef",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:walk",
+   "kind": "frames",
+   "tag": "walk",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:walk",
+     "path": "/tmp/seth-ink-832/seth-ink-walk-832x832.mp4",
+     "hash": "a2a11d61815f79ef"
+    }
+   ],
+   "key": "be91a42b07d0efda",
+   "built_key": "be91a42b07d0efda",
+   "artifact": "/tmp/sprite-seth-ink-walk-pick",
+   "artifact_hash": "3150d3bb43c84d09",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:walk",
+   "kind": "picks",
+   "tag": "walk",
+   "params": {
+    "cells": 10,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:walk",
+     "path": "/tmp/sprite-seth-ink-walk-pick",
+     "hash": "3150d3bb43c84d09"
+    }
+   ],
+   "key": "e36262c7230c2d56",
+   "built_key": "e36262c7230c2d56",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "c71df1eda9da834f",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0029",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0029.png",
+     "hash": "da8a5768df51b616"
+    }
+   ],
+   "key": "7475ed2789650c2d",
+   "built_key": "7475ed2789650c2d",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0029.png",
+   "artifact_hash": "341d3d3225e77e47",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0031",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0031.png",
+     "hash": "757aae8604770bf3"
+    }
+   ],
+   "key": "f5bfc382578ae45c",
+   "built_key": "f5bfc382578ae45c",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0031.png",
+   "artifact_hash": "21ae2ab0ecfcefce",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0032",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0032.png",
+     "hash": "a5089251ec74a6b1"
+    }
+   ],
+   "key": "266bd37f76cf35d8",
+   "built_key": "266bd37f76cf35d8",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0032.png",
+   "artifact_hash": "68b28057d819fdf7",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0034",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0034.png",
+     "hash": "801ae662f1331bb3"
+    }
+   ],
+   "key": "6eb9a2154e83c01b",
+   "built_key": "6eb9a2154e83c01b",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0034.png",
+   "artifact_hash": "2dd97093b0f5ee75",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0035",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0035.png",
+     "hash": "909470688fb757cb"
+    }
+   ],
+   "key": "0ae4ce1525cc2803",
+   "built_key": "0ae4ce1525cc2803",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0035.png",
+   "artifact_hash": "ad797bc5f92c26e8",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0036",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0036.png",
+     "hash": "25cce17d5d6714d0"
+    }
+   ],
+   "key": "73c16d8c71fada71",
+   "built_key": "73c16d8c71fada71",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0036.png",
+   "artifact_hash": "98dd58350c637c13",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0038",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0038.png",
+     "hash": "8f60d591bc2226c2"
+    }
+   ],
+   "key": "8f02e9d0153325a4",
+   "built_key": "8f02e9d0153325a4",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0038.png",
+   "artifact_hash": "24f710b47674daff",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0039",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0039.png",
+     "hash": "de223b2ce3cf5f23"
+    }
+   ],
+   "key": "f34a1d9dd7b5b092",
+   "built_key": "f34a1d9dd7b5b092",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0039.png",
+   "artifact_hash": "5ec30036f8e69189",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0040",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0040.png",
+     "hash": "56281531e0f269a1"
+    }
+   ],
+   "key": "469b1ad3c87436c5",
+   "built_key": "469b1ad3c87436c5",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0040.png",
+   "artifact_hash": "b358d85de6727a8c",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-walk-f_0041",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-seth-ink-walk-final/f_0041.png",
+     "hash": "f5ff64fbb63a95d7"
+    }
+   ],
+   "key": "8b77a0f581dea971",
+   "built_key": "8b77a0f581dea971",
+   "artifact": "/tmp/repaint/seth-ink-walk-f_0041.png",
+   "artifact_hash": "a55a782f221b4adc",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:idle",
+   "kind": "clip",
+   "tag": "idle",
+   "params": {
+    "recipe": "idle-breathe",
+    "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+    "trait": "",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-seth-ink.png",
+     "hash": null
+    }
+   ],
+   "key": "2dd134342430191b",
+   "built_key": "2dd134342430191b",
+   "artifact": "/tmp/seth-ink-832/seth-ink-idle-832x832.mp4",
+   "artifact_hash": "25a37db324a61283",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:idle",
+   "kind": "frames",
+   "tag": "idle",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:idle",
+     "path": "/tmp/seth-ink-832/seth-ink-idle-832x832.mp4",
+     "hash": "25a37db324a61283"
+    }
+   ],
+   "key": "8e546c0c9cfed3af",
+   "built_key": "8e546c0c9cfed3af",
+   "artifact": "/tmp/sprite-seth-ink-idle-pick",
+   "artifact_hash": "ccf6dfe351db23b4",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:idle",
+   "kind": "picks",
+   "tag": "idle",
+   "params": {
+    "cells": 8,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:idle",
+     "path": "/tmp/sprite-seth-ink-idle-pick",
+     "hash": "ccf6dfe351db23b4"
+    }
+   ],
+   "key": "52af5cd389607237",
+   "built_key": "52af5cd389607237",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/seth-ink.json",
+   "artifact_hash": "f1ef80d1be682061",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0026",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0026.png",
+     "hash": "fcbdda4363f61490"
+    }
+   ],
+   "key": "7d5e247b42d2abc9",
+   "built_key": "7d5e247b42d2abc9",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0026.png",
+   "artifact_hash": "7dca389520438c66",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0029",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0029.png",
+     "hash": "3c4f9b9d73868142"
+    }
+   ],
+   "key": "d75db1fb67dfab92",
+   "built_key": "d75db1fb67dfab92",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0029.png",
+   "artifact_hash": "e33a9b774d2f5154",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0040-s78",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 78,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0040.png",
+     "hash": "c90ff7e83c2e78dd"
+    }
+   ],
+   "key": "a0b059a25e864c1b",
+   "built_key": "a0b059a25e864c1b",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0040-s78.png",
+   "artifact_hash": "b3f9ba3924bf3c7c",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0042",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0042.png",
+     "hash": "bf2a765c9969a4bb"
+    }
+   ],
+   "key": "a2ccc3a7904887b0",
+   "built_key": "a2ccc3a7904887b0",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0042.png",
+   "artifact_hash": "5cad7e5160bf6bfc",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0050",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0050.png",
+     "hash": "f9905ba5e504e82f"
+    }
+   ],
+   "key": "0360cc2f42c6b41c",
+   "built_key": "0360cc2f42c6b41c",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0050.png",
+   "artifact_hash": "c88cb3d8a273dc78",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0051",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0051.png",
+     "hash": "528dedd59218a52d"
+    }
+   ],
+   "key": "4eb85a8a4198097e",
+   "built_key": "4eb85a8a4198097e",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0051.png",
+   "artifact_hash": "dc94658f955f3210",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0055-s78",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 78,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0055.png",
+     "hash": "6e40f6325b8fc4e0"
+    }
+   ],
+   "key": "dd5b34af4f74ffdb",
+   "built_key": "dd5b34af4f74ffdb",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0055-s78.png",
+   "artifact_hash": "9a18fba4306ce584",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:seth-ink-idle-f_0068",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-seth-ink-idle-final/f_0068.png",
+     "hash": "d5260a7f4d04f20f"
+    }
+   ],
+   "key": "03bd8e00035a138c",
+   "built_key": "03bd8e00035a138c",
+   "artifact": "/tmp/repaint/seth-ink-idle-f_0068.png",
+   "artifact_hash": "4e23ca1f5dd3bdff",
+   "cost_s": 45
+  },
+  {
+   "id": "pack",
+   "kind": "pack",
+   "tag": null,
+   "params": {
+    "cell": 512,
+    "pivot": [
+     256,
+     481
+    ],
+    "columns": 10,
+    "height_cap": 0.92,
+    "up_cap": 0.88,
+    "tags": [
+     {
+      "name": "uppercut",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "punch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "kick",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "block",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "crouch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "jump",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "walk",
+      "fps": 14,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": "head",
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "idle",
+      "fps": 8,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": true,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "from": "repaint:seth-ink-uppercut-f_0009",
+     "path": "/tmp/repaint/seth-ink-uppercut-f_0009.png",
+     "hash": "67845405d8fa16eb"
+    },
+    {
+     "from": "repaint:seth-ink-uppercut-f_0024",
+     "path": "/tmp/repaint/seth-ink-uppercut-f_0024.png",
+     "hash": "d0a264f7894ae302"
+    },
+    {
+     "from": "repaint:seth-ink-uppercut-f_0030",
+     "path": "/tmp/repaint/seth-ink-uppercut-f_0030.png",
+     "hash": "e3266941bbab13bb"
+    },
+    {
+     "from": "repaint:seth-ink-uppercut-f_0037",
+     "path": "/tmp/repaint/seth-ink-uppercut-f_0037.png",
+     "hash": "a94b4eab18cb4d7d"
+    },
+    {
+     "from": "repaint:seth-ink-uppercut-f_0040",
+     "path": "/tmp/repaint/seth-ink-uppercut-f_0040.png",
+     "hash": "b3c9d2c096c17899"
+    },
+    {
+     "from": "repaint:seth-ink-uppercut-f_0045",
+     "path": "/tmp/repaint/seth-ink-uppercut-f_0045.png",
+     "hash": "edffd8d106d916b7"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0007",
+     "path": "/tmp/repaint/seth-ink-punch-f_0007.png",
+     "hash": "57bbc875a508e892"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0023",
+     "path": "/tmp/repaint/seth-ink-punch-f_0023.png",
+     "hash": "7f56a3a0592360fd"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0025",
+     "path": "/tmp/repaint/seth-ink-punch-f_0025.png",
+     "hash": "241b32af435329c1"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0027",
+     "path": "/tmp/repaint/seth-ink-punch-f_0027.png",
+     "hash": "adce39ad7ab86ecd"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0028",
+     "path": "/tmp/repaint/seth-ink-punch-f_0028.png",
+     "hash": "56453caf3e2638b6"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0029",
+     "path": "/tmp/repaint/seth-ink-punch-f_0029.png",
+     "hash": "117a560f9fd8c085"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0032",
+     "path": "/tmp/repaint/seth-ink-punch-f_0032.png",
+     "hash": "595bb8d7668adfbe"
+    },
+    {
+     "from": "repaint:seth-ink-punch-f_0047",
+     "path": "/tmp/repaint/seth-ink-punch-f_0047.png",
+     "hash": "56db0adb1bffdc26"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0007",
+     "path": "/tmp/repaint/seth-ink-kick-f_0007.png",
+     "hash": "a8323bf1d420ab14"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0025",
+     "path": "/tmp/repaint/seth-ink-kick-f_0025.png",
+     "hash": "f7cec214b88dcc36"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0028",
+     "path": "/tmp/repaint/seth-ink-kick-f_0028.png",
+     "hash": "90833a4bfd269be7"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0031",
+     "path": "/tmp/repaint/seth-ink-kick-f_0031.png",
+     "hash": "6d15526bd9f3de56"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0042",
+     "path": "/tmp/repaint/seth-ink-kick-f_0042.png",
+     "hash": "fca69ec7c7c2ca4a"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0059",
+     "path": "/tmp/repaint/seth-ink-kick-f_0059.png",
+     "hash": "0ac2a05961731737"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0063",
+     "path": "/tmp/repaint/seth-ink-kick-f_0063.png",
+     "hash": "6ffc6ce068d2e2b5"
+    },
+    {
+     "from": "repaint:seth-ink-kick-f_0065",
+     "path": "/tmp/repaint/seth-ink-kick-f_0065.png",
+     "hash": "c62e12273a347560"
+    },
+    {
+     "from": "repaint:seth-ink-block-f_0007",
+     "path": "/tmp/repaint/seth-ink-block-f_0007.png",
+     "hash": "23d661f287a63ba3"
+    },
+    {
+     "from": "repaint:seth-ink-block-f_0023",
+     "path": "/tmp/repaint/seth-ink-block-f_0023.png",
+     "hash": "0a1582815aa9b18c"
+    },
+    {
+     "from": "repaint:seth-ink-block-f_0024",
+     "path": "/tmp/repaint/seth-ink-block-f_0024.png",
+     "hash": "154cb0b3c16e3078"
+    },
+    {
+     "from": "repaint:seth-ink-block-f_0025",
+     "path": "/tmp/repaint/seth-ink-block-f_0025.png",
+     "hash": "c6382c79724b3d38"
+    },
+    {
+     "from": "repaint:seth-ink-block-f_0027",
+     "path": "/tmp/repaint/seth-ink-block-f_0027.png",
+     "hash": "64236a147934f496"
+    },
+    {
+     "from": "repaint:seth-ink-block-f_0035",
+     "path": "/tmp/repaint/seth-ink-block-f_0035.png",
+     "hash": "53cec3672986b9d0"
+    },
+    {
+     "from": "repaint:seth-ink-crouch-f_0007",
+     "path": "/tmp/repaint/seth-ink-crouch-f_0007.png",
+     "hash": "a4943d1cbc4efda7"
+    },
+    {
+     "from": "repaint:seth-ink-crouch-f_0022",
+     "path": "/tmp/repaint/seth-ink-crouch-f_0022.png",
+     "hash": "6aeaa0d1f6c27c37"
+    },
+    {
+     "from": "repaint:seth-ink-crouch-f_0024",
+     "path": "/tmp/repaint/seth-ink-crouch-f_0024.png",
+     "hash": "722c558be233a68a"
+    },
+    {
+     "from": "repaint:seth-ink-crouch-f_0029",
+     "path": "/tmp/repaint/seth-ink-crouch-f_0029.png",
+     "hash": "914e13ed5ecaa8d5"
+    },
+    {
+     "from": "repaint:seth-ink-crouch-f_0053",
+     "path": "/tmp/repaint/seth-ink-crouch-f_0053.png",
+     "hash": "c9aa3c8dbc0296d2"
+    },
+    {
+     "from": "repaint:seth-ink-crouch-f_0055",
+     "path": "/tmp/repaint/seth-ink-crouch-f_0055.png",
+     "hash": "8da43183dd418fef"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0007",
+     "path": "/tmp/repaint/seth-ink-jump-f_0007.png",
+     "hash": "8e180250b087e249"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0024",
+     "path": "/tmp/repaint/seth-ink-jump-f_0024.png",
+     "hash": "9dd31a9415010dc3"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0032",
+     "path": "/tmp/repaint/seth-ink-jump-f_0032.png",
+     "hash": "e5437f81c261b540"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0035",
+     "path": "/tmp/repaint/seth-ink-jump-f_0035.png",
+     "hash": "eae5f249ff4db054"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0039",
+     "path": "/tmp/repaint/seth-ink-jump-f_0039.png",
+     "hash": "6045bbda5a3463d9"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0047",
+     "path": "/tmp/repaint/seth-ink-jump-f_0047.png",
+     "hash": "11e6e4d0047858e6"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0048",
+     "path": "/tmp/repaint/seth-ink-jump-f_0048.png",
+     "hash": "6c10639e7c0e79cd"
+    },
+    {
+     "from": "repaint:seth-ink-jump-f_0051",
+     "path": "/tmp/repaint/seth-ink-jump-f_0051.png",
+     "hash": "fcafa65b33332dc7"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0029",
+     "path": "/tmp/repaint/seth-ink-walk-f_0029.png",
+     "hash": "341d3d3225e77e47"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0031",
+     "path": "/tmp/repaint/seth-ink-walk-f_0031.png",
+     "hash": "21ae2ab0ecfcefce"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0032",
+     "path": "/tmp/repaint/seth-ink-walk-f_0032.png",
+     "hash": "68b28057d819fdf7"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0034",
+     "path": "/tmp/repaint/seth-ink-walk-f_0034.png",
+     "hash": "2dd97093b0f5ee75"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0035",
+     "path": "/tmp/repaint/seth-ink-walk-f_0035.png",
+     "hash": "ad797bc5f92c26e8"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0036",
+     "path": "/tmp/repaint/seth-ink-walk-f_0036.png",
+     "hash": "98dd58350c637c13"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0038",
+     "path": "/tmp/repaint/seth-ink-walk-f_0038.png",
+     "hash": "24f710b47674daff"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0039",
+     "path": "/tmp/repaint/seth-ink-walk-f_0039.png",
+     "hash": "5ec30036f8e69189"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0040",
+     "path": "/tmp/repaint/seth-ink-walk-f_0040.png",
+     "hash": "b358d85de6727a8c"
+    },
+    {
+     "from": "repaint:seth-ink-walk-f_0041",
+     "path": "/tmp/repaint/seth-ink-walk-f_0041.png",
+     "hash": "a55a782f221b4adc"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0026",
+     "path": "/tmp/repaint/seth-ink-idle-f_0026.png",
+     "hash": "7dca389520438c66"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0029",
+     "path": "/tmp/repaint/seth-ink-idle-f_0029.png",
+     "hash": "e33a9b774d2f5154"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0040-s78",
+     "path": "/tmp/repaint/seth-ink-idle-f_0040-s78.png",
+     "hash": "b3f9ba3924bf3c7c"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0042",
+     "path": "/tmp/repaint/seth-ink-idle-f_0042.png",
+     "hash": "5cad7e5160bf6bfc"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0050",
+     "path": "/tmp/repaint/seth-ink-idle-f_0050.png",
+     "hash": "c88cb3d8a273dc78"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0051",
+     "path": "/tmp/repaint/seth-ink-idle-f_0051.png",
+     "hash": "dc94658f955f3210"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0055-s78",
+     "path": "/tmp/repaint/seth-ink-idle-f_0055-s78.png",
+     "hash": "9a18fba4306ce584"
+    },
+    {
+     "from": "repaint:seth-ink-idle-f_0068",
+     "path": "/tmp/repaint/seth-ink-idle-f_0068.png",
+     "hash": "4e23ca1f5dd3bdff"
+    }
+   ],
+   "key": "d99abf187604ebcb",
+   "built_key": "d99abf187604ebcb",
+   "artifact": "/home/wilson/artifacts/cast-fighter/sprites/seth-ink.png",
+   "artifact_hash": "a116b07e2c3682e2",
+   "cost_s": 5
+  },
+  {
+   "id": "export:css",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "css"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/seth-ink.png",
+     "hash": "a116b07e2c3682e2"
+    }
+   ],
+   "key": "2687662389d2e401",
+   "built_key": "2687662389d2e401",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:godot",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "godot"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/seth-ink.png",
+     "hash": "a116b07e2c3682e2"
+    }
+   ],
+   "key": "972d76766da9f8a5",
+   "built_key": "972d76766da9f8a5",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-array",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-array"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/seth-ink.png",
+     "hash": "a116b07e2c3682e2"
+    }
+   ],
+   "key": "5dc07bf83dc61abd",
+   "built_key": "5dc07bf83dc61abd",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-hash",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-hash"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/seth-ink.png",
+     "hash": "a116b07e2c3682e2"
+    }
+   ],
+   "key": "603d13cc2f99837d",
+   "built_key": "603d13cc2f99837d",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:phaser3",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "phaser3"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/seth-ink.png",
+     "hash": "a116b07e2c3682e2"
+    }
+   ],
+   "key": "523107229d63c5c4",
+   "built_key": "523107229d63c5c4",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  }
+ ]
+}

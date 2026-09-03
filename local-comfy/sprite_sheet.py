@@ -50,7 +50,35 @@ SOFT_IN, SOFT_OUT = 45.0, 110.0   # colour distance from the measured screen: ba
 # walk scored 0.150 against a 0.159 random-pair baseline, i.e. his clip genuinely does not repeat.
 # A non-periodic cycle clip is an upstream problem to re-render, not a threshold to loosen.
 CYCLE_SCORE_MAX = 0.09
-EDGE_ERODE = 0                    # eroding eats the ink OUTLINE — the darkest pixels in the drawing
+# The SECOND gate, and the one that separates a walk from an idle. The score above says how
+# closely the clip matches itself at its BEST lag; it says nothing about whether that lag is a
+# real gait period. Measured over all 42 character clips on gpu-worker, the score alone does not
+# discriminate: Seth's shipped walk scores 0.0294 and his idle 0.0332 — a 12% margin, i.e. none.
+#
+# What DOES separate them is the shape of the self-similarity curve. A move that repeats carves a
+# TROUGH: the curve falls to the period and climbs away on both sides. A move that only mills
+# about — an idle, a breathe, a sway — never returns to a pose, so its curve is flat or climbs
+# monotonically, and its minimum is pinned at the min_period edge. So score the trough:
+#
+#     trough = min(max(curve left of the minimum), max(curve right of it)) / minimum
+#
+# and require the minimum to be interior (a monotone curve has no trough by definition, and
+# scores 1.0). This is NOT the relative gate the comment above warns off. That one divided by a
+# within-clip RANDOM-PAIR baseline, which the walk's own harmonics at 2P/3P dragged down. This
+# divides by the curve's SHOULDERS — maxima, not means — so harmonics deepen the trough instead
+# of erasing it, which is exactly the behaviour we want.
+#
+# Measured trough ratios, clips that also pass CYCLE_SCORE_MAX (full table in the A/B report):
+#     gnome walk        12.11      cadbury uppercut   1.77   <- highest non-cycle
+#     cadbury walk 2     7.02      nowater walk       1.55   <- a walk take that does not close
+#     sprite seth walk-c 5.63      cadbury punch      1.49
+#     sprite seth walk   3.24      seth block 1       1.37
+#     seth walk          2.89      seth/cadbury/nowater idles, blocks, kicks, crouches: 1.00
+#     ake roll           2.23   <- lowest genuine cycle
+# 2.0 is the geometric midpoint of 1.77 and 2.23, so both sides get ~11% headroom, and every
+# idle in the set sits at the 1.00 floor — a 2.2x margin, not a 12% one.
+CYCLE_TROUGH_MIN = 2.0
+EDGE_ERODE = 0                  # eroding eats the ink OUTLINE — the darkest pixels in the drawing
 CEL_CLEAN = True                  # off for repainted cells: they are drawn, not decoded, so there
                                   # is no codec noise to remove and the median only costs halftone
 
@@ -209,32 +237,140 @@ def find_cycle(sils, min_period=6):
     clip matches itself shifted by P, and take the best. Sampling n frames across exactly one
     period is what makes the first and last cell adjacent poses — i.e. what makes the loop
     seamless. Without this the sheet spans some arbitrary 0.7 of a stride and visibly hitches.
+
+    Returns (period, score, trough). `trough` is how many times the curve's shoulders sit above
+    its minimum — the flat-curve discriminator described at CYCLE_TROUGH_MIN. A curve whose
+    minimum is at either end of the search range has no trough and scores 1.0, which is the right
+    answer: a monotone curve is telling you the clip never comes back to a pose.
     """
     n = len(sils)
-    best, best_score = None, None
-    for p in range(min_period, n // 2 + 1):
+    periods = list(range(min_period, n // 2 + 1))
+    if not periods:
+        return None, None, 1.0
+    curve = []
+    for p in periods:
         pairs = n - p
-        diff = sum(float(np.abs(sils[t] - sils[t + p]).mean()) for t in range(pairs)) / pairs
-        if best_score is None or diff < best_score:
-            best, best_score = p, diff
-    return best, best_score
+        curve.append(sum(float(np.abs(sils[t] - sils[t + p]).mean()) for t in range(pairs)) / pairs)
+    i = int(np.argmin(curve))
+    best, best_score = periods[i], curve[i]
+    if 0 < i < len(curve) - 1 and best_score > 0:
+        trough = min(max(curve[:i]), max(curve[i + 1:])) / best_score
+    else:
+        trough = 1.0
+    return best, float(best_score), float(trough)
+
+
+def is_cycle(period, score, trough):
+    """CYCLE or AMBIENT. Both gates are absolute; see CYCLE_SCORE_MAX and CYCLE_TROUGH_MIN.
+
+    A move that passes is periodic and gets its cells cropped to one gait period. A move that
+    fails is AMBIENT: it drifts, it never returns, and cropping it to a "period" that is really
+    just the flattest part of a flat curve is what produced Seth's idle sheet with four duplicate
+    cells across a six-frame window.
+    """
+    return bool(period and score is not None
+                and score < CYCLE_SCORE_MAX and trough >= CYCLE_TROUGH_MIN)
+
+
+# Which spacing rule the CYCLIC branch uses inside the gait period. "arclength" spaces by equal
+# cumulative MOTION -- the same rule the non-cyclic branch below has always used -- and is now the
+# default: A/B'd against equal TIME on Cadbury's walk it closed the loop 39% tighter (loop_closure
+# 1.27 -> 0.77) at identical cell count, distinctness and every other QC number. "energy" is the
+# old equal-time rule, kept as SELECT_MODE=energy for rollback. Span selection (where the period
+# starts, how long it is) is identical either way, and so is the sharpest-frame nudge.
+SELECT_MODE = os.environ.get("SELECT_MODE", "arclength")
+
+
+def motion_curve(sils):
+    """Per-frame motion: mean absolute difference between consecutive keyed silhouettes.
+
+    Read off the 48x48 silhouettes rather than the RGBA, so it measures the CHARACTER moving and
+    not the halftone or the codec breathing on a flat magenta field.
+    """
+    out = [0.0]
+    for i in range(1, len(sils)):
+        out.append(float(np.abs(sils[i] - sils[i - 1]).mean()))
+    return np.asarray(out)
+
+
+def arclength_raw(sils, start, period, count):
+    """`count` frames at equal CUMULATIVE-MOTION intervals along one gait period.
+
+    Equal-time spacing hands every beat of the stride the same cell budget, so a passing position
+    that crosses in two frames gets as many cells as a contact that dwells for six. Walking the
+    cumulative-motion curve instead places a cell every time the same AMOUNT of movement has
+    happened, which is what an animator means by even spacing.
+
+    It cannot manufacture frames that are not there: `count` picks across a `period`-frame span
+    can only ever be as distinct as the span is long, whatever the spacing rule.
+    """
+    seg = motion_curve(sils[start:start + period + 1])
+    cum = np.cumsum(seg)
+    if cum[-1] <= 0:                          # a dead-still span: fall back to equal time
+        return [start + int(round(period * i / count)) for i in range(count)]
+    targets = np.linspace(0, cum[-1], count, endpoint=False)
+    return [start + min(int(np.searchsorted(cum, t)), period - 1) for t in targets]
+
+
+def farthest_poses(sils, count):
+    """`count` maximally distinct poses across the WHOLE clip. Greedy farthest-point, deterministic.
+
+    This is the AMBIENT rule. An idle has no period to crop to, so any window you pick is
+    arbitrary, and a narrow one hands the repainter the same drawing several times over. Instead
+    take the pose furthest from the clip's average, then repeatedly take the frame that is most
+    different from EVERY pose already taken. That maximises the smallest gap between cells, which
+    is the quantity `duplicate_cells` actually measures.
+
+    Deterministic by construction: no randomness, and np.argmax breaks every tie on the lowest
+    index, so the same clip always yields the same cells.
+    """
+    n = len(sils)
+    if count >= n:
+        return list(range(n))
+    flat = np.stack([s.ravel() for s in sils])
+    # Seed on the most extreme pose rather than frame 0: frame 0 is wherever H3 happened to start.
+    first = int(np.argmax(np.abs(flat - flat.mean(axis=0)).mean(axis=1)))
+    picks = [first]
+    dist = np.abs(flat - flat[first]).mean(axis=1)
+    while len(picks) < count:
+        nxt = int(np.argmax(dist))
+        if dist[nxt] <= 0:      # nothing distinct left — a frozen clip, not a selection failure
+            break
+        picks.append(nxt)
+        dist = np.minimum(dist, np.abs(flat - flat[nxt]).mean(axis=1))
+    return sorted(picks)
 
 
 def pose_extremes(frames, count, cycle=True):
     """Pick the cells. Inside one gait period when the move loops, by motion energy when it does not."""
     sils = silhouettes(frames)
     if cycle and len(frames) >= 16:
-        period, score = find_cycle(sils)
-        # A loose match means the move genuinely is not periodic (a jump, a bow) — fall through.
-        if period and score < CYCLE_SCORE_MAX:
+        period, score, trough = find_cycle(sils)
+        if is_cycle(period, score, trough):
             # Where the cycle STARTS decides whether it loops. Picking the busiest frame reads
             # well but says nothing about the seam, and the walk came back with a wrap step twice
             # the size of every other step. Start instead on the frame whose pose the cycle
             # returns to most exactly — that IS the seam, so minimising it closes the loop.
             start = min(range(len(frames) - period),
                         key=lambda t: float(np.abs(sils[t] - sils[t + period]).mean()))
-            raw = [start + int(round(period * i / count)) for i in range(count)]
+            # A period-frame span holds at most `period` distinct drawings, whatever the spacing
+            # rule. Asking for more only buys duplicate cells, which read as a stutter.
+            if count > period:
+                print(f"  warning: {count} cells asked for but the gait period is {period} frames"
+                      f" — capping at {period}")
+                count = period
+            if SELECT_MODE == "energy":
+                raw = [start + int(round(period * i / count)) for i in range(count)]
+            else:
+                raw = arclength_raw(sils, start, period, count)
             return _snap(frames, raw), period
+        # AMBIENT: flat or featureless self-similarity curve, so there is no period to crop to.
+        # Spread the cells over the whole clip, then put them back in clip order — an idle loops
+        # as a subtle shuffle and still has to PLAY, so time order is the playback order.
+        print(f"  ambient move (score {'n/a' if score is None else f'{score:.4f}'}, "
+              f"trough {trough:.2f}x < {CYCLE_TROUGH_MIN}) — {count} distinct poses "
+              f"across the whole clip")
+        return sorted(_snap(frames, farthest_poses(sils, count))), None
     energy = [0.0]
     prev = np.asarray(frames[0]).astype(np.float32)
     for f in frames[1:]:
@@ -353,7 +489,7 @@ def _prepare(clip, name, n_frames, skip, cycle, anchor, smooth, stop=False):
         keep = keep[:cut + 1]
     picks, period = pose_extremes([rgba[i] for i in keep], n_frames, cycle)
     picks = [keep[p] for p in picks]
-    print(f"  {name} cycle: {'period ' + str(period) + ' frames' if period else 'not periodic, spaced by motion'}")
+    print(f"  {name} cycle: {'period ' + str(period) + ' frames' if period else 'ambient / not periodic — cells spread over the whole clip'}")
 
     # anchor per frame: feet = bottom centre of the silhouette, the origin a game engine expects
     anchors = []

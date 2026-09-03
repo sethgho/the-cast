@@ -34,8 +34,14 @@ from build_extras import engine, note  # noqa: E402
 from build_transition import H3_CLIP, H3_VIDEO_VAE, H3_AUDIO_VAE  # noqa: E402
 
 W, H, SEED = 1920, 832, 7
-PLATES = ["rubberhose-kf-seth.png", "rubberhose-kf-wilson.png",
-          "rubberhose-kf-cadbury.png", "rubberhose-kf-ake.png"]
+# THE CANON LIVES IN THE REPO, NOT IN ComfyUI's INPUT FOLDER.
+# cast/<id>/assets/poses/standing-neutral.png is the reference, published at
+# https://cast.sethgholson.com/<id>/assets.json with provenance in cast/<id>/assets.yaml.
+# canon-*.png in ~/comfyui/input are copies of those files and nothing else; re-copy them when
+# the repo moves. The old rubberhose-kf-*.png plates were a local invention that drifted off
+# model and are retired to input/_retired.
+PLATES = ["canon-seth.png", "canon-wilson.png",
+          "canon-cadbury.png", "canon-ake.png"]
 
 WIDGETS.setdefault("ImageStitch",
                    ["direction", "match_image_size", "spacing_width", "spacing_color"])

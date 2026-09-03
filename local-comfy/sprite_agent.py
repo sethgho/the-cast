@@ -221,11 +221,16 @@ def gait(cid, tag_name):
         top = max(energy) or 1.0
         # find_cycle needs half a clip to score a period against; below that it would be scoring
         # one shift against two samples, which is noise with a number on it.
-        period, score = RC.SS.find_cycle(sils) if len(sils) >= 16 else (None, None)
-        if score is None or score >= RC.SS.CYCLE_SCORE_MAX:
+        period, score, trough = (RC.SS.find_cycle(sils) if len(sils) >= 16
+                                 else (None, None, 1.0))
+        # The workbench must agree with the packer about what a cycle IS, so ask the packer.
+        # A move the packer calls AMBIENT has no period to draw, and drawing one anyway put a
+        # gait band on Seth's idle that its cells were never picked from.
+        if not RC.SS.is_cycle(period, score, trough):
             period = None
         out = {"frames": paths, "energy": [round(e / top, 4) for e in energy],
-               "period": period, "score": None if score is None else round(score, 4)}
+               "period": period, "score": None if score is None else round(score, 4),
+               "trough": round(trough, 3), "kind": "cycle" if period else "ambient"}
     _GAIT[(cid, tag_name)] = (stamp, out)
     return out
 

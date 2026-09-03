@@ -268,12 +268,12 @@
      "links": null
     }
    ],
-   "title": "\u25b6 REFERENCE",
+   "title": "\u25b6 REFERENCE 1",
    "properties": {
     "Node name for S&R": "LoadImage"
    },
    "widgets_values": [
-    "rubberhose-kf-seth.png",
+    "canon-seth.png",
     "image"
    ],
    "color": "#223",

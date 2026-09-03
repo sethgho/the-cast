@@ -1,0 +1,1729 @@
+{
+ "character": "nowater",
+ "name": "0xNoWater",
+ "cell": 512,
+ "pivot": [
+  256,
+  481
+ ],
+ "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+ "plate": {
+  "source": "/tmp/sprite-uploads/src-5eea76c5c32344ed.png",
+  "prop": null
+ },
+ "build": {
+  "template_version": "cdae6be0a5e63c9e",
+  "clip": {
+   "size": 832,
+   "steps": 20,
+   "length": 61,
+   "seed": 77
+  },
+  "picks": {
+   "skip": 6,
+   "anchor": "feet",
+   "smooth": true
+  },
+  "repaint": {
+   "pad": 0.86,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0
+  },
+  "pack": {
+   "columns": 10,
+   "height_cap": 0.92,
+   "up_cap": 0.88
+  },
+  "cost_s": {
+   "plate": 20,
+   "clip": 170,
+   "frames": 10,
+   "picks": 5,
+   "repaint": 45,
+   "pack": 5,
+   "export": 0
+  }
+ },
+ "tags": [
+  {
+   "name": "walk",
+   "from": 0,
+   "to": 9,
+   "fps": 4,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": "head",
+   "clip": "/tmp/nowater-walk-cycle-832-20.mp4",
+   "recipe": "walk-cycle",
+   "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill, his legs facing to the right: he strides steadily through contact, down, passing and up positions, and his body never travels across the frame -- it stays pinned to exactly the same spot the entire time, with no forward drift. This is a LOOPING cycle, not a walk that goes somewhere: the clip must begin and end on the identical contact pose, same forward leg planted, same trailing leg back, same arm swing, same torso lean, same height off the ground -- frame one and the final frame must be the same drawing, pose for pose, so that playing the clip on repeat shows no jump, no reset and no hitch at the seam.",
+   "cells": 10,
+   "cyclic": true
+  },
+  {
+   "name": "idle",
+   "from": 10,
+   "to": 17,
+   "fps": 8,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": true,
+   "clip": "/tmp/nowater-idle-breathe-832-20.mp4",
+   "recipe": "idle-breathe",
+   "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+   "cells": 8,
+   "cyclic": true
+  },
+  {
+   "name": "punch",
+   "from": 18,
+   "to": 17,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/nowater-punch-832-20.mp4",
+   "recipe": "punch",
+   "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "kick",
+   "from": 18,
+   "to": 17,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/nowater-kick-832-20.mp4",
+   "recipe": "kick",
+   "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "jump",
+   "from": 18,
+   "to": 17,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": false,
+   "unify": false,
+   "clip": "/tmp/nowater-jump-832-20.mp4",
+   "recipe": "jump",
+   "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+   "cells": 8,
+   "cyclic": false
+  },
+  {
+   "name": "block",
+   "from": 18,
+   "to": 17,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/nowater-block-832-20.mp4",
+   "recipe": "block",
+   "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+   "cells": 6,
+   "cyclic": false
+  },
+  {
+   "name": "crouch",
+   "from": 18,
+   "to": 17,
+   "fps": 16,
+   "direction": "forward",
+   "loop": false,
+   "hold_key": true,
+   "unify": false,
+   "clip": "/tmp/nowater-crouch-832-20.mp4",
+   "recipe": "crouch",
+   "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+   "cells": 6,
+   "cyclic": false
+  }
+ ],
+ "frames": [
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0016.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0016.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0017.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0017.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0018.png",
+   "seed": 811298902,
+   "png": "/tmp/repaint/nowater-walk-f_0018-s811298902.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0020.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0020.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0021.png",
+   "seed": 718347972,
+   "png": "/tmp/repaint/nowater-walk-f_0021-s718347972.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    -1
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0022.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0022.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0023.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0023.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0024.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0024.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0026.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0026.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-walk-pick/f_0027.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-walk-f_0027.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0057.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0057.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0058.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0058.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0059.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0059.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0059.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0059.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0060.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0060.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0061.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0061.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0061.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0061.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  },
+  {
+   "src": "/tmp/sprite-nowater-idle-pick/f_0062.png",
+   "seed": 77,
+   "png": "/tmp/repaint/nowater-idle-f_0062.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "id": "plate",
+   "kind": "plate",
+   "tag": null,
+   "params": {},
+   "inputs": [
+    {
+     "from": null,
+     "path": "/tmp/sprite-uploads/src-5eea76c5c32344ed.png",
+     "hash": "d79aca05e7153e17"
+    }
+   ],
+   "key": "076758c7e9a93adb",
+   "built_key": "076758c7e9a93adb",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+   "artifact_hash": "51f58f57e71bfd85",
+   "cost_s": 20
+  },
+  {
+   "id": "clip:walk",
+   "kind": "clip",
+   "tag": "walk",
+   "params": {
+    "recipe": "walk-cycle",
+    "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "733ccec253257e38",
+   "built_key": "431eeca927d84dec",
+   "artifact": "/tmp/nowater-walk-cycle-832-20.mp4",
+   "artifact_hash": "6151fddfcd788078",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:walk",
+   "kind": "frames",
+   "tag": "walk",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:walk",
+     "path": "/tmp/nowater-walk-cycle-832-20.mp4",
+     "hash": "6151fddfcd788078"
+    }
+   ],
+   "key": "2e98fa18205eb1c3",
+   "built_key": "2e98fa18205eb1c3",
+   "artifact": "/tmp/sprite-nowater-walk-pick",
+   "artifact_hash": "0b31c722e4abc6d7",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:walk",
+   "kind": "picks",
+   "tag": "walk",
+   "params": {
+    "cells": 10,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:walk",
+     "path": "/tmp/sprite-nowater-walk-pick",
+     "hash": "0b31c722e4abc6d7"
+    }
+   ],
+   "key": "14e0d8de538ed810",
+   "built_key": "14e0d8de538ed810",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "4200fa304c1db6fc",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:nowater-walk-f_0016",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0016.png",
+     "hash": "ff2c47604672b87f"
+    }
+   ],
+   "key": "71077972c1311c04",
+   "built_key": "71077972c1311c04",
+   "artifact": "/tmp/repaint/nowater-walk-f_0016.png",
+   "artifact_hash": "544a15032a4b6ac1",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0017",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0017.png",
+     "hash": "a1ba28dd804d4a14"
+    }
+   ],
+   "key": "835bc7c11a0f4964",
+   "built_key": "835bc7c11a0f4964",
+   "artifact": "/tmp/repaint/nowater-walk-f_0017.png",
+   "artifact_hash": "c6fc32cee84dbde2",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0018-s811298902",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 811298902,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0018.png",
+     "hash": "d006f25f0285ab09"
+    }
+   ],
+   "key": "522929c8525865b7",
+   "built_key": "522929c8525865b7",
+   "artifact": "/tmp/repaint/nowater-walk-f_0018-s811298902.png",
+   "artifact_hash": "335c3f82e7887070",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0020",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0020.png",
+     "hash": "8bc6bfabb6026649"
+    }
+   ],
+   "key": "929d37069b52c4bf",
+   "built_key": "929d37069b52c4bf",
+   "artifact": "/tmp/repaint/nowater-walk-f_0020.png",
+   "artifact_hash": "297f4e03ce670e25",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0021-s718347972",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 718347972,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0021.png",
+     "hash": "3873f91800f7b048"
+    }
+   ],
+   "key": "e303b01e1e0158ad",
+   "built_key": "e303b01e1e0158ad",
+   "artifact": "/tmp/repaint/nowater-walk-f_0021-s718347972.png",
+   "artifact_hash": "228cc31b52ada3ee",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0022",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0022.png",
+     "hash": "9788ba295869586b"
+    }
+   ],
+   "key": "c190944eab7bea3b",
+   "built_key": "c190944eab7bea3b",
+   "artifact": "/tmp/repaint/nowater-walk-f_0022.png",
+   "artifact_hash": "5dfa90ea35c81f78",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0023",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0023.png",
+     "hash": "129d4bdd8cbcfd84"
+    }
+   ],
+   "key": "47906443402857d8",
+   "built_key": "47906443402857d8",
+   "artifact": "/tmp/repaint/nowater-walk-f_0023.png",
+   "artifact_hash": "37ac9cda6432657c",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0024",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0024.png",
+     "hash": "74477673d2a69d90"
+    }
+   ],
+   "key": "f583be7d9517fe6a",
+   "built_key": "f583be7d9517fe6a",
+   "artifact": "/tmp/repaint/nowater-walk-f_0024.png",
+   "artifact_hash": "fc4d12d418283209",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0026",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0026.png",
+     "hash": "ed322bad313efb33"
+    }
+   ],
+   "key": "149870cb2203e10c",
+   "built_key": "149870cb2203e10c",
+   "artifact": "/tmp/repaint/nowater-walk-f_0026.png",
+   "artifact_hash": "d5a97ddbd39abe3e",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-walk-f_0027",
+   "kind": "repaint",
+   "tag": "walk",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:walk",
+     "path": "/tmp/sprite-nowater-walk-pick/f_0027.png",
+     "hash": "ad2d3af812e338e9"
+    }
+   ],
+   "key": "b0d6eaf2b30451b3",
+   "built_key": "b0d6eaf2b30451b3",
+   "artifact": "/tmp/repaint/nowater-walk-f_0027.png",
+   "artifact_hash": "eb1b6dd7577db195",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:idle",
+   "kind": "clip",
+   "tag": "idle",
+   "params": {
+    "recipe": "idle-breathe",
+    "recipe_text": "a gentle idle: he stands square, breathing, weight shifting a little from one side to the other, and returns exactly to the pose he started in",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": true,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "d1ef1fdd83a5bf0e",
+   "built_key": "0f3e99ea82aa4e3f",
+   "artifact": "/tmp/nowater-idle-breathe-832-20.mp4",
+   "artifact_hash": "d30dc0113cae4221",
+   "cost_s": 170
+  },
+  {
+   "id": "frames:idle",
+   "kind": "frames",
+   "tag": "idle",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:idle",
+     "path": "/tmp/nowater-idle-breathe-832-20.mp4",
+     "hash": "d30dc0113cae4221"
+    }
+   ],
+   "key": "c7c6672655ce21c0",
+   "built_key": "c7c6672655ce21c0",
+   "artifact": "/tmp/sprite-nowater-idle-pick",
+   "artifact_hash": "5f08e11cc51227b1",
+   "cost_s": 10
+  },
+  {
+   "id": "picks:idle",
+   "kind": "picks",
+   "tag": "idle",
+   "params": {
+    "cells": 8,
+    "cycle": true,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:idle",
+     "path": "/tmp/sprite-nowater-idle-pick",
+     "hash": "5f08e11cc51227b1"
+    }
+   ],
+   "key": "77ecdc692aef0243",
+   "built_key": "77ecdc692aef0243",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "6aa85b3e9f046e4a",
+   "cost_s": 5
+  },
+  {
+   "id": "repaint:nowater-idle-f_0057",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0057.png",
+     "hash": "09f1fe52a3f231e5"
+    }
+   ],
+   "key": "14a36480219b27e6",
+   "built_key": "14a36480219b27e6",
+   "artifact": "/tmp/repaint/nowater-idle-f_0057.png",
+   "artifact_hash": "616b0500f950849d",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0058",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0058.png",
+     "hash": "5dbd2fdffdd0b935"
+    }
+   ],
+   "key": "6885b2ca5e15d22a",
+   "built_key": "6885b2ca5e15d22a",
+   "artifact": "/tmp/repaint/nowater-idle-f_0058.png",
+   "artifact_hash": "bd321bbf4c53de91",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0059",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0059.png",
+     "hash": "f530f4505c55a9a4"
+    }
+   ],
+   "key": "3d3ab19c566fdbf0",
+   "built_key": "3d3ab19c566fdbf0",
+   "artifact": "/tmp/repaint/nowater-idle-f_0059.png",
+   "artifact_hash": "14280a284d354dbb",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0059",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0059.png",
+     "hash": "f530f4505c55a9a4"
+    }
+   ],
+   "key": "3d3ab19c566fdbf0",
+   "built_key": "3d3ab19c566fdbf0",
+   "artifact": "/tmp/repaint/nowater-idle-f_0059.png",
+   "artifact_hash": "14280a284d354dbb",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0060",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0060.png",
+     "hash": "3e718fd4c9dfb6f5"
+    }
+   ],
+   "key": "45f8418d52645330",
+   "built_key": "45f8418d52645330",
+   "artifact": "/tmp/repaint/nowater-idle-f_0060.png",
+   "artifact_hash": "a5d499e46496caed",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0061",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0061.png",
+     "hash": "78bc595cdbcbca60"
+    }
+   ],
+   "key": "b6807d597e224e33",
+   "built_key": "b6807d597e224e33",
+   "artifact": "/tmp/repaint/nowater-idle-f_0061.png",
+   "artifact_hash": "6dfc2c46d3bb7f7d",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0061",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0061.png",
+     "hash": "78bc595cdbcbca60"
+    }
+   ],
+   "key": "b6807d597e224e33",
+   "built_key": "b6807d597e224e33",
+   "artifact": "/tmp/repaint/nowater-idle-f_0061.png",
+   "artifact_hash": "6dfc2c46d3bb7f7d",
+   "cost_s": 45
+  },
+  {
+   "id": "repaint:nowater-idle-f_0062",
+   "kind": "repaint",
+   "tag": "idle",
+   "params": {
+    "seed": 77,
+    "pad": 0.86,
+    "steps": 8,
+    "cfg": 1.0,
+    "sampler": "euler",
+    "scheduler": "simple",
+    "denoise": 1.0
+   },
+   "inputs": [
+    {
+     "from": "picks:idle",
+     "path": "/tmp/sprite-nowater-idle-pick/f_0062.png",
+     "hash": "e860af5b205f1c4a"
+    }
+   ],
+   "key": "ace73206efd7733a",
+   "built_key": "ace73206efd7733a",
+   "artifact": "/tmp/repaint/nowater-idle-f_0062.png",
+   "artifact_hash": "42570091a7d309ca",
+   "cost_s": 45
+  },
+  {
+   "id": "clip:punch",
+   "kind": "clip",
+   "tag": "punch",
+   "params": {
+    "recipe": "punch",
+    "recipe_text": "he winds up, throws one straight punch out to the right, holds the extension a beat, and pulls the arm back to his guard",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "03997c46507e4c53",
+   "built_key": null,
+   "artifact": "/tmp/nowater-punch-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:punch",
+   "kind": "frames",
+   "tag": "punch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:punch",
+     "path": "/tmp/nowater-punch-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-nowater-punch-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:punch",
+   "kind": "picks",
+   "tag": "punch",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:punch",
+     "path": "/tmp/sprite-nowater-punch-pick",
+     "hash": null
+    }
+   ],
+   "key": "a725030fda13714c",
+   "built_key": "a725030fda13714c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:kick",
+   "kind": "clip",
+   "tag": "kick",
+   "params": {
+    "recipe": "kick",
+    "recipe_text": "he plants one foot, swings the other leg up in a high kick to the right, holds the extension, and sets the foot back down",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "8e22c7650b9db3f6",
+   "built_key": null,
+   "artifact": "/tmp/nowater-kick-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:kick",
+   "kind": "frames",
+   "tag": "kick",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:kick",
+     "path": "/tmp/nowater-kick-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-nowater-kick-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:kick",
+   "kind": "picks",
+   "tag": "kick",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:kick",
+     "path": "/tmp/sprite-nowater-kick-pick",
+     "hash": null
+    }
+   ],
+   "key": "a725030fda13714c",
+   "built_key": "a725030fda13714c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:jump",
+   "kind": "clip",
+   "tag": "jump",
+   "params": {
+    "recipe": "jump",
+    "recipe_text": "a standing jump: he crouches, springs up with arms rising, hangs at the top, and lands back on the ground line absorbing the impact",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "714103c3e6c23a78",
+   "built_key": null,
+   "artifact": "/tmp/nowater-jump-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:jump",
+   "kind": "frames",
+   "tag": "jump",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:jump",
+     "path": "/tmp/nowater-jump-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-nowater-jump-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:jump",
+   "kind": "picks",
+   "tag": "jump",
+   "params": {
+    "cells": 8,
+    "cycle": false,
+    "stop": false,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:jump",
+     "path": "/tmp/sprite-nowater-jump-pick",
+     "hash": null
+    }
+   ],
+   "key": "a725030fda13714c",
+   "built_key": "a725030fda13714c",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:block",
+   "kind": "clip",
+   "tag": "block",
+   "params": {
+    "recipe": "block",
+    "recipe_text": "he stands still on one spot with both feet planted flat on the ground and never takes a step, never walks and never moves across the screen; his hands are empty and his back stays straight and upright the whole time. Standing exactly where he is, he crosses both forearms up in front of his face and chest to shield himself, hunches his shoulders and tucks his head down behind his arms, holds that braced position, then lowers his arms back to his sides, his feet staying in the same place the whole time",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "6ac3d2ee53b3953b",
+   "built_key": null,
+   "artifact": "/tmp/nowater-block-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:block",
+   "kind": "frames",
+   "tag": "block",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:block",
+     "path": "/tmp/nowater-block-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-nowater-block-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:block",
+   "kind": "picks",
+   "tag": "block",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:block",
+     "path": "/tmp/sprite-nowater-block-pick",
+     "hash": null
+    }
+   ],
+   "key": "77962e840588dfc5",
+   "built_key": "77962e840588dfc5",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "clip:crouch",
+   "kind": "clip",
+   "tag": "crouch",
+   "params": {
+    "recipe": "crouch",
+    "recipe_text": "he ducks down into a low crouch, holds it a beat, and rises back to standing",
+    "trait": "A cactus man in a cypherpunk uniform, walking with authority like a soldier of fortune",
+    "cyclic": false,
+    "size": 832,
+    "steps": 20,
+    "length": 61,
+    "seed": 77
+   },
+   "inputs": [
+    {
+     "from": "plate",
+     "path": "/home/wilson/dev/the-cast/local-comfy/plates/cast-cutout-nowater.png",
+     "hash": "51f58f57e71bfd85"
+    }
+   ],
+   "key": "77250876b40fe7a0",
+   "built_key": null,
+   "artifact": "/tmp/nowater-crouch-832-20.mp4",
+   "artifact_hash": null,
+   "cost_s": 170
+  },
+  {
+   "id": "frames:crouch",
+   "kind": "frames",
+   "tag": "crouch",
+   "params": {
+    "skip": 6
+   },
+   "inputs": [
+    {
+     "from": "clip:crouch",
+     "path": "/tmp/nowater-crouch-832-20.mp4",
+     "hash": null
+    }
+   ],
+   "key": "5ca1c896adf2d816",
+   "built_key": null,
+   "artifact": "/tmp/sprite-nowater-crouch-pick",
+   "artifact_hash": null,
+   "cost_s": 10
+  },
+  {
+   "id": "picks:crouch",
+   "kind": "picks",
+   "tag": "crouch",
+   "params": {
+    "cells": 6,
+    "cycle": false,
+    "stop": true,
+    "anchor": "feet",
+    "smooth": true
+   },
+   "inputs": [
+    {
+     "from": "frames:crouch",
+     "path": "/tmp/sprite-nowater-crouch-pick",
+     "hash": null
+    }
+   ],
+   "key": "77962e840588dfc5",
+   "built_key": "77962e840588dfc5",
+   "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/nowater.json",
+   "artifact_hash": "4f53cda18c2baa0c",
+   "cost_s": 5
+  },
+  {
+   "id": "pack",
+   "kind": "pack",
+   "tag": null,
+   "params": {
+    "cell": 512,
+    "pivot": [
+     256,
+     481
+    ],
+    "columns": 10,
+    "height_cap": 0.92,
+    "up_cap": 0.88,
+    "tags": [
+     {
+      "name": "walk",
+      "fps": 4,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": "head",
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         -1
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "idle",
+      "fps": 8,
+      "direction": "forward",
+      "loop": true,
+      "hold_key": false,
+      "unify": true,
+      "cells": [
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       },
+       {
+        "hold": 1,
+        "pivot_nudge": [
+         0,
+         0
+        ]
+       }
+      ]
+     },
+     {
+      "name": "punch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "kick",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "jump",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": false,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "block",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": []
+     },
+     {
+      "name": "crouch",
+      "fps": 16,
+      "direction": "forward",
+      "loop": false,
+      "hold_key": true,
+      "unify": false,
+      "cells": []
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "from": "repaint:nowater-walk-f_0016",
+     "path": "/tmp/repaint/nowater-walk-f_0016.png",
+     "hash": "544a15032a4b6ac1"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0017",
+     "path": "/tmp/repaint/nowater-walk-f_0017.png",
+     "hash": "c6fc32cee84dbde2"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0018-s811298902",
+     "path": "/tmp/repaint/nowater-walk-f_0018-s811298902.png",
+     "hash": "335c3f82e7887070"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0020",
+     "path": "/tmp/repaint/nowater-walk-f_0020.png",
+     "hash": "297f4e03ce670e25"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0021-s718347972",
+     "path": "/tmp/repaint/nowater-walk-f_0021-s718347972.png",
+     "hash": "228cc31b52ada3ee"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0022",
+     "path": "/tmp/repaint/nowater-walk-f_0022.png",
+     "hash": "5dfa90ea35c81f78"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0023",
+     "path": "/tmp/repaint/nowater-walk-f_0023.png",
+     "hash": "37ac9cda6432657c"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0024",
+     "path": "/tmp/repaint/nowater-walk-f_0024.png",
+     "hash": "fc4d12d418283209"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0026",
+     "path": "/tmp/repaint/nowater-walk-f_0026.png",
+     "hash": "d5a97ddbd39abe3e"
+    },
+    {
+     "from": "repaint:nowater-walk-f_0027",
+     "path": "/tmp/repaint/nowater-walk-f_0027.png",
+     "hash": "eb1b6dd7577db195"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0057",
+     "path": "/tmp/repaint/nowater-idle-f_0057.png",
+     "hash": "616b0500f950849d"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0058",
+     "path": "/tmp/repaint/nowater-idle-f_0058.png",
+     "hash": "bd321bbf4c53de91"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0059",
+     "path": "/tmp/repaint/nowater-idle-f_0059.png",
+     "hash": "14280a284d354dbb"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0059",
+     "path": "/tmp/repaint/nowater-idle-f_0059.png",
+     "hash": "14280a284d354dbb"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0060",
+     "path": "/tmp/repaint/nowater-idle-f_0060.png",
+     "hash": "a5d499e46496caed"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0061",
+     "path": "/tmp/repaint/nowater-idle-f_0061.png",
+     "hash": "6dfc2c46d3bb7f7d"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0061",
+     "path": "/tmp/repaint/nowater-idle-f_0061.png",
+     "hash": "6dfc2c46d3bb7f7d"
+    },
+    {
+     "from": "repaint:nowater-idle-f_0062",
+     "path": "/tmp/repaint/nowater-idle-f_0062.png",
+     "hash": "42570091a7d309ca"
+    }
+   ],
+   "key": "77c3f32450645059",
+   "built_key": "77c3f32450645059",
+   "artifact": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
+   "artifact_hash": "476415bef89ccfd7",
+   "cost_s": 5
+  },
+  {
+   "id": "export:css",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "css"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
+     "hash": "476415bef89ccfd7"
+    }
+   ],
+   "key": "10613133323432d8",
+   "built_key": "10613133323432d8",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:godot",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "godot"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
+     "hash": "476415bef89ccfd7"
+    }
+   ],
+   "key": "2581e06a83c4f7d7",
+   "built_key": "2581e06a83c4f7d7",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-array",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-array"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
+     "hash": "476415bef89ccfd7"
+    }
+   ],
+   "key": "0453858167d34db3",
+   "built_key": "0453858167d34db3",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:json-hash",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "json-hash"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
+     "hash": "476415bef89ccfd7"
+    }
+   ],
+   "key": "2a594151c692feb5",
+   "built_key": "2a594151c692feb5",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  },
+  {
+   "id": "export:phaser3",
+   "kind": "export",
+   "tag": null,
+   "params": {
+    "format": "phaser3"
+   },
+   "inputs": [
+    {
+     "from": "pack",
+     "path": "/home/wilson/artifacts/cast-fighter/sprites/nowater.png",
+     "hash": "476415bef89ccfd7"
+    }
+   ],
+   "key": "94b52d8652f7e667",
+   "built_key": "94b52d8652f7e667",
+   "artifact": null,
+   "artifact_hash": null,
+   "cost_s": 0
+  }
+ ]
+}

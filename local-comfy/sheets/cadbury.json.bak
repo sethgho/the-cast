@@ -22,10 +22,10 @@
   "repaint": {
    "pad": 0.86,
    "steps": 8,
-   "cfg": 1.0,
+   "cfg": 1,
    "sampler": "euler",
    "scheduler": "simple",
-   "denoise": 1.0
+   "denoise": 1
   },
   "pack": {
    "columns": 10,
@@ -151,17 +151,17 @@
   {
    "name": "uppercut",
    "from": 54,
-   "to": 59,
-   "fps": 16,
+   "to": 53,
+   "fps": 14,
    "direction": "forward",
-   "loop": false,
-   "hold_key": true,
+   "loop": true,
+   "hold_key": false,
    "unify": false,
    "clip": "/tmp/cadbury-uppercut-832-20.mp4",
    "recipe": "uppercut",
    "recipe_text": "Performs a crouching upper cut",
-   "cells": 6,
-   "cyclic": false
+   "cells": 10,
+   "cyclic": true
   }
  ],
  "frames": [
@@ -704,66 +704,6 @@
     0,
     0
    ]
-  },
-  {
-   "src": "/tmp/sprite-cadbury-uppercut-pick/f_0008.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-uppercut-f_0008.png",
-   "hold": 1,
-   "pivot_nudge": [
-    0,
-    0
-   ]
-  },
-  {
-   "src": "/tmp/sprite-cadbury-uppercut-pick/f_0013.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-uppercut-f_0013.png",
-   "hold": 1,
-   "pivot_nudge": [
-    0,
-    0
-   ]
-  },
-  {
-   "src": "/tmp/sprite-cadbury-uppercut-pick/f_0019.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-uppercut-f_0019.png",
-   "hold": 1,
-   "pivot_nudge": [
-    0,
-    0
-   ]
-  },
-  {
-   "src": "/tmp/sprite-cadbury-uppercut-pick/f_0024.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-uppercut-f_0024.png",
-   "hold": 1,
-   "pivot_nudge": [
-    0,
-    0
-   ]
-  },
-  {
-   "src": "/tmp/sprite-cadbury-uppercut-pick/f_0027.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-uppercut-f_0027.png",
-   "hold": 1,
-   "pivot_nudge": [
-    0,
-    0
-   ]
-  },
-  {
-   "src": "/tmp/sprite-cadbury-uppercut-pick/f_0032.png",
-   "seed": 77,
-   "png": "/tmp/repaint/cadbury-uppercut-f_0032.png",
-   "hold": 1,
-   "pivot_nudge": [
-    0,
-    0
-   ]
   }
  ],
  "steps": [
@@ -809,7 +749,7 @@
    "key": "8dfb8b4a9e6450b3",
    "built_key": "8dfb8b4a9e6450b3",
    "artifact": "/tmp/cadbury-walk-cycle-832-20.mp4",
-   "artifact_hash": null,
+   "artifact_hash": "fb5297cf7ca06200",
    "cost_s": 170
   },
   {
@@ -823,10 +763,10 @@
     {
      "from": "clip:walk",
      "path": "/tmp/cadbury-walk-cycle-832-20.mp4",
-     "hash": null
+     "hash": "fb5297cf7ca06200"
     }
    ],
-   "key": "5ca1c896adf2d816",
+   "key": "519f5828b2a5bba2",
    "built_key": "519f5828b2a5bba2",
    "artifact": "/tmp/sprite-cadbury-walk-pick",
    "artifact_hash": "b7be63e7f9af5e5c",
@@ -864,10 +804,10 @@
     "seed": 1642176185,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -890,10 +830,10 @@
     "seed": 576867989,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -916,10 +856,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -942,10 +882,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -968,10 +908,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -994,10 +934,10 @@
     "seed": 1738028730,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1020,10 +960,10 @@
     "seed": 1742824854,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1046,10 +986,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1072,10 +1012,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1098,10 +1038,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1195,10 +1135,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1221,10 +1161,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1247,10 +1187,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1273,10 +1213,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1299,10 +1239,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1325,10 +1265,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1351,10 +1291,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1377,10 +1317,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1474,10 +1414,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1500,10 +1440,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1526,10 +1466,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1552,10 +1492,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1578,10 +1518,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1604,10 +1544,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1630,10 +1570,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1656,10 +1596,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1753,10 +1693,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1779,10 +1719,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1805,10 +1745,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1831,10 +1771,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1857,10 +1797,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1883,10 +1823,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1909,10 +1849,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -1935,10 +1875,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2032,10 +1972,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2058,10 +1998,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2084,10 +2024,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2110,10 +2050,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2136,10 +2076,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2162,10 +2102,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2188,10 +2128,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2214,10 +2154,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2256,7 +2196,7 @@
    "key": "da2bd3d67d28990c",
    "built_key": "da2bd3d67d28990c",
    "artifact": "/tmp/cadbury-block-832-20.mp4",
-   "artifact_hash": "ec41ab566e5658c7",
+   "artifact_hash": "bc905b24b24ff7a1",
    "cost_s": 170
   },
   {
@@ -2270,13 +2210,13 @@
     {
      "from": "clip:block",
      "path": "/tmp/cadbury-block-832-20.mp4",
-     "hash": "ec41ab566e5658c7"
+     "hash": "bc905b24b24ff7a1"
     }
    ],
-   "key": "ac2511bad9f3cbdd",
+   "key": "9ba40f7dc962d5c7",
    "built_key": "9ba40f7dc962d5c7",
    "artifact": "/tmp/sprite-cadbury-block-pick",
-   "artifact_hash": "c9ba95b0431f033d",
+   "artifact_hash": "16ff35b50b1b88a0",
    "cost_s": 10
   },
   {
@@ -2294,10 +2234,10 @@
     {
      "from": "frames:block",
      "path": "/tmp/sprite-cadbury-block-pick",
-     "hash": "c9ba95b0431f033d"
+     "hash": "16ff35b50b1b88a0"
     }
    ],
-   "key": "6bc52d31750579c2",
+   "key": "701e9561df4ab3bd",
    "built_key": "701e9561df4ab3bd",
    "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
    "artifact_hash": "be4bad08ce871880",
@@ -2311,22 +2251,22 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
      "from": "picks:block",
      "path": "/tmp/sprite-cadbury-block-pick/f_0007.png",
-     "hash": "0665649d2f90664b"
+     "hash": "d1ce6771772a9dfb"
     }
    ],
-   "key": "0f2dd098c2c25e79",
-   "built_key": "0f2dd098c2c25e79",
+   "key": "e4438ca5afdc8d45",
+   "built_key": "e4438ca5afdc8d45",
    "artifact": "/tmp/repaint/cadbury-block-f_0007.png",
-   "artifact_hash": "b956240e9455b814",
+   "artifact_hash": "46c5b86d273f1e24",
    "cost_s": 45
   },
   {
@@ -2337,22 +2277,22 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
      "from": "picks:block",
      "path": "/tmp/sprite-cadbury-block-pick/f_0011.png",
-     "hash": "4841d9fcb9a1067c"
+     "hash": "7971b235634192a7"
     }
    ],
-   "key": "66126632927ecf28",
-   "built_key": "66126632927ecf28",
+   "key": "c126c1deaff540b5",
+   "built_key": "c126c1deaff540b5",
    "artifact": "/tmp/repaint/cadbury-block-f_0011.png",
-   "artifact_hash": "3e2523089218b648",
+   "artifact_hash": "811eedbb2b84ba39",
    "cost_s": 45
   },
   {
@@ -2363,22 +2303,22 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
      "from": "picks:block",
      "path": "/tmp/sprite-cadbury-block-pick/f_0018.png",
-     "hash": "e33e044bb8aa4588"
+     "hash": "8fd7735018f46933"
     }
    ],
-   "key": "0f9e0fec8dc950ab",
-   "built_key": "0f9e0fec8dc950ab",
+   "key": "57c66e368d76556d",
+   "built_key": "57c66e368d76556d",
    "artifact": "/tmp/repaint/cadbury-block-f_0018.png",
-   "artifact_hash": "342fd6c824f4bda7",
+   "artifact_hash": "37e86d03ea55da80",
    "cost_s": 45
   },
   {
@@ -2389,22 +2329,22 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
      "from": "picks:block",
      "path": "/tmp/sprite-cadbury-block-pick/f_0022.png",
-     "hash": "bf7b8c717b4bb0bc"
+     "hash": "86f54914a468b81a"
     }
    ],
-   "key": "d82f15df84bb363a",
-   "built_key": "d82f15df84bb363a",
+   "key": "79d72febad4a9d15",
+   "built_key": "79d72febad4a9d15",
    "artifact": "/tmp/repaint/cadbury-block-f_0022.png",
-   "artifact_hash": "bdb937a43a8717b6",
+   "artifact_hash": "3526c8e215f2e6b0",
    "cost_s": 45
   },
   {
@@ -2415,22 +2355,22 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
      "from": "picks:block",
      "path": "/tmp/sprite-cadbury-block-pick/f_0026.png",
-     "hash": "1589e801500a1118"
+     "hash": "430fff9b9a8fc401"
     }
    ],
-   "key": "3e6007e80d031dbc",
-   "built_key": "3e6007e80d031dbc",
+   "key": "60d8822c348dbb40",
+   "built_key": "60d8822c348dbb40",
    "artifact": "/tmp/repaint/cadbury-block-f_0026.png",
-   "artifact_hash": "8dfcf9e309cc4740",
+   "artifact_hash": "e75556df0af04d99",
    "cost_s": 45
   },
   {
@@ -2441,22 +2381,22 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
      "from": "picks:block",
      "path": "/tmp/sprite-cadbury-block-pick/f_0032.png",
-     "hash": "56c682b99bd3a3f9"
+     "hash": "42988a55d283dff6"
     }
    ],
-   "key": "b40472bf15f70fd8",
-   "built_key": "b40472bf15f70fd8",
+   "key": "dfee31a6ae465524",
+   "built_key": "dfee31a6ae465524",
    "artifact": "/tmp/repaint/cadbury-block-f_0032.png",
-   "artifact_hash": "ea8e1828ed077670",
+   "artifact_hash": "2b21d2a174a54e00",
    "cost_s": 45
   },
   {
@@ -2538,10 +2478,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2564,10 +2504,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2590,10 +2530,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2616,10 +2556,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2642,10 +2582,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2668,10 +2608,10 @@
     "seed": 77,
     "pad": 0.86,
     "steps": 8,
-    "cfg": 1.0,
+    "cfg": 1,
     "sampler": "euler",
     "scheduler": "simple",
-    "denoise": 1.0
+    "denoise": 1
    },
    "inputs": [
     {
@@ -2694,7 +2634,7 @@
     "recipe": "uppercut",
     "recipe_text": "Performs a crouching upper cut",
     "trait": "a thin, composed butler in a black tailcoat with slicked hair, a pencil moustache and a brass clockwork monocle on the eye at the viewer's right; he walks smoothly and unhurried, and can bow or sidestep",
-    "cyclic": false,
+    "cyclic": true,
     "size": 832,
     "steps": 20,
     "length": 61,
@@ -2707,7 +2647,7 @@
      "hash": "2f572753d9ab53da"
     }
    ],
-   "key": "f5e9b296b1570b54",
+   "key": "211f3ef9d999dac4",
    "built_key": "211f3ef9d999dac4",
    "artifact": "/tmp/cadbury-uppercut-832-20.mp4",
    "artifact_hash": "d37f745fc31126d8",
@@ -2728,9 +2668,9 @@
     }
    ],
    "key": "26c120c4c4dec9f3",
-   "built_key": "26c120c4c4dec9f3",
+   "built_key": null,
    "artifact": "/tmp/sprite-cadbury-uppercut-pick",
-   "artifact_hash": "07c9ae630bc30276",
+   "artifact_hash": null,
    "cost_s": 10
   },
   {
@@ -2738,9 +2678,9 @@
    "kind": "picks",
    "tag": "uppercut",
    "params": {
-    "cells": 6,
-    "cycle": false,
-    "stop": true,
+    "cells": 10,
+    "cycle": true,
+    "stop": false,
     "anchor": "feet",
     "smooth": true
    },
@@ -2748,170 +2688,14 @@
     {
      "from": "frames:uppercut",
      "path": "/tmp/sprite-cadbury-uppercut-pick",
-     "hash": "07c9ae630bc30276"
+     "hash": null
     }
    ],
-   "key": "f226f9e3d3e871af",
+   "key": "38b70ac7e77339fb",
    "built_key": "38b70ac7e77339fb",
    "artifact": "/home/wilson/dev/the-cast/local-comfy/sheets/cadbury.json",
-   "artifact_hash": "3dfc584c4564abfe",
+   "artifact_hash": "4f53cda18c2baa0c",
    "cost_s": 5
-  },
-  {
-   "id": "repaint:cadbury-uppercut-f_0008",
-   "kind": "repaint",
-   "tag": "uppercut",
-   "params": {
-    "seed": 77,
-    "pad": 0.86,
-    "steps": 8,
-    "cfg": 1.0,
-    "sampler": "euler",
-    "scheduler": "simple",
-    "denoise": 1.0
-   },
-   "inputs": [
-    {
-     "from": "picks:uppercut",
-     "path": "/tmp/sprite-cadbury-uppercut-pick/f_0008.png",
-     "hash": "1e27aa18279b16a3"
-    }
-   ],
-   "key": "5792df59595466c7",
-   "built_key": "5792df59595466c7",
-   "artifact": "/tmp/repaint/cadbury-uppercut-f_0008.png",
-   "artifact_hash": "979b51bd11ed55b9",
-   "cost_s": 45
-  },
-  {
-   "id": "repaint:cadbury-uppercut-f_0013",
-   "kind": "repaint",
-   "tag": "uppercut",
-   "params": {
-    "seed": 77,
-    "pad": 0.86,
-    "steps": 8,
-    "cfg": 1.0,
-    "sampler": "euler",
-    "scheduler": "simple",
-    "denoise": 1.0
-   },
-   "inputs": [
-    {
-     "from": "picks:uppercut",
-     "path": "/tmp/sprite-cadbury-uppercut-pick/f_0013.png",
-     "hash": "167418d5b0b853e4"
-    }
-   ],
-   "key": "7033ace47ac33aa0",
-   "built_key": "7033ace47ac33aa0",
-   "artifact": "/tmp/repaint/cadbury-uppercut-f_0013.png",
-   "artifact_hash": "cd78e1cbdcda533c",
-   "cost_s": 45
-  },
-  {
-   "id": "repaint:cadbury-uppercut-f_0019",
-   "kind": "repaint",
-   "tag": "uppercut",
-   "params": {
-    "seed": 77,
-    "pad": 0.86,
-    "steps": 8,
-    "cfg": 1.0,
-    "sampler": "euler",
-    "scheduler": "simple",
-    "denoise": 1.0
-   },
-   "inputs": [
-    {
-     "from": "picks:uppercut",
-     "path": "/tmp/sprite-cadbury-uppercut-pick/f_0019.png",
-     "hash": "52229f4ec9d3778d"
-    }
-   ],
-   "key": "b2a05c00e1b58be0",
-   "built_key": "b2a05c00e1b58be0",
-   "artifact": "/tmp/repaint/cadbury-uppercut-f_0019.png",
-   "artifact_hash": "e07038b6528b8aeb",
-   "cost_s": 45
-  },
-  {
-   "id": "repaint:cadbury-uppercut-f_0024",
-   "kind": "repaint",
-   "tag": "uppercut",
-   "params": {
-    "seed": 77,
-    "pad": 0.86,
-    "steps": 8,
-    "cfg": 1.0,
-    "sampler": "euler",
-    "scheduler": "simple",
-    "denoise": 1.0
-   },
-   "inputs": [
-    {
-     "from": "picks:uppercut",
-     "path": "/tmp/sprite-cadbury-uppercut-pick/f_0024.png",
-     "hash": "6f6473a35f280ff1"
-    }
-   ],
-   "key": "4103b304ac30852e",
-   "built_key": "4103b304ac30852e",
-   "artifact": "/tmp/repaint/cadbury-uppercut-f_0024.png",
-   "artifact_hash": "0cad0c50d2924d20",
-   "cost_s": 45
-  },
-  {
-   "id": "repaint:cadbury-uppercut-f_0027",
-   "kind": "repaint",
-   "tag": "uppercut",
-   "params": {
-    "seed": 77,
-    "pad": 0.86,
-    "steps": 8,
-    "cfg": 1.0,
-    "sampler": "euler",
-    "scheduler": "simple",
-    "denoise": 1.0
-   },
-   "inputs": [
-    {
-     "from": "picks:uppercut",
-     "path": "/tmp/sprite-cadbury-uppercut-pick/f_0027.png",
-     "hash": "9a821e37a0ce1430"
-    }
-   ],
-   "key": "1cad730ed067313e",
-   "built_key": "1cad730ed067313e",
-   "artifact": "/tmp/repaint/cadbury-uppercut-f_0027.png",
-   "artifact_hash": "dd464c30214ca524",
-   "cost_s": 45
-  },
-  {
-   "id": "repaint:cadbury-uppercut-f_0032",
-   "kind": "repaint",
-   "tag": "uppercut",
-   "params": {
-    "seed": 77,
-    "pad": 0.86,
-    "steps": 8,
-    "cfg": 1.0,
-    "sampler": "euler",
-    "scheduler": "simple",
-    "denoise": 1.0
-   },
-   "inputs": [
-    {
-     "from": "picks:uppercut",
-     "path": "/tmp/sprite-cadbury-uppercut-pick/f_0032.png",
-     "hash": "0d2412f95ee5b70a"
-    }
-   ],
-   "key": "d1438a30f629ab95",
-   "built_key": "d1438a30f629ab95",
-   "artifact": "/tmp/repaint/cadbury-uppercut-f_0032.png",
-   "artifact_hash": "1f66502654a7fae6",
-   "cost_s": 45
   },
   {
    "id": "pack",
@@ -3377,55 +3161,12 @@
      },
      {
       "name": "uppercut",
-      "fps": 16,
+      "fps": 14,
       "direction": "forward",
-      "loop": false,
-      "hold_key": true,
+      "loop": true,
+      "hold_key": false,
       "unify": false,
-      "cells": [
-       {
-        "hold": 1,
-        "pivot_nudge": [
-         0,
-         0
-        ]
-       },
-       {
-        "hold": 1,
-        "pivot_nudge": [
-         0,
-         0
-        ]
-       },
-       {
-        "hold": 1,
-        "pivot_nudge": [
-         0,
-         0
-        ]
-       },
-       {
-        "hold": 1,
-        "pivot_nudge": [
-         0,
-         0
-        ]
-       },
-       {
-        "hold": 1,
-        "pivot_nudge": [
-         0,
-         0
-        ]
-       },
-       {
-        "hold": 1,
-        "pivot_nudge": [
-         0,
-         0
-        ]
-       }
-      ]
+      "cells": []
      }
     ]
    },
@@ -3643,32 +3384,32 @@
     {
      "from": "repaint:cadbury-block-f_0007",
      "path": "/tmp/repaint/cadbury-block-f_0007.png",
-     "hash": "b956240e9455b814"
+     "hash": "46c5b86d273f1e24"
     },
     {
      "from": "repaint:cadbury-block-f_0011",
      "path": "/tmp/repaint/cadbury-block-f_0011.png",
-     "hash": "3e2523089218b648"
+     "hash": "811eedbb2b84ba39"
     },
     {
      "from": "repaint:cadbury-block-f_0018",
      "path": "/tmp/repaint/cadbury-block-f_0018.png",
-     "hash": "342fd6c824f4bda7"
+     "hash": "37e86d03ea55da80"
     },
     {
      "from": "repaint:cadbury-block-f_0022",
      "path": "/tmp/repaint/cadbury-block-f_0022.png",
-     "hash": "bdb937a43a8717b6"
+     "hash": "3526c8e215f2e6b0"
     },
     {
      "from": "repaint:cadbury-block-f_0026",
      "path": "/tmp/repaint/cadbury-block-f_0026.png",
-     "hash": "8dfcf9e309cc4740"
+     "hash": "e75556df0af04d99"
     },
     {
      "from": "repaint:cadbury-block-f_0032",
      "path": "/tmp/repaint/cadbury-block-f_0032.png",
-     "hash": "ea8e1828ed077670"
+     "hash": "2b21d2a174a54e00"
     },
     {
      "from": "repaint:cadbury-crouch-f_0007",
@@ -3699,42 +3440,12 @@
      "from": "repaint:cadbury-crouch-f_0035",
      "path": "/tmp/repaint/cadbury-crouch-f_0035.png",
      "hash": "a609bfd4e7acb9b2"
-    },
-    {
-     "from": "repaint:cadbury-uppercut-f_0008",
-     "path": "/tmp/repaint/cadbury-uppercut-f_0008.png",
-     "hash": "979b51bd11ed55b9"
-    },
-    {
-     "from": "repaint:cadbury-uppercut-f_0013",
-     "path": "/tmp/repaint/cadbury-uppercut-f_0013.png",
-     "hash": "cd78e1cbdcda533c"
-    },
-    {
-     "from": "repaint:cadbury-uppercut-f_0019",
-     "path": "/tmp/repaint/cadbury-uppercut-f_0019.png",
-     "hash": "e07038b6528b8aeb"
-    },
-    {
-     "from": "repaint:cadbury-uppercut-f_0024",
-     "path": "/tmp/repaint/cadbury-uppercut-f_0024.png",
-     "hash": "0cad0c50d2924d20"
-    },
-    {
-     "from": "repaint:cadbury-uppercut-f_0027",
-     "path": "/tmp/repaint/cadbury-uppercut-f_0027.png",
-     "hash": "dd464c30214ca524"
-    },
-    {
-     "from": "repaint:cadbury-uppercut-f_0032",
-     "path": "/tmp/repaint/cadbury-uppercut-f_0032.png",
-     "hash": "1f66502654a7fae6"
     }
    ],
-   "key": "15fc2bf2d7683d60",
-   "built_key": "15fc2bf2d7683d60",
+   "key": "90b7f9e28c8a65dd",
+   "built_key": "90b7f9e28c8a65dd",
    "artifact": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-   "artifact_hash": "69a10ec3f44ae307",
+   "artifact_hash": "28b9f38f869b5558",
    "cost_s": 5
   },
   {
@@ -3748,11 +3459,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "69a10ec3f44ae307"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "b0323d09eb43d651",
-   "built_key": "b0323d09eb43d651",
+   "key": "8c02b31e43f4ec14",
+   "built_key": "8c02b31e43f4ec14",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3768,11 +3479,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "69a10ec3f44ae307"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "a5577a556bf7d667",
-   "built_key": "a5577a556bf7d667",
+   "key": "a44aaa35475de687",
+   "built_key": "a44aaa35475de687",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3788,11 +3499,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "69a10ec3f44ae307"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "c05384a1396ea929",
-   "built_key": "c05384a1396ea929",
+   "key": "a822d0d3e9fc6cff",
+   "built_key": "a822d0d3e9fc6cff",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3808,11 +3519,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "69a10ec3f44ae307"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "77ab7dbd4f4ac72e",
-   "built_key": "77ab7dbd4f4ac72e",
+   "key": "99dfbfe501d3eae4",
+   "built_key": "99dfbfe501d3eae4",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0
@@ -3828,11 +3539,11 @@
     {
      "from": "pack",
      "path": "/home/wilson/artifacts/cast-fighter/sprites/cadbury.png",
-     "hash": "69a10ec3f44ae307"
+     "hash": "28b9f38f869b5558"
     }
    ],
-   "key": "cc261f07d48f22cd",
-   "built_key": "cc261f07d48f22cd",
+   "key": "35642cf4c19b3479",
+   "built_key": "35642cf4c19b3479",
    "artifact": null,
    "artifact_hash": null,
    "cost_s": 0

@@ -41,7 +41,7 @@ from build_transition import H3_CLIP, H3_VIDEO_VAE, H3_AUDIO_VAE  # noqa: E402
 
 UNET = "minimax_h3_ref2va_pruned_int8_convrot.safetensors"
 W, H, LENGTH, STEPS, FPS, SEED = 1152, 640, 209, 12, 24, 7
-PLATE = "rubberhose-kf-seth.png"
+PLATE = "canon-seth.png"
 
 for _n, _ws in (("UNETLoader", ["unet_name", "weight_dtype"]),
                 ("MiniMaxH3TurboLoRA", ["lora_name", "strength", "low_vram"]),
@@ -217,7 +217,7 @@ FRENCH_SOUND = ("Overall soundscape: a muffled television speaking French in ano
                 "none.")
 
 STORYBOARDS["french-again"] = (1024, 576, 345, FRENCH_LOOK, FRENCH, FRENCH_SOUND,
-                               ["rubberhose-kf-seth.png", "rubberhose-kf-wilson.png"])
+                               ["canon-seth.png", "canon-wilson.png"])
 
 
 def build(name="deploy"):

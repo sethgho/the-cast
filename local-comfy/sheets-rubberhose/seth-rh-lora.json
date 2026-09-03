@@ -1,0 +1,175 @@
+{
+ "character": "seth-rh-lora",
+ "cell": 512,
+ "pivot": [
+  256,
+  481
+ ],
+ "trait": "a lanky cartoon man with long wavy shoulder-length brown hair and a bushy handlebar moustache, in a very dark v-neck t-shirt; he moves on two legs and can walk, run, duck and jump",
+ "build": {
+  "template_version": "cdae6be0a5e63c9e",
+  "clip": {
+   "size": 832,
+   "steps": 20,
+   "length": 61,
+   "seed": 77
+  },
+  "picks": {
+   "skip": 6,
+   "anchor": "feet",
+   "smooth": true
+  },
+  "repaint": {
+   "pad": 0.86,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0
+  },
+  "pack": {
+   "columns": 10,
+   "height_cap": 0.92,
+   "up_cap": 0.88
+  },
+  "cost_s": {
+   "plate": 20,
+   "clip": 170,
+   "frames": 10,
+   "picks": 5,
+   "repaint": 45,
+   "pack": 5,
+   "export": 0
+  }
+ },
+ "tags": [
+  {
+   "name": "walk",
+   "from": 0,
+   "to": 9,
+   "fps": 14,
+   "direction": "forward",
+   "loop": true,
+   "hold_key": false,
+   "unify": "head",
+   "clip": "/tmp/rh-seth-walk-cycle-0.8.mp4",
+   "recipe": "walk-cycle",
+   "recipe_text": "a full walk cycle on the spot with his hands empty, as if walking on a treadmill: he strides steadily through contact, down, passing and up positions, his legs facing to the right, while his body stays in exactly the same place in the frame, and he ends on exactly the same pose he began with so the cycle loops seamlessly",
+   "cells": 10,
+   "cyclic": true
+  }
+ ],
+ "frames": [
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0008.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0008-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0009.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0009-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0010.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0010-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0014.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0014-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0018.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0018-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0028.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0028-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0049.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0049-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0054.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0054-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0062.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0062-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  },
+  {
+   "src": "/tmp/sprite-seth-rh-lora-walk-pick/f_0069.png",
+   "seed": 77,
+   "png": "/home/wilson/artifacts/cast-fighter/sprites-rubberhose/repaint/seth-rh-lora-walk-f_0069-pe73c25a480a142ee.png",
+   "hold": 1,
+   "pivot_nudge": [
+    0,
+    0
+   ],
+   "prompt": "This is a repaint, not a new drawing: the pose is already correct. The angle of every limb, his size in the frame and his position in the frame are already exactly right and must not change at all. His hands and his feet stay exactly the size they are in this picture. Redraw him as a 1930s rubber-hose cartoon ink drawing on paper: high-contrast black and white ink, confident smooth brush outlines of even weight, bold solid spot-blacks, round pie-cut eyes, simple round white mitten gloves on his hands, soft film-grain paper texture over the drawing itself, strong contrast, never pale or washed out. The background behind and around him is one completely flat, evenly filled solid magenta screen with nothing drawn on it -- no paper texture, no grain, no floor, no shadow -- and it stays exactly as it is. The man is Seth: long wavy shoulder-length hair, a big bushy moustache, a dark v-neck t-shirt and jeans."
+  }
+ ],
+ "scale": 0.5744929562982005
+}

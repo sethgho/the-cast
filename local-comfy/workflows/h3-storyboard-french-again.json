@@ -273,7 +273,7 @@
     "Node name for S&R": "LoadImage"
    },
    "widgets_values": [
-    "rubberhose-kf-seth.png",
+    "canon-seth.png",
     "image"
    ],
    "color": "#223",
@@ -330,7 +330,7 @@
     "Node name for S&R": "LoadImage"
    },
    "widgets_values": [
-    "rubberhose-kf-wilson.png",
+    "canon-wilson.png",
     "image"
    ],
    "color": "#223",

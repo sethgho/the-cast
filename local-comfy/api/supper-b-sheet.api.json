@@ -45,7 +45,7 @@
  "6": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "rubberhose-kf-seth.png"
+   "image": "canon-seth.png"
   },
   "_meta": {
    "title": "plate 1"
@@ -54,7 +54,7 @@
  "7": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "rubberhose-kf-wilson.png"
+   "image": "canon-wilson.png"
   },
   "_meta": {
    "title": "plate 2"
@@ -83,7 +83,7 @@
  "9": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "rubberhose-kf-cadbury.png"
+   "image": "canon-cadbury.png"
   },
   "_meta": {
    "title": "plate 3"
@@ -112,7 +112,7 @@
  "11": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "rubberhose-kf-ake.png"
+   "image": "canon-ake.png"
   },
   "_meta": {
    "title": "plate 4"
