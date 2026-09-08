@@ -1,0 +1,74 @@
+# Gholson's Follies STYLE LoRA - Qwen-Image, RTX 3080 Ti 12GB (Ampere sm_86)
+#
+# Run: cd ~/ai-toolkit && MODELS_PATH=/home/wilson/ai-models \
+#      PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+#      venv/bin/python run.py config/train_qwen_follies_12gb.yaml
+#
+# WHY A STYLE LORA AND NOT A CHARACTER ONE
+# The dataset is 64 images across FOUR different body plans - a man, a walking fence panel, a
+# butler, a goldfish on a cart. That variety is deliberate: a style LoRA must not be able to bind
+# the look to one silhouette. Captions name pose, framing and ground and NEVER the rendering, so
+# the ink line, halftone, sepia palette and caricature proportions have nowhere to live except the
+# trigger token f0llie5. That rule comes from the cast repo's own assets.yaml.
+#
+# 12GB DELTAS FROM THE STOCK 24GB EXAMPLE
+#   - layer_offloading at 100% on both transformer and TE (proved on this card by the H3 run)
+#   - resolution drops 1024 from the bucket list; 512+768 is enough for a style and halves activations
+#   - rank 32/alpha 32 rather than 16 - a style needs more capacity than a face
+job: extension
+config:
+  name: "follies_style_qwen_v1"
+  process:
+    - type: 'sd_trainer'
+      training_folder: "/home/wilson/lora-follies/output"
+      device: cuda:0
+      performance_log_every: 25
+
+      network:
+        type: "lora"
+        linear: 32
+        linear_alpha: 32
+
+      save:
+        dtype: float16
+        save_every: 250
+        max_step_saves_to_keep: 8
+
+      datasets:
+        - folder_path: "/home/wilson/lora-follies/dataset"
+          caption_ext: "txt"
+          caption_dropout_rate: 0.05
+          shuffle_tokens: false
+          cache_latents_to_disk: true
+          resolution: [ 512, 768 ]
+
+      train:
+        batch_size: 1
+        cache_text_embeddings: true
+        steps: 2000
+        gradient_accumulation: 1
+        train_unet: true
+        train_text_encoder: false
+        gradient_checkpointing: true
+        noise_scheduler: "flowmatch"
+        optimizer: "adamw8bit"
+        lr: 1e-4
+        dtype: bf16
+        disable_sampling: true
+
+      model:
+        name_or_path: "Qwen/Qwen-Image"
+        arch: "qwen_image"
+        quantize: true
+        # 3-bit weights + accuracy-recovery adapter. Required at 24GB, and doubly so here.
+        qtype: "uint3|ostris/accuracy_recovery_adapters/qwen_image_torchao_uint3.safetensors"
+        quantize_te: true
+        qtype_te: "qfloat8"
+        low_vram: true
+        layer_offloading: true
+        layer_offloading_transformer_percent: 1.0
+        layer_offloading_text_encoder_percent: 1.0
+
+meta:
+  name: "follies_style_qwen_v1"
+  version: '1.0'

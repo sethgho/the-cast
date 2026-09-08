@@ -1,0 +1,184 @@
+{
+ "2": {
+  "class_type": "UnetLoaderGGUF",
+  "inputs": {
+   "unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"
+  },
+  "_meta": {
+   "title": "diffusion model"
+  }
+ },
+ "3": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+   "strength_model": 1.0,
+   "model": [
+    "2",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "Lightning LoRA (8 steps)"
+  }
+ },
+ "4": {
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "follies-final.safetensors",
+   "strength_model": 1.2,
+   "model": [
+    "3",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 STRENGTH \u2014 the Follies style"
+  }
+ },
+ "5": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  },
+  "_meta": {
+   "title": "text encoder"
+  }
+ },
+ "6": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_vae.safetensors"
+  },
+  "_meta": {
+   "title": "VAE"
+  }
+ },
+ "7": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "subject-in.png"
+  },
+  "_meta": {
+   "title": "\u25b6 1 \u00b7 THE PHOTOGRAPH"
+  }
+ },
+ "8": {
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "f0llie5, image 1 is a photograph of a person. Draw that person as a full-body cartoon character standing at rest, arms at his sides, seen from the front, head to feet in frame. Draw him as a cartoon character in this style's own proportions, not the photograph's: a large rounded head about one fifth of his standing height, small simple facial features, chunky simplified limbs and hands. He is not a realistically proportioned man. This is a new drawing of him, not a traced or filtered photograph. Keep who he is recognisable: the same hair, the same beard or lack of one, the same colouring and the same clothing. Drawn on aged paper."
+  },
+  "_meta": {
+   "title": "\u25b6 2 \u00b7 THE PICTURE"
+  }
+ },
+ "9": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": [
+    "8",
+    0
+   ],
+   "clip": [
+    "5",
+    0
+   ],
+   "vae": [
+    "6",
+    0
+   ],
+   "image1": [
+    "7",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "positive"
+  }
+ },
+ "10": {
+  "class_type": "TextEncodeQwenImageEditPlus",
+  "inputs": {
+   "prompt": "blurry, deformed, extra limbs, photorealistic, 3d render, bright saturated colour, speech balloon, caption box, lettering, watermark, photograph, photorealistic skin, traced photo",
+   "clip": [
+    "5",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "negative"
+  }
+ },
+ "11": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1024,
+   "batch_size": 1
+  },
+  "_meta": {
+   "title": "canvas"
+  }
+ },
+ "12": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 7,
+   "steps": 8,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "4",
+    0
+   ],
+   "positive": [
+    "9",
+    0
+   ],
+   "negative": [
+    "10",
+    0
+   ],
+   "latent_image": [
+    "11",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "\u25b6 3 \u00b7 SEED / STEPS"
+  }
+ },
+ "13": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "12",
+    0
+   ],
+   "vae": [
+    "6",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "decode"
+  }
+ },
+ "14": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "follies/portrait",
+   "images": [
+    "13",
+    0
+   ]
+  },
+  "_meta": {
+   "title": "RESULT"
+  }
+ }
+}
