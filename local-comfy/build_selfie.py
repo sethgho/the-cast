@@ -19,17 +19,19 @@ about a sixth of the cost.
 
 ## The contract with the caller
 
-Four node titles, asserted by the provider at load:
+Node titles, asserted by the provider at load. The caller rewrites every text node per run, so
+the wording here is only a default:
 
-  POSE    what the man is doing, read off the webcam still
-  SCENE   the invented situation around him
-  STYLE   the house style directive
-  RESULT  the 1920x832 wallpaper
-  AVATAR  a square crop of the face from that same render
+  PLATE, IDENTITY, POSE, SCENE, STYLE, RESTATE, POSITIVE, NEGATIVE, SAMPLER
+  RESULT   the 1920x832 wallpaper
+  SUBJECT  where Seth's head is in that same render, as SAM 3 boxes (JSON text)
 
-AVATAR is why MediaPipe runs on the OUTPUT here rather than the input: the scene is composed
-freely, so unlike seth-scene there is no fixed head box to crop. The graph finds the head it
-actually drew and emits it, which is exact where a constant would be a guess.
+SUBJECT runs on the OUTPUT rather than the input: the scene is composed freely, so there is no
+fixed head box to crop. It is found by SAM 3 prompted with his hair, not by a face detector: a
+face detector finds A face, and with co-stars in the scene MediaPipe cropped Cadbury in three
+renders out of three. Nobody else in the troupe has long wavy hair, so the prompt picks Seth,
+and the box it returns is his head. The caller does the cropping, where clamping the square
+inside the frame and falling back when nothing is found are one line each.
 """
 import json
 import os
@@ -41,7 +43,8 @@ from build_workflows import STYLE_LOCK, SETH_LOOK, NEGATIVE, STEPS  # noqa: E402
 
 PLATE = "cast-seth-headshot-neutral.png"
 W, H = 1920, 832          # 21:9 at 1.6MP, the same sheet seth-scene delivered
-AVATAR = 768
+SUBJECT_MODEL = "sam3.1_multiplex_fp16.safetensors"   # Comfy-Org/sam3.1, models/checkpoints
+SUBJECT_PROMPT = "long wavy hair"
 SEED = 7
 
 # The prompt is assembled in the graph from four string nodes so the caller can rewrite three of
@@ -78,13 +81,13 @@ g = {
  "22": {"class_type": "KSampler", "inputs": {"seed": SEED, "steps": STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["3", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["19", 0]}, "_meta": {"title": "SAMPLER"}},
  "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}, "_meta": {"title": "DECODE"}},
 
- # The avatar is found, not assumed. See the docstring.
- "30": {"class_type": "LoadMediaPipeFaceLandmarker", "inputs": {"model_name": "mediapipe_face_fp32.safetensors"}, "_meta": {"title": "face-model"}},
- "31": {"class_type": "MediaPipeFaceLandmarker", "inputs": {"detector_variant": "both", "num_faces": 1, "min_confidence": 0.1, "missing_frame_fallback": "empty", "face_detection_model": ["30", 0], "image": ["23", 0]}, "_meta": {"title": "find-face"}},
- "32": {"class_type": "CropByBBoxes", "inputs": {"output_width": AVATAR, "output_height": AVATAR, "padding": 96, "keep_aspect": "pad", "image": ["23", 0], "bboxes": ["31", 1]}, "_meta": {"title": "crop-face"}},
+ # Seth's head is found, not assumed. See the docstring.
+ "30": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": SUBJECT_MODEL}, "_meta": {"title": "subject-model"}},
+ "31": {"class_type": "CLIPTextEncode", "inputs": {"text": SUBJECT_PROMPT, "clip": ["30", 1]}, "_meta": {"title": "subject-prompt"}},
+ "32": {"class_type": "SAM3_Detect", "inputs": {"threshold": 0.5, "refine_iterations": 0, "individual_masks": True, "model": ["30", 0], "image": ["23", 0], "conditioning": ["31", 0]}, "_meta": {"title": "find-subject"}},
 
  "40": {"class_type": "SaveImage", "inputs": {"filename_prefix": "cast/seth-selfie", "images": ["23", 0]}, "_meta": {"title": "RESULT"}},
- "41": {"class_type": "SaveImage", "inputs": {"filename_prefix": "cast/seth-selfie-avatar", "images": ["32", 0]}, "_meta": {"title": "AVATAR"}},
+ "41": {"class_type": "PreviewAny", "inputs": {"source": ["32", 1]}, "_meta": {"title": "SUBJECT"}},
 }
 
 out = os.path.join(HERE, "api", "seth-selfie.api.json")

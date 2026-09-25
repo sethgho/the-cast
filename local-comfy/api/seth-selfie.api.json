@@ -259,52 +259,48 @@
   }
  },
  "30": {
-  "class_type": "LoadMediaPipeFaceLandmarker",
+  "class_type": "CheckpointLoaderSimple",
   "inputs": {
-   "model_name": "mediapipe_face_fp32.safetensors"
+   "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
   },
   "_meta": {
-   "title": "face-model"
+   "title": "subject-model"
   }
  },
  "31": {
-  "class_type": "MediaPipeFaceLandmarker",
+  "class_type": "CLIPTextEncode",
   "inputs": {
-   "detector_variant": "both",
-   "num_faces": 1,
-   "min_confidence": 0.1,
-   "missing_frame_fallback": "empty",
-   "face_detection_model": [
+   "text": "long wavy hair",
+   "clip": [
+    "30",
+    1
+   ]
+  },
+  "_meta": {
+   "title": "subject-prompt"
+  }
+ },
+ "32": {
+  "class_type": "SAM3_Detect",
+  "inputs": {
+   "threshold": 0.5,
+   "refine_iterations": 0,
+   "individual_masks": true,
+   "model": [
     "30",
     0
    ],
    "image": [
     "23",
     0
-   ]
-  },
-  "_meta": {
-   "title": "find-face"
-  }
- },
- "32": {
-  "class_type": "CropByBBoxes",
-  "inputs": {
-   "output_width": 768,
-   "output_height": 768,
-   "padding": 96,
-   "keep_aspect": "pad",
-   "image": [
-    "23",
-    0
    ],
-   "bboxes": [
+   "conditioning": [
     "31",
-    1
+    0
    ]
   },
   "_meta": {
-   "title": "crop-face"
+   "title": "find-subject"
   }
  },
  "40": {
@@ -321,16 +317,15 @@
   }
  },
  "41": {
-  "class_type": "SaveImage",
+  "class_type": "PreviewAny",
   "inputs": {
-   "filename_prefix": "cast/seth-selfie-avatar",
-   "images": [
+   "source": [
     "32",
-    0
+    1
    ]
   },
   "_meta": {
-   "title": "AVATAR"
+   "title": "SUBJECT"
   }
  }
 }
