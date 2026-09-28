@@ -34,6 +34,8 @@ MEMES = {
     "salty": "salt bae",
     "thumbs-up": "terminator thumbs up lava",
     "elaine": "elaine dance seinfeld",
+    # batch 3
+    "ok": "jennifer lawrence ok",
 }
 
 

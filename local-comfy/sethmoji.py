@@ -133,6 +133,10 @@ MEMES = {
                     extra="Where the other man stands behind him in the photograph there is only a dark blurred shape: there is no second person.",
                     action="He sways with his eyes closed, then points straight at the viewer "
                            "and nods approvingly"),
+    "ok": dict(pick=0, caption=0.0, top=0.9,
+               face="unimpressed, mouth making a sarcastic 'oh okay', eyebrows raised, NOT smiling",
+               scene="In front of a dark background, wearing a white blouse with a blue floral pattern",
+               action="He says oh okay with a sarcastic eye roll, nods and gives a thumbs-up"),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
