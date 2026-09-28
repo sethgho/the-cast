@@ -36,6 +36,7 @@ MEMES = {
     "elaine": "elaine dance seinfeld",
     # batch 3
     "ok": "jennifer lawrence ok",
+    "van-door": "mitch mcconnell van door",
 }
 
 

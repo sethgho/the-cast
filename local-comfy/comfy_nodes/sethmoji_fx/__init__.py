@@ -7,6 +7,7 @@
 - MindBlownFX: freezes the temples pose, blows the head apart from the mouth outward in a spark
   burst, holds on black, then brings him back through a ring of light that drops to his
   shoulders -- the beats of the Tim Heidecker original.
+- SlidingDoorFX: an inked van door pulled shut across the frame.
 
 Frames in, frames out; everything is deterministic from the seed. Install by copying this folder
 into ComfyUI/custom_nodes and restarting.
@@ -315,15 +316,85 @@ class MindBlownFX:
         return (torch.from_numpy(np.stack(out_rgb)), torch.from_numpy(np.stack(out_a)))
 
 
+class SlidingDoorFX:
+    """A van's sliding door, drawn in ink in the colour of the door already in the frame, pulled
+    shut from the right between start_frame and end_frame (eased). Wan Animate moves people,
+    not props, so a door that closes in the source has to be put back afterwards."""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {
+            "images": ("IMAGE",),
+            "start_frame": ("INT", {"default": 2, "min": 0, "max": 999}),
+            "end_frame": ("INT", {"default": 20, "min": 1, "max": 999}),
+            "end_x": ("FLOAT", {"default": 0.0, "min": -0.5, "max": 1.0, "step": 0.01}),
+            "seed": ("INT", {"default": 7, "min": 0, "max": 2**31}),
+        }}
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "run"
+    CATEGORY = "sethmoji"
+
+    def run(self, images, start_frame, end_frame, end_x, seed):
+        rng = np.random.default_rng(seed)
+        B, H, W, _ = images.shape
+        f0 = (images[0].cpu().numpy() * 255).astype(np.uint8)
+        body = np.median(f0[int(H * .72):int(H * .95), int(W * .55):int(W * .9)].reshape(-1, 3), 0)
+        ink = (52, 36, 22)
+        # the door, drawn once at full frame size plus a margin, then slid
+        DW = int(W * 1.15)
+        door = Image.new("RGB", (DW, H), tuple(int(c) for c in body))
+        d = ImageDraw.Draw(door)
+        lw = max(4, W // 90)
+        glass = tuple(int(c * 0.45) for c in body)
+        wx0, wx1, wy0, wy1 = int(W * .1), int(W * .92), int(H * .07), int(H * .5)
+        d.rounded_rectangle((wx0, wy0, wx1, wy1), radius=W // 25, fill=glass, outline=ink, width=lw)
+        hi = tuple(int(min(255, c * 0.8 + 50)) for c in body)
+        for off in (0.25, 0.38):
+            x = wx0 + int((wx1 - wx0) * off)
+            d.line((x, wy1 - 8, x + int(W * .22), wy0 + 8), fill=hi, width=lw * 2)
+        d.line((0, int(H * .56), DW, int(H * .56)), fill=ink, width=lw)
+        for y in (.72, .78, .84):
+            d.rounded_rectangle((int(W * .25), int(H * y), int(W * .65), int(H * y) + H // 70),
+                                radius=H // 140, fill=ink)
+        d.rounded_rectangle((int(W * .05), int(H * .6), int(W * .16), int(H * .625)),
+                            radius=H // 100, fill=tuple(int(c * .7) for c in body), outline=ink, width=lw)
+        d.line((lw, 0, lw, H), fill=ink, width=lw * 2)
+        d.line((lw * 5, 0, lw * 5, H), fill=ink, width=lw)
+        grain = np.asarray(Image.fromarray((rng.random((H // 3 + 1, DW // 3 + 1)) * 255)
+                                           .astype(np.uint8)).resize((DW, H), Image.BILINEAR),
+                           np.float32)[:H, :DW] / 255
+        # shade like the ink drawing: darker toward the bottom and toward the trailing side,
+        # with a lit band down the leading edge
+        yy = np.linspace(0, 1, H, dtype=np.float32)[:, None]
+        xx = np.linspace(0, 1, DW, dtype=np.float32)[None, :]
+        shade = 1.08 - 0.22 * yy - 0.12 * xx + 0.1 * np.exp(-((xx * DW - lw * 12) / (W * .03)) ** 2)
+        door = np.asarray(door, np.float32) * (shade * (0.88 + 0.12 * grain))[..., None]
+        door = np.clip(door, 0, 255)
+        out = []
+        for i in range(B):
+            fr = images[i].cpu().numpy() * 255
+            t = np.clip((i - start_frame) / max(1, end_frame - start_frame), 0, 1)
+            t = t * t * (3 - 2 * t)
+            edge = int(round(W - (W - end_x * W) * t))
+            if edge < W:
+                fr = fr.copy()
+                fr[:, edge:] = door[:, :W - edge]
+            out.append(fr)
+        return (torch.from_numpy(np.stack(out).astype(np.float32) / 255),)
+
+
 NODE_CLASS_MAPPINGS = {
     "FillMaskFromSurroundings": FillMaskFromSurroundings,
     "BlinkCaption": BlinkCaption,
     "BrightTextMask": BrightTextMask,
     "MindBlownFX": MindBlownFX,
+    "SlidingDoorFX": SlidingDoorFX,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "FillMaskFromSurroundings": "Fill Mask From Surroundings",
     "BlinkCaption": "Blink Caption (meme text)",
     "BrightTextMask": "Bright Text Mask",
     "MindBlownFX": "Mind Blown FX",
+    "SlidingDoorFX": "Sliding Door FX",
 }

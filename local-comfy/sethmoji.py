@@ -137,6 +137,13 @@ MEMES = {
                face="unimpressed, mouth making a sarcastic 'oh okay', eyebrows raised, NOT smiling",
                scene="In front of a dark background, wearing a white blouse with a blue floral pattern",
                action="He says oh okay with a sarcastic eye roll, nods and gives a thumbs-up"),
+    "van-door": dict(pick=0, caption=0.0, top=1.0,
+                     face="a polite tight-lipped grin, looking straight at the viewer, wearing glasses",
+                     scene="Sitting in the back seat of a grey van, while another man's arm in a suit sleeve pulls the sliding door shut",
+                     extra="Keep the other man's arm in the suit sleeve and the van door exactly as they are.",
+                     action="He grins at the viewer as the van's sliding door is pulled shut across him",
+                     crop_top=0.0,
+                     post=dict(node="SlidingDoorFX", start_frame=4, end_frame=27, end_x=0.0, seed=7)),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
@@ -320,6 +327,9 @@ def post_graph(name, p):
         g["cm"] = {"class_type": "ImageCompositeMasked", "inputs": {"destination": ["bg", 0], "source": ["sc", 0], "x": 0, "y": 0, "resize_source": False, "mask": ["sm", 0]}}
         g["fx"] = {"class_type": "BlinkCaption", "inputs": {"images": ["cm", 0], **args}}
         g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": ["fx", 0]}}
+    elif p["node"] == "SlidingDoorFX":
+        g["fx"] = {"class_type": p["node"], "inputs": {"images": ["sc", 0], **args}}
+        g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": ["fx", 0]}}
     else:
         g["fx"] = {"class_type": p["node"], "inputs": {"images": ["sc", 0], "alpha": ["sm", 0], **args}}
         g["iv"] = {"class_type": "InvertMask", "inputs": {"mask": ["fx", 1]}}
@@ -369,6 +379,8 @@ def emoji(name):
     cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
     left = max(0, min(W - side, cx - side // 2))
     upper = max(0, min(H - side, cy - side // 2))
+    if "crop_top" in m:
+        upper = int(H * m["crop_top"])
     box = (left, upper, left + side, upper + side)
     tmp = f"{dd}/emo"
     os.makedirs(tmp, exist_ok=True)
