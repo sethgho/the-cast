@@ -88,8 +88,15 @@ MEMES = {
                           "charming smile"),
     # ---- batch 2 ----
     "mind-blown": dict(pick=2, caption=0.0, top=0.9, segments=[(0, 1.0), (3.7, 5.3)],
-                       face="wide-eyed, mouth open in awe",
-                       scene="Close up, in front of a dark background, wearing a black turtleneck",
+                       face="wide-eyed, mouth open in awe, wearing big 1980s aviator glasses with "
+                            "large square clear lenses and thin gold wire frames",
+                       scene="Close up, in front of a dark background, wearing big 1980s aviator "
+                             "glasses and a black turtleneck sweater",
+                       clothing="a black turtleneck sweater with a tall rolled collar",
+                       # the splice cuts at render frame 18; the boom fills the 2.5s it removed
+                       post=dict(node="MindBlownFX", freeze_frame=17, resume_frame=19,
+                                 gap_frames=40, burst_x=0.34, burst_y=0.64, seed=7,
+                                 orig_seconds=5.0, backdrop="0x141414"),
                        action="He presses his fingertips to his temples, then flings both hands "
                               "outward as his mind is blown, mouth wide open"),
     "slow-clap": dict(pick=2, caption=0.0, top=0.9, repeat=4,
@@ -104,7 +111,12 @@ MEMES = {
     "its-happening": dict(pick=1, caption=0.0, top=0.95,
                           face="grinning with excitement",
                           scene="In front of a dark background, wearing a suit and tie",
-                          action="He throws both hands up and waves them excitedly overhead"),
+                          action="He throws both hands up and waves them excitedly overhead",
+                          # measured from the source: the caption is up on these drive frames.
+                          # width 0.64 keeps it inside the square emoji crop.
+                          post=dict(node="BlinkCaption", top_text="IT'S", bottom_text="HAPPENING",
+                                    frames="0-4,10-15,21-26,32-37,43-49", size=0.17, width=0.64,
+                                    margin=0.02)),
     "popcorn": dict(pick=0, caption=0.0, top=0.9,
                     face="a wide delighted grin, eyes fixed on something in front of him",
                     scene="In a dark cinema, wearing a red leather jacket",
@@ -216,7 +228,8 @@ def ref(name):
               "pose, the tilt of the head, the direction the eyes are looking, the hands and "
               "anything held in them, the clothing, the framing and the background are already "
               "exactly right and must not change, including the crop and the size of the head in the frame. Replace only the person's head, face and hair "
-              f"with a cartoon man with {SETH}. His face: {m.get('face', 'making exactly the same expression as the person in the photograph, not smiling unless they are')}. Keep the clothing "
+              f"with a cartoon man with {SETH}. His face: {m.get('face', 'making exactly the same expression as the person in the photograph, not smiling unless they are')}. "
+              f"{'He wears ' + m['clothing'] + '. ' if 'clothing' in m else ''}Keep the clothing "
               "exactly as in the photograph. Draw the whole picture, the background included, "
               "in warm sepia ink on aged paper. Remove any words, captions or lettering: there is no "
               "text anywhere in the picture.")
@@ -278,10 +291,62 @@ def cutout(name):
     print(f"{name} cutout {len(got)} frames")
 
 
+def post_graph(name, p):
+    load = lambda k, f: {k: {"class_type": "LoadVideo", "inputs": {"file": f}},
+                         k + "c": {"class_type": "GetVideoComponents", "inputs": {"video": [k, 0]}}}
+    g = {"m": {"class_type": "LoadBackgroundRemovalModel", "inputs": {"bg_removal_name": BGREMOVAL}}}
+    g.update(load("s", f"sethmoji-{name}-seth.mp4"))
+    g["sm"] = {"class_type": "RemoveBackground", "inputs": {"bg_removal_model": ["m", 0], "image": ["sc", 0]}}
+    args = {k: v for k, v in p.items() if k not in ("node", "orig_seconds", "backdrop")}
+    if p["node"] == "BlinkCaption":
+        # Seth over the source's own background, with the source performer and caption painted out
+        g.update(load("o", f"sethmoji-{name}-drive.mp4"))
+        g["om"] = {"class_type": "RemoveBackground", "inputs": {"bg_removal_model": ["m", 0], "image": ["oc", 0]}}
+        g["ot"] = {"class_type": "BrightTextMask", "inputs": {"images": ["oc", 0], "threshold": 0.9, "top_band": 0.22, "bottom_band": 0.25, "grow": 7}}
+        g["og0"] = {"class_type": "GrowMask", "inputs": {"mask": ["om", 0], "expand": 10, "tapered_corners": True}}
+        g["og"] = {"class_type": "MaskComposite", "inputs": {"destination": ["og0", 0], "source": ["ot", 0], "x": 0, "y": 0, "operation": "add"}}
+        g["bg"] = {"class_type": "FillMaskFromSurroundings", "inputs": {"images": ["oc", 0], "mask": ["og", 0]}}
+        g["cm"] = {"class_type": "ImageCompositeMasked", "inputs": {"destination": ["bg", 0], "source": ["sc", 0], "x": 0, "y": 0, "resize_source": False, "mask": ["sm", 0]}}
+        g["fx"] = {"class_type": "BlinkCaption", "inputs": {"images": ["cm", 0], **args}}
+        g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": ["fx", 0]}}
+    else:
+        g["fx"] = {"class_type": p["node"], "inputs": {"images": ["sc", 0], "alpha": ["sm", 0], **args}}
+        g["iv"] = {"class_type": "InvertMask", "inputs": {"mask": ["fx", 1]}}
+        g["ja"] = {"class_type": "JoinImageWithAlpha", "inputs": {"image": ["fx", 0], "alpha": ["iv", 0]}}
+        g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": ["ja", 0]}}
+    return g
+
+
+def post(name):
+    """Per-meme finishing in ComfyUI (the sethmoji_fx node pack). Writes post/f###.png, which
+    emoji prefers over cut/, and final.mp4 plus cmp-orig.mp4, which compare prefers."""
+    m, dd = MEMES[name], d(name)
+    p = m.get("post")
+    if not p:
+        return
+    os.makedirs(f"{dd}/post", exist_ok=True)
+    for f in glob.glob(f"{dd}/post/*.png"):
+        os.remove(f)
+    got = submit(post_graph(name, p), "out", "images", f"{dd}/post/f{{i:03d}}.png")
+    bd = p.get("backdrop")
+    vf = (f"color=c={bd}:s=16x16:r={FPS}[k];[k][0:v]scale2ref[k2][v];[k2][v]overlay=format=auto:shortest=1,format=yuv420p"
+          if bd else "format=yuv420p")
+    sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", f"{dd}/post/f%03d.png",
+       "-filter_complex", vf, "-c:v", "libx264", "-crf", "14", f"{dd}/final.mp4")
+    if p.get("orig_seconds"):
+        # the render was spliced; compare against the whole original, beat for beat
+        spec = json.load(open(f"{dd}/spec.json"))
+        sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/c{m['pick']}.mp4", "-vf",
+           f"fps={FPS},scale={spec['W']}:{spec['H']}:flags=lanczos", "-t", str(p["orig_seconds"]),
+           "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "12", f"{dd}/cmp-orig.mp4")
+    print(f"{name} post {len(got)} frames")
+
+
 def emoji(name):
     from PIL import Image, ImageFilter
     m, dd = MEMES[name], d(name)
-    frames = [Image.open(f).convert("RGBA") for f in sorted(glob.glob(f"{dd}/cut/f*.png"))]
+    src = "post" if os.path.exists(f"{dd}/post/f000.png") else "cut"
+    frames = [Image.open(f).convert("RGBA") for f in sorted(glob.glob(f"{dd}/{src}/f*.png"))]
     W, H = frames[0].size
     lim = int(H * m["top"])
     x0, y0, x1, y1 = W, H, 0, 0
@@ -306,7 +371,7 @@ def emoji(name):
         im.save(f"{tmp}/{i:03d}.png")
     out = f"{dd}/{name}-seth.gif"
     for fps, lossy, colours in ((16, 80, 64), (12, 80, 64), (10, 110, 48), (8, 110, 48),
-                                (6, 140, 32)):
+                                (6, 140, 32), (5, 170, 32), (4, 200, 24)):
         raw = f"{dd}/emo-raw.gif"
         sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", f"{tmp}/%03d.png",
            "-vf", f"fps={fps},split[a][b];[a]palettegen=max_colors={colours}:reserve_transparent=1[p];"
@@ -326,7 +391,9 @@ def compare(name):
     out = f"{dd}/{name}-seth-comparison.gif"
     raw = f"{dd}/cmp-raw.gif"
     for height, fps, lossy in ((300, 12, 60), (260, 12, 90), (240, 10, 110), (200, 10, 140)):
-        sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive.mp4", "-i", f"{dd}/seth.mp4",
+        orig = f"{dd}/cmp-orig.mp4" if os.path.exists(f"{dd}/cmp-orig.mp4") else f"{dd}/drive.mp4"
+        seth = f"{dd}/final.mp4" if os.path.exists(f"{dd}/final.mp4") else f"{dd}/seth.mp4"
+        sh("ffmpeg", "-y", "-loglevel", "error", "-i", orig, "-i", seth,
            "-filter_complex",
            f"[0:v]scale=-2:{height}:flags=lanczos[a];[1:v]scale=-2:{height}:flags=lanczos[b];"
            f"[a][b]hstack=inputs=2,fps={fps},split[x][y];[x]palettegen=max_colors=128[p];"
@@ -345,8 +412,8 @@ def deliver(name):
     print(f"{name} delivered")
 
 
-STAGES = ["prep", "ref", "animate", "cutout", "emoji", "compare", "deliver"]
-DONE = {"prep": "spec.json", "ref": "ref.png", "animate": "seth.mp4", "cutout": "cut/f000.png",
+STAGES = ["prep", "ref", "animate", "cutout", "post", "emoji", "compare", "deliver"]
+DONE = {"prep": "spec.json", "ref": "ref.png", "animate": "seth.mp4", "cutout": "cut/f000.png", "post": "post/f000.png",
         "emoji": "{n}-seth.gif", "compare": "{n}-seth-comparison.gif", "deliver": None}
 
 
