@@ -86,6 +86,39 @@ MEMES = {
                          "black tuxedo",
                    action="He raises a champagne glass toward the viewer in a toast with a "
                           "charming smile"),
+    # ---- batch 2 ----
+    "mind-blown": dict(pick=2, caption=0.0, top=0.9, segments=[(0, 1.0), (3.7, 5.3)],
+                       face="wide-eyed, mouth open in awe",
+                       scene="Close up, in front of a dark background, wearing a black turtleneck",
+                       action="He presses his fingertips to his temples, then flings both hands "
+                              "outward as his mind is blown, mouth wide open"),
+    "slow-clap": dict(pick=2, caption=0.0, top=0.9, repeat=4,
+                      face="stern, proud and unsmiling",
+                      scene="In a dim theatre box, wearing a tuxedo and bow tie",
+                      action="He claps slowly and deliberately, head held high"),
+    "mic-drop": dict(pick=0, caption=0.0, top=0.85,
+                     face="confident and self-satisfied",
+                     scene="At a podium in a grand ballroom, wearing a black tuxedo",
+                     action="He holds a microphone out at arm's length, then lets it drop with "
+                            "a confident nod"),
+    "its-happening": dict(pick=1, caption=0.0, top=0.95,
+                          face="grinning with excitement",
+                          scene="In front of a dark background, wearing a suit and tie",
+                          action="He throws both hands up and waves them excitedly overhead"),
+    "popcorn": dict(pick=0, caption=0.0, top=0.9,
+                    face="a wide delighted grin, eyes fixed on something in front of him",
+                    scene="In a dark cinema, wearing a red leather jacket",
+                    action="He eats popcorn from his hand, grinning, eyes fixed on the screen"),
+    "salty": dict(pick=0, caption=0.0, top=0.95,
+                  face="cool and confident",
+                  scene="In a restaurant, wearing a white t-shirt",
+                  action="He raises his hand high and sprinkles salt down along his forearm "
+                         "with a dramatic flourish"),
+    "elaine": dict(pick=0, caption=0.0, top=1.0,
+                   face="fully committed to the dance, grinning",
+                   scene="At a crowded office party, keeping the same clothing",
+                   action="He dances wildly and awkwardly, jerking his arms and thumbs and "
+                          "kicking his legs"),
 }
 
 
@@ -119,9 +152,21 @@ def prep(name):
     w, h = map(int, probe(src, "width,height").split(","))
     keep = int(h * (1 - m["caption"])) // 2 * 2
     w2 = w // 2 * 2
-    sh("ffmpeg", "-y", "-loglevel", "error", "-i", src, "-vf",
-       f"crop={w2}:{keep}:0:0,fps={FPS}", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p",
-       "-crf", "12", f"{dd}/drive-full.mp4")
+    # segments: splice time ranges, e.g. mind-blown keeps the clean frames either side of the
+    # VFX explosion that hides his head. repeat: loop a clip that is one natural cycle, e.g.
+    # slow-clap's single 0.56s clap.
+    segs = m.get("segments") or [(0, 999)]
+    parts = "".join(f"[0:v]trim={a}:{b},setpts=PTS-STARTPTS,crop={w2}:{keep}:0:0,fps={FPS}[s{i}];"
+                    for i, (a, b) in enumerate(segs))
+    parts += "".join(f"[s{i}]" for i in range(len(segs))) + f"concat=n={len(segs)}:v=1[c]"
+    if m.get("repeat", 1) > 1:
+        parts += f";[c]loop=loop={m['repeat'] - 1}:size=1000:start=0[c2]"
+        out_label = "[c2]"
+    else:
+        out_label = "[c]"
+    sh("ffmpeg", "-y", "-loglevel", "error", "-i", src, "-filter_complex", parts, "-map",
+       out_label, "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "12",
+       f"{dd}/drive-full.mp4")
     n = int(subprocess.run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
                             "-show_entries", "stream=nb_read_frames", "-of", "csv=p=0",
                             f"{dd}/drive-full.mp4"], capture_output=True, text=True).stdout.strip())
@@ -173,7 +218,8 @@ def ref(name):
               "exactly right and must not change, including the crop and the size of the head in the frame. Replace only the person's head, face and hair "
               f"with a cartoon man with {SETH}. His face: {m.get('face', 'making exactly the same expression as the person in the photograph, not smiling unless they are')}. Keep the clothing "
               "exactly as in the photograph. Draw the whole picture, the background included, "
-              "in warm sepia ink on aged paper.")
+              "in warm sepia ink on aged paper. Remove any words, captions or lettering: there is no "
+              "text anywhere in the picture.")
     W, H = spec["W"], spec["H"]
     g = {
      "2": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"}},

@@ -25,6 +25,15 @@ MEMES = {
     "nooo": "michael scott no god please no",
     "lost": "confused travolta",
     "cheers": "leonardo dicaprio cheers gatsby",
+    # batch 2
+    "mind-blown": "tim heidecker mind blown",
+    "slow-clap": "citizen kane slow clap",
+    "mic-drop": "obama mic drop",
+    "its-happening": "ron paul its happening",
+    "popcorn": "michael jackson popcorn",
+    "salty": "salt bae",
+    "thumbs-up": "terminator thumbs up lava",
+    "elaine": "elaine dance seinfeld",
 }
 
 
