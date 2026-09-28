@@ -126,6 +126,13 @@ MEMES = {
                   scene="In a restaurant, wearing a white t-shirt",
                   action="He raises his hand high and sprinkles salt down along his forearm "
                          "with a dramatic flourish"),
+    # ---- batch 3 ----
+    "yes-you": dict(pick=0, caption=0.0, top=0.9,
+                    face="his head fills the top of the frame at the same size and position as in the photograph, tilted to one side, eyes closed, lips pursed and pushed out in a smug pout, NOT smiling",
+                    scene="At a crowded outdoor event, wearing a blue suit, white shirt and red tie",
+                    extra="Where the other man stands behind him in the photograph there is only a dark blurred shape: there is no second person.",
+                    action="He sways with his eyes closed, then points straight at the viewer "
+                           "and nods approvingly"),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
@@ -229,7 +236,7 @@ def ref(name):
               "anything held in them, the clothing, the framing and the background are already "
               "exactly right and must not change, including the crop and the size of the head in the frame. Replace only the person's head, face and hair "
               f"with a cartoon man with {SETH}. His face: {m.get('face', 'making exactly the same expression as the person in the photograph, not smiling unless they are')}. "
-              f"{'He wears ' + m['clothing'] + '. ' if 'clothing' in m else ''}Keep the clothing "
+              f"{'He wears ' + m['clothing'] + '. ' if 'clothing' in m else ''}{m.get('extra', '') + ' ' if 'extra' in m else ''}Keep the clothing "
               "exactly as in the photograph. Draw the whole picture, the background included, "
               "in warm sepia ink on aged paper. Remove any words, captions or lettering: there is no "
               "text anywhere in the picture.")
