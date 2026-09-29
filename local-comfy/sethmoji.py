@@ -169,6 +169,12 @@ MEMES = {
                         face="eyes half closed, humming with lips pressed together, deadpan",
                         scene="At a restaurant table by a big window over the city, wearing a dark pinstriped suit and red tie",
                         action="He hums and thumps his chest rhythmically with his fist"),
+    # c3 is chefkiss2/c1 from sethmoji_source ("chefs kiss perfection"); the glitch wipe starts at 2.4s
+    "chefkiss": dict(pick=3, caption=0.0, top=0.95, segments=[(0, 2.37)],
+                     face="eyes closed in bliss, kissing his pinched fingertips, utterly satisfied",
+                     scene="In front of a black background, wearing a tall white chef's hat and a white neckerchief",
+                     extra="He is not wearing sunglasses: his eyes are visible.",
+                     action="He pinches his fingertips together, kisses them and flings his hand open in a chef's kiss"),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",

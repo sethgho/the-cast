@@ -43,6 +43,8 @@ MEMES = {
     "carlton": "carlton dance",
     "ear-cup": "hulk hogan cant hear you",
     "chest-thump": "matthew mcconaughey chest thump",
+    "chefkiss": "chef kiss",
+    "chefkiss2": "chefs kiss perfection",
 }
 
 
