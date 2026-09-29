@@ -41,6 +41,9 @@ ROOT = "/home/wilson/scratch/sethmoji"
 GPU = "wilson@192.168.0.210"
 MAC = "sethgho@100.64.185.78"
 MAC_DIR = "Documents/avatars/sethmojis"
+# who the set is of, and the prefix for files in ComfyUI's input folder; jenmoji.py swaps both
+WHO = "seth"
+PREFIX = "sethmoji"
 FPS = 16
 MAX_FRAMES = 81
 
@@ -231,7 +234,7 @@ def prep(name):
     sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive.mp4", "-frames:v", "1",
        f"{dd}/frame0.png")
     json.dump({"W": W, "H": H, "frames": n}, open(f"{dd}/spec.json", "w"))
-    sh("scp", "-q", f"{dd}/drive.mp4", f"{GPU}:comfyui/input/sethmoji-{name}-drive.mp4")
+    sh("scp", "-q", f"{dd}/drive.mp4", f"{GPU}:comfyui/input/{PREFIX}-{name}-drive.mp4")
     print(f"{name} prep {W}x{H} {n} frames")
 
 
@@ -263,7 +266,7 @@ def submit(g, node, kind, dest):
 def ref(name):
     m, dd = MEMES[name], d(name)
     spec = json.load(open(f"{dd}/spec.json"))
-    sh("scp", "-q", f"{dd}/frame0.png", f"{GPU}:comfyui/input/sethmoji-{name}-f0.png")
+    sh("scp", "-q", f"{dd}/frame0.png", f"{GPU}:comfyui/input/{PREFIX}-{name}-f0.png")
     prompt = ("f0llie5, image 1 is a photograph to redraw as a cartoon. This is a repaint: the "
               "pose, the tilt of the head, the direction the eyes are looking, the hands and "
               "anything held in them, the clothing, the framing and the background are already "
@@ -280,7 +283,7 @@ def ref(name):
      "30": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "follies-final.safetensors", "strength_model": 1.2, "model": ["3", 0]}},
      "4": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors", "type": "qwen_image", "device": "default"}},
      "5": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_vae.safetensors"}},
-     "6": {"class_type": "LoadImage", "inputs": {"image": f"sethmoji-{name}-f0.png"}},
+     "6": {"class_type": "LoadImage", "inputs": {"image": f"{PREFIX}-{name}-f0.png"}},
      "11": {"class_type": "EmptySD3LatentImage", "inputs": {"width": W, "height": H, "batch_size": 1}},
      "20": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": prompt, "clip": ["4", 0], "vae": ["5", 0], "image1": ["6", 0]}},
      "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": NEGATIVE + ", photograph, text, subtitles", "clip": ["4", 0]}},
@@ -289,7 +292,7 @@ def ref(name):
      "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-ref", "images": ["23", 0]}},
     }
     submit(g, "99", "images", f"{dd}/ref.png")
-    sh("scp", "-q", f"{dd}/ref.png", f"{GPU}:comfyui/input/sethmoji-{name}-ref.png")
+    sh("scp", "-q", f"{dd}/ref.png", f"{GPU}:comfyui/input/{PREFIX}-{name}-ref.png")
     print(f"{name} ref")
 
 
@@ -297,7 +300,7 @@ def animate(name):
     m, dd = MEMES[name], d(name)
     spec = json.load(open(f"{dd}/spec.json"))
     a = argparse.Namespace(
-        ref=f"sethmoji-{name}-ref.png", drive=f"sethmoji-{name}-drive.mp4",
+        ref=f"{PREFIX}-{name}-ref.png", drive=f"{PREFIX}-{name}-drive.mp4",
         prompt=f"{CHAR}. {m['scene']}, all drawn in the same sepia ink style. {m['action']}.",
         pose_prompt=f"{m['action'].replace('He ', 'A person ')}. Static camera.",
         out=f"sethmoji/{name}", model="wan_animate_2_distill_int8_convrot.safetensors",
@@ -314,9 +317,9 @@ def animate(name):
 
 def cutout(name):
     dd = d(name)
-    sh("scp", "-q", f"{dd}/seth.mp4", f"{GPU}:comfyui/input/sethmoji-{name}-seth.mp4")
+    sh("scp", "-q", f"{dd}/seth.mp4", f"{GPU}:comfyui/input/{PREFIX}-{name}-seth.mp4")
     g = {
-     "1": {"class_type": "LoadVideo", "inputs": {"file": f"sethmoji-{name}-seth.mp4"}},
+     "1": {"class_type": "LoadVideo", "inputs": {"file": f"{PREFIX}-{name}-seth.mp4"}},
      "2": {"class_type": "GetVideoComponents", "inputs": {"video": ["1", 0]}},
      "3": {"class_type": "LoadBackgroundRemovalModel", "inputs": {"bg_removal_name": BGREMOVAL}},
      "4": {"class_type": "RemoveBackground", "inputs": {"bg_removal_model": ["3", 0], "image": ["2", 0]}},
@@ -335,12 +338,12 @@ def post_graph(name, p):
     load = lambda k, f: {k: {"class_type": "LoadVideo", "inputs": {"file": f}},
                          k + "c": {"class_type": "GetVideoComponents", "inputs": {"video": [k, 0]}}}
     g = {"m": {"class_type": "LoadBackgroundRemovalModel", "inputs": {"bg_removal_name": BGREMOVAL}}}
-    g.update(load("s", f"sethmoji-{name}-seth.mp4"))
+    g.update(load("s", f"{PREFIX}-{name}-seth.mp4"))
     g["sm"] = {"class_type": "RemoveBackground", "inputs": {"bg_removal_model": ["m", 0], "image": ["sc", 0]}}
     args = {k: v for k, v in p.items() if k not in ("node", "orig_seconds", "backdrop")}
     if p["node"] == "BlinkCaption":
         # Seth over the source's own background, with the source performer and caption painted out
-        g.update(load("o", f"sethmoji-{name}-drive.mp4"))
+        g.update(load("o", f"{PREFIX}-{name}-drive.mp4"))
         g["om"] = {"class_type": "RemoveBackground", "inputs": {"bg_removal_model": ["m", 0], "image": ["oc", 0]}}
         g["ot"] = {"class_type": "BrightTextMask", "inputs": {"images": ["oc", 0], "threshold": 0.9, "top_band": 0.22, "bottom_band": 0.25, "grow": 7}}
         g["og0"] = {"class_type": "GrowMask", "inputs": {"mask": ["om", 0], "expand": 10, "tapered_corners": True}}
@@ -414,7 +417,7 @@ def emoji(name):
         im = im.resize((128, 128), Image.LANCZOS)
         im.putalpha(im.getchannel("A").point(lambda v: 255 if v >= 128 else 0))
         im.save(f"{tmp}/{i:03d}.png")
-    out = f"{dd}/{name}-seth.gif"
+    out = f"{dd}/{name}-{WHO}.gif"
     for fps, lossy, colours in ((16, 80, 64), (12, 80, 64), (10, 110, 48), (8, 110, 48),
                                 (6, 140, 32), (5, 170, 32), (4, 200, 24)):
         raw = f"{dd}/emo-raw.gif"
@@ -433,7 +436,7 @@ def compare(name):
     """Original | Seth. Long camera-move clips ran 10MB at 320px/16fps, so this steps down
     height and frame rate and lets gifsicle trim, aiming under 3MB so it posts anywhere."""
     dd = d(name)
-    out = f"{dd}/{name}-seth-comparison.gif"
+    out = f"{dd}/{name}-{WHO}-comparison.gif"
     raw = f"{dd}/cmp-raw.gif"
     for height, fps, lossy in ((300, 12, 60), (260, 12, 90), (240, 10, 110), (200, 10, 140)):
         orig = f"{dd}/cmp-orig.mp4" if os.path.exists(f"{dd}/cmp-orig.mp4") else f"{dd}/drive.mp4"
@@ -452,21 +455,21 @@ def compare(name):
 
 def deliver(name):
     dd = d(name)
-    sh("scp", "-q", f"{dd}/{name}-seth.gif", f"{dd}/{name}-seth-comparison.gif",
+    sh("scp", "-q", f"{dd}/{name}-{WHO}.gif", f"{dd}/{name}-{WHO}-comparison.gif",
        f"{MAC}:{MAC_DIR}/")
     print(f"{name} delivered")
 
 
 STAGES = ["prep", "ref", "animate", "cutout", "post", "emoji", "compare", "deliver"]
 DONE = {"prep": "spec.json", "ref": "ref.png", "animate": "seth.mp4", "cutout": "cut/f000.png", "post": "post/f000.png",
-        "emoji": "{n}-seth.gif", "compare": "{n}-seth-comparison.gif", "deliver": None}
+        "emoji": "{n}-{w}.gif", "compare": "{n}-{w}-comparison.gif", "deliver": None}
 
 
 def run_all(names):
     for name in names:
         for st in STAGES:
             marker = DONE[st]
-            if marker and os.path.exists(f"{d(name)}/{marker.format(n=name)}"):
+            if marker and os.path.exists(f"{d(name)}/{marker.format(n=name, w=WHO)}"):
                 continue
             try:
                 globals()[st](name)
