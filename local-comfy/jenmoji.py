@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Jenmojis: the sethmoji pipeline for Jen, in a children's-book illustration style.
+"""Jenmojis: the sethmoji pipeline for Jen, photorealistic.
 
-    python3 jenmoji.py style                 # Jen's portrait in the style, to settle the look
     python3 jenmoji.py <stage|all> [names]   # stages as sethmoji, plus hires
 
-Same stages and emoji packing as sethmoji.py; what changes is who and how she is drawn. There
-is no style LoRA here: the look is carried by words alone, on the plain Qwen edit model. Her
-photograph lives only on gpu-worker (input/jenmoji-photo.png) and in scratch -- never commit it.
+Same stages and emoji packing as sethmoji.py; what changes is who and how she is drawn. No style
+at all: the reference frame is the meme's first frame with her put into it, likeness taken from
+two of her photographs (images 2 and 3 of the Qwen edit). A children's-book style was tried
+first and dropped -- stylised, it stopped looking like her. Her photographs live only on
+gpu-worker (input/jenmoji-photo-*.png) and in scratch -- never commit them.
 """
 import argparse
 import os
@@ -24,15 +25,16 @@ B.WHO = "jen"
 B.PREFIX = "jenmoji"
 B.MAC_DIR = "Documents/avatars/jenmojis"
 
-STYLE = ("a classic children's picture-book illustration: soft watercolour and gouache washes on "
-         "textured paper, gentle coloured-pencil linework, a warm storybook palette, simplified "
-         "rounded shapes and rosy cheeks, whimsical and friendly")
-JEN = ("dark brown shoulder-length hair pulled loosely back, long side-swept curtain bangs over "
-       "her forehead, light blue-grey eyes, a few faint freckles and small gold hoop earrings")
+JEN = ("dark brown hair pulled loosely back with long side-swept bangs across her forehead, "
+       "light blue-grey eyes, a slim face with defined cheekbones, faint freckles and small gold "
+       "hoop earrings")
+PHOTOS = ["jenmoji-photo-a.png", "jenmoji-photo-b.png"]
+NEG = ("cartoon, illustration, painting, drawing, anime, 3d render, plastic skin, airbrushed, "
+       "blurry, deformed, extra limbs, watermark, text")
 
 B.MEMES = {
     "kombucha": dict(pick=0, seed=7, caption=0.0, top=0.62,
-                     frame="The camera is as far away as in image 1: her head and shoulders fill only the left two thirds of the picture, and the white ceiling, the smoke detector and the white doors of the room are clearly visible behind her.",
+                     frame="The camera is as far away as in image 1: her head and shoulders fill only the left two thirds of the picture, and the white ceiling and the white doors of the room are clearly visible behind her.",
                      face="head turned three-quarters away to the side, eyes looking off to the side, mouth closed, a flat neutral expression, NOT smiling",
                      scene="In a bedroom, keeping the same clothing",
                      action="She sips kombucha, grimaces in disgust, reconsiders, then decides "
@@ -48,7 +50,7 @@ def qwen_edit(images, prompt, W, H, prefix, dest, seed=7):
      "5": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_vae.safetensors"}},
      "11": {"class_type": "EmptySD3LatentImage", "inputs": {"width": W, "height": H, "batch_size": 1}},
      "20": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": prompt, "clip": ["4", 0], "vae": ["5", 0]}},
-     "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": B.NEGATIVE + ", photograph, photorealistic, 3d render, text", "clip": ["4", 0]}},
+     "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": NEG, "clip": ["4", 0]}},
      "22": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": B.STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["3", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["11", 0]}},
      "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}},
      "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": f"jenmoji/{prefix}", "images": ["23", 0]}},
@@ -59,36 +61,19 @@ def qwen_edit(images, prompt, W, H, prefix, dest, seed=7):
     return B.submit(g, "99", "images", dest)
 
 
-def style():
-    out = f"{B.ROOT}/_style"
-    for seed in (7, 21):
-        qwen_edit(["jenmoji-photo.png"],
-                  f"Redraw this photograph as {STYLE}. Keep her likeness exactly: the same "
-                  "hair and bangs, the same eyes, the same big smile, the same earrings and the "
-                  "same rust-orange t-shirt. Head and shoulders, on a plain soft cream "
-                  "background. This is a painted illustration, not a filtered photograph.",
-                  768, 1024, f"style-{seed}", f"{out}/jen-style-{seed}.png", seed=seed)
-        print("style", seed)
-
-
 def ref(name):
     m, dd = B.MEMES[name], B.d(name)
     spec = json.load(open(f"{dd}/spec.json"))
     B.sh("scp", "-q", f"{dd}/frame0.png", f"{B.GPU}:comfyui/input/jenmoji-{name}-f0.png")
-    B.sh("scp", "-q", f"{B.ROOT}/_style/jen-style.png", f"{B.GPU}:comfyui/input/jenmoji-style.png")
-    prompt = (f"Image 1 is a photograph to repaint as {STYLE}, in exactly the style of image 2. "
-              "This is a repaint: the pose, the "
-              "tilt of the head, the direction the eyes are looking, the hands and anything held "
-              "in them, the clothing, the framing and the background are already exactly right "
-              "and must not change, including the crop and the size of the head in the frame. "
-              "Replace only the woman's face and hair with the woman from image 2: her face, "
-              f"her hair and bangs and her earrings ({JEN}), seen from the angle of image 1. "
-              "Her face: "
-              f"{m['face']}. Keep the clothing exactly as in the photograph. Paint the whole "
-              "picture, the background included, in the same storybook style. There is no text "
-              f"anywhere in the picture. {m.get('frame', '')} Soft watercolour washes and "
-              "gentle pencil lines, like image 2, not a comic book.")
-    qwen_edit([f"jenmoji-{name}-f0.png", "jenmoji-style.png"], prompt, spec["W"], spec["H"], f"{name}-ref",
+    prompt = ("Image 1 is a photograph. Replace the woman in image 1 with the woman in images 2 "
+              "and 3: it must be recognisably the same real person, with her exact face, eyes, "
+              f"nose, jaw, skin, hair and bangs ({JEN}). Everything else in image 1 is already "
+              "exactly right and must not change: the pose, the tilt and turn of the head, the "
+              "direction the eyes are looking, the clothing, the room, the lighting, the camera "
+              "angle, the crop and the size of the head in the frame. Her expression: "
+              f"{m['face']}. {m.get('frame', '')} A natural, unretouched phone-camera "
+              "photograph, photorealistic, with real skin texture. There is no text anywhere.")
+    qwen_edit([f"jenmoji-{name}-f0.png"] + PHOTOS, prompt, spec["W"], spec["H"], f"{name}-ref",
               f"{dd}/ref.png", seed=m.get("seed", 7))
     B.sh("scp", "-q", f"{dd}/ref.png", f"{B.GPU}:comfyui/input/jenmoji-{name}-ref.png")
     print(f"{name} ref")
@@ -99,12 +84,13 @@ def animate(name):
     spec = json.load(open(f"{dd}/spec.json"))
     a = argparse.Namespace(
         ref=f"jenmoji-{name}-ref.png", drive=f"jenmoji-{name}-drive.mp4",
-        prompt=f"A woman with {JEN}, drawn as {STYLE}. {m['scene']}, all painted in the same "
-               f"storybook style. {m['action']}.",
+        prompt=f"A photorealistic video of a woman with {JEN}. {m['scene']}. {m['action']}.",
         pose_prompt=f"{m['action'].replace('She ', 'A person ')}. Static camera.",
         out=f"jenmoji/{name}", model="wan_animate_2_distill_int8_convrot.safetensors",
         lora=None, width=spec["W"], height=spec["H"], length=spec["frames"], fps=B.FPS, steps=6,
-        seed=77, cache="cpu", pose_strength=2.0, ref_strength=0.6)
+        # a real face deforms at the defaults, unlike a cartoon one; full reference
+        # strength holds her likeness through the grimace
+        seed=77, cache="cpu", pose_strength=1.0, ref_strength=1.0)
     urllib.request.urlopen(urllib.request.Request(
         B.S.HOST + "/free", json.dumps({"unload_models": True, "free_memory": True}).encode(),
         {"Content-Type": "application/json"}), timeout=60).read()
@@ -136,9 +122,7 @@ B.DONE["hires"] = "{n}-jen-hires.mp4"
 
 if __name__ == "__main__":
     stage, names = sys.argv[1], sys.argv[2:] or list(B.MEMES)
-    if stage == "style":
-        style()
-    elif stage == "all":
+    if stage == "all":
         B.run_all(names)
     else:
         for n in names:
