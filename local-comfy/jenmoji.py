@@ -46,6 +46,43 @@ B.MEMES = {
                    scene="At a lavish 1920s party at night with fireworks behind her, wearing a black evening gown",
                    action="She raises a champagne glass toward the viewer in a toast with a "
                           "charming smile"),
+    "ok": dict(pick=0, seed=7, caption=0.0, top=0.9,
+               frame="There is exactly one person in the picture: she takes the other woman's place exactly, at the same position and size, wearing that woman's white blouse with the blue floral pattern, against the same dark background. The other woman is completely gone.",
+               outfit="a white sleeveless blouse with a blue floral pattern",
+               face="unimpressed, lips pressed, eyebrows slightly raised, NOT smiling",
+               scene="In front of a dark background, wearing a white blouse with a blue floral pattern",
+               action="She says oh okay with a sarcastic eye roll, nods and gives a thumbs-up"),
+    "elaine": dict(pick=0, seed=7, caption=0.0, top=1.0,
+                   face="fully committed to the dance, grinning",
+                   scene="At a crowded office party, keeping the same clothing",
+                   action="She dances wildly and awkwardly, jerking her arms and thumbs and "
+                          "kicking her legs"),
+    "blink": dict(pick=0, seed=7, caption=0.0, top=1.0, subject="man",
+                  outfit="a plain dark top",
+                  frame="An extreme close-up: her face fills the whole frame at exactly the same size and position as the man's face in image 1, and he is completely gone.",
+                  face="head turned three-quarters, eyes half-lidded in disbelief, mouth closed",
+                  scene="Close up, in front of a softly blurred background",
+                  action="She glances toward the viewer and blinks twice in disbelief"),
+    "jim-look": dict(pick=0, seed=31, caption=0.0, top=0.7, subject="man",
+                     outfit="a crisp white button-up blouse",
+                     frame="Keep image 1's exact camera: a close shot where her head and shoulders fill the frame at the same size and position as the man's, turned the same way, with the same plain pale office wall behind her and the black microphone at the right edge. The man is completely gone.",
+                     face="completely deadpan, NOT smiling, mouth flat and closed, eyebrows slightly raised",
+                     scene="In an office, wearing a white blouse",
+                     action="She turns her head and stares straight into the camera, deadpan, "
+                            "eyebrows slightly raised"),
+    "hotline-bling": dict(pick=1, seed=7, caption=0.0, top=0.95, subject="man",
+                          outfit="a black hoodie with an owl printed on the chest",
+                          frame="Keep image 1's exact camera: the camera is far away, she is small and stands in the right half of the picture, seen from head to knees, one hand on her chest and the other on her hip exactly like the man, in the plain glowing blue room. The man is completely gone.",
+                          face="cool and smooth, lips pursed, NOT smiling",
+                          scene="In front of a plain glowing blue wall, wearing a black hoodie",
+                          action="She dances the Hotline Bling dance, swaying and waving her arms "
+                                 "smoothly out to the sides"),
+    "rickroll": dict(pick=1, seed=7, caption=0.0, top=0.95, subject="man",
+                     outfit="a long dark trench coat over a black and white striped top",
+                     frame="Keep image 1's exact camera and its plain pure white background, with no stage and no curtains: she stands behind the old silver microphone on its stand, seen from the thighs up, at the same size and position as the man, in the same pose. The man is completely gone.",
+                     face="singing earnestly with a small confident smile",
+                     scene="On a plain white background, wearing a long dark trench coat over a striped top, a microphone on a stand in front of her",
+                     action="She sways and swings her arms as she sings into the microphone"),
 }
 
 
