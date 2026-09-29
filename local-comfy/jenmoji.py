@@ -39,6 +39,13 @@ B.MEMES = {
                      scene="In a bedroom, keeping the same clothing",
                      action="She sips kombucha, grimaces in disgust, reconsiders, then decides "
                             "she actually likes it"),
+    "cheers": dict(pick=2, seed=7, caption=0.0, top=0.85, subject="man",
+                   frame="There is exactly one person in the picture: she stands exactly where the man stood, centred, head and shoulders, and the man is completely gone. Behind her are the same dark night sky, fireworks and sparkling blue bokeh lights as in image 1.",
+                   outfit="an elegant black satin evening gown with thin straps and a delicate necklace",
+                   face="a charming, knowing half-smile, eyebrows slightly raised, looking straight at the viewer",
+                   scene="At a lavish 1920s party at night with fireworks behind her, wearing a black evening gown",
+                   action="She raises a champagne glass toward the viewer in a toast with a "
+                          "charming smile"),
 }
 
 
@@ -65,12 +72,18 @@ def ref(name):
     m, dd = B.MEMES[name], B.d(name)
     spec = json.load(open(f"{dd}/spec.json"))
     B.sh("scp", "-q", f"{dd}/frame0.png", f"{B.GPU}:comfyui/input/jenmoji-{name}-f0.png")
-    prompt = ("Image 1 is a photograph. Replace the woman in image 1 with the woman in images 2 "
-              "and 3: it must be recognisably the same real person, with her exact face, eyes, "
-              f"nose, jaw, skin, hair and bangs ({JEN}). Everything else in image 1 is already "
-              "exactly right and must not change: the pose, the tilt and turn of the head, the "
-              "direction the eyes are looking, the clothing, the room, the lighting, the camera "
-              "angle, the crop and the size of the head in the frame. Her expression: "
+    # a meme performed by a man keeps his pose and framing but not his clothes: `outfit`
+    # dresses her for the scene instead
+    outfit = m.get("outfit")
+    prompt = (f"Image 1 is a photograph. Replace the {m.get('subject', 'woman')} in image 1 with "
+              "the woman in images 2 and 3: it must be recognisably the same real person, with "
+              f"her exact face, eyes, nose, jaw, skin, hair and bangs ({JEN}). "
+              + (f"She wears {outfit}. " if outfit else "") +
+              "Everything else in image 1 is already exactly right and must not change: the "
+              "pose, the tilt and turn of the head, the direction the eyes are looking, "
+              + ("" if outfit else "the clothing, ") +
+              "the room, the lighting, the camera angle, the crop and the size of the head in "
+              "the frame. Her expression: "
               f"{m['face']}. {m.get('frame', '')} A natural, unretouched phone-camera "
               "photograph, photorealistic, with real skin texture. There is no text anywhere.")
     qwen_edit([f"jenmoji-{name}-f0.png"] + PHOTOS, prompt, spec["W"], spec["H"], f"{name}-ref",
