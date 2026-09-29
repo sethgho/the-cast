@@ -37,6 +37,12 @@ MEMES = {
     # batch 3
     "ok": "jennifer lawrence ok",
     "van-door": "mitch mcconnell van door",
+    # batch 4
+    "hotline-bling": "drake hotline bling dance",
+    "rickroll": "rick astley never gonna give you up",
+    "carlton": "carlton dance",
+    "ear-cup": "hulk hogan cant hear you",
+    "chest-thump": "matthew mcconaughey chest thump",
 }
 
 
