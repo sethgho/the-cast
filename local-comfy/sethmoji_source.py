@@ -47,6 +47,8 @@ MEMES = {
     "chefkiss2": "chefs kiss perfection",
     "pour-one-out": "pour one out homie",
     "pour-one-out2": "pouring one out 40",
+    "andy-zoom": "andy dwyer excited zoom",
+    "andy-zoom2": "chris pratt excited face parks and rec",
 }
 
 
