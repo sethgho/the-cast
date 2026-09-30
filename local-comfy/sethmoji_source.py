@@ -45,6 +45,8 @@ MEMES = {
     "chest-thump": "matthew mcconaughey chest thump",
     "chefkiss": "chef kiss",
     "chefkiss2": "chefs kiss perfection",
+    "pour-one-out": "pour one out homie",
+    "pour-one-out2": "pouring one out 40",
 }
 
 

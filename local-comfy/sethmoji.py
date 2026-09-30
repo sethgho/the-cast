@@ -175,6 +175,14 @@ MEMES = {
                      scene="In front of a black background, wearing a tall white chef's hat and a white neckerchief",
                      extra="He is not wearing sunglasses: his eyes are visible.",
                      action="He pinches his fingertips together, kisses them and flings his hand open in a chef's kiss"),
+    # c3 is pour-one-out2/c2 from sethmoji_source: Dr. Evil, "and one for my homies"
+    "pour-one-out": dict(pick=3, caption=0.17, top=0.95,
+                         face="solemn and sincere, eyes on the bottle, mouth slightly open mid-sentence, his head exactly where the bald man's head is, just right of centre, at the same size",
+                         extra="Behind him there is only a plain, flat, pale paper background with nothing in it: no globe, no walls. The bottle stays in his hand at the lower left.",
+                         # the pour is the point: frame face, arm and bottle, letterboxed square
+                         box=(0.0, 0.0, 0.72, 1.0),
+                         scene="In front of a plain pale background, wearing a pale grey high-collared jacket, holding a big malt liquor bottle",
+                         action="He tips a big bottle of malt liquor and pours some out onto the floor for his fallen homies, a stream of beer splashing down"),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
@@ -413,10 +421,18 @@ def emoji(name):
     if "crop_top" in m:
         upper = int(H * m["crop_top"])
     box = (left, upper, left + side, upper + side)
+    if "box" in m:
+        bx0, by0, bx1, by1 = m["box"]
+        box = (int(W * bx0), int(H * by0), int(W * bx1), int(H * by1))
     tmp = f"{dd}/emo"
     os.makedirs(tmp, exist_ok=True)
+    bw, bh = box[2] - box[0], box[3] - box[1]
     for i, f in enumerate(frames):
         im = f.crop(box)
+        if bw != bh:
+            sq = Image.new("RGBA", (max(bw, bh),) * 2, (0, 0, 0, 0))
+            sq.paste(im, ((max(bw, bh) - bw) // 2, (max(bw, bh) - bh) // 2))
+            im = sq
         a = im.getchannel("A")
         im = im.convert("RGB").filter(ImageFilter.MedianFilter(5)).convert("RGBA")
         im.putalpha(a)
