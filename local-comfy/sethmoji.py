@@ -193,6 +193,9 @@ MEMES = {
                       scene="In Squidward's green house with yellow round windows and a green wooden floor, wearing a brown short-sleeved shirt",
                       extra="He is a man with two legs, bent over with his knees bent and his hands on his knees, twerking, in exactly the place and size of the figure in the picture.",
                       action="He bends over with his hands on his knees and twerks, bouncing his hips up and down to the beat"),
+    # rendered by hand: full-body cast Seth posed from squidward frame 0, then MiniMax H3 i2v
+    # (both ends pinned, turbo 8 steps) for the twerk -- Wan and flow both undersold it
+    "squidward-body": dict(pick=0, caption=0.0, top=1.0, face="", scene="", action=""),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
