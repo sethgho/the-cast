@@ -196,6 +196,15 @@ MEMES = {
     # rendered by hand: full-body cast Seth posed from squidward frame 0, then MiniMax H3 i2v
     # (both ends pinned, turbo 8 steps) for the twerk -- Wan and flow both undersold it
     "squidward-body": dict(pick=0, caption=0.0, top=1.0, face="", scene="", action=""),
+    "thats-bait": dict(pick=0, seed=7, caption=0.0, top=0.95,
+                       face="squinting knowingly at something off to the side, unimpressed, mouth closed, his head just right of centre and the same size as the man's head in the photograph",
+                       extra="Keep the whole cab exactly as in the photograph: the red-haired woman in goggles on the left behind him, the pale bald man on the right, the dark metal cab walls and the bright window. Do not zoom in.",
+                       scene="In the cab of a rusty war rig in the desert, wearing a battered leather jacket, a red-haired woman sitting behind him",
+                       action="He glances aside, raises his wrapped hand to wipe his face, rolls his eyes and says that's bait",
+                       # the source subtitles THAT'S at 2.4s and BAIT at 2.6s (16fps frames 38, 42)
+                       post=dict(node="Captions", passes=[
+                           dict(top="THAT'S", frames="38-52", size=0.2, width=0.7),
+                           dict(bottom="BAIT", frames="42-44,47-49,52", size=0.24, width=0.6)])),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
@@ -292,6 +301,7 @@ def submit(g, node, kind, dest):
 
 def ref(name):
     m, dd = MEMES[name], d(name)
+    seed = m.get("seed", 7)
     spec = json.load(open(f"{dd}/spec.json"))
     sh("scp", "-q", f"{dd}/frame0.png", f"{GPU}:comfyui/input/{PREFIX}-{name}-f0.png")
     prompt = ("f0llie5, image 1 is a photograph to redraw as a cartoon. This is a repaint: the "
@@ -314,7 +324,7 @@ def ref(name):
      "11": {"class_type": "EmptySD3LatentImage", "inputs": {"width": W, "height": H, "batch_size": 1}},
      "20": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": prompt, "clip": ["4", 0], "vae": ["5", 0], "image1": ["6", 0]}},
      "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": NEGATIVE + ", photograph, text, subtitles", "clip": ["4", 0]}},
-     "22": {"class_type": "KSampler", "inputs": {"seed": 7, "steps": STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["30", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["11", 0]}},
+     "22": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["30", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["11", 0]}},
      "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}},
      "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-ref", "images": ["23", 0]}},
     }
@@ -361,7 +371,7 @@ def cutout(name):
     print(f"{name} cutout {len(got)} frames")
 
 
-def post_graph(name, p):
+def post_graph(name, p, cutout=False):
     load = lambda k, f: {k: {"class_type": "LoadVideo", "inputs": {"file": f}},
                          k + "c": {"class_type": "GetVideoComponents", "inputs": {"video": [k, 0]}}}
     g = {"m": {"class_type": "LoadBackgroundRemovalModel", "inputs": {"bg_removal_name": BGREMOVAL}}}
@@ -379,6 +389,17 @@ def post_graph(name, p):
         g["cm"] = {"class_type": "ImageCompositeMasked", "inputs": {"destination": ["bg", 0], "source": ["sc", 0], "x": 0, "y": 0, "resize_source": False, "mask": ["sm", 0]}}
         g["fx"] = {"class_type": "BlinkCaption", "inputs": {"images": ["cm", 0], **args}}
         g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": ["fx", 0]}}
+    elif p["node"] == "Captions":
+        # text only, over the render itself: one BlinkCaption pass per line, each on its own frames
+        prev = ["sc", 0]
+        if cutout:
+            g["si"] = {"class_type": "InvertMask", "inputs": {"mask": ["sm", 0]}}
+            g["sj"] = {"class_type": "JoinImageWithAlpha", "inputs": {"image": ["sc", 0], "alpha": ["si", 0]}}
+            prev = ["sj", 0]
+        for k, c in enumerate(p["passes"]):
+            g[f"cap{k}"] = {"class_type": "BlinkCaption", "inputs": {"images": prev, "top_text": c.get("top", ""), "bottom_text": c.get("bottom", ""), "frames": c["frames"], "size": c.get("size", 0.17), "width": c.get("width", 0.9), "margin": c.get("margin", 0.03)}}
+            prev = [f"cap{k}", 0]
+        g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": prev}}
     elif p["node"] == "SlidingDoorFX":
         g["fx"] = {"class_type": p["node"], "inputs": {"images": ["sc", 0], **args}}
         g["out"] = {"class_type": "SaveImage", "inputs": {"filename_prefix": f"sethmoji/{name}-post", "images": ["fx", 0]}}
@@ -400,11 +421,19 @@ def post(name):
     os.makedirs(f"{dd}/post", exist_ok=True)
     for f in glob.glob(f"{dd}/post/*.png"):
         os.remove(f)
-    got = submit(post_graph(name, p), "out", "images", f"{dd}/post/f{{i:03d}}.png")
+    if p["node"] == "Captions":
+        # full frames feed final.mp4 (compare, full); the captioned cutout feeds the emoji
+        os.makedirs(f"{dd}/post_full", exist_ok=True)
+        submit(post_graph(name, p), "out", "images", f"{dd}/post_full/f{{i:03d}}.png")
+        got = submit(post_graph(name, p, cutout=True), "out", "images", f"{dd}/post/f{{i:03d}}.png")
+        src_frames = f"{dd}/post_full/f%03d.png"
+    else:
+        got = submit(post_graph(name, p), "out", "images", f"{dd}/post/f{{i:03d}}.png")
+        src_frames = f"{dd}/post/f%03d.png"
     bd = p.get("backdrop")
     vf = (f"color=c={bd}:s=16x16:r={FPS}[k];[k][0:v]scale2ref[k2][v];[k2][v]overlay=format=auto:shortest=1,format=yuv420p"
           if bd else "format=yuv420p")
-    sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", f"{dd}/post/f%03d.png",
+    sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", src_frames,
        "-filter_complex", vf, "-c:v", "libx264", "-crf", "14", f"{dd}/final.mp4")
     if p.get("orig_seconds"):
         # the render was spliced; compare against the whole original, beat for beat

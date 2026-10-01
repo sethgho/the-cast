@@ -50,6 +50,7 @@ MEMES = {
     "andy-zoom": "andy dwyer excited zoom",
     "andy-zoom2": "chris pratt excited face parks and rec",
     # squidward: from Giphy YBU0Wrys1Cs4U, fetched by hand
+    "thats-bait": "thats bait mad max",
 }
 
 
