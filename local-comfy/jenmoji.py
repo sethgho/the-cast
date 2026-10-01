@@ -167,7 +167,7 @@ def hires(name):
 
 
 B.ref, B.animate, B.hires = ref, animate, hires
-B.STAGES = ["prep", "ref", "animate", "cutout", "post", "emoji", "compare", "hires"]
+B.STAGES = ["prep", "ref", "animate", "cutout", "post", "emoji", "compare", "full", "hires"]
 B.DONE["hires"] = "{n}-jen-hires.mp4"
 
 if __name__ == "__main__":

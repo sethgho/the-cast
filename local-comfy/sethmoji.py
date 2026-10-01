@@ -187,6 +187,12 @@ MEMES = {
                       face="mouth wide open in a gasp of pure excitement, eyebrows shot up, eyes huge",
                       scene="In an office meeting room, wearing a white shirt and a striped tie",
                       action="He gasps with wide-eyed excitement as the camera zooms in fast on his face"),
+    # c0 is Giphy YBU0Wrys1Cs4U, a 6-frame cartoon loop -- repeat makes a clip of it
+    "squidward": dict(pick=0, caption=0.0, top=1.0, repeat=8,
+                      face="eyes half closed, smug and unbothered, mouth flat",
+                      scene="In Squidward's green house with yellow round windows and a green wooden floor, wearing a brown short-sleeved shirt",
+                      extra="He is a man with two legs, bent over with his knees bent and his hands on his knees, twerking, in exactly the place and size of the figure in the picture.",
+                      action="He bends over with his hands on his knees and twerks, bouncing his hips up and down to the beat"),
     "elaine": dict(pick=0, caption=0.0, top=1.0,
                    face="fully committed to the dance, grinning",
                    scene="At a crowded office party, keeping the same clothing",
@@ -479,16 +485,33 @@ def compare(name):
     print(f"{name} compare {height}px {fps}fps {os.path.getsize(out)//1024}KB")
 
 
+
+def full(name):
+    """The render alone at its native size, no original beside it: the version to post as a
+    big reaction rather than an emoji. Steps down frame rate and lossiness to stay under 8MB."""
+    dd = d(name)
+    src = f"{dd}/final.mp4" if os.path.exists(f"{dd}/final.mp4") else f"{dd}/seth.mp4"
+    out, raw = f"{dd}/{name}-{WHO}-full.gif", f"{dd}/full-raw.gif"
+    for fps, lossy in ((16, 40), (16, 80), (12, 80), (12, 120), (10, 140)):
+        sh("ffmpeg", "-y", "-loglevel", "error", "-i", src, "-filter_complex",
+           f"fps={fps},split[x][y];[x]palettegen=max_colors=192[p];"
+           "[y][p]paletteuse=dither=bayer:bayer_scale=4", "-loop", "0", raw)
+        sh("gifsicle", "-O3", f"--lossy={lossy}", raw, "-o", out, stderr=subprocess.DEVNULL)
+        if os.path.getsize(out) < 8 * 1024 * 1024:
+            break
+    print(f"{name} full {fps}fps {os.path.getsize(out)//1024}KB")
+
 def deliver(name):
     dd = d(name)
     sh("scp", "-q", f"{dd}/{name}-{WHO}.gif", f"{dd}/{name}-{WHO}-comparison.gif",
+       f"{dd}/{name}-{WHO}-full.gif",
        f"{MAC}:{MAC_DIR}/")
     print(f"{name} delivered")
 
 
-STAGES = ["prep", "ref", "animate", "cutout", "post", "emoji", "compare", "deliver"]
+STAGES = ["prep", "ref", "animate", "cutout", "post", "emoji", "compare", "full", "deliver"]
 DONE = {"prep": "spec.json", "ref": "ref.png", "animate": "seth.mp4", "cutout": "cut/f000.png", "post": "post/f000.png",
-        "emoji": "{n}-{w}.gif", "compare": "{n}-{w}-comparison.gif", "deliver": None}
+        "emoji": "{n}-{w}.gif", "compare": "{n}-{w}-comparison.gif", "full": "{n}-{w}-full.gif", "deliver": None}
 
 
 def run_all(names):
