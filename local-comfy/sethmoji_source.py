@@ -51,6 +51,13 @@ MEMES = {
     "andy-zoom2": "chris pratt excited face parks and rec",
     # squidward: from Giphy YBU0Wrys1Cs4U, fetched by hand
     "thats-bait": "thats bait mad max",
+    # ron swanson batch
+    "ron-smile": "ron swanson smile",
+    "ron-trash": "ron swanson throws computer dumpster",
+    "ron-eyeroll": "ron swanson eye roll",
+    "ron-nope": "ron swanson nope walk away",
+    "ron-eat": "ron swanson eating",
+    "ron-dance": "ron swanson dancing",
 }
 
 
