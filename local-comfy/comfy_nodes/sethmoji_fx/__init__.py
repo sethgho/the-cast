@@ -8,6 +8,7 @@
   burst, holds on black, then brings him back through a ring of light that drops to his
   shoulders -- the beats of the Tim Heidecker original.
 - SlidingDoorFX: an inked van door pulled shut across the frame.
+- FlowTransfer: a source clip's exact motion, applied to one repainted frame.
 
 Frames in, frames out; everything is deterministic from the seed. Install by copying this folder
 into ComfyUI/custom_nodes and restarting.
@@ -384,12 +385,47 @@ class SlidingDoorFX:
         return (torch.from_numpy(np.stack(out).astype(np.float32) / 255),)
 
 
+class FlowTransfer:
+    """Move one repainted frame the way the source moves. Dense optical flow from each source
+    frame back to source frame 0, applied to the repaint of frame 0 -- so the source's exact
+    motion carries over to a drawing that was only ever made once. For cartoon loops Wan
+    Animate cannot track, where repainting every frame flattens the motion."""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"source": ("IMAGE",), "repaint": ("IMAGE",),
+                             "gain": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.1})}}
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "run"
+    CATEGORY = "sethmoji"
+
+    def run(self, source, repaint, gain):
+        import cv2
+        src = (source.cpu().numpy() * 255).astype(np.uint8)
+        rep = repaint[0].cpu().numpy().astype(np.float32)
+        H, W = src.shape[1:3]
+        if rep.shape[:2] != (H, W):
+            rep = cv2.resize(rep, (W, H), interpolation=cv2.INTER_LANCZOS4)
+        g0 = cv2.cvtColor(src[0], cv2.COLOR_RGB2GRAY)
+        gy, gx = np.mgrid[0:H, 0:W].astype(np.float32)
+        out = []
+        for f in src:
+            gi = cv2.cvtColor(f, cv2.COLOR_RGB2GRAY)
+            # for each pixel of frame i, where it was in frame 0
+            flow = cv2.calcOpticalFlowFarneback(gi, g0, None, 0.5, 4, 21, 5, 7, 1.5, 0)
+            out.append(cv2.remap(rep, gx + gain * flow[..., 0], gy + gain * flow[..., 1],
+                                 cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE))
+        return (torch.from_numpy(np.stack(out)),)
+
+
 NODE_CLASS_MAPPINGS = {
     "FillMaskFromSurroundings": FillMaskFromSurroundings,
     "BlinkCaption": BlinkCaption,
     "BrightTextMask": BrightTextMask,
     "MindBlownFX": MindBlownFX,
     "SlidingDoorFX": SlidingDoorFX,
+    "FlowTransfer": FlowTransfer,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "FillMaskFromSurroundings": "Fill Mask From Surroundings",
@@ -397,4 +433,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "BrightTextMask": "Bright Text Mask",
     "MindBlownFX": "Mind Blown FX",
     "SlidingDoorFX": "Sliding Door FX",
+    "FlowTransfer": "Flow Transfer (motion onto a repaint)",
 }
