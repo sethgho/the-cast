@@ -53,6 +53,7 @@ MEMES = {
     "thats-bait": "thats bait mad max",
     "yo-dawg": "xzibit yo dawg",
     "yo-dawg2": "xzibit pimp my ride laughing",
+    "jack-salute": "jack black salute",
     # ron swanson batch
     "ron-smile": "ron swanson smile",
     "ron-trash": "ron swanson throws computer dumpster",

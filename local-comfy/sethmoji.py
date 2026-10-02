@@ -205,6 +205,11 @@ MEMES = {
                        post=dict(node="Captions", passes=[
                            dict(top="THAT'S", frames="38-52", size=0.2, width=0.7),
                            dict(bottom="BAIT", frames="42-44,47-49,52", size=0.24, width=0.6)])),
+    "jack-salute": dict(seed=77, pick=0, caption=0.0, top=0.95,
+                        face="a furious scrunched GRIMACE, NOT smiling, NOT surprised: his eyebrows crushed down hard into a deep V, his eyes squeezed almost shut into angry slits, his nose wrinkled up, his mouth clamped shut with the lower lip shoved up into a big frowning pout under the moustache, the corners of the mouth pulled DOWN, like a tough guy biting back emotion, his head at exactly the same place and size as the man's head in the photograph, his long hair falling over his forehead",
+                        scene="In front of a green chalkboard in a classroom, wearing a black suit jacket over a patterned shirt",
+                        extra="The background is the same as the photograph: a green chalkboard filling the whole wall behind him, paper notices pinned at the top left, and a red box and a poster at the lower left, all drawn in sepia ink. His hand is held flat at his brow in a salute exactly as in the photograph. He wears a black jacket over a patterned shirt with a little bow at the collar.",
+                        action="He snaps a fierce salute from his brow and whips his arm down and across his chest, his long hair swinging and flopping wildly with the motion"),
     # ---- ron swanson batch ----
     "ron-dance": dict(seed=31, pick=1, caption=0.0, top=0.95,
                       face="eyes half closed, lips pursed, utterly serious while dancing, his head and body at the left of the picture at exactly the same size as the man in the photograph",
