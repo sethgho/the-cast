@@ -9,6 +9,7 @@
   shoulders -- the beats of the Tim Heidecker original.
 - SlidingDoorFX: an inked van door pulled shut across the frame.
 - FlowTransfer: a source clip's exact motion, applied to one repainted frame.
+- RecursiveZoom: a head inside its own forehead, zooming in forever (yo dawg).
 
 Frames in, frames out; everything is deterministic from the seed. Install by copying this folder
 into ComfyUI/custom_nodes and restarting.
@@ -419,6 +420,72 @@ class FlowTransfer:
         return (torch.from_numpy(np.stack(out)),)
 
 
+class RecursiveZoom:
+    """The "yo dawg" Droste loop: a cut-out head with a smaller copy of itself on its forehead,
+    and inside that another, forever, zooming in on a seamless loop. Layer i is the head mapped
+    by x -> anchor + ratio**i (x - anchor), so zooming by 1/ratio about the anchor lands every
+    layer exactly on the next one up."""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {
+            "image": ("IMAGE",), "mask": ("MASK",),
+            "anchor_x": ("FLOAT", {"default": 0.5, "min": 0, "max": 1, "step": 0.01}),
+            "anchor_y": ("FLOAT", {"default": 0.25, "min": 0, "max": 1, "step": 0.01}),
+            "ratio": ("FLOAT", {"default": 0.3, "min": 0.1, "max": 0.6, "step": 0.01}),
+            "frames": ("INT", {"default": 48, "min": 4, "max": 400}),
+            "size": ("INT", {"default": 512, "min": 64, "max": 2048}),
+            "fill": ("FLOAT", {"default": 1.3, "min": 0.3, "max": 5, "step": 0.05}),
+            "spin": ("FLOAT", {"default": 0.0, "min": -180, "max": 180, "step": 1}),
+            "screen_y": ("FLOAT", {"default": 0.5, "min": 0.05, "max": 0.95, "step": 0.01}),
+        }}
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "run"
+    CATEGORY = "sethmoji"
+
+    def run(self, image, mask, anchor_x, anchor_y, ratio, frames, size, fill, spin, screen_y):
+        cx, cy = size / 2, size * screen_y
+        rgb = (image[0].cpu().numpy() * 255).astype(np.uint8)
+        a = (mask[0].cpu().numpy() * 255).astype(np.uint8)
+        head = Image.fromarray(rgb).convert("RGBA")
+        head.putalpha(Image.fromarray(a))
+        bb = head.getchannel("A").point(lambda v: 255 if v > 128 else 0).getbbox()
+        head = head.crop(bb)
+        hw, hh = head.size
+        ax, ay = anchor_x * hw, anchor_y * hh
+        base = fill * size / hh                          # head height on screen at the loop start
+        bg = tuple(int(c) for c in np.median(np.asarray(head.convert("RGB"))[np.asarray(head.getchannel("A")) > 200], 0))
+        out = []
+        for f in range(frames):
+            t = f / frames
+            z = base * ratio ** (-t)
+            canvas = Image.new("RGBA", (size, size), bg + (255,))
+            for i in range(-4, 40):
+                sc = z * ratio ** i
+                if hw * sc < 2:
+                    break
+                ang = spin * (i + t)
+                # the part of this layer that lands on screen, in head pixels
+                half = size / sc * (1.42 if ang else 1.0)
+                sx0, sy0 = max(0.0, ax - half), max(0.0, ay - half)
+                sx1, sy1 = min(float(hw), ax + half), min(float(hh), ay + half)
+                if sx1 <= sx0 or sy1 <= sy0:
+                    continue
+                piece = head.crop((int(sx0), int(sy0), int(np.ceil(sx1)), int(np.ceil(sy1))))
+                w = max(1, int(round(piece.width * sc)))
+                h = max(1, int(round(piece.height * sc)))
+                piece = piece.resize((w, h), Image.LANCZOS)
+                x = cx + (int(sx0) - ax) * sc
+                y = cy + (int(sy0) - ay) * sc
+                if ang:
+                    piece = piece.rotate(ang, resample=Image.BICUBIC, expand=False,
+                                         center=(cx - x, cy - y))
+                canvas.paste(piece, (int(round(x)), int(round(y))), piece)
+            out.append(np.asarray(canvas.convert("RGB")))
+        return (torch.from_numpy(np.stack(out).astype(np.float32) / 255),)
+
+
 NODE_CLASS_MAPPINGS = {
     "FillMaskFromSurroundings": FillMaskFromSurroundings,
     "BlinkCaption": BlinkCaption,
@@ -426,6 +493,7 @@ NODE_CLASS_MAPPINGS = {
     "MindBlownFX": MindBlownFX,
     "SlidingDoorFX": SlidingDoorFX,
     "FlowTransfer": FlowTransfer,
+    "RecursiveZoom": RecursiveZoom,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "FillMaskFromSurroundings": "Fill Mask From Surroundings",
@@ -434,4 +502,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MindBlownFX": "Mind Blown FX",
     "SlidingDoorFX": "Sliding Door FX",
     "FlowTransfer": "Flow Transfer (motion onto a repaint)",
+    "RecursiveZoom": "Recursive Zoom (yo dawg)",
 }
