@@ -19,6 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import sethmoji as B  # noqa: E402
 
+SETH_MEMES = dict(B.MEMES)
 B.ROOT = "/home/wilson/scratch/boldmoji"
 B.WHO = "bold"
 B.PREFIX = "boldmoji"
@@ -46,6 +47,32 @@ B.MEMES = {
                       action="He gasps with wide-eyed excitement as the camera zooms in fast on his face"),
 }
 
+
+# The rest of the library, derived from Seth's entries: same clip, cut, crop and post effect;
+# the face line loses anything Bold does not have. Close-ups take the head-and-collar sheet.
+FROM_SETH = ["blink", "nod", "jim-look", "thats-me", "nooo", "lost", "cheers", "mind-blown",
+             "slow-clap", "mic-drop", "its-happening", "popcorn", "salty", "elaine", "yes-you",
+             "ok", "van-door", "hotline-bling", "rickroll", "carlton", "ear-cup", "chest-thump",
+             "chefkiss", "pour-one-out", "thats-bait", "ron-dance", "ron-trash", "ron-eyeroll",
+             "ron-nope", "ron-smile", "ron-snakejuice", "jack-salute"]
+CLOSE_UPS = {"blink", "nod", "jim-look", "ok", "ron-eyeroll"}
+NOT_BOLD = ("moustache", "nose", "hair", "beard", "teeth", "clean-shaven", "eyebrow", "lips", "cheek")
+
+
+def _bolden(text):
+    keep = [c for c in text.split(", ") if not any(w in c.lower() for w in NOT_BOLD)]
+    return ", ".join(keep) or "an expression matching the person in the photograph"
+
+
+for _n in FROM_SETH:
+    _m = dict(SETH_MEMES[_n])
+    _m["face"] = _bolden(_m.get("face", "making the same expression as the person in the photograph"))
+    if "extra" in _m:
+        _m["extra"] = _bolden(_m["extra"])
+    _m.setdefault("seed", 7)
+    if _n in CLOSE_UPS:
+        _m["sheet"] = "boldmoji-head.png"
+    B.MEMES[_n] = _m
 
 def qwen_edit(images, prompt, W, H, prefix, dest, seed=7):
     g = {
@@ -75,7 +102,8 @@ def ref(name):
               f"{BOLD}. Everything about the shot stays exactly as in image 1: the pose, the tilt and "
               "turn of the head, where he is looking, the arms and anything held in the hands, the "
               "room, the camera angle, the crop and the size of the head in the frame. His face: "
-              f"{m['face']}. {m.get('frame', '')} Draw the WHOLE picture, the room included, in the "
+              f"{m['face']}. {'He also wears ' + m['clothing'] + '. ' if 'clothing' in m else ''}"
+              f"{m.get('extra', '')} {m.get('frame', '')} Draw the WHOLE picture, the room included, in the "
               "same soft greyscale graphite pencil style as image 2. No text, no lettering.")
     # close-ups take the sheet's head-and-collar crops; the full-body views make a close-up
     # come back as a standing figure
