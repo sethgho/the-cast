@@ -210,6 +210,11 @@ MEMES = {
                         scene="In front of a green chalkboard in a classroom, wearing a black suit jacket over a patterned shirt",
                         extra="The background is the same as the photograph: a green chalkboard filling the whole wall behind him, paper notices pinned at the top left, and a red box and a poster at the lower left, all drawn in sepia ink. His hand is held flat at his brow in a salute exactly as in the photograph. He wears a black jacket over a patterned shirt with a little bow at the collar.",
                         action="He snaps a fierce salute from his brow and whips his arm down and across his chest, his long hair swinging and flopping wildly with the motion"),
+    "top-kek": dict(seed=7, pick=2, caption=0.0, top=0.95, segments=[(0, 3.95)],
+                    face="laughing so hard he is crying, eyes squeezed shut, mouth wide open in a huge gap-toothed laugh with a few teeth missing",
+                    scene="In a TV studio in front of a bright pink and magenta backdrop, wearing a grey knit sweater",
+                    extra="Full bleed: the bright pink and magenta studio backdrop fills the whole picture edge to edge, with NO border, NO frame and no paper margin. His head is in the LEFT half of the picture, tilted to his right and thrown forward exactly like the man's, at the same size.",
+                    action="He laughs uncontrollably, rocking back and forth and wiping tears, wheezing with laughter"),
     # ---- ron swanson batch ----
     "ron-dance": dict(seed=31, pick=1, caption=0.0, top=0.95,
                       face="eyes half closed, lips pursed, utterly serious while dancing, his head and body at the left of the picture at exactly the same size as the man in the photograph",

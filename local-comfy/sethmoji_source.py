@@ -54,6 +54,7 @@ MEMES = {
     "yo-dawg": "xzibit yo dawg",
     "yo-dawg2": "xzibit pimp my ride laughing",
     "jack-salute": "jack black salute",
+    "top-kek": "top kek old man laughing",
     # ron swanson batch
     "ron-smile": "ron swanson smile",
     "ron-trash": "ron swanson throws computer dumpster",
