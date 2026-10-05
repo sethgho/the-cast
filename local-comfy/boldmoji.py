@@ -54,7 +54,7 @@ FROM_SETH = ["blink", "nod", "jim-look", "thats-me", "nooo", "lost", "cheers", "
              "slow-clap", "mic-drop", "its-happening", "popcorn", "salty", "elaine", "yes-you",
              "ok", "van-door", "hotline-bling", "rickroll", "carlton", "ear-cup", "chest-thump",
              "chefkiss", "pour-one-out", "thats-bait", "ron-dance", "ron-trash", "ron-eyeroll",
-             "ron-nope", "ron-smile", "ron-snakejuice", "jack-salute"]
+             "ron-nope", "ron-smile", "ron-snakejuice", "jack-salute", "top-kek"]
 CLOSE_UPS = {"blink", "nod", "jim-look", "ok", "ron-eyeroll"}
 NOT_BOLD = ("moustache", "nose", "hair", "beard", "teeth", "clean-shaven", "eyebrow", "lips", "cheek")
 
@@ -73,6 +73,17 @@ for _n in FROM_SETH:
     if _n in CLOSE_UPS:
         _m["sheet"] = "boldmoji-head.png"
     B.MEMES[_n] = _m
+B.MEMES["top-kek"]["face"] = ("laughing so hard he is crying, the empty oval eyes squeezed into happy curves, "
+                              "his small mouth stretched wide open in a laugh with just two crooked "
+                              "snaggle teeth and dark gaps")
+B.MEMES["top-kek"]["seed"] = 31
+B.MEMES["top-kek"]["sheet"] = "boldmoji-head.png"
+B.MEMES["top-kek"]["strengths"] = (1.0, 1.0)
+B.MEMES["top-kek"]["frame"] = ("A CLOSE-UP exactly like image 1: only his big head and the top of his "
+                               "collar and shoulders fill the picture, cut off at the chest, his head in the "
+                               "left half of the picture, tilted to one side and thrown forward mid-laugh; "
+                               "NOT a full-body view, no legs, no feet. Full bleed bright pink and magenta "
+                               "studio backdrop behind him, no border.")
 
 def qwen_edit(images, prompt, W, H, prefix, dest, seed=7):
     g = {
