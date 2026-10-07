@@ -55,6 +55,7 @@ MEMES = {
     "yo-dawg2": "xzibit pimp my ride laughing",
     "jack-salute": "jack black salute",
     "top-kek": "top kek old man laughing",
+    "hangin": "beetlejuice just hanging around",
     # ron swanson batch
     "ron-smile": "ron swanson smile",
     "ron-trash": "ron swanson throws computer dumpster",

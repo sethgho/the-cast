@@ -217,6 +217,16 @@ MEMES = {
                     scene="In a TV studio in front of a bright pink and magenta backdrop, wearing a grey knit sweater",
                     extra="Full bleed: the bright pink and magenta studio backdrop fills the whole picture edge to edge, with NO border, NO frame and no paper margin. His head is in the LEFT half of the picture, tilted to his right and thrown forward exactly like the man's, at the same size.",
                     action="He laughs uncontrollably, rocking back and forth and wiping tears, wheezing with laughter"),
+    "hangin": dict(seed=7, pick=0, caption=0.0, top=1.0, box=(0.0, 0.02, 1.0, 0.6),
+                   face="blank, wide-eyed, innocent and a little suspicious, mouth closed, NOT smiling",
+                   clothing="a light grey crewneck sweatshirt with a red and pink chevron stripe across the chest, a gold chain necklace, and black jogger sweatpants with a big red and white logo on the leg",
+                   scene="Standing in a hotel room with orange walls, a dark red door, a flat-screen TV on a dresser and a white bed, wearing a grey sweatshirt with a red chevron, a gold chain and black joggers",
+                   extra="Exactly the camera of the photograph: he is seen from the head down to just below the knees, his legs cut off by the bottom edge, NO feet visible, his head about a quarter of the way down the picture and his body filling the left-centre, with the TV at the left edge and the white bed at the right. Keep the whole hotel room from the photograph.",
+                   action="He stands awkwardly by the hotel bed, glances around and looks at the camera, just hanging around",
+                   # the source captions "Me ?" for the first second and "Just Hanging Around" from 2.25s
+                   post=dict(node="Captions", passes=[
+                       dict(top="ME ?", frames="0-15", size=0.06, width=0.3, margin=0.06),
+                       dict(top="JUST HANGING AROUND", frames="36-80", size=0.06, width=0.75, margin=0.06)])),
     # ---- ron swanson batch ----
     "ron-dance": dict(seed=31, pick=1, caption=0.0, top=0.95,
                       face="eyes half closed, lips pursed, utterly serious while dancing, his head and body at the left of the picture at exactly the same size as the man in the photograph",
