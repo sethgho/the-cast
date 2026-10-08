@@ -58,6 +58,8 @@ MEMES = {
     "hangin": "beetlejuice just hanging around",
     "not-worthy": "we are not worthy wayne",
     "bow": "humble bow",
+    "best-friends": "did we just become best friends step brothers",
+    "best-friends2": "step brothers hug jump celebrate",
     # ron swanson batch
     "ron-smile": "ron swanson smile",
     "ron-trash": "ron swanson throws computer dumpster",

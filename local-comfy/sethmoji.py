@@ -240,6 +240,35 @@ MEMES = {
                        scene="Two identical cartoon men side by side in a dark living room, one in glasses and a plaid flannel shirt, one in a black cap and black t-shirt",
                        action="Both men raise their arms high and bow down to the floor again and again, waving their hands, worshipping, chanting we're not worthy",
                        post=dict(node="Captions", passes=[dict(bottom="WE'RE NOT WORTHY", frames="0-80", size=0.1, width=0.8, margin=0.04)])),
+    # Step Brothers: two shots, one face each, so each half is rendered with its own ref and
+    # spliced (see stepbros.py). -a is Ferrell's question, -b is Reilly's answer.
+    "bf-a": dict(seed=7, pick=0, caption=0.17, top=1.0, segments=[(0, 1.3)],
+                         face="eyes wide, eyebrows raised in amazed hopeful wonder, mouth open mid-question",
+                         extra="He wears a light blue button-up shirt. At the left edge, out of focus, is the back of another man's head with long wavy shoulder-length brown hair. Keep the shelves and the office behind him.",
+                         scene="In an office in front of shelves, wearing a light blue shirt",
+                         action="He leans in, wide-eyed with amazed hope, and asks did we just become best friends"),
+    "bfj-a": dict(seed=7, pick=0, caption=0.17, top=1.0, segments=[(0, 1.3)],
+                         face="eyes wide, eyebrows raised in amazed hopeful wonder, mouth open mid-question",
+                         extra="He wears a light blue button-up shirt. At the left edge, out of focus, is the back of a woman's head with dark brown hair pulled loosely back. Keep the shelves and the office behind him.",
+                         scene="In an office in front of shelves, wearing a light blue shirt",
+                         action="He leans in, wide-eyed with amazed hope, and asks did we just become best friends"),
+    "bf-b": dict(seed=7, pick=0, caption=0.17, top=1.0, segments=[(1.35, 3.13)],
+                         face="eyes wide, nodding with delighted, intense certainty, mouth saying yep",
+                         extra="He wears a light blue button-up shirt with a loosened dark patterned tie. At the right edge, out of focus, is the back of another man's head with long wavy shoulder-length brown hair. Keep the yellow lamp shade and the office behind him.",
+                         scene="In an office, wearing a light blue shirt and a loosened tie",
+                         action="He stares back wide-eyed and nods with intense delight, saying yep"),
+    "bfj-b": dict(seed=7, pick=0, char="Two 1930s rubber-hose cartoon characters drawn in warm sepia ink on aged paper: a woman facing the viewer with dark brown hair pulled loosely back, side-swept bangs and small gold hoop earrings, and beside her a MAN with long wavy shoulder-length brown hair and a full bushy handlebar moustache, at first seen from behind. Only one woman", caption=0.17, top=1.0, segments=[(1.35, 3.13)],
+                         face="eyes wide, nodding with delighted, intense certainty, mouth saying yep",
+                         extra="He wears a light blue button-up shirt with a loosened dark patterned tie. At the right edge, out of focus, is the back of another man's head with long wavy shoulder-length brown hair. Keep the yellow lamp shade and the office behind him.",
+                         scene="In an office, wearing a light blue shirt and a loosened tie",
+                         action="He stares back wide-eyed and nods with intense delight, saying yep"),
+    # spliced from the halves above by stepbros.py; only the finishing stages run on these
+    "best-friends": dict(pick=0, caption=0.0, top=1.0, keep_bg=True, post=dict(node="Captions", passes=[
+                             dict(bottom="DID WE JUST BECOME BEST FRIENDS?", frames="0-20", size=0.08, width=0.9, margin=0.04),
+                             dict(bottom="YEP!", frames="21-45", size=0.12, width=0.3, margin=0.04)])),
+    "best-friends-jen": dict(pick=0, caption=0.0, top=1.0, keep_bg=True, post=dict(node="Captions", passes=[
+                             dict(bottom="DID WE JUST BECOME BEST FRIENDS?", frames="0-20", size=0.08, width=0.9, margin=0.04),
+                             dict(bottom="YEP!", frames="21-45", size=0.12, width=0.3, margin=0.04)])),
     # ---- ron swanson batch ----
     "ron-dance": dict(seed=31, pick=1, caption=0.0, top=0.95,
                       face="eyes half closed, lips pursed, utterly serious while dancing, his head and body at the left of the picture at exactly the same size as the man in the photograph",
@@ -404,7 +433,7 @@ def animate(name):
     spec = json.load(open(f"{dd}/spec.json"))
     a = argparse.Namespace(
         ref=f"{PREFIX}-{name}-ref.png", drive=f"{PREFIX}-{name}-drive.mp4",
-        prompt=f"{CHAR}. {m['scene']}, all drawn in the same sepia ink style. {m['action']}.",
+        prompt=f"{m.get('char', CHAR)}. {m['scene']}, all drawn in the same sepia ink style. {m['action']}.",
         pose_prompt=f"{m['action'].replace('He ', 'A person ')}. Static camera.",
         out=f"sethmoji/{name}", model="wan_animate_2_distill_int8_convrot.safetensors",
         lora=None, width=spec["W"], height=spec["H"], length=spec["frames"], fps=FPS, steps=6,
