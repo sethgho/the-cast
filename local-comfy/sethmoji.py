@@ -257,7 +257,9 @@ MEMES = {
                          extra="He wears a light blue button-up shirt with a loosened dark patterned tie. At the right edge, out of focus, is the back of another man's head with long wavy shoulder-length brown hair. Keep the yellow lamp shade and the office behind him.",
                          scene="In an office, wearing a light blue shirt and a loosened tie",
                          action="He stares back wide-eyed and nods with intense delight, saying yep"),
-    "bfj-b": dict(seed=7, pick=0, char="Two 1930s rubber-hose cartoon characters drawn in warm sepia ink on aged paper: a woman facing the viewer with dark brown hair pulled loosely back, side-swept bangs and small gold hoop earrings, and beside her a MAN with long wavy shoulder-length brown hair and a full bushy handlebar moustache, at first seen from behind. Only one woman", caption=0.17, top=1.0, segments=[(1.35, 3.13)],
+    "bfj-b": dict(seed=7, pick=0, char="A 1930s rubber-hose cartoon woman drawn in warm sepia ink on aged paper, facing the viewer, with dark brown hair pulled loosely back, side-swept bangs and small gold hoop earrings. At the right edge is the BACK of another person's head with long wavy brown hair, turned AWAY from the viewer for the whole shot, its face never visible",
+                         # naming the turned-away person ("a man with a moustache") gives him a face to
+                         # camera; leave him unnamed. Using his look breaks it, every time. caption=0.17, top=1.0, segments=[(1.35, 3.13)],
                          face="eyes wide, nodding with delighted, intense certainty, mouth saying yep",
                          extra="He wears a light blue button-up shirt with a loosened dark patterned tie. At the right edge, out of focus, is the back of another man's head with long wavy shoulder-length brown hair. Keep the yellow lamp shade and the office behind him.",
                          scene="In an office, wearing a light blue shirt and a loosened tie",
