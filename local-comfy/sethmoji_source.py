@@ -56,6 +56,8 @@ MEMES = {
     "jack-salute": "jack black salute",
     "top-kek": "top kek old man laughing",
     "hangin": "beetlejuice just hanging around",
+    "not-worthy": "we are not worthy wayne",
+    "bow": "humble bow",
     # ron swanson batch
     "ron-smile": "ron swanson smile",
     "ron-trash": "ron swanson throws computer dumpster",

@@ -227,6 +227,11 @@ MEMES = {
                    post=dict(node="Captions", passes=[
                        dict(top="ME ?", frames="0-15", size=0.06, width=0.3, margin=0.06),
                        dict(top="JUST HANGING AROUND", frames="36-80", size=0.06, width=0.75, margin=0.06)])),
+    "bow": dict(seed=7, pick=0, caption=0.0, top=0.95,
+                face="clean-shaven except for his full bushy HANDLEBAR MOUSTACHE, NO beard, NO stubble, a warm humble grateful smile, eyes soft, head tilted slightly",
+                scene="In a beige hallway, wearing a black suit jacket over a black shirt",
+                extra="Keep the room from the photograph: the olive-green wall with framed pictures behind him. His head and shoulders at the same place and size as the man in the photograph.",
+                action="He presses his hand to his heart with a humble grateful smile and bows his head deeply"),
     # ---- ron swanson batch ----
     "ron-dance": dict(seed=31, pick=1, caption=0.0, top=0.95,
                       face="eyes half closed, lips pursed, utterly serious while dancing, his head and body at the left of the picture at exactly the same size as the man in the photograph",
