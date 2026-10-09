@@ -271,12 +271,14 @@ MEMES = {
     "best-friends-jen": dict(pick=0, caption=0.0, top=1.0, keep_bg=True, post=dict(node="Captions", passes=[
                              dict(bottom="DID WE JUST BECOME BEST FRIENDS?", frames="0-20", size=0.08, width=0.9, margin=0.04),
                              dict(bottom="YEP!", frames="21-45", size=0.12, width=0.3, margin=0.04)])),
-    "popeye": dict(seed=42, stabilize=True, pick=0, caption=0.0, top=0.95,
-                   face="a chubby round face with full puffy cheeks and a double chin, a totally blank, frozen, deer-in-the-headlights stare, eyes wide and glancing sideways toward the viewer, eyebrows flat, mouth a small flat closed line, NOT smiling, NOT smug, guilty",
+    # popeye's seth.mp4 is hand-made: Wan could not read the kid's pupils (298px source), so the
+    # eye slide is MiniMax H3 i2v between two pupil-edited refs (away -> dead-centre stare).
+    "popeye": dict(seed=42, stabilize=True, box=(0.12, 0.0, 0.78, 0.66), pick=0, caption=0.0, top=0.95,
+                   face="a chubby round face with full puffy cheeks and a double chin, a totally blank, frozen, deer-in-the-headlights stare, his pupils turned UP and to the LEFT side of the picture, looking away from the viewer, eyebrows flat, mouth a small flat closed line, NOT smiling, NOT smug, guilty",
                    clothing="a loose pale yellow t-shirt",
                    extra="He is CHUBBY and tubby like the boy in the photograph: a round belly, thick soft arms and a short thick neck. He holds a small white paper cup in front of his belly with both hands, exactly like the boy. Framing exactly like the photograph: a close medium shot, his head right at the TOP edge of the picture and his body filling the left two thirds, cut off at the hips by the bottom edge, his body turned three-quarters to the left. Keep the warm salmon-pink restaurant wall and the dark metal railing behind him on the right.",
                    scene="In a fast food restaurant by a salmon-pink wall, a chubby man in a pale yellow t-shirt holding a small paper cup",
-                   action="He stands holding his cup and slowly glances sideways with an awkward guilty stare, frozen"),
+                   action="He stands holding his cup, glancing up and away, then his eyes slowly slide over to stare straight at the viewer in a frozen, awkward, guilty stare, and hold there"),
     # ---- ron swanson batch ----
     "ron-dance": dict(seed=31, pick=1, caption=0.0, top=0.95,
                       face="eyes half closed, lips pursed, utterly serious while dancing, his head and body at the left of the picture at exactly the same size as the man in the photograph",
