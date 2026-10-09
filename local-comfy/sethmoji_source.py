@@ -58,6 +58,7 @@ MEMES = {
     "hangin": "beetlejuice just hanging around",
     "not-worthy": "we are not worthy wayne",
     "bow": "humble bow",
+    "popeye": "popeye kid",
     "best-friends": "did we just become best friends step brothers",
     "best-friends2": "step brothers hug jump celebrate",
     # ron swanson batch
