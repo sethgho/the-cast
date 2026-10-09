@@ -271,7 +271,7 @@ MEMES = {
     "best-friends-jen": dict(pick=0, caption=0.0, top=1.0, keep_bg=True, post=dict(node="Captions", passes=[
                              dict(bottom="DID WE JUST BECOME BEST FRIENDS?", frames="0-20", size=0.08, width=0.9, margin=0.04),
                              dict(bottom="YEP!", frames="21-45", size=0.12, width=0.3, margin=0.04)])),
-    "popeye": dict(seed=42, pick=0, caption=0.0, top=0.95,
+    "popeye": dict(seed=42, stabilize=True, pick=0, caption=0.0, top=0.95,
                    face="a chubby round face with full puffy cheeks and a double chin, a totally blank, frozen, deer-in-the-headlights stare, eyes wide and glancing sideways toward the viewer, eyebrows flat, mouth a small flat closed line, NOT smiling, NOT smug, guilty",
                    clothing="a loose pale yellow t-shirt",
                    extra="He is CHUBBY and tubby like the boy in the photograph: a round belly, thick soft arms and a short thick neck. He holds a small white paper cup in front of his belly with both hands, exactly like the boy. Framing exactly like the photograph: a close medium shot, his head right at the TOP edge of the picture and his body filling the left two thirds, cut off at the hips by the bottom edge, his body turned three-quarters to the left. Keep the warm salmon-pink restaurant wall and the dark metal railing behind him on the right.",
@@ -361,6 +361,16 @@ def prep(name):
     sh("ffmpeg", "-y", "-loglevel", "error", "-i", src, "-filter_complex", parts, "-map",
        out_label, "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "12",
        f"{dd}/drive-full.mp4")
+    if m.get("stabilize"):
+        # handheld source: lock it to a tripod (vidstab, tripod=1) so Wan copies a still camera,
+        # zooming in a touch to hide the moving borders
+        trf = f"{dd}/stab.trf"
+        sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive-full.mp4", "-vf",
+           f"vidstabdetect=shakiness=8:accuracy=15:tripod=1:result={trf}", "-f", "null", "-")
+        sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive-full.mp4", "-vf",
+           f"vidstabtransform=input={trf}:tripod=1:zoom=6:optzoom=0:interpol=bicubic",
+           "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "12", f"{dd}/drive-stab.mp4")
+        os.replace(f"{dd}/drive-stab.mp4", f"{dd}/drive-full.mp4")
     n = int(subprocess.run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
                             "-show_entries", "stream=nb_read_frames", "-of", "csv=p=0",
                             f"{dd}/drive-full.mp4"], capture_output=True, text=True).stdout.strip())
