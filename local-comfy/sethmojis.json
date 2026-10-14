@@ -10,9 +10,6 @@
   "best-friends-jen": "Jen drawn in the cast style answers 'YEP!'",
   "bow": "Keanu's humble bow",
   "chefkiss": "animated from a live-action chef; also a static still and a two-frame kiss loop",
-  "drake-gpu": "Drake template: gaming GPU vs ComfyUI GPU",
-  "drake-heater": "Drake template: data center slop vs office heater slop",
-  "drake-posting": "blank two-panel template; text is set per use",
   "elaine": "full-body, so the emoji is a small figure; the motion still reads",
   "hangin": "Beetlejuice's outfit, captions on the original timing",
   "its-happening": "v2: on the original lasers with Ron painted out; the caption blinks on the source's own frames",
@@ -29,5 +26,46 @@
   "top-kek": "El Risitas; keeps the pink backdrop; gap teeth inpainted into the ref",
   "van-door": "Wan Animate moves people, not props: the door is drawn and slid shut in post (SlidingDoorFX node)",
   "yo-dawg": "no motion source: RecursiveZoom node nests Seth on his own forehead"
- }
+ },
+ "templates": [
+  {
+   "id": "drake",
+   "name": "Drake: nope / yep",
+   "image": "templates/drake.png",
+   "font": "DejaVu Sans, Arial, Helvetica, sans-serif",
+   "color": "#000000",
+   "boxes": [
+    {
+     "label": "Nope (top)",
+     "x": 0.5,
+     "y": 0.0,
+     "w": 0.5,
+     "h": 0.5
+    },
+    {
+     "label": "Yep (bottom)",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.5,
+     "h": 0.5
+    }
+   ],
+   "examples": [
+    {
+     "title": "GPU",
+     "texts": [
+      "Dedicated GPU for gaming",
+      "Dedicated GPU for ComfyUI"
+     ]
+    },
+    {
+     "title": "Heater",
+     "texts": [
+      "Data center slop",
+      "Office heater slop"
+     ]
+    }
+   ]
+  }
+ ]
 }
