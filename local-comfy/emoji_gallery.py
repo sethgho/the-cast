@@ -110,7 +110,8 @@ dialog::backdrop{background:#000c}.dh{display:flex;align-items:center;gap:10px;p
 .db .note{color:var(--mute);margin:0 0 12px}.db h3{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 6px}
 .db img,.db video{max-width:100%;border-radius:6px;display:block}.sw{display:flex;gap:10px;align-items:center}.sw span{padding:10px;border-radius:6px;display:flex;align-items:center}
 .dk{background:#36393f}.lt{background:#fff}
-#gen{border-top:1px solid var(--line);margin-top:32px;padding-top:8px}.gw{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 16px}.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;color:var(--mute);padding:8px 14px;cursor:pointer;font-weight:600}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--acc)}.gw{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
 @media(max-width:820px){.gw{grid-template-columns:1fr}}#cv{width:100%;max-width:640px;border-radius:6px;background:#fff;display:block}
 .gf label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}.gf textarea{width:100%;min-height:64px;font:inherit;background:var(--tile);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px;resize:vertical}
 .gf select{width:100%}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.saved{list-style:none;padding:0;margin:8px 0 0}
@@ -118,10 +119,11 @@ dialog::backdrop{background:#000c}.dh{display:flex;align-items:center;gap:10px;p
 .saved li span:hover{color:var(--acc)}.ex{color:var(--mute);font-size:12px}.sw img{width:128px;height:auto}.dl a{color:var(--acc);margin-right:12px}
 </style>
 <header><h1>__TITLE__</h1><span class=count>__COUNT__ emojis</span>
-<div class=tools><a href="#gen" style="color:var(--acc);align-self:center">meme generator ↓</a><input id=q placeholder="filter…" autocomplete=off><button id=theme>light/dark</button></div></header>
-<p class=blurb>__BLURB__</p>
-<div class=grid id=grid></div><h2 id=rh hidden>Retired</h2><div class=grid id=rgrid></div>
-<section id=gen><h2 style="color:var(--fg);font-size:18px">Meme generator</h2>
+<div class=tools><input id=q placeholder="filter…" autocomplete=off><button id=theme>light/dark</button></div></header>
+<nav class=tabs><button data-tab=emoji class=on>__TITLE__</button><button data-tab=gen>Meme Generator</button></nav>
+<section id=emoji><p class=blurb>__BLURB__</p>
+<div class=grid id=grid></div><h2 id=rh hidden>Retired</h2><div class=grid id=rgrid></div></section>
+<section id=gen hidden>
 <p class=blurb>Pick a template, type the text for each panel. It draws in your browser; saved memes live in this browser only (localStorage). Download for the PNG.</p>
 <div class=gw><div><canvas id=cv></canvas></div><div class=gf>
 <label>Template</label><select id=tpl></select><div id=fields></div>
@@ -189,8 +191,13 @@ if(T.length){$('#tpl').innerHTML=T.map(t=>`<option value="${t.id}">${t.name}</op
  $('#dl').onclick=async()=>{await draw();const a=document.createElement('a');const nm=($('#title').value.trim()||tpl.boxes.map((b,k)=>$('#f'+k).value).join(' ')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'meme';
   a.download=`${tpl.id}-${nm}.png`;a.href=$('#cv').toDataURL('image/png');a.click()};
  $('#clear').onclick=()=>{editing=null;pick(tpl.id,[],'')};
- pick(T[0].id,[],'');list()}else $('#gen').hidden=true;
-render();const h=decodeURIComponent(location.hash.slice(1));const k=D.findIndex(m=>m.name===h);if(k>=0)open_(k);
+ pick(T[0].id,[],'');list()}else document.querySelector('[data-tab=gen]').hidden=true;
+function tab(t,push){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+ $('#emoji').hidden=t!=='emoji';$('#gen').hidden=t!=='gen';$('#q').style.visibility=t==='emoji'?'visible':'hidden';
+ if(t==='gen')draw();if(push)history.replaceState(null,'',t==='gen'?'#generator':location.pathname)}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.tab,true));
+render();const h=decodeURIComponent(location.hash.slice(1));
+if(h==='generator')tab('gen');else{const k=D.findIndex(m=>m.name===h);if(k>=0)open_(k)}
 </script>"""
 
 if __name__ == "__main__":
