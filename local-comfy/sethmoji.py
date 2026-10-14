@@ -25,6 +25,7 @@ import argparse
 import glob
 import io
 import json
+import shutil
 import os
 import subprocess
 import sys
@@ -656,10 +657,19 @@ def full(name):
     print(f"{name} full {fps}fps {os.path.getsize(out)//1024}KB")
 
 def deliver(name):
+    """To the Mac folder, and onto the gallery page -- the page is the source of truth, so a
+    meme that is not on it does not exist. The page is rebuilt from the artifact folder's files
+    by emoji_gallery.py whenever <PREFIX>s.json (notes, retired list) sits next to this file."""
     dd = d(name)
-    sh("scp", "-q", f"{dd}/{name}-{WHO}.gif", f"{dd}/{name}-{WHO}-comparison.gif",
-       f"{dd}/{name}-{WHO}-full.gif",
-       f"{MAC}:{MAC_DIR}/")
+    files = [f"{dd}/{name}-{WHO}{suf}" for suf in (".gif", "-comparison.gif", "-full.gif", "-hires.mp4")]
+    files = [f for f in files if os.path.exists(f)]
+    sh("scp", "-q", *files, f"{MAC}:{MAC_DIR}/")
+    art = f"/home/wilson/artifacts/{PREFIX}s"
+    if os.path.exists(f"{HERE}/{PREFIX}s.json"):
+        os.makedirs(art, exist_ok=True)
+        for f in files:
+            shutil.copy(f, art)
+        sh(sys.executable, f"{HERE}/emoji_gallery.py", f"{PREFIX}s")
     print(f"{name} delivered")
 
 
