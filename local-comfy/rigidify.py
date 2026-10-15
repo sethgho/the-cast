@@ -58,7 +58,11 @@ def fix(src, dst):
         inside = onside & (P[:, 1] >= PANEL_Y0) & (P[:, 1] < 0.40) & (np.abs(P[:, 2]) < 0.05) \
                  & (np.abs(P[:, 0]) > 0.02) & (np.abs(P[:, 0]) < 0.16)
         leg = below | inside
-        J[leg] = 0; W[leg] = 0; J[leg, 0] = names.index(f"{side}UpLeg"); W[leg, 0] = 1
+        boot = leg & (P[:, 1] < ANKLE_Y); stem = leg & ~boot
+        J[stem] = 0; W[stem] = 0; J[stem, 0] = names.index(f"{side}UpLeg"); W[stem, 0] = 1
+        # the boot rides the ankle so a custom walk can roll it; the knee is never bent, so the
+        # ankle stays at the end of the rigid stem
+        J[boot] = 0; W[boot] = 0; J[boot, 0] = names.index(f"{side}Foot"); W[boot, 0] = 1
     blob[jo:jo + J.nbytes] = J.tobytes(); blob[wo:wo + W.nbytes] = W.tobytes()
     g.set_binary_blob(bytes(blob)); g.save(dst)
     print(f"{dst.split('/')[-1]}: body {body.sum()}, head piece {headv.sum()} (face {(headv & band).sum()})")
