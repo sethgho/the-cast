@@ -10,6 +10,7 @@ FRAMES, DUR = 32, 1.1                 # one full stride
 LEG_SWING, FOOT_INHERIT = 22, 0.55    # degrees; ankle keeps 55% of the leg angle -> heel/toe roll
 HIKE_CM, BOB_CM, WADDLE, TWIST = 3.0, 1.2, 4, 5
 ARM_DOWN, ARM_SWING = 35, 18
+PALM_TWIST = float(sys.argv[3]) if len(sys.argv) > 3 else 90   # turns A-pose palms (facing out) to face the legs
 
 g = pygltflib.GLTF2().load(SRC)
 nodes = g.nodes; idx = {n.name: i for i, n in enumerate(nodes)}
@@ -69,7 +70,7 @@ down = 1 if abs(probe("LeftArm", Z(10), "LeftHand")[0]) < abs(world_pos(idx["Lef
 print("signs fwd", fwd, "down", down)
 
 times = np.linspace(0, DUR, FRAMES + 1)
-chans = {k: [] for k in ("Hips", "LeftUpLeg", "RightUpLeg", "LeftFoot", "RightFoot", "LeftArm", "RightArm")}
+chans = {k: [] for k in ("Hips", "LeftUpLeg", "RightUpLeg", "LeftFoot", "RightFoot", "LeftArm", "RightArm", "LeftForeArm", "RightForeArm")}
 tchans = {k: [] for k in ("Hips", "LeftUpLeg", "RightUpLeg")}
 for t in times:
     ph = 2 * np.pi * t / DUR
@@ -81,6 +82,11 @@ for t in times:
         "LeftArm": X(-fwd * ARM_SWING * np.sin(ph)) * Z(down * ARM_DOWN),
         "RightArm": X(fwd * ARM_SWING * np.sin(ph)) * Z(-down * ARM_DOWN),
     }
+    # palms in: twist each forearm about its own rest axis, on top of the arm's motion
+    for side, sgn in (("Left", 1), ("Right", -1)):
+        fa, hd = idx[f"{side}ForeArm"], idx[f"{side}Hand"]
+        axis = world_pos(hd, rest_r, rest_t) - world_pos(fa, rest_r, rest_t); axis /= np.linalg.norm(axis)
+        d[f"{side}ForeArm"] = d[f"{side}Arm"] * R.from_rotvec(np.radians(sgn * PALM_TWIST) * axis)
     tr = {"Hips": [0, BOB_CM * abs(np.cos(ph)), 0],
           "LeftUpLeg": [0, HIKE_CM * max(0, np.cos(ph)), 0],
           "RightUpLeg": [0, HIKE_CM * max(0, -np.cos(ph)), 0]}
