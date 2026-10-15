@@ -9,6 +9,7 @@ PANEL_Y0, HALF_W, HAT_Y = 0.27, 0.205, 0.94
 # Meshy fuses face, pickets and grain into one surface, so a separately turning head tears.
 # Off: fence + face + hat are one rigid piece on the chest bone, as on the character sheet.
 HEAD_TURNS = False
+ANKLE_Y = 0.115   # boot top / cuff bottom, just above the ankle joint (0.11)
 
 def fix(src, dst):
     g = pygltflib.GLTF2().load(src); blob = bytearray(g.binary_blob())
@@ -48,6 +49,14 @@ def fix(src, dst):
     J[body] = 0; W[body] = 0; J[body, 0] = chest; W[body, 0] = 1
     if HEAD_TURNS:
         J[headv, 0] = head
+    # stubby legs: the knee sits at the panel's bottom edge, so each visible leg is a rigid shin
+    # (stem + cuff) swinging from the knee, plus a rigid boot on the ankle. No toe bone: it creases the boot.
+    for side, sgn in (("Left", 1), ("Right", -1)):
+        legside = (np.sign(P[:, 0]) == sgn) & ~body & (np.abs(P[:, 0]) <= 0.24)
+        shin = legside & (P[:, 1] >= ANKLE_Y) & (P[:, 1] < PANEL_Y0)
+        boot = legside & (P[:, 1] < ANKLE_Y)
+        for m, bone in ((shin, f"{side}Leg"), (boot, f"{side}Foot")):
+            J[m] = 0; W[m] = 0; J[m, 0] = names.index(bone); W[m, 0] = 1
     blob[jo:jo + J.nbytes] = J.tobytes(); blob[wo:wo + W.nbytes] = W.tobytes()
     g.set_binary_blob(bytes(blob)); g.save(dst)
     print(f"{dst.split('/')[-1]}: body {body.sum()}, head piece {headv.sum()} (face {(headv & band).sum()})")
