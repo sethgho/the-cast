@@ -1,7 +1,14 @@
-"""Make Wilson's fence panel rigid: panel -> Spine02, hat -> Head (blended under the brim);
-arms and legs keep Meshy's weights. Rewrites JOINTS_0/WEIGHTS_0 in place."""
-import numpy as np, pygltflib, sys
-PANEL_Y0, BLEND_Y0, BLEND_Y1, HALF_W = 0.27, 0.90, 0.96, 0.205
+"""Wilson rigid parts: fence panel -> Spine02, head piece (dark face blob + eyes + hat) -> Head,
+both 100% (no blend, so neither shears). The head piece is found by texture colour, not height:
+the dark blob, plus any light island it encloses (eyes), plus everything above the brim line."""
+import io, sys, numpy as np, pygltflib
+from PIL import Image
+from scipy.sparse import coo_matrix
+from scipy.sparse.csgraph import connected_components
+PANEL_Y0, HALF_W, HAT_Y = 0.27, 0.205, 0.94
+# Meshy fuses face, pickets and grain into one surface, so a separately turning head tears.
+# Off: fence + face + hat are one rigid piece on the chest bone, as on the character sheet.
+HEAD_TURNS = False
 
 def fix(src, dst):
     g = pygltflib.GLTF2().load(src); blob = bytearray(g.binary_blob())
@@ -10,28 +17,40 @@ def fix(src, dst):
         dt = {5126: np.float32, 5123: np.uint16, 5121: np.uint8, 5125: np.uint32}[a.componentType]
         n = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}[a.type]
         off = (bv.byteOffset or 0) + (a.byteOffset or 0)
-        assert not bv.byteStride or bv.byteStride == n * np.dtype(dt).itemsize, "strided"
-        return np.frombuffer(blob, dt, a.count * n, off).reshape(a.count, n), a
+        return np.frombuffer(blob, dt, a.count * n, off).reshape(a.count, n), off
     names = [g.nodes[j].name for j in g.skins[0].joints]
     chest, head = names.index("Spine02"), names.index("Head")
-    for m in g.meshes:
-        for p in m.primitives:
-            if p.attributes.JOINTS_0 is None: continue
-            P, _ = view(p.attributes.POSITION); J, _ = view(p.attributes.JOINTS_0); W, wa = view(p.attributes.WEIGHTS_0)
-            assert W.dtype == np.float32, "normalized weights not handled"
-            J = J.copy(); W = W.copy()
-            body = (P[:, 1] >= PANEL_Y0) & (np.abs(P[:, 0]) <= HALF_W)
-            t = np.clip((P[:, 1] - BLEND_Y0) / (BLEND_Y1 - BLEND_Y0), 0, 1)   # 0 = chest, 1 = head
-            J[body] = 0; W[body] = 0
-            J[body, 0] = chest; W[body, 0] = 1 - t[body]
-            J[body, 1] = head;  W[body, 1] = t[body]
-            # write back
-            for arr, acc_i in ((J, p.attributes.JOINTS_0), (W, p.attributes.WEIGHTS_0)):
-                a = g.accessors[acc_i]; bv = g.bufferViews[a.bufferView]
-                off = (bv.byteOffset or 0) + (a.byteOffset or 0)
-                b = arr.astype(arr.dtype).tobytes(); blob[off:off + len(b)] = b
-            print(f"{dst}: {body.sum()} of {len(P)} verts made rigid")
+    p = g.meshes[0].primitives[0]
+    P, _ = view(p.attributes.POSITION); UV, _ = view(p.attributes.TEXCOORD_0)
+    F = view(p.indices)[0].reshape(-1, 3).astype(np.int64)
+    mat = g.materials[p.material]; ti = mat.pbrMetallicRoughness.baseColorTexture.index
+    img = g.images[g.textures[ti].source]; bv = g.bufferViews[img.bufferView]
+    tex = np.asarray(Image.open(io.BytesIO(bytes(blob[(bv.byteOffset or 0):(bv.byteOffset or 0) + bv.byteLength]))).convert("L"), np.float32)
+    h, w = tex.shape
+    u = np.clip((UV[:, 0] % 1) * (w - 1), 0, w - 1).astype(int); v = np.clip((UV[:, 1] % 1) * (h - 1), 0, h - 1).astype(int)
+    lum = tex[v, u]
+    band = (P[:, 1] >= 0.78) & (P[:, 1] < HAT_Y) & (np.abs(P[:, 0]) <= HALF_W)
+    dark = lum < 80
+    e = np.concatenate([F[:, [0, 1]], F[:, [1, 2]], F[:, [2, 0]]])
+    n = len(P); A = coo_matrix((np.ones(len(e)), (e[:, 0], e[:, 1])), shape=(n, n)).tocsr(); A = A + A.T
+    def comps(mask):
+        idx = np.where(mask)[0]; k, lab = connected_components(A[idx][:, idx], directed=False)
+        return [idx[lab == c] for c in range(k)]
+    headv = np.zeros(n, bool)
+    for c in comps(band & dark):          # the face blob, not grain strokes on the pickets
+        if len(c) >= 40: headv[c] = True
+    for c in comps(band & ~dark):         # eyes: light islands that never reach down into the fence
+        if P[c, 1].min() > 0.84 and np.abs(P[c, 0]).max() < 0.14 and len(c) < 3000: headv[c] = True
+    headv |= (P[:, 1] >= HAT_Y) & (np.abs(P[:, 0]) <= HALF_W)
+    body = (P[:, 1] >= PANEL_Y0) & (np.abs(P[:, 0]) <= HALF_W)
+    J, jo = view(p.attributes.JOINTS_0); W, wo = view(p.attributes.WEIGHTS_0)
+    J = J.copy(); W = W.copy()
+    J[body] = 0; W[body] = 0; J[body, 0] = chest; W[body, 0] = 1
+    if HEAD_TURNS:
+        J[headv, 0] = head
+    blob[jo:jo + J.nbytes] = J.tobytes(); blob[wo:wo + W.nbytes] = W.tobytes()
     g.set_binary_blob(bytes(blob)); g.save(dst)
+    print(f"{dst.split('/')[-1]}: body {body.sum()}, head piece {headv.sum()} (face {(headv & band).sum()})")
 
 for name in sys.argv[1:]:
     fix(f"/home/wilson/artifacts/figurines/{name}.glb", f"/home/wilson/artifacts/figurines/{name}-rigid.glb")
