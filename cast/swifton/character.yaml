@@ -1,0 +1,32 @@
+id: swifton
+name: Swifton
+role: >
+  The SwiftUI man, and the troupe's grifter-hunter. A griffon-phoenix who writes the
+  native apps and spends his nights exposing con men. He burns their counterfeit
+  $WHUFFIE coins on sight and always has one more trick up his sleeve.
+tokens: 'an upright anthropomorphic griffon-phoenix with a fierce bald-eagle head (white face, hooked
+  beak, one stern narrowed eye; an eagle, not a rooster), a crest of orange flames swept back from
+  his brow, broad brown wings, a lion''s lower body with taloned bird feet and a long tail ending
+  in an orange flame tuft, wearing a dark pinstriped card sharp''s waistcoat over a white shirt with
+  rolled sleeves and leather wrist cuffs, the corner of an ace of spades peeking from his breast
+  pocket, holding up a large gold coin stamped with a bold letter W that is curling up in orange
+  flames
+
+  '
+sheet: sheet.png
+headshot: headshot.png
+props:
+- a gold $WHUFFIE coin stamped with a bold W, always burning
+- an ace of spades, kept up his sleeve or in his breast pocket
+accent: 'Orange flame on his crest, his tail tuft and the burning W coin. Seth chose this over an
+  all-sepia version on 2026-10-16, knowing it makes him the second warm colour beside Ake''s ochre.
+  Keep it to the flames and the coin''s gold; his body, wings and clothes stay sepia.
+
+  '
+public_url: https://cast.sethgholson.com/swifton/sheet.png
+headshot_url: https://cast.sethgholson.com/swifton/headshot.png
+notes: 'Drawn locally on 2026-10-16 from Seth''s colour logo avatar with the f0llie5 style LoRA
+  (local-comfy/swifton_canon.py): one base plate, then every view, expression and prop as an edit
+  from it. The sheet is that cast set composited onto a blanked copy of Ake''s sheet layout. The
+  coin is a $WHUFFIE token he burns to expose grifters, never money he keeps. He is the agent on the
+  swifton Mac mini.'
