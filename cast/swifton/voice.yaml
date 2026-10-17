@@ -85,12 +85,13 @@ speech:
     smacking, no realistic vocal texture. One voice only. NO on-screen text, no
     lettering, no captions, no subtitles.
   casting_note: >
-    Untested on H3 as of 2026-10-16: written from the troupe's measured rules (ask
-    for a character voice, ask for distance, band-limit the recording), not from a
-    render. Render a two-line test before relying on it. The beak is a hard mouth
-    for lip sync, like Ake's glass bowl; push the performance rather than dubbing.
-    Level the mix with the same `-af dynaudnorm=f=200:g=15:p=0.9:m=12` used for Ake.
-    Voice ACTING quality is unsolved; cloning is a separate pinned project.
+    Tested 2026-10-17 (local-comfy/swifton_voice_test.py): three H3 image-to-video clips
+    from a 16:9 portrait, 1152x640, 124 frames, turbo LoRA at 8 steps, EasyCache off,
+    each line in a <d> tag, this clause verbatim. All three came back word for word
+    on local Whisper (one ad-libbed "Uh"), ~6 min per clip, and he stayed on model,
+    even producing a fan of cards on "pick a card". Level the mix with
+    `-af dynaudnorm=f=200:g=15:p=0.9:m=12`, as for Ake. Voice ACTING quality is
+    unsolved; cloning is a separate pinned project.
 
 negatives:
   silent: >
