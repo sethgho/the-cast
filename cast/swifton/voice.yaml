@@ -1,0 +1,107 @@
+# Swifton's voice. Published at https://cast.sethgholson.com/swifton/voice.json
+#
+# Written 2026-10-16 when he joined the cast. Derived from his design (a card sharp
+# who hunts grifters) and his slot against the troupe's other voices: Wilson and
+# Cadbury are low and level, Ake is high and climbing, Seth moves. Swifton is the
+# one voice with melody and swagger. The firm he works for is never named: bible §3.
+id: swifton
+
+writing_voice:
+  summary: >
+    The grift hunter. A griffon-phoenix card sharp who builds the troupe's native
+    apps and spends his nights at the back tables, exposing con men. He knows every
+    trick because he can do every trick, and he cannot resist a little showmanship
+    while he does it. He is never fooled, and he says so. That is the flaw.
+
+  register: >
+    Straight against a grifter, comic against the troupe. Facing an outside con he
+    is the cool professional and the scene plays straight. The comedy arrives when
+    the grift he unmasks turns out to be one of us (Seth's "one small change", Ake's
+    certainty, Wilson's config), or when his own flourish is the thing that goes
+    wrong. Pair him with Ake as two comics only for a deliberate double act; he is
+    the slick half and Ake is the loud half.
+
+  diction:
+    - Card-table patter. "Pick a card." "Watch closely." "Nothing up my sleeve." He narrates the reveal as a trick.
+    - Con-game vocabulary, used precisely. Mark, shill, tell, rug, bag holder, pump. He names the con before he names the conman.
+    - Short declaratives. He states the verdict, never the reasoning.
+    - '"Friend" for anyone he is about to expose. Said warmly. It is a warning.'
+    - Reputation as currency. He prices people in it, and the coin in his talon is the unit.
+    - One SwiftUI aside per strip at most, and only when it is also a joke a non-programmer can read.
+
+  rhythm: >
+    Smooth and unhurried, then fast at the reveal. He slows down to set the trick
+    and speeds up to spring it. The flip of a card: setup, pause, snap. His best
+    line is the last word in the balloon.
+
+  tics:
+    - Burning the counterfeit coin as punctuation. The flame is how a scene ends.
+    - Producing the ace from somewhere it cannot have been.
+    - Calling the con by its name before anyone else has noticed there is one.
+    - '"Reputation matters." His closing line and his whole creed. Rule of three: rare enough to land.'
+
+  never_says:
+    - That he was fooled. Even when he plainly was. The ace was always in his sleeve, as far as he is concerned.
+    - Where the ace goes between tricks.
+    - The name of the firm, its people, its token or its clients. Bible §3 - generalise the con, keep its shape.
+    - A long explanation. Explaining the trick is Wilson's register.
+    - Anything that makes a real person outside the cast the grifter. The mark is a system, a situation, or one of us.
+
+  sample_lines:
+    - "Reputation matters."
+    - "Pick a card, friend. Any card. They're all yours anyway."
+    - "That's not a whitepaper. That's a tell."
+    - "Watch closely. Now it's ash."
+    - "Funny thing about counterfeits. They all burn the same."
+
+  word_budget: >
+    House caps from derivation.md Stage 4: 12 words per balloon, 2 balloons per
+    panel, 50 words per strip. Swifton fits them easily; his lines are short by
+    design. If one runs long, cut the setup and keep the snap.
+
+speech:
+  pitch: >
+    A warm baritone with melody, the only voice in the troupe that moves musically.
+    It dips low and confidential for the setup and lifts on the reveal.
+  accent: >
+    Fast-talking 1930s mid-Atlantic patter, a carnival barker crossed with a card
+    sharp at a riverboat table. Crisp consonants, clipped endings.
+  pace: >
+    Unhurried, with deliberate pauses before the reveal, then quick. Never rushed
+    like Ake, never flat like Wilson.
+  timbre: >
+    Smooth and slightly smoky, with a bird's edge: a faint raptor rasp on hard
+    consonants, and a crackle like a struck match under the big lines.
+  h3_voice_clause: >
+    VOICE: a smooth, confident, sly 1930s cartoon showman's voice - a warm melodic
+    baritone with fast-talking mid-Atlantic carnival-barker patter, slowing down
+    knowingly before a reveal and snapping quickly on the punchline, with a faint
+    raspy bird-of-prey edge on hard consonants. Self-assured and amused, never
+    shouting. NOT a realistic human voice, NOT a natural speaking voice, NOT a
+    gangster growl. RECORDING: thin, tinny, band-limited vintage optical film
+    soundtrack, narrow midrange like an old radio, noticeable 78rpm crackle and
+    hiss, recorded at a natural distance across a small room - NOT close to the
+    microphone, no intimacy, no proximity, no breath sounds, no mouth noise, no lip
+    smacking, no realistic vocal texture. One voice only. NO on-screen text, no
+    lettering, no captions, no subtitles.
+  casting_note: >
+    Untested on H3 as of 2026-10-16: written from the troupe's measured rules (ask
+    for a character voice, ask for distance, band-limit the recording), not from a
+    render. Render a two-line test before relying on it. The beak is a hard mouth
+    for lip sync, like Ake's glass bowl; push the performance rather than dubbing.
+    Level the mix with the same `-af dynaudnorm=f=200:g=15:p=0.9:m=12` used for Ake.
+    Voice ACTING quality is unsolved; cloning is a separate pinned project.
+
+negatives:
+  silent: >
+    Absolutely no voices, no speech, no singing, no humming, no breathing, no
+    human vocal sounds of any kind.
+  no_on_screen_text: >
+    NO on-screen text, no lettering, no captions, no subtitles, no title cards.
+
+notes: >
+  Swifton maps to Seth's second work agent, on the swifton Mac mini: native SwiftUI
+  apps and the build factory. Ake ships the work; Swifton guards its reputation. The
+  burning $WHUFFIE coin is a counterfeit reputation he exposes, never money he keeps.
+  Candidate engine, not yet promoted (bible §2, mine it don't invent it): Swifton
+  unmasks the grift, and the grifter is always one of us.
