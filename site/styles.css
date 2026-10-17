@@ -44,25 +44,15 @@ a:hover { color: var(--orange); }
 .hero-box img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 68%;
                 display: block; }
 
-/* lead grid: strip | company */
-.lead { display: grid; grid-template-columns: 2.2fr 1fr; gap: 32px; margin-top: 28px; }
-.strip-head { display: flex; justify-content: space-between; align-items: baseline;
-              border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
+/* lead: the company, full width */
+.lead { margin-top: 28px; }
 .dept { font-family: 'Limelight', serif; font-size: 23px; color: var(--ink);
         letter-spacing: .08em; }
-.strip-no { font-family: 'Special Elite', monospace; font-size: 12px; color: var(--brown); }
-.strip-frame { display: block; margin-top: 16px; border: 2px solid var(--ink); padding: 6px;
-               background: var(--paper2); }
-.strip-frame img { width: 100%; display: block; }
-.tiles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px; }
-.tile { border: 1px dashed var(--faded); padding: 16px 10px; text-align: center;
-        font-family: 'Special Elite', monospace; font-size: 13px; color: var(--faded); }
 
 /* company */
-.company { border-left: 1px solid var(--tan); padding-left: 26px; }
 .company .dept { display: block; border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
-.players { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
-.player { display: flex; gap: 14px; align-items: center; text-decoration: none; }
+.players { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px 16px; margin-top: 20px; }
+.player { display: flex; flex-direction: column; text-align: center; gap: 10px; align-items: center; text-decoration: none; }
 .player-pic { width: 78px; height: 78px; flex: none; border: 2px solid var(--ink);
               border-radius: 50%; background: #d8c9a4; overflow: hidden; }
 .player-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -160,11 +150,9 @@ a:hover { color: var(--orange); }
   .hero-box { height: auto; }
   .hero-box img { height: auto; object-fit: fill; }
 
-  .lead { grid-template-columns: 1fr; gap: 30px; margin-top: 22px; }
-  .tiles { grid-template-columns: 1fr; gap: 10px; }
-  .tile { padding: 12px 10px; }
-
-  /* company: vertical sidebar becomes a 2x2 playbill */
+  .lead { margin-top: 22px; }
+    
+  /* company: two columns on a phone */
   .company { border-left: none; padding-left: 0; }
   .players { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 12px; }
   .player { flex-direction: column; text-align: center; gap: 10px; }

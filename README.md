@@ -75,7 +75,6 @@ schema/*.schema.json        # asset, character, voice, lora
 scripts/build-site.py       # registry -> public/. The single gate.
 scripts/prepare-assets.py   # raw render -> registry-ready asset
 scripts/publish-lora.sh     # weights -> GitHub Release, card -> registry
-showcase/                   # strips worth showing off
 ```
 
 ## The asset contract

@@ -46,7 +46,7 @@ KNOWN_ORDER = ["seth", "wilson", "cadbury", "ake"]
 
 # Top-level paths the build owns. A cast id colliding with one of these would
 # have its assets silently overwritten by the site, so it is a build failure.
-RESERVED_IDS = {"assets", "schema", "style", "showcase", "api", "hero"}
+RESERVED_IDS = {"assets", "schema", "style", "api", "hero"}
 
 # Explicit, not guessed. An unknown extension fails the build: mimetypes' answer
 # for an unrecognised suffix is None, and a null mime in a published record is
@@ -531,10 +531,6 @@ def main() -> int:
         })
         if bundle["voice"]:
             write_json(PUB / cid / "voice.json", bundle["voice"])
-
-    strip = ROOT / "showcase" / "comfy-setup-strip.png"
-    if strip.exists():
-        shutil.copy2(strip, PUB / "showcase-latest.png")
 
     hero = SITE / "art" / "hero.png"
     if hero.exists():

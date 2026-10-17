@@ -126,6 +126,9 @@ def headshot():
         "beak, in front of a softly lit vaudeville stage curtain.", image1=BASE, seed=7)
 
 
+
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     {"plate": plate, "views": views, "headshot": headshot}[sys.argv[1]]()
