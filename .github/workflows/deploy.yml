@@ -37,7 +37,7 @@ jobs:
           if [ -z "${CF_ACCESS_CLIENT_ID:-}" ] || [ -z "${CF_ACCESS_CLIENT_SECRET:-}" ] || [ -z "${COOLIFY_TOKEN:-}" ]; then
             echo "::error::missing CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET / COOLIFY_TOKEN secrets"; exit 1
           fi
-          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" -m 30 \
+          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" -m 30 -X POST \
             -H "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}" \
             -H "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}" \
             -H "Authorization: Bearer ${COOLIFY_TOKEN}" \
