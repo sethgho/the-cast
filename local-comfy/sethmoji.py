@@ -211,6 +211,13 @@ MEMES = {
                         scene="In front of a green chalkboard in a classroom, wearing a black suit jacket over a patterned shirt",
                         extra="The background is the same as the photograph: a green chalkboard filling the whole wall behind him, paper notices pinned at the top left, and a red box and a poster at the lower left, all drawn in sepia ink. His hand is held flat at his brow in a salute exactly as in the photograph. He wears a black jacket over a patterned shirt with a little bow at the collar.",
                         action="He snaps a fierce salute from his brow and whips his arm down and across his chest, his long hair swinging and flopping wildly with the motion"),
+    # team request: point LEFT at the reaction beside it and laugh. Kevin Hart ice-bath clip, Tenor.
+    "this-reaction-here": dict(pick=0, caption=0.0, top=1.0, box=(0.06, 0.0, 0.80, 0.80),
+                    face="laughing hard with a huge open-mouthed grin, eyes crinkled, delighted",
+                    clothing="a plain dark grey crew-neck t-shirt",
+                    scene="Sitting low in a big tub outdoors in front of a red curtain, wearing a plain dark grey t-shirt",
+                    extra="He sits low in the tub with both arms resting along its rim, exactly like the man.",
+                    action="He laughs hard and thrusts his arm out to point at something off to the left, still laughing, then drops his arm"),
     "top-kek": dict(seed=7, keep_bg=True, pick=2, caption=0.0, top=0.95, segments=[(0, 3.95)],
                     face="laughing so hard he is crying, eyes squeezed shut, mouth wide open in a huge gap-toothed laugh with a few teeth missing",
                     # ref.png is hand-finished: the ref edit draws full teeth, so the mouth was

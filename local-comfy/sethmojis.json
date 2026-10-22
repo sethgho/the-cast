@@ -1,71 +1,72 @@
 {
- "title": "Sethmojis",
- "who": "seth",
- "blurb": "Seth re-performs reaction memes: Wan Animate 2 motion transfer on gpu-worker, cast style via the f0llie5 LoRA. Click any emoji for the side-by-side and the full-size version.",
- "retired": [
-  "side-eye"
- ],
- "notes": {
-  "best-friends": "shot/reverse-shot: each shot rendered with its own ref and spliced (stepbros.py)",
-  "best-friends-jen": "Jen drawn in the cast style answers 'YEP!'",
-  "bow": "Keanu's humble bow",
-  "chefkiss": "animated from a live-action chef; also a static still and a two-frame kiss loop",
-  "elaine": "full-body, so the emoji is a small figure; the motion still reads",
-  "hangin": "Beetlejuice's outfit, captions on the original timing",
-  "its-happening": "v2: on the original lasers with Ron painted out; the caption blinks on the source's own frames",
-  "jack-salute": "School of Rock salute",
-  "mind-blown": "v2: turtleneck and 80s glasses; the boom is added in post (MindBlownFX node) over the 2.5s the render skips",
-  "more": "still only: Oliver Twist's 'Please sir, may I have some more?'",
-  "nod": "keeps Redford's beard; plays at 6fps to fit 128KB",
-  "not-worthy": "two Seths; Wan drives both",
-  "popeye": "eyes by MiniMax H3 between two pupil-edited frames; the source was too small for Wan to read the gaze",
-  "slow-clap": "weakest: the source is so soft the hands read as chin-rubbing, not clapping",
-  "squidward": "cartoon source: one repainted frame, moved by the original's own optical flow (FlowTransfer node) at 2x, 6 poses at the original 12.5fps",
-  "squidward-body": "full cast-style Seth posed from Squidward frame 0, then MiniMax H3 image-to-video (pose pinned both ends) for the twerk itself",
-  "thats-bait": "THAT'S / BAIT timed to the original subtitles, BAIT flashing (Captions post mode); emoji text is drawn on the cutout",
-  "top-kek": "El Risitas; keeps the pink backdrop; gap teeth inpainted into the ref",
-  "van-door": "Wan Animate moves people, not props: the door is drawn and slid shut in post (SlidingDoorFX node)",
-  "yo-dawg": "no motion source: RecursiveZoom node nests Seth on his own forehead"
- },
- "templates": [
-  {
-   "id": "drake",
-   "name": "Drake: nope / yep",
-   "image": "templates/drake.png",
-   "font": "DejaVu Sans, Arial, Helvetica, sans-serif",
-   "color": "#000000",
-   "boxes": [
+  "title": "Sethmojis",
+  "who": "seth",
+  "blurb": "Seth re-performs reaction memes: Wan Animate 2 motion transfer on gpu-worker, cast style via the f0llie5 LoRA. Click any emoji for the side-by-side and the full-size version.",
+  "retired": [
+    "side-eye"
+  ],
+  "notes": {
+    "best-friends": "shot/reverse-shot: each shot rendered with its own ref and spliced (stepbros.py)",
+    "best-friends-jen": "Jen drawn in the cast style answers 'YEP!'",
+    "bow": "Keanu's humble bow",
+    "chefkiss": "animated from a live-action chef; also a static still and a two-frame kiss loop",
+    "elaine": "full-body, so the emoji is a small figure; the motion still reads",
+    "hangin": "Beetlejuice's outfit, captions on the original timing",
+    "its-happening": "v2: on the original lasers with Ron painted out; the caption blinks on the source's own frames",
+    "jack-salute": "School of Rock salute",
+    "mind-blown": "v2: turtleneck and 80s glasses; the boom is added in post (MindBlownFX node) over the 2.5s the render skips",
+    "more": "still only: Oliver Twist's 'Please sir, may I have some more?'",
+    "nod": "keeps Redford's beard; plays at 6fps to fit 128KB",
+    "not-worthy": "two Seths; Wan drives both",
+    "popeye": "eyes by MiniMax H3 between two pupil-edited frames; the source was too small for Wan to read the gaze",
+    "slow-clap": "weakest: the source is so soft the hands read as chin-rubbing, not clapping",
+    "squidward": "cartoon source: one repainted frame, moved by the original's own optical flow (FlowTransfer node) at 2x, 6 poses at the original 12.5fps",
+    "squidward-body": "full cast-style Seth posed from Squidward frame 0, then MiniMax H3 image-to-video (pose pinned both ends) for the twerk itself",
+    "thats-bait": "THAT'S / BAIT timed to the original subtitles, BAIT flashing (Captions post mode); emoji text is drawn on the cutout",
+    "top-kek": "El Risitas; keeps the pink backdrop; gap teeth inpainted into the ref",
+    "van-door": "Wan Animate moves people, not props: the door is drawn and slid shut in post (SlidingDoorFX node)",
+    "yo-dawg": "no motion source: RecursiveZoom node nests Seth on his own forehead",
+    "this-reaction-here": "team request: upload as :seth-this-reaction-here: and drop it to the RIGHT of the reaction you're laughing at. Motion from Kevin Hart's ice-bath point."
+  },
+  "templates": [
     {
-     "label": "Nope (top)",
-     "x": 0.5,
-     "y": 0.0,
-     "w": 0.5,
-     "h": 0.5
-    },
-    {
-     "label": "Yep (bottom)",
-     "x": 0.5,
-     "y": 0.5,
-     "w": 0.5,
-     "h": 0.5
+      "id": "drake",
+      "name": "Drake: nope / yep",
+      "image": "templates/drake.png",
+      "font": "DejaVu Sans, Arial, Helvetica, sans-serif",
+      "color": "#000000",
+      "boxes": [
+        {
+          "label": "Nope (top)",
+          "x": 0.5,
+          "y": 0.0,
+          "w": 0.5,
+          "h": 0.5
+        },
+        {
+          "label": "Yep (bottom)",
+          "x": 0.5,
+          "y": 0.5,
+          "w": 0.5,
+          "h": 0.5
+        }
+      ],
+      "examples": [
+        {
+          "title": "GPU",
+          "texts": [
+            "Dedicated GPU for gaming",
+            "Dedicated GPU for ComfyUI"
+          ]
+        },
+        {
+          "title": "Heater",
+          "texts": [
+            "Data center slop",
+            "Office heater slop"
+          ]
+        }
+      ]
     }
-   ],
-   "examples": [
-    {
-     "title": "GPU",
-     "texts": [
-      "Dedicated GPU for gaming",
-      "Dedicated GPU for ComfyUI"
-     ]
-    },
-    {
-     "title": "Heater",
-     "texts": [
-      "Data center slop",
-      "Office heater slop"
-     ]
-    }
-   ]
-  }
- ]
+  ]
 }
