@@ -211,6 +211,16 @@ MEMES = {
                         scene="In front of a green chalkboard in a classroom, wearing a black suit jacket over a patterned shirt",
                         extra="The background is the same as the photograph: a green chalkboard filling the whole wall behind him, paper notices pinned at the top left, and a red box and a poster at the lower left, all drawn in sepia ink. His hand is held flat at his brow in a salute exactly as in the photograph. He wears a black jacket over a patterned shirt with a little bow at the collar.",
                         action="He snaps a fierce salute from his brow and whips his arm down and across his chest, his long hair swinging and flopping wildly with the motion"),
+    # Dave Chappelle "GOTCHA BITCH" (Giphy GbPru204dTDfG, fetched by hand). Wide stage shot; the
+    # source burns in GOTCHA for the first beat, then GOTCHA BITCH for the rest.
+    "gotcha": dict(seed=7, pick=0, caption=0.0, top=1.0, delogo=(0.004, 0.50, 0.994, 0.70),
+                   face="a sly, triumphant, mischievous grin, delighted with himself",
+                   scene="On a bare theatre stage in front of a golden curtain backdrop, holding a cordless handheld microphone, wearing a light blue short-sleeved button-up shirt and blue jeans",
+                   extra="Wide shot exactly as in the photograph: he is a small figure, his whole body from his head to his shoes standing on the left half of the stage and filling well under half the height of the picture, with a golden curtain and wall filling the background and rows of audience heads along the bottom edge. He is the only person on the stage. He stands at the far LEFT of the stage, a little turned, holding a small cordless handheld microphone up to his mouth in one hand, the bare empty stage floor around him, and pointing his other arm straight out to the right toward the audience, his knees slightly bent. Do not zoom in.",
+                   action="He points out at the crowd, then crouches and bobs with the microphone, grinning to himself, saying gotcha",
+                   post=dict(node="Captions", passes=[
+                       dict(bottom="GOTCHA", frames="0-3", size=0.12, width=0.5, margin=0.3),
+                       dict(bottom="GOTCHA BITCH", frames="4-999", size=0.12, width=0.8, margin=0.3)])),
     # team request: point LEFT at the reaction beside it and laugh. Kevin Hart ice-bath clip, Tenor.
     "this-reaction-here": dict(pick=0, caption=0.0, top=1.0, box=(0.06, 0.0, 0.80, 0.80),
                     face="laughing hard with a huge open-mouthed grin, eyes crinkled, delighted",
@@ -390,6 +400,14 @@ def prep(name):
     sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive-full.mp4", "-vf",
        f"scale={W}:{H}:flags=lanczos", "-frames:v", str(n), "-an", "-c:v", "libx264",
        "-pix_fmt", "yuv420p", "-crf", "12", f"{dd}/drive.mp4")
+    if m.get("delogo"):
+        # burned-in caption: paint it out of the driving clip from its surroundings, or the ref
+        # repaints the letters as something (gotcha grew a little ghost where GOTCHA sat)
+        x0, y0, x1, y1 = m["delogo"]
+        box = f"x={int(W * x0)}:y={int(H * y0)}:w={int(W * (x1 - x0))}:h={int(H * (y1 - y0))}"
+        sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive.mp4", "-vf", f"delogo={box}",
+           "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "12", f"{dd}/drive-clean.mp4")
+        os.replace(f"{dd}/drive-clean.mp4", f"{dd}/drive.mp4")
     sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{dd}/drive.mp4", "-frames:v", "1",
        f"{dd}/frame0.png")
     json.dump({"W": W, "H": H, "frames": n}, open(f"{dd}/spec.json", "w"))
