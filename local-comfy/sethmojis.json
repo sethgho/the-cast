@@ -78,7 +78,7 @@
       "stroke": "#000000",
       "boxes": [
         {
-          "label": "The new thing (woman in red)",
+          "label": "The new thing (red robot)",
           "x": 0.1,
           "y": 0.64,
           "w": 0.38,
@@ -92,7 +92,7 @@
           "h": 0.3
         },
         {
-          "label": "The current thing (girlfriend)",
+          "label": "The current thing (blue robot)",
           "x": 0.76,
           "y": 0.55,
           "w": 0.24,
