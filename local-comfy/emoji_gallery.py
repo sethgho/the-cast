@@ -174,7 +174,8 @@ async function draw(){if(!tpl)return;const i=await getImg(tpl),cv=$('#cv'),ctx=c
   const X=b.x*cv.width,Y=b.y*cv.height,W=b.w*cv.width,H=b.h*cv.height;let size=Math.round(cv.height*0.06),lines,lh;
   for(;size>12;size-=2){ctx.font=`${size}px ${tpl.font}`;lines=wrap(ctx,text,W*0.84);lh=size*1.2;
    if(lh*lines.length<=H*0.8&&lines.every(l=>ctx.measureText(l).width<=W*0.9))break}
-  let y=Y+(H-lh*lines.length)/2;lines.forEach(l=>{ctx.fillText(l,X+W/2,y);y+=lh})})}
+  if(tpl.stroke){ctx.strokeStyle=tpl.stroke;ctx.lineWidth=size*0.2;ctx.lineJoin='round'}
+  let y=Y+(H-lh*lines.length)/2;lines.forEach(l=>{if(tpl.stroke)ctx.strokeText(l,X+W/2,y);ctx.fillText(l,X+W/2,y);y+=lh})})}
 function fields(texts){$('#fields').innerHTML=tpl.boxes.map((b,k)=>`<label for=f${k}>${b.label}</label><textarea id=f${k}></textarea>`).join('');
  tpl.boxes.forEach((b,k)=>{const f=$('#f'+k);f.value=(texts||[])[k]||'';f.oninput=draw});draw()}
 function pick(id,texts,title){tpl=T.find(t=>t.id===id)||T[0];$('#tpl').value=tpl.id;$('#title').value=title||'';fields(texts)}

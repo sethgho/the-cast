@@ -68,6 +68,55 @@
           ]
         }
       ]
+    },
+    {
+      "id": "distracted-boyfriend",
+      "name": "Distracted Boyfriend",
+      "image": "templates/distracted-boyfriend.png",
+      "font": "Impact, 'Arial Black', 'DejaVu Sans', sans-serif",
+      "color": "#ffffff",
+      "stroke": "#000000",
+      "boxes": [
+        {
+          "label": "The new thing (woman in red)",
+          "x": 0.1,
+          "y": 0.64,
+          "w": 0.38,
+          "h": 0.32
+        },
+        {
+          "label": "Seth",
+          "x": 0.47,
+          "y": 0.52,
+          "w": 0.3,
+          "h": 0.3
+        },
+        {
+          "label": "The current thing (girlfriend)",
+          "x": 0.76,
+          "y": 0.55,
+          "w": 0.24,
+          "h": 0.32
+        }
+      ],
+      "examples": [
+        {
+          "title": "Side projects",
+          "texts": [
+            "A brand new side project",
+            "Me",
+            "The 14 side projects I already started"
+          ]
+        },
+        {
+          "title": "Models",
+          "texts": [
+            "The model that came out this morning",
+            "Me",
+            "The model I set up yesterday"
+          ]
+        }
+      ]
     }
   ]
 }
