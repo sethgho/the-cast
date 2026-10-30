@@ -35,9 +35,11 @@ SAM = "sam3.1_multiplex_fp16.safetensors"
 SCAIL = dict(dit="wan2.1_14B_SCAIL_2_int8_convrot.safetensors", dpo="wan2.1_SCAIL_2_DPO_lora_bf16.safetensors",
              lightx2v="Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors",
              umt5="umt5_xxl_fp8_e4m3fn_scaled.safetensors", clip_vision="clip_vision_h.safetensors",
-             vae="Wan2_1_VAE_bf16.safetensors")
+             vae="Wan2_1_VAE_bf16.safetensors", relight="wan2.1_SCAIL_2_relight_lora_bf16.safetensors")
 
 # points: fractions of the frame on the performer (head, chest). caption: BrightTextMask bottom_band holding burned-in text.
+# people: several performers, one points list each (left to right); the anchor then needs its own `anchor_prompt`.
+# segments / crop_bottom: as sethmoji.py prep (splice time ranges; cut a burned-in caption band off the bottom).
 MEMES = {
     "chest-thump": dict(
         url="https://media.tenor.com/_oIo8GMrUQ8AAAPo/wolf-of-wall-street-matthew-mcconaughey.mp4",
@@ -57,6 +59,32 @@ MEMES = {
         keep="the blue world-map backdrop, the news desk and the white caption text at the bottom",
         prompt="in a dark suit and red striped tie, sits at a TV news desk in front of a blue world map. "
                "He lectures the camera smugly, nodding and tilting his head as he talks."),
+    # two people: Seth replaces Wayne (right, cap), Wilson replaces Garth (left, glasses). Starts at the arms-up
+    # beat so both faces are in frame 0; the caption crosses their bodies, so it is cropped off and redrawn in post.
+    "not-worthy": dict(
+        url="https://media.tenor.com/433QqmSqiO0AAAPo/waynes-world-schwing.mp4",
+        segments=[(0.5, 1.72), (0, 0.5)], crop_bottom=0.16,
+        people=[[(0.27, 0.10), (0.27, 0.30), (0.27, 0.78), (0.14, 0.68), (0.40, 0.66), (0.20, 0.92)], [(0.68, 0.22), (0.55, 0.25), (0.89, 0.22), (0.66, 0.65), (0.88, 0.62)]],
+        anchor_prompt=(
+            "f0llie5, image 1 is a photograph of two people side by side. This is a repaint: both poses, the arms and "
+            "hands, the framing and the room are already exactly right and must not change. Replace ONLY the two "
+            "people, each drawn in warm sepia ink with soft halftone shading like a 1930s rubber-hose cartoon. "
+            "The person on the LEFT becomes Wilson, a living picket fence: one wide wooden fence panel of vertical "
+            "slats with pointed tops is his whole body, standing where the person's body and head are, as tall as "
+            "the person. Two segmented riveted metal arms come out of the panel's side edges, posed exactly like the "
+            "person's arms. A battered wide-brimmed floppy canvas bucket hat rests directly on the pointed tops of "
+            "the slats, and in the flat black shadow under its brim float two simple white oval cartoon eyes with "
+            "round dark pupils. "
+            f"The person on the RIGHT becomes a cartoon man with {M.SETH}, wearing the same black baseball cap, "
+            "black t-shirt and red lanyard, both hands raised exactly as in the photograph, eyes wide and mouth "
+            "open, shouting in awe. Each keeps the same size and place in the frame. Everything else stays a real "
+            "colour photograph exactly as it is: the dark living room, the shelves and the lamp behind them."),
+        prompt_full=(
+            "Two cartoons drawn in warm sepia ink with soft halftone shading kneel side by side in a real dark living "
+            "room: on the left a living wooden picket fence panel with riveted metal arms, a floppy canvas bucket hat and "
+            "simple cartoon eyes; on the right a cartoon man with long wavy brown hair, a bushy handlebar moustache, a "
+            "black cap and a black t-shirt. Both raise their arms high and bow down to the floor and back up again, "
+            "worshipping, chanting we're not worthy.")),
 }
 
 
@@ -86,6 +114,16 @@ class Job:
         return f"{self.tag}-{name}"
 
 
+def people(j):
+    return j.m.get("people") or [j.m["points"]]
+
+
+def batch_masks(g, nodes):
+    if len(nodes) == 1:
+        return nodes[0]
+    return [g.add("BatchMasksNode", **{f"masks.mask{i}": n for i, n in enumerate(nodes)}), 0]
+
+
 def run(g, outs, dest):
     """Queue one graph; fetch every SaveImage in `outs` ({key: node}) into dest/<key>/NNN.png."""
     for k, v in g.items():
@@ -111,8 +149,13 @@ def conform(j):
     if not os.path.exists(j.p("src.mp4")):
         urllib.request.urlretrieve(j.m["url"], j.p("src.mp4"))
     w, h = map(int, M.probe(j.p("src.mp4"), "width,height").split(","))
-    W, H = j.m.get("size") or M.size_for(w, h)
-    M.sh("ffmpeg", "-y", "-loglevel", "error", "-i", j.p("src.mp4"), "-vf", f"fps={M.FPS},scale={W}:{H}:flags=lanczos",
+    keep = int(h * (1 - j.m.get("crop_bottom", 0))) // 2 * 2
+    W, H = j.m.get("size") or M.size_for(w, keep)
+    segs = j.m.get("segments") or [(0, 999)]
+    chain = "".join(f"[0:v]trim={a}:{b},setpts=PTS-STARTPTS,crop={w // 2 * 2}:{keep}:0:0[s{i}];"
+                    for i, (a, b) in enumerate(segs))
+    chain += "".join(f"[s{i}]" for i in range(len(segs))) + f"concat=n={len(segs)}:v=1,fps={M.FPS},scale={W}:{H}:flags=lanczos[c]"
+    M.sh("ffmpeg", "-y", "-loglevel", "error", "-i", j.p("src.mp4"), "-filter_complex", chain, "-map", "[c]",
          "-frames:v", str(M.MAX_FRAMES), "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "10", j.p("full.mp4"))
     n = int(M.sh("ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
                  "stream=nb_read_frames", "-of", "csv=p=0", j.p("full.mp4"), capture_output=True, text=True).stdout)
@@ -138,17 +181,19 @@ def detect_graph(image, prefix, points=None, text=None):
 
 
 def detect(j):
+    """One SAM mask per performer (init0, init1, ...), left to right."""
     W, H = j.spec["W"], j.spec["H"]
-    pts = [{"x": int(W * x), "y": int(H * y)} for x, y in j.m["points"]]
-    g, out = detect_graph(j.inp("f0.png"), f"{j.tag}/init", points=pts)
-    M.submit(g, out, "images", j.p("init_mask.png"))
-    j.up("init_mask.png", "init.png")
-    print(j.name, "detect", (np.asarray(Image.open(j.p("init_mask.png")).convert("L")) > 127).mean())
+    for i, person in enumerate(people(j)):
+        pts = [{"x": int(W * x), "y": int(H * y)} for x, y in person]
+        g, out = detect_graph(j.inp("f0.png"), f"{j.tag}/init{i}", points=pts)
+        M.submit(g, out, "images", j.p(f"init_mask{i}.png"))
+        j.up(f"init_mask{i}.png", f"init{i}.png")
+        print(j.name, "detect", i, (np.asarray(Image.open(j.p(f"init_mask{i}.png")).convert("L")) > 127).mean())
 
 
 def anchor(j, seed):
     m, W, H = j.m, j.spec["W"], j.spec["H"]
-    prompt = (f"f0llie5, image 1 is a photograph. Replace ONLY {m['who']} with a cartoon man with {M.SETH}, drawn "
+    prompt = m.get("anchor_prompt") or (f"f0llie5, image 1 is a photograph. Replace ONLY {m['who']} with a cartoon man with {M.SETH}, drawn "
               "in warm sepia ink with soft halftone shading like a 1930s rubber-hose cartoon. He keeps exactly the same "
               f"pose, the same size and place in the frame, the same tilt of the head, the same hands and {m['wear']}, "
               f"all drawn in the cartoon style. His face: {m['face']}. Everything else stays a real colour photograph "
@@ -179,35 +224,53 @@ def soften(g, mask, grow, radius, sigma):
 
 
 def refs(j, seed):
-    """Anchor's Seth (SAM 'cartoon man' U the performer's mask) pasted onto the real frame 0."""
+    """Each cast member in the anchor (SAM on the performer's own points; one person: SAM 'cartoon man') pasted,
+    with the performers' masks, onto the real frame 0 -> ref0. ref-mask<i> is cast member i's outline."""
     shutil.copy(j.p(f"anchor{seed}.png"), j.p("anchor.png"))
     j.up("anchor.png", "anchor.png")
+    W, H = j.spec["W"], j.spec["H"]
     g = Graph()
     sam = g.add("CheckpointLoaderSimple", ckpt_name=SAM)
     anc = [g.add("LoadImage", image=j.inp("anchor.png")), 0]
-    det = [g.add("SAM3_Detect", model=[sam, 0], image=anc, threshold=0.5, refine_iterations=2, individual_masks=False,
-                 conditioning=[g.add("CLIPTextEncode", clip=[sam, 1], text="cartoon man"), 0]), 0]
-    init = [g.add("LoadImageMask", image=j.inp("init.png"), channel="red"), 0]
-    both = [g.add("MaskComposite", destination=det, source=init, x=0, y=0, operation="or"), 0]
+    dets, union = [], None
+    for i, person in enumerate(people(j)):
+        kw = ({"conditioning": [g.add("CLIPTextEncode", clip=[sam, 1], text="cartoon man"), 0]} if len(people(j)) == 1
+              else {"positive_coords": json.dumps([{"x": int(W * x), "y": int(H * y)} for x, y in person])})
+        det = [g.add("SAM3_Detect", model=[sam, 0], image=anc, threshold=0.5, refine_iterations=2,
+                     individual_masks=False, **kw), 0]
+        dets.append(det)
+        init = [g.add("LoadImageMask", image=j.inp(f"init{i}.png"), channel="red"), 0]
+        for m in (det, init):
+            union = m if union is None else [g.add("MaskComposite", destination=union, source=m, x=0, y=0,
+                                                   operation="or"), 0]
     ref0 = g.add("ImageCompositeMasked", destination=[g.add("LoadImage", image=j.inp("f0.png")), 0], source=anc,
-                 x=0, y=0, resize_source=False, mask=soften(g, both, 4, 5, 3.0))
-    outs = {"ref0": g.add("SaveImage", images=[ref0, 0], filename_prefix=f"{j.tag}/ref0"),
-            "amask": g.add("SaveImage", images=[g.add("MaskToImage", mask=det), 0], filename_prefix=f"{j.tag}/amask")}
+                 x=0, y=0, resize_source=False, mask=soften(g, union, 4, 5, 3.0))
+    outs = {"ref0": g.add("SaveImage", images=[ref0, 0], filename_prefix=f"{j.tag}/ref0")}
+    for i, det in enumerate(dets):
+        outs[f"amask{i}"] = g.add("SaveImage", images=[g.add("MaskToImage", mask=det), 0],
+                                  filename_prefix=f"{j.tag}/amask{i}")
+    shutil.rmtree(j.p("refs"), ignore_errors=True)
     run(g, outs, j.p("refs"))
     shutil.copy(j.p("refs/ref0/000.png"), j.p("ref0.png"))
     j.up("ref0.png", "ref0.png")
-    shutil.copy(j.p("refs/amask/000.png"), j.p("anchor_mask.png"))
-    j.up("anchor_mask.png", "ref0-mask.png")
+    for i in range(len(dets)):
+        shutil.copy(j.p(f"refs/amask{i}/000.png"), j.p(f"anchor_mask{i}.png"))
+        j.up(f"anchor_mask{i}.png", f"ref-mask{i}.png")
     print(j.name, "refs", seed)
 
 
-def render(j, seed, steps=6, lx=0.8):
+def render(j, seed, relight=0.0, variant="", steps=6, lx=0.8):
     W, H, n = j.spec["W"], j.spec["H"], j.spec["frames"]
-    prompt = (f"A cartoon man drawn in warm sepia ink with soft halftone shading, with long wavy brown hair and a bushy "
-              f"handlebar moustache, {j.m['prompt']}")
+    k = len(people(j))
+    prompt = j.m.get("prompt_full") or (
+        f"A cartoon man drawn in warm sepia ink with soft halftone shading, with long wavy brown hair and a bushy "
+        f"handlebar moustache, {j.m['prompt']}")
     g = Graph()
     model = [g.add("UNETLoader", unet_name=SCAIL["dit"], weight_dtype="default"), 0]
     model = [g.add("LoraLoaderModelOnly", model=model, lora_name=SCAIL["dpo"], strength_model=1.0), 0]
+    if relight:
+        # Body Double's optional relight LoRA: lights the cast to match the plate
+        model = [g.add("LoraLoaderModelOnly", model=model, lora_name=SCAIL["relight"], strength_model=relight), 0]
     model = [g.add("LoraLoaderModelOnly", model=model, lora_name=SCAIL["lightx2v"], strength_model=lx), 0]
     model = [g.add("ModelSamplingSD3", model=model, shift=5.0), 0]
     clip = g.add("CLIPLoader", clip_name=SCAIL["umt5"], type="wan", device="default")
@@ -219,12 +282,20 @@ def render(j, seed, steps=6, lx=0.8):
                image=ref0, crop="none")
     frames = [g.add("GetVideoComponents", video=[g.add("LoadVideo", file=j.inp("drive.mp4")), 0]), 0]
     sam = g.add("CheckpointLoaderSimple", ckpt_name=SAM)
-    init = [g.add("LoadImageMask", image=j.inp("init.png"), channel="red"), 0]
+    init = batch_masks(g, [[g.add("LoadImageMask", image=j.inp(f"init{i}.png"), channel="red"), 0] for i in range(k)])
+    cast_init = batch_masks(g, [[g.add("LoadImageMask", image=j.inp(f"ref-mask{i}.png"), channel="red"), 0]
+                                for i in range(k)])
     tr = g.add("SAM3_VideoTrack", images=frames, model=[sam, 0], initial_mask=init, detection_threshold=0.5,
-               max_objects=1, detect_interval=1)
-    colored = g.add("SCAIL2ColoredMask", driving_track_data=[tr, 0], object_indices="", sort_by="none",
-                    replacement_mode=True,
-                    ref_track_data=[g.add("LoadImageMask", image=j.inp("ref0-mask.png"), channel="red"), 0])
+               max_objects=k, detect_interval=1)
+    if k == 1:
+        colored = g.add("SCAIL2ColoredMask", driving_track_data=[tr, 0], object_indices="", sort_by="none",
+                        replacement_mode=True, ref_track_data=cast_init)
+    else:
+        # one identity per person: the reference is tracked too, and both sides are coloured left to right
+        ref_tr = g.add("SAM3_VideoTrack", images=ref0, model=[sam, 0], initial_mask=cast_init,
+                       detection_threshold=0.5, max_objects=k, detect_interval=1)
+        colored = g.add("SCAIL2ColoredMask", driving_track_data=[tr, 0], object_indices="", sort_by="left_to_right",
+                        replacement_mode=True, ref_track_data=[ref_tr, 0])
     scail = g.add("WanSCAILToVideo", positive=[pos, 0], negative=[neg, 0], vae=[vae, 0], width=W, height=H,
                   length=n, batch_size=1, pose_strength=1.0, pose_start=0.0, pose_end=1.0, video_frame_offset=0,
                   previous_frame_count=5, pose_video=frames, pose_video_mask=[colored, 0], replacement_mode=True,
@@ -235,11 +306,10 @@ def render(j, seed, steps=6, lx=0.8):
                    latent_image=[scail, 2])
     decoded = [g.add("VAEDecode", samples=[sample, 0], vae=[vae, 0]), 0]
     # the cast is tracked from Seth's own frame-0 outline: the performer's outline clips his long hair
-    cast_tr = g.add("SAM3_VideoTrack", images=decoded, model=[sam, 0],
-                    initial_mask=[g.add("LoadImageMask", image=j.inp("ref0-mask.png"), channel="red"), 0],
-                    detection_threshold=0.5, max_objects=1, detect_interval=1)
-    src_m = [g.add("SAM3_TrackToMask", track_data=[tr, 0], object_indices="0"), 0]
-    cast_m = [g.add("SAM3_TrackToMask", track_data=[cast_tr, 0], object_indices="0"), 0]
+    cast_tr = g.add("SAM3_VideoTrack", images=decoded, model=[sam, 0], initial_mask=cast_init,
+                    detection_threshold=0.5, max_objects=k, detect_interval=1)
+    src_m = [g.add("SAM3_TrackToMask", track_data=[tr, 0], object_indices=""), 0]
+    cast_m = [g.add("SAM3_TrackToMask", track_data=[cast_tr, 0], object_indices=""), 0]
     both = [g.add("MaskComposite", destination=src_m, source=cast_m, x=0, y=0, operation="or"), 0]
     comp = [g.add("ImageCompositeMasked", destination=frames, source=decoded, x=0, y=0, resize_source=False,
                   mask=soften(g, both, 2, 3, 1.5)), 0]
@@ -252,30 +322,30 @@ def render(j, seed, steps=6, lx=0.8):
     cut = g.add("JoinImageWithAlpha", image=comp, alpha=[g.add("InvertMask", mask=cast_m), 0])
     outs = {"comp": g.add("SaveImage", images=comp, filename_prefix=f"{j.tag}/comp"),
             "cut": g.add("SaveImage", images=[cut, 0], filename_prefix=f"{j.tag}/cut")}
-    shutil.rmtree(j.p("out"), ignore_errors=True)
-    t = run(g, outs, j.p("out"))
+    out, mp4 = j.p(f"out{variant}"), j.p(f"recast{variant}.mp4")
+    shutil.rmtree(out, ignore_errors=True)
+    t = run(g, outs, out)
     enc = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "14"]
-    M.sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(M.FPS), "-i", j.p("out/comp/%03d.png"), *enc,
-         j.p("recast.mp4"))
-    M.sh("ffmpeg", "-y", "-loglevel", "error", "-i", j.p("drive.mp4"), "-i", j.p("recast.mp4"), "-filter_complex",
-         "[0:v][1:v]vstack,scale=640:-2", *enc, j.p("compare.mp4"))
-    print(j.name, "render", seed, f"{t:.0f}s", j.p("recast.mp4"))
+    M.sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(M.FPS), "-i", f"{out}/comp/%03d.png", *enc, mp4)
+    M.sh("ffmpeg", "-y", "-loglevel", "error", "-i", j.p("drive.mp4"), "-i", mp4, "-filter_complex",
+         "[0:v][1:v]vstack,scale=640:-2", *enc, j.p(f"compare{variant}.mp4"))
+    print(j.name, "render", seed, f"relight={relight}", f"{t:.0f}s", mp4)
 
 
-def to_sethmoji(j):
+def to_sethmoji(j, variant=""):
     """sethmoji.py's emoji/compare/full read seth.mp4 + cut/ RGBA frames (alpha only places the crop; keep_bg)."""
     sd = M.d(j.name)
     os.makedirs(sd, exist_ok=True)
     shutil.rmtree(f"{sd}/cut", ignore_errors=True)
     os.makedirs(f"{sd}/cut")
-    for i, f in enumerate(sorted(glob.glob(j.p("out/cut/*.png")))):
+    for i, f in enumerate(sorted(glob.glob(j.p(f"out{variant}/cut/*.png")))):
         shutil.copy(f, f"{sd}/cut/f{i:03d}.png")
     for f in ("post", "opaque", "emo"):
         shutil.rmtree(f"{sd}/{f}", ignore_errors=True)
     for f in ("final.mp4", "cmp-orig.mp4"):
         if os.path.exists(f"{sd}/{f}"):
             os.remove(f"{sd}/{f}")
-    shutil.copy(j.p("recast.mp4"), f"{sd}/seth.mp4")
+    shutil.copy(j.p(f"recast{variant}.mp4"), f"{sd}/seth.mp4")
     shutil.copy(j.p("drive.mp4"), f"{sd}/drive.mp4")
     print(j.name, "-> sethmoji", sd)
 
@@ -285,7 +355,10 @@ if __name__ == "__main__":
     p.add_argument("stage")
     p.add_argument("name")
     p.add_argument("--seed", type=int, default=7)
+    p.add_argument("--relight", type=float, default=0.0, help="relight LoRA strength (Body Double uses 1.0); 0 = off")
+    p.add_argument("--variant", default="", help="suffix for out<variant>/ and recast<variant>.mp4, to A/B renders")
     a = p.parse_args()
     job = Job(a.name)
     {"conform": conform, "detect": detect, "anchor": lambda j: anchor(j, a.seed), "refs": lambda j: refs(j, a.seed),
-     "render": lambda j: render(j, a.seed), "sethmoji": to_sethmoji}[a.stage](job)
+     "render": lambda j: render(j, a.seed, a.relight, a.variant),
+     "sethmoji": lambda j: to_sethmoji(j, a.variant)}[a.stage](job)
