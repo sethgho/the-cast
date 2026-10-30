@@ -162,11 +162,14 @@ MEMES = {
                     face="an ecstatic open-mouthed grin, fully committed to the dance",
                     scene="In a living room, wearing a red sweater and khaki trousers",
                     action="He does the Carlton dance, swinging his arms side to side in rhythm"),
+    "thats-the-rule": dict(pick=0, caption=0.0, top=0.78, keep_bg=True),
     "ear-cup": dict(pick=0, caption=0.0, top=1.0,
                     face="head tilted back, eyes squinted, cupping his ear with a smug grin",
                     scene="In a wrestling ring at night, shirtless and oiled, in front of a steel cage",
                     action="He cups his hand to his ear and leans in to hear the crowd cheer louder"),
-    "chest-thump": dict(pick=0, caption=0.0, top=0.9,
+    # chest-thump and thats-the-rule are recasts: sethmoji_recast.py (SCAIL-2) puts cartoon Seth into the REAL
+    # shot and writes seth.mp4 + cut/; only emoji, compare, full and deliver run here
+    "chest-thump": dict(pick=0, caption=0.0, top=0.9, keep_bg=True,
                         face="eyes half closed, humming with lips pressed together, deadpan",
                         scene="At a restaurant table by a big window over the city, wearing a dark pinstriped suit and red tie",
                         action="He hums and thumps his chest rhythmically with his fist"),
