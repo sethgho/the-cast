@@ -1,6 +1,6 @@
-"""Queue an API-format graph on the lab ComfyUI (:8190) with node.input=value overrides; fetch outputs; log peak VRAM/RSS."""
-import json, subprocess, sys, threading, time, urllib.request
-HOST = "http://192.168.0.210:8190"
+"""Queue an API-format graph on ComfyUI (main :8188 by default; COMFY_HOST for the lab :8190) with node.input=value overrides; fetch outputs; log peak VRAM/RSS."""
+import json, os, subprocess, sys, threading, time, urllib.request
+HOST = os.environ.get("COMFY_HOST", "http://192.168.0.210:8188")
 wf, out = sys.argv[1], sys.argv[2]
 g = json.load(open(wf))
 for a in sys.argv[3:]:
