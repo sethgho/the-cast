@@ -17,7 +17,7 @@
     "mind-blown": "v2: turtleneck and 80s glasses; the boom is added in post (MindBlownFX node) over the 2.5s the render skips",
     "more": "still only: Oliver Twist's 'Please sir, may I have some more?'",
     "nod": "keeps Redford's beard; plays at 6fps to fit 128KB",
-    "not-worthy": "recast into the real Wayne's World room with SCAIL-2: Wilson (the picket fence) and Seth, two people in one render",
+    "not-worthy": "recast into the real Wayne's World room with SCAIL-2: Wilson (the picket fence) and Seth, two people in one render. Effect variant: slow-mo debris (One-take VFX)",
     "popeye": "eyes by MiniMax H3 between two pupil-edited frames; the source was too small for Wan to read the gaze",
     "slow-clap": "weakest: the source is so soft the hands read as chin-rubbing, not clapping",
     "squidward": "cartoon source: one repainted frame, moved by the original's own optical flow (FlowTransfer node) at 2x, 6 poses at the original 12.5fps",
@@ -28,8 +28,8 @@
     "yo-dawg": "no motion source: RecursiveZoom node nests Seth on his own forehead",
     "this-reaction-here": "team request: upload as :seth-this-reaction-here: and drop it to the RIGHT of the reaction you're laughing at. Motion from Kevin Hart's ice-bath point.",
     "gotcha": "Dave Chappelle's GOTCHA BITCH. The source caption was painted out of the driving clip (delogo) and redrawn in post on the original's timing.",
-    "chest-thump": "recast into the real shot: SCAIL-2 swaps McConaughey for cartoon Seth, the restaurant stays real (sethmoji_recast.py)",
-    "thats-the-rule": "recast into the real SNL Weekend Update shot with SCAIL-2; the burned-in caption is the original's pixels"
+    "chest-thump": "recast into the real shot: SCAIL-2 swaps McConaughey for cartoon Seth, the restaurant stays real (sethmoji_recast.py). Effect variants: fire, portal, time-freeze (One-take VFX, LTX-2.5) and LiDAR scan",
+    "thats-the-rule": "recast into the real SNL Weekend Update shot with SCAIL-2; the burned-in caption is the original's pixels. Effect variants: hologram, disintegrate (One-take VFX), LiDAR scan, and a talking version (LTX-2.5, with sound)"
   },
   "templates": [
     {
