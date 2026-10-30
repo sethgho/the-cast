@@ -253,9 +253,9 @@ MEMES = {
                 scene="In a beige hallway, wearing a black suit jacket over a black shirt",
                 extra="Keep the room from the photograph: the olive-green wall with framed pictures behind him. His head and shoulders at the same place and size as the man in the photograph.",
                 action="He presses his hand to his heart with a humble grateful smile and bows his head deeply"),
-    # two people: both become Seth (Wayne in the cap, Garth in the glasses and flannel).
-    # Starts at the arms-up beat and splices the opening bow on the end: a seamless loop.
-    "not-worthy": dict(seed=7, pick=0, caption=0.15, top=1.0, box=(0.06, 0.0, 0.94, 1.0), segments=[(0.5, 1.72), (0, 0.5)],
+    # two people, recast (sethmoji_recast.py): Wilson the picket fence replaces Garth and Seth replaces Wayne in the
+    # real room. Starts at the arms-up beat and splices the opening bow on the end: a seamless loop.
+    "not-worthy": dict(seed=7, pick=0, caption=0.15, top=1.0, keep_bg=True, box=(0.06, 0.0, 0.94, 1.0), segments=[(0.5, 1.72), (0, 0.5)],
                        face="both men wide-eyed and ecstatic, mouths open, shouting in awe",
                        extra="There are TWO men side by side and BOTH become the same cartoon man with that hair and handlebar moustache, like twins. The one on the left keeps Garth's big round glasses and his blue plaid flannel shirt over a band t-shirt; the one on the right keeps Wayne's black baseball cap, black t-shirt and red lanyard. Both have their arms raised high with palms forward, exactly as in the photograph, in the same dark living room.",
                        scene="Two identical cartoon men side by side in a dark living room, one in glasses and a plaid flannel shirt, one in a black cap and black t-shirt",
