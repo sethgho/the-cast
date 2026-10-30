@@ -1,0 +1,342 @@
+{
+  "unet": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "clip": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+      "type": "ltxv",
+      "device": "default"
+    }
+  },
+  "vvae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ltx-2.5-video-vae-bf16.safetensors"
+    }
+  },
+  "avae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ltx-2.5-audio-vae-bf16.safetensors"
+    }
+  },
+  "pos": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "CINEMAGRAPH_MOTION, tripod locked-off static camera, zero camera movement, everything in the frame stays completely frozen, only the clouds drift slowly across the sky, everything else stays perfectly still, seamless natural loop."
+    }
+  },
+  "neg": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "camera movement, pan, tilt, zoom, parallax, whole image moving, background sliding, person moving, flicker on entire image, noisy texture, crawling texture, distorted, blurry, low quality"
+    }
+  },
+  "cond": {
+    "class_type": "LTXVConditioning",
+    "inputs": {
+      "positive": [
+        "pos",
+        0
+      ],
+      "negative": [
+        "neg",
+        0
+      ],
+      "frame_rate": 24
+    }
+  },
+  "latV": {
+    "class_type": "EmptyLTXVLatentVideo",
+    "inputs": {
+      "width": 1280,
+      "height": 704,
+      "length": 97,
+      "batch_size": 1
+    }
+  },
+  "latA": {
+    "class_type": "LTXVEmptyLatentAudio",
+    "inputs": {
+      "frames_number": 97,
+      "frame_rate": 24,
+      "batch_size": 1,
+      "audio_vae": [
+        "avae",
+        0
+      ]
+    }
+  },
+  "sigBase": {
+    "class_type": "ManualSigmas",
+    "inputs": {
+      "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+    }
+  },
+  "noise1": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    }
+  },
+  "lora0": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "unet",
+        0
+      ],
+      "lora_name": "ltx-2.5-22b-lora-cinemagraph-0.9.safetensors",
+      "strength_model": 1.1
+    }
+  },
+  "startLoad": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "input_start.png"
+    }
+  },
+  "startEdge": {
+    "class_type": "ResizeImagesByLongerEdge",
+    "inputs": {
+      "images": [
+        "startLoad",
+        0
+      ],
+      "longer_edge": 1536
+    }
+  },
+  "startPrep": {
+    "class_type": "LTXVPreprocess",
+    "inputs": {
+      "image": [
+        "startEdge",
+        0
+      ],
+      "img_compression": 18
+    }
+  },
+  "endLoad": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "input_start.png"
+    }
+  },
+  "endEdge": {
+    "class_type": "ResizeImagesByLongerEdge",
+    "inputs": {
+      "images": [
+        "endLoad",
+        0
+      ],
+      "longer_edge": 1536
+    }
+  },
+  "endPrep": {
+    "class_type": "LTXVPreprocess",
+    "inputs": {
+      "image": [
+        "endEdge",
+        0
+      ],
+      "img_compression": 18
+    }
+  },
+  "gA": {
+    "class_type": "LTXVAddGuide",
+    "inputs": {
+      "positive": [
+        "cond",
+        0
+      ],
+      "negative": [
+        "cond",
+        1
+      ],
+      "vae": [
+        "vvae",
+        0
+      ],
+      "latent": [
+        "latV",
+        0
+      ],
+      "image": [
+        "startPrep",
+        0
+      ],
+      "frame_idx": 0,
+      "strength": 0.7
+    }
+  },
+  "gB": {
+    "class_type": "LTXVAddGuide",
+    "inputs": {
+      "positive": [
+        "gA",
+        0
+      ],
+      "negative": [
+        "gA",
+        1
+      ],
+      "vae": [
+        "vvae",
+        0
+      ],
+      "latent": [
+        "gA",
+        2
+      ],
+      "image": [
+        "endPrep",
+        0
+      ],
+      "frame_idx": -1,
+      "strength": 0.7
+    }
+  },
+  "sampler1": {
+    "class_type": "SamplerEulerAncestral",
+    "inputs": {
+      "eta": 0,
+      "s_noise": 1
+    }
+  },
+  "guide1": {
+    "class_type": "LTXVDualCFGGuider",
+    "inputs": {
+      "model": [
+        "lora0",
+        0
+      ],
+      "positive": [
+        "gB",
+        0
+      ],
+      "negative": [
+        "gB",
+        1
+      ],
+      "video_cfg": 1,
+      "audio_cfg": 1
+    }
+  },
+  "cat1": {
+    "class_type": "LTXVConcatAVLatent",
+    "inputs": {
+      "video_latent": [
+        "gB",
+        2
+      ],
+      "audio_latent": [
+        "latA",
+        0
+      ]
+    }
+  },
+  "s1": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "noise1",
+        0
+      ],
+      "guider": [
+        "guide1",
+        0
+      ],
+      "sampler": [
+        "sampler1",
+        0
+      ],
+      "sigmas": [
+        "sigBase",
+        0
+      ],
+      "latent_image": [
+        "cat1",
+        0
+      ]
+    }
+  },
+  "sep1": {
+    "class_type": "LTXVSeparateAVLatent",
+    "inputs": {
+      "av_latent": [
+        "s1",
+        1
+      ]
+    }
+  },
+  "crop": {
+    "class_type": "LTXVCropGuides",
+    "inputs": {
+      "positive": [
+        "gB",
+        0
+      ],
+      "negative": [
+        "gB",
+        1
+      ],
+      "latent": [
+        "sep1",
+        0
+      ]
+    }
+  },
+  "dv": {
+    "class_type": "VAEDecodeTiled",
+    "inputs": {
+      "samples": [
+        "crop",
+        2
+      ],
+      "vae": [
+        "vvae",
+        0
+      ],
+      "tile_size": 768,
+      "overlap": 64,
+      "temporal_size": 4096,
+      "temporal_overlap": 64
+    }
+  },
+  "vid": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "images": [
+        "dv",
+        0
+      ],
+      "fps": 24
+    }
+  },
+  "save": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "vid",
+        0
+      ],
+      "filename_prefix": "openfield/effect_living-photo",
+      "format": "auto",
+      "codec": "auto"
+    }
+  }
+}

@@ -13,3 +13,11 @@ Since 2026-10-30 these run on the **main ComfyUI** (:8188, upgraded to v0.43.2, 
   768×320, 73 frames, 56 s.
 - `lab_run.py <graph> <out.mp4> node.input=value ...`: queues a graph on main (`COMFY_HOST` to override), fetches the video, and logs peak
   VRAM, host RAM and swap.
+
+## OpenField effects (`openfield_effects/`, added 2026-10-30)
+
+These are OpenField's (MIT) effect graphs, unmodified. `run_effects.py <effect> ...` patches them for our box as it
+runs: the IC-LoRA nodes become core nodes, the VAE decode is tiled in time, video effects run at 768×448 and 73 frames,
+and "cartoon" is taken out of the negatives. The working effects are pop, inflate, cake, unzip, gulp (image to video),
+and nightfall, empty, cutout, flood (video to video). Squish and living-photo did not work on our inputs. The Lightricks
+LoRAs are gated; Seth accepted them on 2026-10-30.
