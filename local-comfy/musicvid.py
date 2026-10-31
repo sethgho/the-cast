@@ -218,6 +218,17 @@ WHO = {"seth": "A 1930s rubber-hose cartoon man", "cadbury": "A 1930s rubber-hos
 FIND = {"wilson": "hat", "ake": "fish"}  # what SAM looks for when a character has no human face
 CROP = {"medium": 0.62, "close": 0.42}  # crop height as a share of the still
 
+# A directed video: the music-video-director subagent (Ruth Marquee, ~/.claude/agents/music-video-director.md)
+# writes <name>.shots.json; SHEET=<that file> renders it. Its stills carry their own setting and angle, and its
+# actions lead the LTX prompt with time-ordered beats and a locked-off camera.
+SHEET = os.environ.get("SHEET")
+if SHEET:
+    _sheet = json.load(open(SHEET))
+    ROOT = os.path.expanduser(os.environ.get("MVROOT", ROOT))
+    SONG, VOCALS = f"{ROOT}/song.mp3", f"{ROOT}/stems/vocals.wav"
+    SHOTS = {sh["id"]: (sh["who"], sh["start"], sh["end"], sh["still"], sh["action"], sh["audio"], sh["frame"])
+             for sh in _sheet["shots"]}
+
 
 DIRECTED = os.environ.get("DIRECTED") == "1"
 PIN = float(os.environ.get("PIN", "0"))
@@ -230,7 +241,12 @@ def tag(shot):
 def still(shot, seed):
     who, _, _, pose, *_ = SHOTS[shot]
     pose = DIRECT[shot][0] if DIRECTED and shot in DIRECT else pose
-    if who == "crowd":
+    if SHEET and who != "crowd":
+        keep = ("Keep his face, long wavy hair and handlebar moustache exactly as in image 1." if who == "seth"
+                else "Keep the character exactly as drawn in image 1.")
+        prompt = (f"f0llie5, image 1 is the reference drawing of this character. Draw the same character in a new "
+                  f"scene: {pose} {keep} Landscape framing.")
+    elif who == "crowd":
         prompt = (f"f0llie5, image 1 is an empty theatre. Redraw it as {pose}, drawn in warm sepia ink with soft "
                   "halftone shading like a 1930s cartoon. Landscape framing.")
     else:
@@ -282,6 +298,8 @@ def frame(shot, still_seed):
     """Crop the still to the shot's framing around the face (SAM 3.1 finds it); wide keeps the whole still."""
     *_, framing = SHOTS[shot]
     d = f"{ROOT}/{shot}"
+    if SHEET and SHOTS[shot][3].lower().startswith(("close", "extreme close")):
+        framing = "wide"  # the director already framed it close in the still; a crop would double the zoom
     if framing == "wide":
         shutil.copy(f"{d}/still{still_seed}.png", f"{d}/framed.png")
         print(shot, "frame wide")
@@ -337,7 +355,9 @@ def sing(shot, seed, still_seed, audio_src):
     img = up(f"{d}/framed.png", f"{tag(shot)}-framed.png")
     aud = up(f"{d}/drive.wav", f"{tag(shot)}-drive.wav")
     g = json.load(open(f"{HERE}/lab/ltx25_i2v_audio_api.json"))
-    if DIRECTED and shot in DIRECT:
+    if SHEET:
+        g["pos"]["inputs"]["text"] = (f"{WHO[who]}. {motion} The camera is locked off and does not move. {LOOK}")
+    elif DIRECTED and shot in DIRECT:
         g["pos"]["inputs"]["text"] = f"{WHO[who]}. {DIRECT[shot][1]} {LOCK} {LOOK} The scene: {STAGE}."
     else:
         g["pos"]["inputs"]["text"] = f"{WHO[who]} {STAGE}. {motion.replace('The cartoon man', 'He')} {LOOK}"
