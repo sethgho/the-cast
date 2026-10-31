@@ -294,6 +294,29 @@ def assemble(upto):
     print("assembled", len(names), "shots", f"{end:.2f}s")
 
 
+def qwen(images, prompt, dest, seed=11, w=W * 2, h=H * 2):
+    """One Qwen-Image-Edit 2511 + Follies pass over up to three input images (names already on gpu-worker)."""
+    g = {
+        "2": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"}},
+        "3": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors", "strength_model": 1.0, "model": ["2", 0]}},
+        "30": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "follies-final.safetensors", "strength_model": 1.2, "model": ["3", 0]}},
+        "4": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors", "type": "qwen_image", "device": "default"}},
+        "5": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_vae.safetensors"}},
+        "11": {"class_type": "EmptySD3LatentImage", "inputs": {"width": w, "height": h, "batch_size": 1}},
+        "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": M.NEGATIVE, "clip": ["4", 0]}},
+        "22": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": M.STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["30", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["11", 0]}},
+        "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}},
+        "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": "musicvid/bible", "images": ["23", 0]}},
+    }
+    enc = {"prompt": prompt, "clip": ["4", 0], "vae": ["5", 0]}
+    for i, name in enumerate(images, 1):
+        g[f"6{i}"] = {"class_type": "LoadImage", "inputs": {"image": name}}
+        enc[f"image{i}"] = [f"6{i}", 0]
+    g["20"] = {"class_type": "TextEncodeQwenImageEditPlus", "inputs": enc}
+    M.submit(g, "99", "images", dest)
+    return dest
+
+
 def frame(shot, still_seed):
     """Crop the still to the shot's framing around the face (SAM 3.1 finds it); wide keeps the whole still."""
     *_, framing = SHOTS[shot]
