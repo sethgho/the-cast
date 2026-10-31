@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Long-take recast with the original audio: cartoon Seth through a whole edited clip, shot by shot.
 
-    python3 sethmoji_longtake.py <stage> <name>     stages: conform anchor render assemble
+    python3 sethmoji_longtake.py <stage> <name>     stages: conform anchor refs render plate recomp assemble
 
 The Body Double method beyond one 81-frame job (see the `comfy-recast` skill):
 - the take is split at the source's own cuts (TAKES[name]["shots"]); a shot marked "keep" (a crowd cutaway)
@@ -199,6 +199,104 @@ def render(j, t, seed, only=None):
             print(j.name, f"shot {si} seg {ki}", f"{L} frames", f"{secs:.0f}s", flush=True)
 
 
+PLATE_W, PLATE_H = 768, 576  # LTX wants multiples of 64; scaled back to the take size after decode
+PLATE_GRAPH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lab/openfield_effects/effect-empty.json")
+
+
+def plate_graph(j, name, n):
+    """LTX-2.5 + Clean-Plate IC-LoRA: the segment with the performer removed (the 'empty the scene' effect),
+    patched to 0.43.2 core nodes like run_effects.py, saved as frames at the take size."""
+    g = json.load(open(PLATE_GRAPH))
+    for k, v in list(g.items()):
+        c, i = v["class_type"], v["inputs"]
+        if c == "LTXICLoRALoaderModelOnly":
+            v["class_type"] = "LoraLoaderModelOnly"
+            g[k + "_p"] = {"class_type": "GetICLoRAParameters", "inputs": {"iclora_model": [k, 0]}}
+        if c == "VAEDecodeTiled":
+            i.update(tile_size=512, overlap=64, temporal_size=64, temporal_overlap=8)
+        if c == "VHS_LoadVideo":
+            i.update(video=name, force_rate=0, custom_width=PLATE_W, custom_height=PLATE_H, frame_load_cap=n)
+        if c == "ImageScale":
+            i.update(width=PLATE_W, height=PLATE_H)
+        if c == "EmptyLTXVLatentVideo":
+            i.update(width=PLATE_W, height=PLATE_H, length=n)
+        if c == "LTXVEmptyLatentAudio":
+            i.update(frames_number=n)
+        if c == "LTXVConditioning":
+            i.update(frame_rate=M.FPS)
+    for k, v in list(g.items()):
+        if v["class_type"] == "LTXAddVideoICLoRAGuide":
+            i = v["inputs"]
+            v["class_type"] = "LTXVAddGuide"
+            v["inputs"] = {"positive": i["positive"], "negative": i["negative"], "vae": i["vae"], "latent": i["latent"],
+                           "image": i["image"], "frame_idx": 0, "strength": 1,
+                           "iclora_parameters": [i["latent_downscale_factor"][0] + "_p", 0]}
+    del g["vid"], g["save"]
+    g["fit"] = {"class_type": "ImageScale", "inputs": {"image": ["dv", 0], "upscale_method": "lanczos",
+                                                        "width": j.spec["W"], "height": j.spec["H"], "crop": "disabled"}}
+    g["out"] = {"class_type": "SaveImage", "inputs": {"images": ["fit", 0], "filename_prefix": f"{j.tag}/plate"}}
+    return g
+
+
+def plates(j, only=None):
+    """A clean plate per segment. LTX needs 8n+1 frames, so the segment is padded with its last frame."""
+    for si, sh in enumerate(j.spec["shots"]):
+        if sh["keep"] or (only is not None and si not in only):
+            continue
+        for ki, (a, n, L) in enumerate(sh["segs"]):
+            L8 = L + (-(L - 1)) % 8
+            d = j.p(f"seg/s{si}k{ki}")
+            M.sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(M.FPS), "-i", f"{d}/%04d.png", "-vf",
+                 f"tpad=stop_mode=clone:stop={L8 - L}", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "10",
+                 j.p(f"seg/s{si}k{ki}-plate.mp4"))
+            name = j.up(f"seg/s{si}k{ki}-plate.mp4", f"s{si}k{ki}-plate.mp4")
+            M.urllib.request.urlopen(M.urllib.request.Request(  # /free has an empty body; S.api parses JSON
+                M.S.HOST + "/free", json.dumps({"unload_models": True, "free_memory": True}).encode(),
+                {"Content-Type": "application/json"}), timeout=60).read()
+            out = j.p(f"out/s{si}k{ki}")
+            shutil.rmtree(f"{out}/plate", ignore_errors=True)
+            secs = R.run(plate_graph(j, name, L8), {"plate": "out"}, out)
+            print(j.name, f"plate shot {si} seg {ki}", f"{L8} frames", f"{secs:.0f}s", flush=True)
+
+
+def recomp(j, only=None):
+    """Re-composite without the ghost: real frame outside, the clean plate inside the performer's grown outline,
+    and the render on top inside the CAST's own tight outline only. Pasting the render's background over the
+    performer's whole outline left a Steve-shaped patch (the render's background is a few levels off)."""
+    for si, sh in enumerate(j.spec["shots"]):
+        if sh["keep"] or (only is not None and si not in only):
+            continue
+        for ki, (a, n, L) in enumerate(sh["segs"]):
+            o = j.p(f"out/s{si}k{ki}")
+            if not os.path.isdir(f"{o}/comp-v1"):
+                shutil.copytree(f"{o}/comp", f"{o}/comp-v1")
+            names = {}
+            for part in ("raw", "src", "plate"):
+                pat = f"{o}/{part}/%03d.png"
+                M.sh("ffmpeg", "-y", "-loglevel", "error", "-framerate", str(M.FPS), "-i", pat, "-frames:v", str(L),
+                     "-c:v", "libx264", "-pix_fmt", "yuv444p", "-crf", "4", f"{o}/{part}.mp4")
+                names[part] = j.up(f"out/s{si}k{ki}/{part}.mp4", f"s{si}k{ki}-{part}.mp4")
+            g = R.Graph()
+
+            def frames(nm):
+                return [g.add("GetVideoComponents", video=[g.add("LoadVideo", file=nm), 0]), 0]
+            src = frames(j.inp(f"s{si}k{ki}.mp4"))
+            raw, plate = frames(names["raw"]), frames(names["plate"])
+            src_m = [g.add("ImageToMask", image=frames(names["src"]), channel="red"), 0]
+            sam = g.add("CheckpointLoaderSimple", ckpt_name=R.SAM)
+            cast_tr = g.add("SAM3_VideoTrack", images=raw, model=[sam, 0], detection_threshold=0.4, max_objects=1,
+                            detect_interval=1,
+                            conditioning=[g.add("CLIPTextEncode", clip=[sam, 1], text="cartoon man"), 0])
+            cast_m = [g.add("SAM3_TrackToMask", track_data=[cast_tr, 0], object_indices=""), 0]
+            base = g.add("ImageCompositeMasked", destination=src, source=plate, x=0, y=0, resize_source=False,
+                         mask=R.soften(g, src_m, 12, 8, 4.0))
+            comp = g.add("ImageCompositeMasked", destination=[base, 0], source=raw, x=0, y=0, resize_source=False,
+                         mask=R.soften(g, cast_m, 2, 3, 1.5))
+            shutil.rmtree(f"{o}/comp", ignore_errors=True)
+            secs = R.run(g, {"comp": g.add("SaveImage", images=[comp, 0], filename_prefix=f"{j.tag}/recomp")}, o)
+            print(j.name, f"recomp shot {si} seg {ki}", f"{secs:.0f}s", flush=True)
+
+
 def R_prompt(t):
     return ("A cartoon man drawn in warm sepia ink with soft halftone shading, with long wavy brown hair and a bushy "
             f"handlebar moustache, {t['prompt']}")
@@ -244,5 +342,9 @@ if __name__ == "__main__":
         R.refs(job, a.seed)
     elif a.stage == "render":
         render(job, take, a.seed, [int(x) for x in a.shots.split(",")] if a.shots else None)
+    elif a.stage == "plate":
+        plates(job, [int(x) for x in a.shots.split(",")] if a.shots else None)
+    elif a.stage == "recomp":
+        recomp(job, [int(x) for x in a.shots.split(",")] if a.shots else None)
     elif a.stage == "assemble":
         assemble(job, take)
