@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Long-take recast with the original audio: cartoon Seth through a whole edited clip, shot by shot.
 
-    python3 sethmoji_longtake.py <stage> <name>     stages: conform anchor refs render plate recomp assemble
+    python3 sethmoji_longtake.py <stage> <name>     stages: conform anchor refs shot-anchor shot-refs render plate recomp assemble
 
 The Body Double method beyond one 81-frame job (see the `comfy-recast` skill):
 - the take is split at the source's own cuts (TAKES[name]["shots"]); a shot marked "keep" (a crowd cutaway)
@@ -32,6 +32,8 @@ TAKES = {
         url="https://www.youtube.com/watch?v=8fcSviC7cRM", start=29.4, end=53.5, size=(752, 560),
         # source cut times (s, absolute); "keep" = no performer to replace
         shots=[(29.4, 39.63), (39.63, 44.63), (44.63, 47.37), (47.37, 48.73, "keep"), (48.73, 50.57), (50.57, 53.5)],
+        who="the bald man in the light blue shirt", face="mouth wide open mid-shout, eyes wide, wild and sweaty",
+        closeups=[1, 2, 5],
         prompt="in a sweat-soaked light blue button-down shirt and khaki trousers, on a big conference stage, "
                "shouting and chanting with wild energy, clapping, stomping and pumping his fists"),
 }
@@ -116,7 +118,64 @@ def conform(j, t):
     print(j.name, "conform", W, H, total, "frames,", [(s["frames"], len(s["segs"]), s["keep"]) for s in shots])
 
 
-def seg_graph(j, si, ki, L, prev_tail, init_name, prompt, seed):
+def shot_anchor(j, t, si, seed):
+    """A close-up needs its own identity reference: shot 0's ref0 shows Seth's face about 30 px tall, so a close-up
+    rendered from it invents a face (Ballmer's last shot got a beard). Qwen + Follies repaints the performer on this
+    shot's own first frame. One image only: the canon plate as image 2 wins over the pose (cast-style), and
+    "no beard" summons one, so the bare chin is stated positively and last."""
+    W, H = j.spec["W"], j.spec["H"]
+    prompt = (f"f0llie5, image 1 is a photograph. This is a repaint: replace ONLY {t['who']} with a cartoon man "
+              f"with {M.SETH}, drawn in warm sepia ink with soft halftone shading like a 1930s rubber-hose cartoon. "
+              "He keeps exactly the same pose, the same size and place in the frame, the same tilt of the head and "
+              "the same hands, and he wears a plain tan button-down shirt. Everything else stays a real colour "
+              f"photograph exactly as it is. His face: {t['face']}. His chin, jaw, cheeks and neck are smooth and "
+              "bare; the only hair on his face is the big handlebar moustache.")
+    g = {
+        "2": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"}},
+        "3": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors", "strength_model": 1.0, "model": ["2", 0]}},
+        "30": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "follies-final.safetensors", "strength_model": 1.2, "model": ["3", 0]}},
+        "4": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors", "type": "qwen_image", "device": "default"}},
+        "5": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_vae.safetensors"}},
+        "6": {"class_type": "LoadImage", "inputs": {"image": j.inp(f"s{si}f0.png")}},
+        "11": {"class_type": "EmptySD3LatentImage", "inputs": {"width": W, "height": H, "batch_size": 1}},
+        "20": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": prompt, "clip": ["4", 0], "vae": ["5", 0], "image1": ["6", 0]}},
+        "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": M.NEGATIVE, "clip": ["4", 0]}},
+        "22": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": M.STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["30", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["11", 0]}},
+        "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}},
+        "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": f"{j.tag}/s{si}anchor{seed}", "images": ["23", 0]}},
+    }
+    M.submit(g, "99", "images", j.p(f"s{si}anchor{seed}.png"))
+    print(j.name, f"shot {si} anchor", seed)
+
+
+def shot_refs(j, si, seed):
+    """The shot's anchor, cast outline only (plus the performer's), pasted on its real first frame -> s<si>ref."""
+    up = j.up(f"s{si}anchor{seed}.png", f"s{si}anchor.png")
+    g = R.Graph()
+    sam = g.add("CheckpointLoaderSimple", ckpt_name=R.SAM)
+
+    def det(image, text):
+        return [g.add("SAM3_Detect", model=[sam, 0], image=image, threshold=0.5, refine_iterations=2,
+                      individual_masks=False,
+                      conditioning=[g.add("CLIPTextEncode", clip=[sam, 1], text=text), 0]), 0]
+    anc, f0 = [g.add("LoadImage", image=up), 0], [g.add("LoadImage", image=j.inp(f"s{si}f0.png")), 0]
+    cast = det(anc, "cartoon man")
+    union = [g.add("MaskComposite", destination=det(f0, "man"), source=cast, x=0, y=0, operation="or"), 0]
+    ref = g.add("ImageCompositeMasked", destination=f0, source=anc, x=0, y=0, resize_source=False,
+                mask=R.soften(g, union, 4, 5, 3.0))
+    d = j.p(f"refs/s{si}")
+    shutil.rmtree(d, ignore_errors=True)
+    R.run(g, {"ref": g.add("SaveImage", images=[ref, 0], filename_prefix=f"{j.tag}/s{si}ref"),
+              "mask": g.add("SaveImage", images=[g.add("MaskToImage", mask=cast), 0],
+                            filename_prefix=f"{j.tag}/s{si}refmask")}, d)
+    shutil.copy(f"{d}/ref/000.png", j.p(f"s{si}ref.png"))
+    shutil.copy(f"{d}/mask/000.png", j.p(f"s{si}ref-mask.png"))
+    j.up(f"s{si}ref.png", f"s{si}ref.png")
+    j.up(f"s{si}ref-mask.png", f"s{si}ref-mask.png")
+    print(j.name, f"shot {si} refs", seed)
+
+
+def seg_graph(j, si, ki, L, prev_tail, init_name, prompt, seed, ref="ref0.png", ref_mask="ref-mask0.png"):
     g = R.Graph()
     S = R.SCAIL
     model = [g.add("UNETLoader", unet_name=S["dit"], weight_dtype="default"), 0]
@@ -127,7 +186,7 @@ def seg_graph(j, si, ki, L, prev_tail, init_name, prompt, seed):
     pos = g.add("CLIPTextEncode", clip=[clip, 0], text=prompt)
     neg = g.add("CLIPTextEncode", clip=[clip, 0], text="")
     vae = g.add("VAELoader", vae_name=S["vae"])
-    ref0 = [g.add("LoadImage", image=j.inp("ref0.png")), 0]
+    ref0 = [g.add("LoadImage", image=j.inp(ref)), 0]
     cv = g.add("CLIPVisionEncode", clip_vision=[g.add("CLIPVisionLoader", clip_name=S["clip_vision"]), 0],
                image=ref0, crop="none")
     frames = [g.add("GetVideoComponents", video=[g.add("LoadVideo", file=j.inp(f"s{si}k{ki}.mp4")), 0]), 0]
@@ -140,7 +199,7 @@ def seg_graph(j, si, ki, L, prev_tail, init_name, prompt, seed):
                detect_interval=1, **trk)
     colored = g.add("SCAIL2ColoredMask", driving_track_data=[tr, 0], object_indices="", sort_by="none",
                     replacement_mode=True,
-                    ref_track_data=[g.add("LoadImageMask", image=j.inp("ref-mask0.png"), channel="red"), 0])
+                    ref_track_data=[g.add("LoadImageMask", image=j.inp(ref_mask), channel="red"), 0])
     extra = {}
     if prev_tail:
         extra["previous_frames"] = batch_images(g, [[g.add("LoadImage", image=f), 0] for f in prev_tail])
@@ -192,9 +251,12 @@ def render(j, t, seed, only=None):
                 shutil.copy(f"{p}/src/{STEP:03d}.png", j.p(f"s{si}k{ki}-init.png"))
                 j.up(f"s{si}k{ki}-init.png", f"s{si}k{ki}-init.png")
                 init = f"s{si}k{ki}-init.png"
-            g, outs = seg_graph(j, si, ki, L, prev_tail, init, R_prompt(t), seed)
+            own = si in t.get("closeups", []) and os.path.exists(j.p(f"s{si}ref.png"))
+            refs = (f"s{si}ref.png", f"s{si}ref-mask.png") if own else ("ref0.png", "ref-mask0.png")
+            g, outs = seg_graph(j, si, ki, L, prev_tail, init, R_prompt(t), seed, *refs)
             out = j.p(f"out/s{si}k{ki}")
-            shutil.rmtree(out, ignore_errors=True)
+            for part in ("comp", "comp-v1", "raw", "src"):  # keep plate/: it depends only on the source
+                shutil.rmtree(f"{out}/{part}", ignore_errors=True)
             secs = R.run(g, outs, out)
             print(j.name, f"shot {si} seg {ki}", f"{L} frames", f"{secs:.0f}s", flush=True)
 
@@ -340,6 +402,12 @@ if __name__ == "__main__":
         R.anchor(job, a.seed)
     elif a.stage == "refs":
         R.refs(job, a.seed)
+    elif a.stage == "shot-anchor":
+        for si in take["closeups"]:
+            shot_anchor(job, take, si, a.seed)
+    elif a.stage == "shot-refs":
+        for si in take["closeups"]:
+            shot_refs(job, si, a.seed)
     elif a.stage == "render":
         render(job, take, a.seed, [int(x) for x in a.shots.split(",")] if a.shots else None)
     elif a.stage == "plate":
