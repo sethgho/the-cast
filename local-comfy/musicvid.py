@@ -92,10 +92,108 @@ SHOTS = {
                   f"The cartoon man throws both arms up for a big finish and {SING} Slow pull back.", "vocals",
                   "wide"),
 }
-PLATES = {"seth": "cast-seth-plate.png", "cadbury": "cast-cadbury-plate.png",
+WSING = ("sings along to the music: his hat and his eyes bob with every sung word and his white-gloved hands gesture "
+         "with the melody.")
+REACT = "He does not sing; his mouth stays shut."
+SHOTS.update({
+    "15-fella": ("wilson", 62.04, 66.456, "seen in three-quarter view, the fence leaning his elbows over a little "
+                 "garden rail at the side of the stage, eyes wide and friendly",
+                 f"The fence leans over the rail and {WSING} Static camera.", "vocals", "medium"),
+    "16-son": ("wilson", 66.456, 70.891, "the fence leaning in toward the camera, wagging one gloved finger, his white "
+               "eyes narrowed knowingly under the brim of his hat",
+               f"The fence wags one gloved finger knowingly and {WSING} Slow push in.", "vocals", "close"),
+    "17-1909": ("wilson", 70.891, 75.279, "a wide shot of the stage seen from the side, the fence at centre stage "
+                "holding up a dusty yellowed old theatre playbill",
+                f"The fence holds up the old playbill and taps it, and {WSING} Static camera.", "vocals", "wide"),
+    "18-disk": ("wilson", 75.279, 79.691, "seen from a low angle, the fence counting off on his gloved fingers, "
+                "eyes looking up under the brim of his hat",
+                f"The fence counts off problems on his gloved fingers one by one and {WSING} Static camera.",
+                "vocals", "medium"),
+    "19-gulp": ("seth", 79.691, 84.079, "a nervous sweating grin, beads of sweat on his forehead, eyes darting "
+                "sideways, his moustache swept up clear of his lips",
+                f"The cartoon man listens nervously, sweat beading on his forehead, and gulps. {REACT} Static camera.",
+                "mix", "close"),
+    "20-stand": ("wilson", 84.079, 88.468, "the fence shrugging with both gloved hands open, palms up, his white eyes "
+                 "kind under the brim of his hat",
+                 f"The fence shrugs with both hands open and {WSING} Slow pull back.", "vocals", "medium"),
+    "21-fine2": ("seth", 88.468, 92.88, "a wide shot seen from high up in the balcony, the man at centre stage with "
+                 "arms spread wide in front of a tall wall of round green light bulbs, singing with his mouth open",
+                 f"The cartoon man spreads his arms wide as the green lights blink and {SING} Slow push in.",
+                 "vocals", "wide"),
+    "22-deploy": ("seth", 92.88, 97.292, "seen in three-quarter view, singing with his mouth wide open and eyes "
+                  "shut in bliss, his moustache swept up clear of his lips, a thin wisp of smoke behind him",
+                  f"The cartoon man {SING} Static camera.", "vocals", "close"),
+    "23-crowd2": ("crowd", 97.292, 101.68, "the theatre seats filled with a 1930s audience of cartoon theatre-goers "
+                  "in hats waving handkerchiefs and swaying along, seen from the stage",
+                  "The cartoon audience sways and waves their handkerchiefs to the music. Static camera.", "mix",
+                  "wide"),
+    "24-ake": ("ake", 101.68, 106.046, "the goldfish in his round bowl rolling onto the stage on his little wheeled "
+               "cart, looking worried, bubbles rising",
+               "The goldfish's bowl rolls slowly onto the stage on its little cart; he looks around worried and "
+               "bubbles rise. Static camera.", "mix", "medium"),
+    "25-ledger": ("cadbury", 106.046, 110.434, "the butler opening a huge leather-bound ledger, peering into it "
+                  "through his monocle",
+                  "The butler opens the heavy ledger and peers into it through his monocle. Slow push in.", "mix",
+                  "close"),
+    "26-butler": ("cadbury", 110.434, 114.823, "the butler stepping forward holding the open ledger in one gloved "
+                  "hand, chin up, mouth open mid-word",
+                  "The butler steps forward with the open ledger and sings the words gravely, his mouth shaping each "
+                  "word. Static camera.", "vocals", "medium"),
+    "27-column": ("cadbury", 114.823, 119.188, "the butler reading from the ledger, one eyebrow raised above his "
+                  "monocle, mouth open mid-word",
+                  "The butler reads from the ledger, raises an eyebrow and sings the words gravely, his mouth shaping "
+                  "each word. Static camera.", "vocals", "close"),
+    "28-red": ("cadbury", 119.188, 123.6, "a wide shot seen from a low angle at the footlights, the butler at centre "
+               "stage holding the open ledger out toward the audience",
+               "The butler holds the ledger out to the audience and sings the words gravely. Slow pull back.",
+               "vocals", "wide"),
+    "29-items": ("cadbury", 123.6, 127.942, "the butler ticking off lines in the ledger with a fountain pen, mouth "
+                 "open mid-word", "The butler ticks off each line with his pen and sings the words gravely, his "
+                 "mouth shaping each word. Static camera.", "vocals", "close"),
+    "30-backup": ("seth", 127.942, 132.307, "seen from a low angle, the man frozen in horror with both hands on his "
+                  "cheeks, eyes huge, mouth hanging open",
+                  f"The cartoon man freezes in horror, both hands on his cheeks. {REACT} Slow push in.", "mix",
+                  "medium"),
+    "31-chalk": ("ake", 132.307, 136.719, "the goldfish's face pressed close to the glass of his bowl, eyes huge with "
+                 "fright, his orange scales turning pale white",
+                 "The goldfish's orange scales drain to chalk white as he stares in fright, trembling. Static camera.",
+                 "mix", "close"),
+    "32-squeak": ("ake", 136.719, 141.084, "a wide shot of the big empty stage, the tiny goldfish bowl on its cart "
+                  "alone in the spotlight, the pale fish trembling",
+                  "The tiny pale goldfish trembles alone in the spotlight, a single bubble rising. Slow pull back.",
+                  "mix", "wide"),
+    "33-told": ("wilson", 141.084, 145.473, "the fence holding up a lit red signal flare in one gloved hand, sparks "
+                "flying, his white eyes wide under the brim",
+                f"The fence waves the sparking red flare overhead and {WSING} Static camera.", "vocals", "medium"),
+    "34-fire": ("seth", 145.473, 149.815, "a wide shot, the stage curtains behind him on fire with tall cartoon "
+                "flames, the man at centre stage singing with arms wide",
+                f"Cartoon flames leap up the curtains behind the cartoon man as he {SING} Static camera.", "vocals",
+                "wide"),
+    "35-calm": ("seth", 149.815, 154.18, "sipping calmly from a cup of coffee with cartoon flames all around him, "
+                "singing with his mouth open, his moustache swept up clear of his lips",
+                f"Cartoon flames dance all around the cartoon man as he calmly lifts his coffee and {SING} "
+                "Static camera.", "vocals", "close"),
+    "36-fine3": ("seth", 154.18, 158.569, "seen in three-quarter view, singing with his mouth open, smoke and embers "
+                 "drifting past him, a burning curtain behind",
+                 f"Smoke and embers drift past the cartoon man as he {SING} Slow push in.", "vocals", "medium"),
+    "37-green3": ("seth", 158.569, 162.934, "a wide shot seen from high up in the balcony, the whole stage ablaze, a "
+                  "wall of round green light bulbs glowing, the man in the spotlight with arms thrown wide",
+                  f"The whole stage burns as the green lights blink and the cartoon man {SING} Slow pull back.",
+                  "vocals", "wide"),
+    "38-end": ("seth", 162.934, 165.0, "a big grin straight at the camera giving a thumbs up, a little soot on his "
+               "cheek, his moustache swept up clear of his lips",
+               "The cartoon man grins and gives a big thumbs up to the camera. Static camera.", "mix", "close"),
+})
+PLATES = {"seth": "cast-seth-plate.png", "cadbury": "cast-cadbury-plate.png", "wilson": "cast-wilson-plate.png",
+          "ake": "cast-ake-plate.png",
           "crowd": "cast-seth-scene-empty-auditorium.png"}
 WHO = {"seth": "A 1930s rubber-hose cartoon man", "cadbury": "A 1930s rubber-hose cartoon butler",
-       "crowd": "A 1930s cartoon theatre audience"}
+       "crowd": "A 1930s cartoon theatre audience",
+       "wilson": "A 1930s cartoon living picket fence in a bucket hat, white oval eyes in the shadow under the brim, "
+                 "white-gloved hands,",
+       "ake": "A 1930s cartoon goldfish with a bushy moustache and buck teeth, in a round glass fishbowl on a little "
+              "wheeled cart,"}
+FIND = {"wilson": "hat", "ake": "fish"}  # what SAM looks for when a character has no human face
 CROP = {"medium": 0.62, "close": 0.42}  # crop height as a share of the still
 
 
@@ -109,8 +207,10 @@ def still(shot, seed):
         prompt = (f"f0llie5, image 1 is an empty theatre. Redraw it as {pose}, drawn in warm sepia ink with soft "
                   "halftone shading like a 1930s cartoon. Landscape framing.")
     else:
+        keep = ("Keep his face, hair, moustache and clothes exactly as in image 1." if who == "seth"
+                else "Keep the character exactly as drawn in image 1.")
         prompt = (f"f0llie5, image 1 is the reference drawing of this character. Draw the same character {STAGE}, "
-                  f"{pose}. Keep his face, hair, moustache and clothes exactly as in image 1. Landscape framing.")
+                  f"{pose}. {keep} Landscape framing.")
     g = {
         "2": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"}},
         "3": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors", "strength_model": 1.0, "model": ["2", 0]}},
@@ -160,11 +260,17 @@ def frame(shot, still_seed):
         print(shot, "frame wide")
         return
     img = up(f"{d}/still{still_seed}.png", f"{tag(shot)}-still.png")
-    g, out = R.detect_graph(img, f"{tag(shot)}/face", text="face")
-    M.submit(g, out, "images", f"{d}/face.png")
-    m = R.np.asarray(R.Image.open(f"{d}/face.png").convert("L")) > 127
-    ys, xs = R.np.nonzero(m)
+    who = SHOTS[shot][0]
+    for text in ("face", FIND.get(who, "person")):
+        g, out = R.detect_graph(img, f"{tag(shot)}/face", text=text)
+        M.submit(g, out, "images", f"{d}/face.png")
+        m = R.np.asarray(R.Image.open(f"{d}/face.png").convert("L")) > 127
+        if m.any():
+            break
     Hs, Ws = m.shape
+    if not m.any():  # nothing found: frame the centre
+        m[Hs // 3:Hs // 2, Ws * 2 // 5:Ws * 3 // 5] = True
+    ys, xs = R.np.nonzero(m)
     ch = int(Hs * CROP[framing])
     cw = int(ch * Ws / Hs)
     cx, top = (xs.min() + xs.max()) // 2, ys.min()
