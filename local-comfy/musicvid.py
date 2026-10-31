@@ -29,59 +29,74 @@ FPS = 24
 STAGE = ("on a 1930s vaudeville stage with a red velvet curtain, warm footlights from below and a single "
          "spotlight, drawn in warm sepia ink with soft halftone shading")
 SING = ("sings every word to the camera like a vaudeville crooner. His mouth opens wide below his moustache on each "
-        "sung word, showing his teeth and tongue, and closes between words. Static camera.")
-# Cuts sit on measured downbeats (161.5 BPM, bars.json); each shot is 2-3 bars. who, start, end, still pose,
-# motion, audio ("vocals" = the demucs stem drives the mouth, "mix" = the full song for shots nobody sings).
+        "sung word, showing his teeth and tongue, and closes between words.")
+# LTX drifts toward a 3D render on big body moves (Seth's bow, 2026-10-31); every motion prompt restates the medium
+LOOK = ("Flat 2D hand-drawn 1930s cartoon animation: black ink outlines, flat sepia colour and halftone shading on "
+        "every frame, the drawing stays flat.")
+# Coverage: no two cuts in a row share a framing (Seth: a jump cut needs a change of angle, perspective or crop).
+# frame = wide (the whole still) | medium | close: cropped around the face before LTX animates it. LTX's first
+# pass is 640x352, so a crop of the 1280x704 still loses nothing the render would have kept.
+# who, start, end, still pose (with the camera angle), motion, audio, frame. Cuts sit on measured downbeats.
 SHOTS = {
-    "01-curtain": ("cadbury", 0.0, 4.06, "a wide shot of the whole stage, the curtain closed, the butler stepping into "
-                   "the spotlight at centre stage with a white-gloved hand raised",
+    "01-curtain": ("cadbury", 0.0, 4.06, "a wide shot of the whole stage seen from the back of the theatre, the "
+                   "curtain closed, the butler stepping into the spotlight at centre stage",
                    "The butler strides into the spotlight and raises one gloved hand to quiet the crowd. Static camera.",
-                   "mix"),
-    "02-announce": ("cadbury", 4.06, 8.45, "a medium shot, the butler at centre stage announcing to the audience with "
-                    "his chin up and one gloved hand sweeping toward the curtain, mouth open mid-word",
+                   "mix", "wide"),
+    "02-announce": ("cadbury", 4.06, 8.45, "seen from a low angle at the footlights, the butler with his chin up and "
+                    "one gloved hand sweeping toward the curtain, mouth open mid-word",
                     "The butler announces the evening's performance in a grand voice, his mouth shaping each word, "
-                    "and sweeps his gloved hand toward the curtain. Static camera.", "vocals"),
+                    "and sweeps his gloved hand toward the curtain. Slow push in.", "vocals", "medium"),
     "03-friday": ("seth", 8.45, 12.98, "a wide shot, the curtain open, the man at centre stage in the spotlight with "
                   "both arms open, singing with his mouth open, his moustache swept up clear of his lips",
-                  f"The cartoon man walks to the front of the stage and {SING}", "vocals"),
-    "04-green": ("seth", 12.98, 17.46, "head and shoulders, his face large in the frame, singing with his mouth open, "
-                 "a row of little round green lights glowing behind him, his moustache swept up clear of his lips",
-                 f"The cartoon man {SING}", "vocals"),
-    "05-small": ("seth", 17.46, 21.97, "a close-up of his face filling the frame, holding up a finger and thumb a tiny "
-                 "distance apart, singing with his mouth open, his moustache swept up clear of his lips",
-                 f"The cartoon man holds up a finger and thumb a tiny distance apart and {SING}", "vocals"),
-    "06-coffee": ("seth", 21.97, 26.42, "a medium shot, holding a steaming cup of coffee, singing with his mouth open, "
-                  "his moustache swept up clear of his lips",
-                  f"The cartoon man lifts his steaming coffee cup and {SING}", "vocals"),
-    "07-proud": ("seth", 26.42, 30.81, "from the waist up, filling the frame, his chest puffed out with pride and one "
-                 "thumb pointing at himself, singing with his mouth open, his moustache swept up clear of his lips",
-                 f"The cartoon man puffs out his chest with pride and {SING}", "vocals"),
-    "08-bow": ("seth", 30.81, 35.39, "a wide shot of the stage, the man taking a deep theatrical bow with one arm "
-               "across his waist, singing with his mouth open",
-               "The cartoon man takes two deep theatrical bows, then rises and sings to the crowd. Static camera.",
-               "vocals"),
-    "09-machine": ("seth", 35.39, 39.85, "a close-up of his face, one hand on his heart and the other raised as if "
-                   "swearing an oath, singing with his mouth open, his moustache swept up clear of his lips",
-                   f"The cartoon man swears an oath with his hand raised and {SING}", "vocals"),
+                  f"The cartoon man walks to the front of the stage and {SING} Static camera.", "vocals", "wide"),
+    "04-green": ("seth", 12.98, 17.46, "seen in three-quarter view from his left, a row of little round green lights "
+                 "glowing behind him, singing with his mouth open, his moustache swept up clear of his lips",
+                 f"The cartoon man {SING} The green lights blink. Static camera.", "vocals", "close"),
+    "05-small": ("seth", 17.46, 21.97, "seen in three-quarter view from his right, holding up a finger and thumb a "
+                 "tiny distance apart beside his face, singing with his mouth open, his moustache swept up clear of "
+                 "his lips", f"The cartoon man holds up a finger and thumb a tiny distance apart and {SING} "
+                 "Slow push in.", "vocals", "medium"),
+    "06-coffee": ("seth", 21.97, 26.42, "holding a steaming cup of coffee up near his face, singing with his mouth "
+                  "open, his moustache swept up clear of his lips",
+                  f"The cartoon man lifts his steaming coffee cup and {SING} Static camera.", "vocals", "close"),
+    "07-proud": ("seth", 26.42, 30.81, "a wide shot seen from high up in the balcony, the man small on the big stage "
+                 "with his chest puffed out and one thumb pointing at himself, singing",
+                 f"The cartoon man puffs out his chest with pride and {SING} Slow push in.", "vocals", "wide"),
+    "08-bow": ("seth", 30.81, 33.85, "seen from a low angle at the footlights, the man bending into a small bow with "
+               "one arm across his waist, looking up at the audience and singing with his mouth open",
+               "The cartoon man dips into a small bow and comes back up, singing to the crowd. Static camera.",
+               "vocals", "medium"),
+    "08b-crowd": ("crowd", 33.85, 35.39, "the theatre seats filled with a cheering 1930s audience of cartoon "
+                  "theatre-goers in hats and bow ties, clapping and whistling, seen from the stage",
+                  "The cartoon audience claps, cheers and throws their hats in the air. Static camera.", "mix", "wide"),
+    "09-machine": ("seth", 35.39, 39.85, "facing the camera straight on, one hand on his heart and the other raised "
+                   "as if swearing an oath, singing with his mouth open, his moustache swept up clear of his lips",
+                   f"The cartoon man swears an oath with his hand raised and {SING} Static camera.", "vocals", "close"),
     "10-fine": ("seth", 39.85, 44.28, "a wide shot, the man at centre stage with arms spread wide, a tall wall of "
                 "round green light bulbs in neat rows glowing behind him, singing with his mouth open",
-                f"The cartoon man spreads his arms wide as the green lights blink behind him and {SING}", "vocals"),
-    "11-prettiest": ("seth", 44.28, 48.74, "a medium shot, the man pointing proudly at the glowing green lights "
-                     "beside him, singing with his mouth open, his moustache swept up clear of his lips",
-                     f"The cartoon man points proudly at the green lights and {SING}", "vocals"),
-    "12-curtain": ("seth", 48.74, 53.17, "a medium shot, the man standing in front of the closed curtain and holding "
-                   "it shut behind his back with one hand, wagging a finger at the audience, singing with his mouth open",
-                   f"The cartoon man holds the curtain shut behind him, wags a finger at the audience and {SING}",
-                   "vocals"),
-    "13-smell": ("seth", 53.17, 57.61, "a close-up, the man sniffing the air with his nose lifted, his eyebrows raised "
-                 "and a nervous grin, a thin grey wisp of smoke rising from the curtain behind his shoulder, singing "
-                 "with his mouth open",
-                 f"A thin wisp of smoke curls up behind the cartoon man as he sniffs the air nervously and {SING}",
-                 "vocals"),
-    "14-finale": ("seth", 57.61, 62.04, "a wide shot of the whole stage, the man in the spotlight with both arms "
-                  "thrown up in a big finish, singing with his mouth wide open",
-                  f"The cartoon man throws both arms up for a big finish and {SING}", "vocals"),
+                f"The cartoon man spreads his arms wide as the green lights blink behind him and {SING} "
+                "Slow pull back.", "vocals", "wide"),
+    "11-prettiest": ("seth", 44.28, 48.74, "seen in profile from the side, the man pointing proudly at the glowing "
+                     "green lights beside him, singing with his mouth open",
+                     f"The cartoon man points proudly at the green lights and {SING} Static camera.", "vocals",
+                     "medium"),
+    "12-curtain": ("seth", 48.74, 53.17, "standing in front of the closed curtain, wagging a finger beside his face "
+                   "at the audience, singing with his mouth open, his moustache swept up clear of his lips",
+                   f"The cartoon man wags a finger at the audience and {SING} Static camera.", "vocals", "close"),
+    "13-smell": ("seth", 53.17, 57.61, "seen from a low angle, the man sniffing the air with his nose lifted and a "
+                 "nervous grin, a thin grey wisp of smoke rising from the curtain behind his shoulder, singing",
+                 f"Grey smoke curls up from the curtain behind the cartoon man as he sniffs the air nervously and "
+                 f"{SING} Slow push in.", "vocals", "medium"),
+    "14-finale": ("seth", 57.61, 62.04, "a wide shot of the whole stage seen from high up in the balcony, the man in "
+                  "the spotlight with both arms thrown up in a big finish, singing with his mouth wide open",
+                  f"The cartoon man throws both arms up for a big finish and {SING} Slow pull back.", "vocals",
+                  "wide"),
 }
+PLATES = {"seth": "cast-seth-plate.png", "cadbury": "cast-cadbury-plate.png",
+          "crowd": "cast-seth-scene-empty-auditorium.png"}
+WHO = {"seth": "A 1930s rubber-hose cartoon man", "cadbury": "A 1930s rubber-hose cartoon butler",
+       "crowd": "A 1930s cartoon theatre audience"}
+CROP = {"medium": 0.62, "close": 0.42}  # crop height as a share of the still
 
 
 def tag(shot):
@@ -89,16 +104,20 @@ def tag(shot):
 
 
 def still(shot, seed):
-    who, _, _, pose, _, _ = SHOTS[shot]
-    prompt = (f"f0llie5, image 1 is the reference drawing of this character. Draw the same character {STAGE}, "
-              f"{pose}. Keep his face, hair, moustache and clothes exactly as in image 1. Landscape framing.")
+    who, _, _, pose, *_ = SHOTS[shot]
+    if who == "crowd":
+        prompt = (f"f0llie5, image 1 is an empty theatre. Redraw it as {pose}, drawn in warm sepia ink with soft "
+                  "halftone shading like a 1930s cartoon. Landscape framing.")
+    else:
+        prompt = (f"f0llie5, image 1 is the reference drawing of this character. Draw the same character {STAGE}, "
+                  f"{pose}. Keep his face, hair, moustache and clothes exactly as in image 1. Landscape framing.")
     g = {
         "2": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "qwen-image-edit-2511-Q4_K_S.gguf"}},
         "3": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors", "strength_model": 1.0, "model": ["2", 0]}},
         "30": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "follies-final.safetensors", "strength_model": 1.2, "model": ["3", 0]}},
         "4": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors", "type": "qwen_image", "device": "default"}},
         "5": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_vae.safetensors"}},
-        "6": {"class_type": "LoadImage", "inputs": {"image": f"cast-{who}-plate.png"}},
+        "6": {"class_type": "LoadImage", "inputs": {"image": PLATES[who]}},
         "11": {"class_type": "EmptySD3LatentImage", "inputs": {"width": W * 2, "height": H * 2, "batch_size": 1}},
         "20": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": prompt, "clip": ["4", 0], "vae": ["5", 0], "image1": ["6", 0]}},
         "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": M.NEGATIVE, "clip": ["4", 0]}},
@@ -132,6 +151,33 @@ def assemble(upto):
     print("assembled", len(names), "shots", f"{end:.2f}s")
 
 
+def frame(shot, still_seed):
+    """Crop the still to the shot's framing around the face (SAM 3.1 finds it); wide keeps the whole still."""
+    *_, framing = SHOTS[shot]
+    d = f"{ROOT}/{shot}"
+    if framing == "wide":
+        shutil.copy(f"{d}/still{still_seed}.png", f"{d}/framed.png")
+        print(shot, "frame wide")
+        return
+    img = up(f"{d}/still{still_seed}.png", f"{tag(shot)}-still.png")
+    g, out = R.detect_graph(img, f"{tag(shot)}/face", text="face")
+    M.submit(g, out, "images", f"{d}/face.png")
+    m = R.np.asarray(R.Image.open(f"{d}/face.png").convert("L")) > 127
+    ys, xs = R.np.nonzero(m)
+    Hs, Ws = m.shape
+    ch = int(Hs * CROP[framing])
+    cw = int(ch * Ws / Hs)
+    cx, top = (xs.min() + xs.max()) // 2, ys.min()
+    x = int(min(max(cx - cw // 2, 0), Ws - cw))
+    y = int(min(max(top - ch * 0.15, 0), Hs - ch))  # headroom above the hair
+    g = R.Graph()
+    crop = g.add("ImageCrop", image=[g.add("LoadImage", image=img), 0], width=cw, height=ch, x=x, y=y)
+    fit = g.add("ImageScale", image=[crop, 0], upscale_method="lanczos", width=Ws, height=Hs, crop="disabled")
+    M.submit({**g, "out": {"class_type": "SaveImage", "inputs": {"images": [fit, 0],
+              "filename_prefix": f"{tag(shot)}/framed"}}}, "out", "images", f"{d}/framed.png")
+    print(shot, "frame", framing, (x, y, cw, ch))
+
+
 def free():
     M.urllib.request.urlopen(M.urllib.request.Request(  # /free has an empty body; S.api parses JSON
         M.S.HOST + "/free", json.dumps({"unload_models": True, "free_memory": True}).encode(),
@@ -150,16 +196,15 @@ def up(local, name):
 
 
 def sing(shot, seed, still_seed, audio_src):
-    who, start, end, _, motion, _ = SHOTS[shot]
+    who, start, end, _, motion, *_ = SHOTS[shot]
     n = int((end - start) * FPS + 7) // 8 * 8 + 1  # round UP to the 8n+1 grid; the edit trims to the downbeat
     d = f"{ROOT}/{shot}"
     M.sh("ffmpeg", "-y", "-loglevel", "error", "-ss", str(start), "-t", f"{n / FPS:.3f}", "-i", audio_src,
          "-ac", "2", "-ar", "48000", f"{d}/drive.wav")
-    img = up(f"{d}/still{still_seed}.png", f"{tag(shot)}-still.png")
+    img = up(f"{d}/framed.png", f"{tag(shot)}-framed.png")
     aud = up(f"{d}/drive.wav", f"{tag(shot)}-drive.wav")
     g = json.load(open(f"{HERE}/lab/ltx25_i2v_audio_api.json"))
-    who_words = {"seth": "A 1930s rubber-hose cartoon man", "cadbury": "A 1930s rubber-hose cartoon butler"}[who]
-    g["pos"]["inputs"]["text"] = f"{who_words} drawn in warm sepia ink, {STAGE}. {motion.replace('The cartoon man', 'He')}"
+    g["pos"]["inputs"]["text"] = f"{WHO[who]} {STAGE}. {motion.replace('The cartoon man', 'He')} {LOOK}"
     g["latV"]["inputs"].update(width=W, height=H, length=n)
     g["startLoad"]["inputs"]["image"] = img
     g["noise1"]["inputs"]["noise_seed"] = seed
@@ -192,6 +237,8 @@ if __name__ == "__main__":
     for sh in shots:
         if a.stage == "still":
             still(sh, a.seed)
+        elif a.stage == "frame":
+            frame(sh, a.still)
         elif a.stage == "sing":
             sing(sh, a.seed, a.still, VOCALS if SHOTS[sh][5] == "vocals" else SONG)
     if a.stage == "assemble":
