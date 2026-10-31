@@ -317,6 +317,32 @@ def qwen(images, prompt, dest, seed=11, w=W * 2, h=H * 2):
     return dest
 
 
+def klein(images, prompt, dest, seed=11, w=W * 2, h=H * 2, steps=4):
+    """FLUX.2 Klein 4B (distilled) multi-reference edit: each image is VAE-encoded and chained into the
+    conditioning with ReferenceLatent, the way the stock image_flux2_klein_image_edit_4b_distilled template does."""
+    g = R.Graph()
+    unet = [g.add("UNETLoader", unet_name="flux-2-klein-4b-fp8.safetensors", weight_dtype="default"), 0]
+    clip = g.add("CLIPLoader", clip_name="qwen_3_4b.safetensors", type="flux2", device="default")
+    vae = [g.add("VAELoader", vae_name="flux2-vae.safetensors"), 0]
+    pos = [g.add("CLIPTextEncode", clip=[clip, 0], text=prompt), 0]
+    neg = [g.add("ConditioningZeroOut", conditioning=pos), 0]
+    for name in images:
+        img = [g.add("ImageScaleToTotalPixels", image=[g.add("LoadImage", image=name), 0],
+                     upscale_method="lanczos", megapixels=1.0, resolution_steps=1), 0]
+        lat = [g.add("VAEEncode", pixels=img, vae=vae), 0]
+        pos = [g.add("ReferenceLatent", conditioning=pos, latent=lat), 0]
+        neg = [g.add("ReferenceLatent", conditioning=neg, latent=lat), 0]
+    sample = g.add("SamplerCustomAdvanced", noise=[g.add("RandomNoise", noise_seed=seed), 0],
+                   guider=[g.add("CFGGuider", model=unet, positive=pos, negative=neg, cfg=1.0), 0],
+                   sampler=[g.add("KSamplerSelect", sampler_name="euler"), 0],
+                   sigmas=[g.add("Flux2Scheduler", steps=steps, width=w, height=h), 0],
+                   latent_image=[g.add("EmptyFlux2LatentImage", width=w, height=h, batch_size=1), 0])
+    out = g.add("SaveImage", images=[g.add("VAEDecode", samples=[sample, 0], vae=vae), 0],
+                filename_prefix="musicvid/klein")
+    M.submit(g, out, "images", dest)
+    return dest
+
+
 def frame(shot, still_seed):
     """Crop the still to the shot's framing around the face (SAM 3.1 finds it); wide keeps the whole still."""
     *_, framing = SHOTS[shot]
