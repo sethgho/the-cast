@@ -90,6 +90,7 @@ def scan_session(path, day_start, day_end):
     bash_cmds = Counter()
     prev_ts, prev_was_assistant = None, False
     in_window = False
+    seen_replies = set()
 
     with open(path, encoding="utf-8", errors="replace") as f:
         for line in f:
@@ -100,15 +101,22 @@ def scan_session(path, day_start, day_end):
             if not isinstance(rec, dict):
                 continue
             ts = parse_ts(rec.get("timestamp", ""))
-            if ts:
-                if day_start <= ts < day_end:
-                    in_window = True
-                m["first_ts"] = m["first_ts"] or ts
-                m["last_ts"] = ts
-
             rtype = rec.get("type")
             msg = rec.get("message") or {}
             content = msg.get("content")
+            if not ts or not (day_start <= ts < day_end):
+                # A session can span midnight or be resumed days later; count
+                # only this window, but keep the gap state for the edge.
+                if ts:
+                    prev_ts = ts
+                    if rtype == "assistant":
+                        prev_was_assistant = True
+                    elif rtype == "user" and isinstance(content, str):
+                        prev_was_assistant = False
+                continue
+            in_window = True
+            m["first_ts"] = m["first_ts"] or ts
+            m["last_ts"] = ts
 
             if rtype == "user":
                 if isinstance(content, str):  # a human actually typed this
@@ -129,12 +137,17 @@ def scan_session(path, day_start, day_end):
                             if block.get("is_error"):
                                 m["tool_errors"] += 1
             elif rtype == "assistant":
-                m["assistant_msgs"] += 1
-                model = msg.get("model")
-                if model:
-                    m["models"][model] += 1
-                usage = msg.get("usage") or {}
-                m["output_tokens"] += usage.get("output_tokens", 0) or 0
+                # Claude Code writes one record per content block of a reply,
+                # each with the reply's full usage. Count the reply once.
+                reply = (msg.get("id"), rec.get("requestId"))
+                if reply == (None, None) or reply not in seen_replies:
+                    seen_replies.add(reply)
+                    m["assistant_msgs"] += 1
+                    model = msg.get("model")
+                    if model:
+                        m["models"][model] += 1
+                    usage = msg.get("usage") or {}
+                    m["output_tokens"] += usage.get("output_tokens", 0) or 0
                 if isinstance(content, list):
                     for block in content:
                         btype = block.get("type") if isinstance(block, dict) else None
