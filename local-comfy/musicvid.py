@@ -184,6 +184,28 @@ SHOTS.update({
                "cheek, his moustache swept up clear of his lips",
                "The cartoon man grins and gives a big thumbs up to the camera. Static camera.", "mix", "close"),
 })
+
+# Director pass (Seth, 2026-10-31: "it feels like it's missing a director"). Shot 36 was the best of 39 by luck:
+# Qwen put a microphone in Seth's hand and LTX pushed in, so he performed to it. Most other shots stood stiff while
+# LTX drifted into a wide pull-back that shrank the face. The recipe makes the luck the rule:
+# 1. the still is a PERFORMANCE pose with a period microphone (a singer's prop LTX knows how to perform with);
+# 2. the prompt leads with blocking - two or three timed beats - not with the stage;
+# 3. the camera is described as locked on the face, so the framing cannot drift out.
+DIRECT = {
+    "09-machine": ("gripping a vintage chrome microphone in one hand close to his mouth, his other hand raised high "
+                   "as if swearing an oath, eyes wide, singing with his mouth open, his moustache swept up clear of "
+                   "his lips",
+                   "He grips the microphone and belts the line into it, mouth opening wide on every word. On the "
+                   "first words he raises his free hand high as if swearing an oath; then he presses it to his heart "
+                   "and leans into the microphone, eyes squeezing shut on the last word."),
+    "26-butler": ("standing at a vintage ribbon microphone on a stand, holding the open ledger up in one gloved "
+                  "hand, chin up, mouth open mid-word",
+                  "He leans toward the microphone and sings each word gravely, his mouth shaping every syllable. "
+                  "He lifts the ledger, glances down at it through his monocle, then looks back up at the audience "
+                  "with one eyebrow raised."),
+}
+LOCK = "The camera stays locked on his face and upper body; the framing never changes and never pulls back."
+
 PLATES = {"seth": "cast-seth-plate.png", "cadbury": "cast-cadbury-plate.png", "wilson": "cast-wilson-plate.png",
           "ake": "cast-ake-plate.png",
           "crowd": "cast-seth-scene-empty-auditorium.png"}
@@ -197,12 +219,17 @@ FIND = {"wilson": "hat", "ake": "fish"}  # what SAM looks for when a character h
 CROP = {"medium": 0.62, "close": 0.42}  # crop height as a share of the still
 
 
+DIRECTED = os.environ.get("DIRECTED") == "1"
+PIN = float(os.environ.get("PIN", "0"))
+
+
 def tag(shot):
     return f"musicvid-{shot}"
 
 
 def still(shot, seed):
     who, _, _, pose, *_ = SHOTS[shot]
+    pose = DIRECT[shot][0] if DIRECTED and shot in DIRECT else pose
     if who == "crowd":
         prompt = (f"f0llie5, image 1 is an empty theatre. Redraw it as {pose}, drawn in warm sepia ink with soft "
                   "halftone shading like a 1930s cartoon. Landscape framing.")
@@ -310,7 +337,10 @@ def sing(shot, seed, still_seed, audio_src):
     img = up(f"{d}/framed.png", f"{tag(shot)}-framed.png")
     aud = up(f"{d}/drive.wav", f"{tag(shot)}-drive.wav")
     g = json.load(open(f"{HERE}/lab/ltx25_i2v_audio_api.json"))
-    g["pos"]["inputs"]["text"] = f"{WHO[who]} {STAGE}. {motion.replace('The cartoon man', 'He')} {LOOK}"
+    if DIRECTED and shot in DIRECT:
+        g["pos"]["inputs"]["text"] = f"{WHO[who]}. {DIRECT[shot][1]} {LOCK} {LOOK} The scene: {STAGE}."
+    else:
+        g["pos"]["inputs"]["text"] = f"{WHO[who]} {STAGE}. {motion.replace('The cartoon man', 'He')} {LOOK}"
     g["latV"]["inputs"].update(width=W, height=H, length=n)
     g["startLoad"]["inputs"]["image"] = img
     g["noise1"]["inputs"]["noise_seed"] = seed
@@ -322,6 +352,17 @@ def sing(shot, seed, still_seed, audio_src):
     g["afrz"] = {"class_type": "LTXVFreezeLatent", "inputs": {"latent": ["aenc", 0]}}
     g["cat1"]["inputs"]["audio_latent"] = ["afrz", 0]
     g["cat2"]["inputs"]["audio_latent"] = ["afrz", 0]
+    if PIN:
+        # the same framed still guides the LAST frame too: the camera may move in between, but must come back,
+        # so LTX's habit of pulling back to a wide stage view (which shrank faces and killed the lip sync) is gone
+        g["pin"] = {"class_type": "LTXVAddGuide", "inputs": {"positive": ["cond", 0], "negative": ["cond", 1],
+                    "vae": ["vvae", 0], "latent": ["inj1", 0], "image": ["startPrep", 0], "frame_idx": -1,
+                    "strength": PIN}}
+        g["guide1"]["inputs"].update(positive=["pin", 0], negative=["pin", 1])
+        g["cat1"]["inputs"]["video_latent"] = ["pin", 2]
+        g["crop1"] = {"class_type": "LTXVCropGuides", "inputs": {"positive": ["pin", 0], "negative": ["pin", 1],
+                      "latent": ["sep1", 0]}}
+        g["up"]["inputs"]["samples"] = ["crop1", 2]
     g["vid"]["inputs"]["fps"] = FPS
     g["save"]["inputs"]["filename_prefix"] = f"{tag(shot)}/sing"
     free()
