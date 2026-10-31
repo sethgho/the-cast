@@ -119,7 +119,10 @@ def assemble(upto):
         for k in names:
             _, start, end, *_ = SHOTS[k]
             clip = f"{ROOT}/{k}/cut.mp4"
-            M.sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{ROOT}/{k}/sing.mp4", "-t", f"{end - start:.3f}", "-an",
+            # frame counts come from one absolute timeline: cutting each shot by seconds rounded every cut up a
+            # frame or two, and the drift reached 8 frames (0.33 s) by shot 14, visibly off the lips
+            frames = round(end * FPS) - round(start * FPS)
+            M.sh("ffmpeg", "-y", "-loglevel", "error", "-i", f"{ROOT}/{k}/sing.mp4", "-frames:v", str(frames), "-an",
                  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-r", str(FPS), clip)
             f.write(f"file '{clip}'\n")
     end = SHOTS[names[-1]][2]
