@@ -222,12 +222,15 @@ CROP = {"medium": 0.62, "close": 0.42}  # crop height as a share of the still
 # writes <name>.shots.json; SHEET=<that file> renders it. Its stills carry their own setting and angle, and its
 # actions lead the LTX prompt with time-ordered beats and a locked-off camera.
 SHEET = os.environ.get("SHEET")
+BIBLE = None
 if SHEET:
     _sheet = json.load(open(SHEET))
     ROOT = os.path.expanduser(os.environ.get("MVROOT", ROOT))
     SONG, VOCALS = f"{ROOT}/song.mp3", f"{ROOT}/stems/vocals.wav"
     SHOTS = {sh["id"]: (sh["who"], sh["start"], sh["end"], sh["still"], sh["action"], sh["audio"], sh["frame"])
              for sh in _sheet["shots"]}
+    SHEETX = {sh["id"]: sh for sh in _sheet["shots"]}
+    BIBLE = _sheet.get("bible")
 
 
 DIRECTED = os.environ.get("DIRECTED") == "1"
@@ -343,11 +346,116 @@ def klein(images, prompt, dest, seed=11, w=W * 2, h=H * 2, steps=4):
     return dest
 
 
+# ---- the production bible: plates drawn once, every still composed from them by FLUX.2 Klein ----
+
+def lint(bars=None):
+    """Check the director's sheet before any GPU time is spent. Returns a list of problems (empty = clean)."""
+    bad, shots = [], _sheet["shots"]
+    beats = set(round(b, 3) for b in (bars or [])) | {0.0, round(shots[-1]["end"], 3)}
+    for i, sh in enumerate(shots):
+        k = sh["id"]
+        if sh["who"] not in PLATES:
+            bad.append(f"{k}: unknown cast member {sh['who']}")
+        if sh["frame"] not in ("wide", "medium", "close"):
+            bad.append(f"{k}: frame {sh['frame']}")
+        if i and sh["frame"] == shots[i - 1]["frame"]:
+            bad.append(f"{k}: same frame as the shot before")
+        if i and abs(sh["start"] - shots[i - 1]["end"]) > 1e-3:
+            bad.append(f"{k}: starts at {sh['start']}, previous ends at {shots[i - 1]['end']}")
+        if bars and (round(sh["start"], 3) not in beats or round(sh["end"], 3) not in beats):
+            bad.append(f"{k}: not on a downbeat ({sh['start']}-{sh['end']})")
+        if not 1.5 <= sh["end"] - sh["start"] <= 5.0:
+            bad.append(f"{k}: {sh['end'] - sh['start']:.2f} s long")
+        if sh["audio"] not in ("vocals", "mix"):
+            bad.append(f"{k}: audio {sh['audio']}")
+        if BIBLE:
+            if sh.get("setup") not in BIBLE["setups"]:
+                bad.append(f"{k}: setup {sh.get('setup')} not in the bible")
+            for pr in sh.get("props", []):
+                if pr not in BIBLE["props"]:
+                    bad.append(f"{k}: prop {pr} not in the bible")
+    if BIBLE:
+        for name, su in BIBLE["setups"].items():
+            if su["location"] not in BIBLE["locations"]:
+                bad.append(f"setup {name}: location {su['location']} not in the bible")
+    return bad
+
+
+def plate_name(kind, name):
+    return f"{os.path.basename(ROOT)}-{kind}-{name}.png"
+
+
+def bible_plates():
+    """Locations and props by Qwen + Follies (house style from words), then each setup re-viewed from its location
+    by FLUX.2 Klein with a SHORT prompt. Measured 2026-11-01: Klein drawing from words gives modern coloured
+    illustration and ignores a style reference; Klein given long prompts will not move the camera; Qwen will not
+    move the camera at all. Drawn once and reused."""
+    d = f"{ROOT}/bible"
+    os.makedirs(d, exist_ok=True)
+    look = ("drawn in warm sepia ink with soft halftone shading and black outlines on aged paper, like a 1930s "
+            "rubber-hose cartoon")
+    for name, text in BIBLE["locations"].items():
+        if not os.path.exists(f"{d}/loc-{name}.png"):
+            qwen([], f"f0llie5, {text} The place is empty. {BIBLE['light']} Everything {look}. Landscape framing.",
+                 f"{d}/loc-{name}.png")
+        up(f"{d}/loc-{name}.png", plate_name("loc", name))
+        print("location", name, flush=True)
+    for name, su in BIBLE["setups"].items():
+        if not os.path.exists(f"{d}/setup-{name}.png"):
+            klein([plate_name("loc", su["location"])],
+                  f"The same room as image 1, same style, seen from a new camera position: {su['camera']}",
+                  f"{d}/setup-{name}.png")
+        up(f"{d}/setup-{name}.png", plate_name("setup", name))
+        print("setup", name, flush=True)
+    for name, text in BIBLE["props"].items():
+        if not os.path.exists(f"{d}/prop-{name}.png"):
+            qwen([], f"f0llie5, {text} Shown alone and whole, filling the frame, on plain aged paper, {look}.",
+                 f"{d}/prop-{name}.png", w=1024, h=1024)
+        up(f"{d}/prop-{name}.png", plate_name("prop", name))
+        print("prop", name, flush=True)
+
+
+def bible_still(shot, seed):
+    """The shot's still composed by Klein: image 1 the character, image 2 the setup, then one image per prop."""
+    sh = SHEETX[shot]
+    who = sh["who"]
+    imgs = [PLATES[who], plate_name("setup", sh["setup"])] + [plate_name("prop", p) for p in sh.get("props", [])]
+    props = " ".join(f"Image {i + 3} is the {p}: {BIBLE['props'][p]}" for i, p in enumerate(sh.get("props", [])))
+    keep = ("Keep his face, long wavy hair and handlebar moustache exactly as in image 1." if who == "seth"
+            else "Keep the character exactly as drawn in image 1.")
+    prompt = (f"Image 1 is the character. Image 2 is the location, seen from the camera position to use; keep its "
+              f"layout, furniture and camera angle. {props} Put the character from image 1 into the location of "
+              f"image 2: {sh['still']} {keep} {BIBLE['light']} {BIBLE['style']}")
+    os.makedirs(f"{ROOT}/{shot}", exist_ok=True)
+    d = f"{ROOT}/{shot}"
+    klein(imgs, prompt, f"{d}/klein{seed}.png", seed=seed)
+    # Klein drifts toward modern colour; Qwen + Follies repaints it in the house look and keeps the composition
+    qwen([up(f"{d}/klein{seed}.png", f"{tag(shot)}-klein.png")],
+         "f0llie5, image 1 is a drawing. This is a repaint: redraw image 1 exactly, with the same composition, the "
+         "same people, poses, faces, objects and camera angle, in warm sepia ink with soft halftone shading and black "
+         "outlines on aged paper, like a 1930s rubber-hose cartoon. Keep the green glow green and the moonlight pale.",
+         f"{d}/still{seed}.png", seed=seed)
+    print(shot, "bible still", seed, flush=True)
+
+
+def contact(shots, still_seed, dest):
+    """One labelled contact sheet of the stills, in order, for the director's dailies."""
+    from PIL import Image as PI, ImageDraw
+    tiles = [(k, PI.open(f"{ROOT}/{k}/still{still_seed}.png").convert("RGB").resize((448, 246))) for k in shots]
+    cols = 4
+    sheet = PI.new("RGB", (448 * cols, 246 * ((len(tiles) + cols - 1) // cols)), "white")
+    for i, (k, im) in enumerate(tiles):
+        ImageDraw.Draw(im).text((6, 6), k, fill="yellow")
+        sheet.paste(im, ((i % cols) * 448, (i // cols) * 246))
+    sheet.save(dest)
+    print("contact", dest)
+
+
 def frame(shot, still_seed):
     """Crop the still to the shot's framing around the face (SAM 3.1 finds it); wide keeps the whole still."""
     *_, framing = SHOTS[shot]
     d = f"{ROOT}/{shot}"
-    if SHEET and SHOTS[shot][3].lower().startswith(("close", "extreme close")):
+    if BIBLE or (SHEET and SHOTS[shot][3].lower().startswith(("close", "extreme close"))):
         framing = "wide"  # the director already framed it close in the still; a crop would double the zoom
     if framing == "wide":
         shutil.copy(f"{d}/still{still_seed}.png", f"{d}/framed.png")
@@ -449,10 +557,21 @@ if __name__ == "__main__":
     p.add_argument("--still", type=int, default=7, help="which still seed to animate")
     p.add_argument("--upto", type=float, default=62.1, help="assemble: last shot end time")
     a = p.parse_args()
+    if a.stage == "lint":
+        bars = json.load(open(f"{ROOT}/bars.json"))["bars"] if os.path.exists(f"{ROOT}/bars.json") else None
+        problems = lint(bars)
+        print("\n".join(problems) or "clean")
+        sys.exit(1 if problems else 0)
+    if a.stage == "bible":
+        bible_plates()
+        sys.exit(0)
     shots = list(SHOTS) if a.shot == "all" else a.shot.split(",")
+    if a.stage == "contact":
+        contact(shots, a.still, f"{ROOT}/dailies-stills.png")
+        sys.exit(0)
     for sh in shots:
         if a.stage == "still":
-            still(sh, a.seed)
+            (bible_still if BIBLE else still)(sh, a.seed)
         elif a.stage == "frame":
             frame(sh, a.still)
         elif a.stage == "sing":
