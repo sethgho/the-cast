@@ -428,7 +428,12 @@ def bible_still(shot, seed):
               f"image 2: {sh['still']} {keep} {BIBLE['light']} {BIBLE['style']}")
     os.makedirs(f"{ROOT}/{shot}", exist_ok=True)
     d = f"{ROOT}/{shot}"
-    klein(imgs, prompt, f"{d}/klein{seed}.png", seed=seed)
+    phase = os.environ.get("STILL_PHASE", "both")  # batch "klein" for every shot, then "finish": no model swaps
+    if phase in ("both", "klein"):
+        klein(imgs, prompt, f"{d}/klein{seed}.png", seed=seed)
+    if phase == "klein":
+        print(shot, "klein", seed, flush=True)
+        return
     # Klein drifts toward modern colour; Qwen + Follies repaints it in the house look and keeps the composition
     qwen([up(f"{d}/klein{seed}.png", f"{tag(shot)}-klein.png")],
          "f0llie5, image 1 is a drawing. This is a repaint: redraw image 1 exactly, with the same composition, the "
@@ -455,7 +460,8 @@ def frame(shot, still_seed):
     """Crop the still to the shot's framing around the face (SAM 3.1 finds it); wide keeps the whole still."""
     *_, framing = SHOTS[shot]
     d = f"{ROOT}/{shot}"
-    if BIBLE or (SHEET and SHOTS[shot][3].lower().startswith(("close", "extreme close"))):
+    crop = os.environ.get("CROP_SHOTS", "").split(",")  # a bible still that came out wider than its frame
+    if shot not in crop and (BIBLE or (SHEET and SHOTS[shot][3].lower().startswith(("close", "extreme close")))):
         framing = "wide"  # the director already framed it close in the still; a crop would double the zoom
     if framing == "wide":
         shutil.copy(f"{d}/still{still_seed}.png", f"{d}/framed.png")
@@ -513,7 +519,9 @@ def sing(shot, seed, still_seed, audio_src):
     aud = up(f"{d}/drive.wav", f"{tag(shot)}-drive.wav")
     g = json.load(open(f"{HERE}/lab/ltx25_i2v_audio_api.json"))
     if SHEET:
-        g["pos"]["inputs"]["text"] = (f"{WHO[who]}. {motion} The camera is locked off and does not move. {LOOK}")
+        # "the green glow blinks" became a floating green ball (lullaby shot 01): light is described as light on things
+        g["pos"]["inputs"]["text"] = (f"{WHO[who]}. {motion} The camera is locked off and does not move. All light "
+                                      f"falls softly on the walls, the floor and the characters. {LOOK}")
     elif DIRECTED and shot in DIRECT:
         g["pos"]["inputs"]["text"] = f"{WHO[who]}. {DIRECT[shot][1]} {LOCK} {LOOK} The scene: {STAGE}."
     else:
