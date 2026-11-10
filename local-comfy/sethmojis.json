@@ -1,124 +1,125 @@
 {
-  "title": "Sethmojis",
-  "who": "seth",
-  "blurb": "Seth re-performs reaction memes: Wan Animate 2 motion transfer on gpu-worker, cast style via the f0llie5 LoRA. Click any emoji for the side-by-side and the full-size version.",
-  "retired": [
-    "side-eye"
-  ],
-  "notes": {
-    "best-friends": "shot/reverse-shot: each shot rendered with its own ref and spliced (stepbros.py)",
-    "best-friends-jen": "Jen drawn in the cast style answers 'YEP!'",
-    "bow": "Keanu's humble bow",
-    "chefkiss": "animated from a live-action chef; also a static still and a two-frame kiss loop",
-    "elaine": "full-body, so the emoji is a small figure; the motion still reads",
-    "hangin": "Beetlejuice's outfit, captions on the original timing",
-    "its-happening": "v2: on the original lasers with Ron painted out; the caption blinks on the source's own frames",
-    "jack-salute": "School of Rock salute",
-    "mind-blown": "v2: turtleneck and 80s glasses; the boom is added in post (MindBlownFX node) over the 2.5s the render skips",
-    "more": "still only: Oliver Twist's 'Please sir, may I have some more?'",
-    "nod": "keeps Redford's beard; plays at 6fps to fit 128KB",
-    "not-worthy": "recast into the real Wayne's World room with SCAIL-2: Wilson (the picket fence) and Seth, two people in one render. Effect variant: slow-mo debris (One-take VFX); also flood",
-    "popeye": "eyes by MiniMax H3 between two pupil-edited frames; the source was too small for Wan to read the gaze",
-    "slow-clap": "weakest: the source is so soft the hands read as chin-rubbing, not clapping",
-    "squidward": "cartoon source: one repainted frame, moved by the original's own optical flow (FlowTransfer node) at 2x, 6 poses at the original 12.5fps",
-    "squidward-body": "full cast-style Seth posed from Squidward frame 0, then MiniMax H3 image-to-video (pose pinned both ends) for the twerk itself",
-    "thats-bait": "THAT'S / BAIT timed to the original subtitles, BAIT flashing (Captions post mode); emoji text is drawn on the cutout",
-    "top-kek": "El Risitas; keeps the pink backdrop; gap teeth inpainted into the ref",
-    "van-door": "Wan Animate moves people, not props: the door is drawn and slid shut in post (SlidingDoorFX node)",
-    "yo-dawg": "no motion source: RecursiveZoom node nests Seth on his own forehead",
-    "this-reaction-here": "team request: upload as :seth-this-reaction-here: and drop it to the RIGHT of the reaction you're laughing at. Motion from Kevin Hart's ice-bath point.",
-    "gotcha": "Dave Chappelle's GOTCHA BITCH. The source caption was painted out of the driving clip (delogo) and redrawn in post on the original's timing.",
-    "chest-thump": "recast into the real shot: SCAIL-2 swaps McConaughey for cartoon Seth, the restaurant stays real (sethmoji_recast.py). Effect variants: fire, portal, time-freeze (One-take VFX, LTX-2.5) and LiDAR scan; also inflate and nightfall",
-    "thats-the-rule": "recast into the real SNL Weekend Update shot with SCAIL-2; the burned-in caption is the original's pixels. Effect variants: hologram, disintegrate (One-take VFX), LiDAR scan, and a talking version (LTX-2.5, with sound); also pop, unzip, gulp, empty-the-scene and cutout matte (LTX effect LoRAs)"
-  },
-  "templates": [
+ "title": "Sethmojis",
+ "who": "seth",
+ "blurb": "Seth re-performs reaction memes: Wan Animate 2 motion transfer on gpu-worker, cast style via the f0llie5 LoRA. Click any emoji for the side-by-side and the full-size version.",
+ "retired": [
+  "side-eye"
+ ],
+ "notes": {
+  "best-friends": "shot/reverse-shot: each shot rendered with its own ref and spliced (stepbros.py)",
+  "best-friends-jen": "Jen drawn in the cast style answers 'YEP!'",
+  "bow": "Keanu's humble bow",
+  "chefkiss": "animated from a live-action chef; also a static still and a two-frame kiss loop",
+  "elaine": "full-body, so the emoji is a small figure; the motion still reads",
+  "hangin": "Beetlejuice's outfit, captions on the original timing",
+  "its-happening": "v2: on the original lasers with Ron painted out; the caption blinks on the source's own frames",
+  "jack-salute": "School of Rock salute",
+  "mind-blown": "v2: turtleneck and 80s glasses; the boom is added in post (MindBlownFX node) over the 2.5s the render skips",
+  "more": "still only: Oliver Twist's 'Please sir, may I have some more?'",
+  "nod": "keeps Redford's beard; plays at 6fps to fit 128KB",
+  "not-worthy": "recast into the real Wayne's World room with SCAIL-2: Wilson (the picket fence) and Seth, two people in one render. Effect variant: slow-mo debris (One-take VFX); also flood",
+  "popeye": "eyes by MiniMax H3 between two pupil-edited frames; the source was too small for Wan to read the gaze",
+  "slow-clap": "weakest: the source is so soft the hands read as chin-rubbing, not clapping",
+  "squidward": "cartoon source: one repainted frame, moved by the original's own optical flow (FlowTransfer node) at 2x, 6 poses at the original 12.5fps",
+  "squidward-body": "full cast-style Seth posed from Squidward frame 0, then MiniMax H3 image-to-video (pose pinned both ends) for the twerk itself",
+  "thats-bait": "THAT'S / BAIT timed to the original subtitles, BAIT flashing (Captions post mode); emoji text is drawn on the cutout",
+  "top-kek": "El Risitas; keeps the pink backdrop; gap teeth inpainted into the ref",
+  "van-door": "Wan Animate moves people, not props: the door is drawn and slid shut in post (SlidingDoorFX node)",
+  "yo-dawg": "no motion source: RecursiveZoom node nests Seth on his own forehead",
+  "this-reaction-here": "team request: upload as :seth-this-reaction-here: and drop it to the RIGHT of the reaction you're laughing at. Motion from Kevin Hart's ice-bath point.",
+  "gotcha": "Dave Chappelle's GOTCHA BITCH. The source caption was painted out of the driving clip (delogo) and redrawn in post on the original's timing.",
+  "chest-thump": "recast into the real shot: SCAIL-2 swaps McConaughey for cartoon Seth, the restaurant stays real (sethmoji_recast.py). Effect variants: fire, portal, time-freeze (One-take VFX, LTX-2.5) and LiDAR scan; also inflate and nightfall",
+  "thats-the-rule": "recast into the real SNL Weekend Update shot with SCAIL-2; the burned-in caption is the original's pixels. Effect variants: hologram, disintegrate (One-take VFX), LiDAR scan, and a talking version (LTX-2.5, with sound); also pop, unzip, gulp, empty-the-scene and cutout matte (LTX effect LoRAs)",
+  "celeryman": "Tim & Eric Celery Man dance (Tenor c1). Ref drawn mid-dance to match frame 0; full-frame box so the head and shoes stay in the emoji."
+ },
+ "templates": [
+  {
+   "id": "drake",
+   "name": "Drake: nope / yep",
+   "image": "templates/drake.png",
+   "font": "DejaVu Sans, Arial, Helvetica, sans-serif",
+   "color": "#000000",
+   "boxes": [
     {
-      "id": "drake",
-      "name": "Drake: nope / yep",
-      "image": "templates/drake.png",
-      "font": "DejaVu Sans, Arial, Helvetica, sans-serif",
-      "color": "#000000",
-      "boxes": [
-        {
-          "label": "Nope (top)",
-          "x": 0.5,
-          "y": 0.0,
-          "w": 0.5,
-          "h": 0.5
-        },
-        {
-          "label": "Yep (bottom)",
-          "x": 0.5,
-          "y": 0.5,
-          "w": 0.5,
-          "h": 0.5
-        }
-      ],
-      "examples": [
-        {
-          "title": "GPU",
-          "texts": [
-            "Dedicated GPU for gaming",
-            "Dedicated GPU for ComfyUI"
-          ]
-        },
-        {
-          "title": "Heater",
-          "texts": [
-            "Data center slop",
-            "Office heater slop"
-          ]
-        }
-      ]
+     "label": "Nope (top)",
+     "x": 0.5,
+     "y": 0.0,
+     "w": 0.5,
+     "h": 0.5
     },
     {
-      "id": "distracted-boyfriend",
-      "name": "Distracted Boyfriend",
-      "image": "templates/distracted-boyfriend.png",
-      "font": "Impact, 'Arial Black', 'DejaVu Sans', sans-serif",
-      "color": "#ffffff",
-      "stroke": "#000000",
-      "boxes": [
-        {
-          "label": "The new thing (red robot)",
-          "x": 0.1,
-          "y": 0.64,
-          "w": 0.38,
-          "h": 0.32
-        },
-        {
-          "label": "Seth",
-          "x": 0.47,
-          "y": 0.52,
-          "w": 0.3,
-          "h": 0.3
-        },
-        {
-          "label": "The current thing (blue robot)",
-          "x": 0.76,
-          "y": 0.55,
-          "w": 0.24,
-          "h": 0.32
-        }
-      ],
-      "examples": [
-        {
-          "title": "Side projects",
-          "texts": [
-            "A brand new side project",
-            "Me",
-            "The 14 side projects I already started"
-          ]
-        },
-        {
-          "title": "Models",
-          "texts": [
-            "The model that came out this morning",
-            "Me",
-            "The model I set up yesterday"
-          ]
-        }
-      ]
+     "label": "Yep (bottom)",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.5,
+     "h": 0.5
     }
-  ]
+   ],
+   "examples": [
+    {
+     "title": "GPU",
+     "texts": [
+      "Dedicated GPU for gaming",
+      "Dedicated GPU for ComfyUI"
+     ]
+    },
+    {
+     "title": "Heater",
+     "texts": [
+      "Data center slop",
+      "Office heater slop"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "distracted-boyfriend",
+   "name": "Distracted Boyfriend",
+   "image": "templates/distracted-boyfriend.png",
+   "font": "Impact, 'Arial Black', 'DejaVu Sans', sans-serif",
+   "color": "#ffffff",
+   "stroke": "#000000",
+   "boxes": [
+    {
+     "label": "The new thing (red robot)",
+     "x": 0.1,
+     "y": 0.64,
+     "w": 0.38,
+     "h": 0.32
+    },
+    {
+     "label": "Seth",
+     "x": 0.47,
+     "y": 0.52,
+     "w": 0.3,
+     "h": 0.3
+    },
+    {
+     "label": "The current thing (blue robot)",
+     "x": 0.76,
+     "y": 0.55,
+     "w": 0.24,
+     "h": 0.32
+    }
+   ],
+   "examples": [
+    {
+     "title": "Side projects",
+     "texts": [
+      "A brand new side project",
+      "Me",
+      "The 14 side projects I already started"
+     ]
+    },
+    {
+     "title": "Models",
+     "texts": [
+      "The model that came out this morning",
+      "Me",
+      "The model I set up yesterday"
+     ]
+    }
+   ]
+  }
+ ]
 }

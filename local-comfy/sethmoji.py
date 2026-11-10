@@ -224,6 +224,13 @@ MEMES = {
                    post=dict(node="Captions", passes=[
                        dict(bottom="GOTCHA", frames="0-3", size=0.12, width=0.5, margin=0.3),
                        dict(bottom="GOTCHA BITCH", frames="4-999", size=0.12, width=0.8, margin=0.3)])),
+    # Tim & Eric "Celery Man": Paul Rudd's shiny-suit dance on white, Tenor.
+    "celeryman": dict(seed=7, pick=1, caption=0.0, top=1.0, box=(0.0, 0.0, 1.0, 1.0),
+                    face="a smug, cool, self-satisfied smirk, totally into it",
+                    clothing="a shiny black leather suit jacket and shiny black leather trousers over an open-collared white shirt",
+                    scene="Standing on a plain white background, wearing a shiny black leather suit jacket and shiny black leather trousers over an open-collared white shirt",
+                    extra="Full body from his head to his shoes on plain white, caught mid-dance exactly like the man: his legs spread wide in a low lunge, his jacket hanging open and swinging, his left arm thrown out to the side and his right arm raised up and out at shoulder height, his body leaning to the left. He is the only person in the picture.",
+                    action="He does a cheesy 80s dance, shimmying his shoulders, swinging his hips and pumping his arms, with a smug smirk"),
     # team request: point LEFT at the reaction beside it and laugh. Kevin Hart ice-bath clip, Tenor.
     "this-reaction-here": dict(pick=0, caption=0.0, top=1.0, box=(0.06, 0.0, 0.80, 0.80),
                     face="laughing hard with a huge open-mouthed grin, eyes crinkled, delighted",

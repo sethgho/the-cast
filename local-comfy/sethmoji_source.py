@@ -68,6 +68,8 @@ MEMES = {
     "ron-nope": "ron swanson nope walk away",
     "ron-eat": "ron swanson eating",
     "ron-dance": "ron swanson dancing",
+    "celeryman": "celery man dance",
+    "celeryman2": "celery man paul rudd",
     # this-reaction-here: point left at the reaction beside it and laugh
     "point-laugh": "pointing and laughing",
     "point-laugh2": "laughing pointing at you",
