@@ -30,7 +30,7 @@ notes: 'Huff replaced Swifton on 2026-11-11 (Seth: Swifton never caught on, did 
   is the agent on the swifton Mac mini. His name is the middle of $WHUFFIE, and the Big Bad
   Wolf''s "I''ll huff and I''ll puff": he is all puff. Drawn locally with the f0llie5 style LoRA
   (local-comfy/huff_canon.py): one base plate, then every view, expression and prop as an edit
-  from it. The 3/4 and side views need fal's multiple-angles LoRA (words alone gave only front,
+  from it. The 3/4 and side views need fal''s multiple-angles LoRA (words alone gave only front,
   profile and back). The grin is his defining feature and the FIRST thing a text-only prompt loses: it must
   show too many teeth to be trusted. The pin''s W is the model''s own serif letter; a pasted-in
   copy of the real logo looked fake and was rejected. Never draw him with a cigarette, drugs or a
