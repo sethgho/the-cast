@@ -25,6 +25,7 @@ from build_workflows import BGREMOVAL, NEGATIVE, STEPS
 from expression_run import upload
 
 LORA, STRENGTH = "follies-final.safetensors", 1.2
+ANGLES_LORA = "qwen-image-edit-2511-multiple-angles-lora.safetensors"
 OUT = "/home/wilson/scratch/huff"
 BASE = f"{OUT}/base.png"
 HEAD = f"{OUT}/head-base.png"      # the approved head-and-shoulders render, pin on the lapel
@@ -43,10 +44,17 @@ GREY = "on a plain flat mid-grey background, nothing else in the frame."
 
 VIEWS = {
     "view-front": "standing at rest facing the viewer, holding a fountain pen up beside his face, full body head to feet",
-    "view-3q-front": "standing at rest in three-quarter view turned to the viewer's left, one paw in his trouser pocket, full body head to feet",
-    "view-side": "standing at rest in strict side profile facing the viewer's left, chin up, full body head to feet",
-    "view-3q-back": "standing at rest in three-quarter rear view turned away from the viewer, his tail toward us, full body head to feet",
     "view-back": "standing at rest seen directly from behind, his tail hanging down, full body head to feet",
+}
+# The in-between angles need fal's multiple-angles LoRA. Asked for in words ("three-quarter view",
+# "rotate the camera 45 degrees"), the edit only knows front, profile and back: the 3/4 views came
+# back as a front and a back, and the grin went flat (Seth caught it, 2026-11-11). Each entry is
+# (azimuth, seed); seeds are the measured picks, all facing the viewer's left like the old sheet.
+# front-left ignored the LoRA on seeds 7 and 42 and stayed a front view.
+ANGLED = {
+    "view-3q-front": ("front-left quarter view", 99),
+    "view-side": ("right side view", 7),
+    "view-3q-back": ("back-right quarter view", 7),
 }
 # Expressions are edits of HEAD, not BASE: edited from the full-body plate, all four came back as
 # the plate's own pose and grin, ignoring "head and shoulders only" (measured 2026-11-11).
@@ -80,7 +88,7 @@ def fetch(o, dest):
         open(dest, "wb").write(rr.read())
 
 
-def run(name, prompt, image1=None, seed=7, w=1024, h=1024):
+def run(name, prompt, image1=None, seed=7, w=1024, h=1024, angles=0.0):
     dest = f"{OUT}/{name}.png"
     if os.path.exists(dest):
         print(name, "cached"); return
@@ -97,6 +105,10 @@ def run(name, prompt, image1=None, seed=7, w=1024, h=1024):
      "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}},
      "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": f"huff/{name}", "images": ["23", 0]}},
     }
+    if angles:
+        # fal's multiple-angles LoRA for 2511, prompted "<sks> <azimuth> <elevation> <distance>".
+        g["31"] = {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": ANGLES_LORA, "strength_model": angles, "model": ["30", 0]}}
+        g["22"]["inputs"]["model"] = ["31", 0]
     if image1:
         g["6"] = {"class_type": "LoadImage", "inputs": {"image": upload(image1)}}
         g["20"]["inputs"]["image1"] = ["6", 0]
@@ -110,6 +122,9 @@ def run(name, prompt, image1=None, seed=7, w=1024, h=1024):
 def views():
     for name, act in VIEWS.items():
         run(name, f"{EDIT}{TRAITS}. He is {act}, {GREY}", BASE)
+    for name, (azimuth, seed) in ANGLED.items():
+        run(name, f"<sks> {azimuth} eye-level shot wide shot. f0llie5, the same wolf in the pinstripe "
+            f"suit, full body head to feet, {GREY}", BASE, seed=seed, angles=1.0)
     for name, act in EXPRESSIONS.items():
         run(name, f"{EDIT}{TRAITS}. Keep the same head-and-shoulders framing; change only his face: "
             f"he is {act}. {GREY}", HEAD)
@@ -132,7 +147,7 @@ def cut():
     """RGBA cutouts: BiRefNet's mask from ComfyUI, joined with the render here."""
     from PIL import Image
     os.makedirs(f"{OUT}/cut", exist_ok=True)
-    for name in [*VIEWS, *EXPRESSIONS, *PROPS]:
+    for name in [*VIEWS, *ANGLED, *EXPRESSIONS, *PROPS]:
         dest = f"{OUT}/cut/{name}.png"
         if os.path.exists(dest):
             continue
