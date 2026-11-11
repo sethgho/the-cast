@@ -18,7 +18,7 @@ from expression_run import upload
 import yaml
 
 OUT = "/home/wilson/scratch/huff/voice"
-FRAME = "/home/wilson/scratch/belfort/voice/frame169.png"   # the approved headshot, padded to 16:9
+FRAME = "/home/wilson/scratch/huff/frame169.png"   # the approved headshot, padded to 16:9
 W, H, FRAMES, STEPS = 1152, 640, 124, 8
 VOICE = yaml.safe_load(open(os.path.join(HERE, "..", "cast", "huff", "voice.yaml")))["speech"]["h3_voice_clause"].strip()
 
