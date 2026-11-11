@@ -151,7 +151,7 @@ between them are the strip's deepest source of material.
 - **Cadbury** — the adult in the room: business manager, accountant, and household
   disciplinarian on money. **Not set up yet.** Keep him out of strips specifically
   about agentic *coding* practice; he has no standing there until he exists.
-- **Swifton** — Seth's *second work agent*, on the swifton Mac mini (added 2026-10-16): native SwiftUI apps and the build factory, and the troupe's grift hunter. **Ake ships the work; Swifton guards its reputation.** Straight against an outside con, comic when the grift turns out to be one of us. Never name the firm (§3).
+- **Huff** — Seth's *second work agent*, on the swifton Mac mini (added 2026-10-16 as Swifton, recast as Huff 2026-11-11): native SwiftUI apps and the build factory, and the troupe's grift hunter. A wolf in a pinstripe suit, the Wolf of Wall Street as a 1933 cartoon: it takes a wolf to catch a wolf. **Ake ships the work; Huff guards its reputation.** Straight against an outside con, comic when the grift turns out to be one of us or when he cannot stop pitching. Never name the firm (§3).
 - **Seth** — the only human: a software guy (two decades — mobile, full-stack, team
   lead) treading water amid the agentic-coding upheaval, and the one who carries a
   lesson from the lab to production. (Self-description, 2026-07-24. The mission's

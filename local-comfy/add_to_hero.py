@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Add a cast member to site/art/hero.png without redrawing anyone already on stage.
 
-    python3 add_to_hero.py   # Swifton, 2026-10-17
+    python3 add_to_hero.py add      # widen the stage and add a member (Swifton, 2026-10-17)
+    python3 add_to_hero.py recast   # redraw the fifth seat in place (Swifton -> Huff, 2026-11-11)
 
 A plain Qwen edit of the whole hero ("keep these four, add a fifth") REDRAWS the company:
 measured, it produced two Cadburys and lost Wilson. So the hero is widened instead:
@@ -15,6 +16,11 @@ measured, it produced two Cadburys and lost Wilson. So the hero is widened inste
      the other performers are byte-for-byte untouched;
   4. the tiled swag survives the inpaint, so replace it with the best-matching 480px swag
      segment from the original curtain, masking the orange flame crest out of the patch.
+
+`recast` skips 1 and 2: the hero is already wide, so it inpaints the same gap columns below the
+swag only, then step 4 replaces the swag band over the gap with no flame mask, which removes the
+outgoing character's crest. It needs the pre-Swifton hero:
+`git show 7594bf0:site/art/hero.png > $OUT/hero-7594bf0.png`.
 """
 import json, os, sys, time, urllib.request
 import numpy as np
@@ -23,7 +29,7 @@ from PIL import Image, ImageFilter
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import smoke_test as S
-import swifton_canon as C
+import huff_canon as C
 from build_workflows import NEGATIVE, STEPS
 from expression_run import upload
 
@@ -31,11 +37,11 @@ HERO = os.path.join(HERE, "..", "site", "art", "hero.png")
 OUT = C.OUT
 X, G, FLOOR, SWAG, SEED = 888, 480, 430, 112, 7
 PROMPT = ("f0llie5, image 1 is a vaudeville stage with an empty gap in the middle between two performers. Fill the gap "
-          "with the griffon-phoenix from image 2, standing on the same stage floor in front of the same curtain, taking a "
-          "showman's bow toward the audience. He is NO TALLER than the long-haired man beside him and his feet rest on "
-          "the floorboards at the same height as theirs. The wooden stage floorboards run continuously across, matching "
-          "the boards on either side; the sepia curtain and its draped top swag continue smoothly across behind him, "
-          "matching both sides exactly. He holds the burning W coin up in front of his chest, fully in view: "
+          "with the wolf in the pinstripe suit from image 2, standing on the same stage floor in front of the same curtain, "
+          "taking a showman's bow toward the audience with one arm swept out, flashing his toothy grin. He is NO TALLER "
+          "than the long-haired man beside him and his feet rest on the floorboards at the same height as theirs. The "
+          "wooden stage floorboards run continuously across, matching the boards on either side; the sepia curtain "
+          "continues smoothly across behind him, matching both sides exactly: "
           f"{C.TRAITS}. Drawn on aged paper.")
 
 
@@ -59,7 +65,7 @@ def inpaint(crop_path, mask_path):
      "4": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors", "type": "qwen_image", "device": "default"}},
      "5": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_vae.safetensors"}},
      "6": {"class_type": "LoadImage", "inputs": {"image": upload(crop_path)}},
-     "7": {"class_type": "LoadImage", "inputs": {"image": upload(f"{OUT}/plate2-s42.png")}},
+     "7": {"class_type": "LoadImage", "inputs": {"image": upload(C.BASE)}},
      "8": {"class_type": "LoadImageMask", "inputs": {"image": upload(mask_path), "channel": "red"}},
      "12": {"class_type": "VAEEncode", "inputs": {"pixels": ["6", 0], "vae": ["5", 0]}},
      "13": {"class_type": "SetLatentNoiseMask", "inputs": {"samples": ["12", 0], "mask": ["8", 0]}},
@@ -67,7 +73,7 @@ def inpaint(crop_path, mask_path):
      "21": {"class_type": "TextEncodeQwenImageEditPlus", "inputs": {"prompt": NEGATIVE, "clip": ["4", 0]}},
      "22": {"class_type": "KSampler", "inputs": {"seed": SEED, "steps": STEPS, "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["30", 0], "positive": ["20", 0], "negative": ["21", 0], "latent_image": ["13", 0]}},
      "23": {"class_type": "VAEDecode", "inputs": {"samples": ["22", 0], "vae": ["5", 0]}},
-     "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": "swifton/hero-inpaint", "images": ["23", 0]}},
+     "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": "huff/hero-inpaint", "images": ["23", 0]}},
     }
     pid = S.api("/prompt", {"prompt": g, "client_id": "hero"})["prompt_id"]
     while pid not in (h := S.api(f"/history/{pid}")):
@@ -78,7 +84,7 @@ def inpaint(crop_path, mask_path):
     return Image.open(dest).convert("RGB")
 
 
-def reswag(orig, fin):
+def reswag(orig, fin, keep_flames=True):
     left = np.array(fin.crop((X - 4, 0, X, SWAG))).astype(int).mean(axis=1)
     right = np.array(fin.crop((X + G, 0, X + G + 4, SWAG))).astype(int).mean(axis=1)
     def cost(x):
@@ -86,7 +92,7 @@ def reswag(orig, fin):
         return ((seg[:, :4].mean(axis=1) - left) ** 2).sum() + ((seg[:, -4:].mean(axis=1) - right) ** 2).sum()
     bx = min(range(150, orig.width - G - 150, 4), key=cost)
     f = np.array(fin.crop((X, 0, X + G, SWAG))).astype(int)
-    flame = (f[..., 0] > 150) & (f[..., 0] - f[..., 2] > 70) & (f[..., 1] > 60)
+    flame = (f[..., 0] > 150) & (f[..., 0] - f[..., 2] > 70) & (f[..., 1] > 60) & keep_flames
     fl = Image.fromarray((flame * 255).astype("uint8")).filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(2))
     ramp = np.ones((SWAG, 1)); ramp[SWAG - 14:, 0] = np.linspace(1, 0, 14)
     mask = Image.fromarray(((255 - np.array(fl).astype(int)) * ramp).clip(0, 255).astype("uint8"))
@@ -94,7 +100,7 @@ def reswag(orig, fin):
     return fin
 
 
-if __name__ == "__main__":
+def add():
     orig = Image.open(HERO).convert("RGB")
     wide = widen(orig); H = wide.height; L = X - 240
     crop = Image.new("RGB", (960, 608)); crop.paste(wide.crop((L, 0, L + 960, H)), (0, 0)); crop.save(f"{OUT}/hero-gap-crop.png")
@@ -103,5 +109,25 @@ if __name__ == "__main__":
     region = wide.crop((L, 0, L + 960, H))
     region.paste(inp, (0, 0), m.crop((0, 0, 960, H)).filter(ImageFilter.GaussianBlur(3)))
     wide.paste(region, (L, 0))
-    reswag(orig, wide).save(f"{OUT}/hero-with-swifton.png")
-    print(f"{OUT}/hero-with-swifton.png", wide.size)
+    reswag(orig, wide).save(f"{OUT}/hero-new.png")
+    print(f"{OUT}/hero-new.png", wide.size)
+
+
+def recast():
+    hero = Image.open(HERO).convert("RGB"); H = hero.height; L = X - 240
+    crop = Image.new("RGB", (960, 608)); crop.paste(hero.crop((L, 0, L + 960, H)), (0, 0)); crop.save(f"{OUT}/hero-gap-crop.png")
+    m = Image.new("L", (960, 608), 0); m.paste(255, (238, SWAG, 240 + G + 2, 608)); m.save(f"{OUT}/hero-gap-mask.png")
+    inp = inpaint(f"{OUT}/hero-gap-crop.png", f"{OUT}/hero-gap-mask.png").resize((960, 608)).crop((0, 0, 960, H))
+    region = hero.crop((L, 0, L + 960, H))
+    region.paste(inp, (0, 0), m.crop((0, 0, 960, H)).filter(ImageFilter.GaussianBlur(3)))
+    hero.paste(region, (L, 0))
+    # Swifton's flame crest reached up into the swag band, which the mask leaves alone, so the
+    # band is re-taken from the pre-Swifton hero (7594bf0), flames and all this time.
+    orig = Image.open(f"{OUT}/hero-7594bf0.png").convert("RGB")
+    hero = reswag(orig, hero, keep_flames=False)
+    hero.save(f"{OUT}/hero-new.png")
+    print(f"{OUT}/hero-new.png", hero.size)
+
+
+if __name__ == "__main__":
+    {"add": add, "recast": recast}[sys.argv[1]]()

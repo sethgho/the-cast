@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Swifton's voice, heard: three H3 image-to-video clips of his sample lines.
+"""Huff's voice, heard: H3 image-to-video clips of his sample lines.
 
-    python3 swifton_voice_test.py
+    python3 huff_voice_test.py
 
 Departs from a 16:9 portrait (dialogue is only intelligible at 16:9 on H3, measured
 2026-08-28), puts each line in a <d> tag, and carries the h3_voice_clause from
-cast/swifton/voice.yaml verbatim. Turbo LoRA at 8 steps, EasyCache off: EasyCache melts
+cast/huff/voice.yaml verbatim. Turbo LoRA at 8 steps, EasyCache off: EasyCache melts
 faces on characters.
 """
 import json, os, sys, time, urllib.request
@@ -17,27 +17,23 @@ from expression_run import upload
 
 import yaml
 
-OUT = "/home/wilson/scratch/swifton/voice"
-FRAME = "/home/wilson/scratch/swifton/frame169.png"
+OUT = "/home/wilson/scratch/huff/voice"
+FRAME = "/home/wilson/scratch/belfort/voice/frame169.png"   # the approved headshot, padded to 16:9
 W, H, FRAMES, STEPS = 1152, 640, 124, 8
-VOICE = yaml.safe_load(open(os.path.join(HERE, "..", "cast", "swifton", "voice.yaml")))["speech"]["h3_voice_clause"].strip()
+VOICE = yaml.safe_load(open(os.path.join(HERE, "..", "cast", "huff", "voice.yaml")))["speech"]["h3_voice_clause"].strip()
 
 LINES = {
-    "pick-a-card": ("He leans toward the viewer with a sly grin and fans the fingers of his free hand as if offering a deck of cards",
-                    "Pick a card, friend. Any card. They're all yours anyway."),
-    "whitepaper": ("He narrows one eye, taps the side of his beak knowingly, then points straight at the viewer",
-                   "That's not a whitepaper. That's a tell."),
-    "reputation": ("He holds the burning W coin up beside his face, watches it flare, then closes his talon around it with a satisfied nod",
-                   "Watch closely. Now it's ash. Reputation matters."),
+    "sell-me-this-pen": ("He leans toward the viewer with a huge toothy grin, raises one eyebrow, then points straight at the viewer",
+                         "Sell me this pen. No? Then I'll sell YOU the pen."),
 }
 
 
 def prompt(action, line):
     return (f"A 1930s rubber-hose cartoon on aged sepia paper, a fixed camera on a vaudeville stage. "
-            f"The griffon-phoenix card sharp (S1) with the orange flame crest performs continuously for the whole "
-            f"shot and never holds still: {action}, his beak moving clearly in time with every word. "
-            f"The griffon (S1) says: <d>[English] {line}</d> "
-            f"Overall soundscape: a quiet empty theatre, the faint crackle of the flaming coin. "
+            f"The grey wolf in the pinstripe suit (S1) performs continuously for the whole "
+            f"shot and never holds still: {action}, his jaw moving clearly in time with every word. "
+            f"The wolf (S1) says: <d>[English] {line}</d> "
+            f"Overall soundscape: a quiet empty theatre. "
             f"Non-diegetic music: none. {VOICE}")
 
 
@@ -60,7 +56,7 @@ def graph(image_name, text):
         "10": {"class_type": "VAEDecode", "inputs": {"samples": ["14", 0], "vae": ["11", 0]}},
         "23": {"class_type": "VAEDecodeAudio", "inputs": {"samples": ["14", 0], "vae": ["24", 0]}},
         "91": {"class_type": "CreateVideo", "inputs": {"images": ["10", 0], "audio": ["23", 0], "fps": 24}},
-        "92": {"class_type": "SaveVideo", "inputs": {"video": ["91", 0], "filename_prefix": "video/swifton_voice", "format": "auto", "codec": "auto"}},
+        "92": {"class_type": "SaveVideo", "inputs": {"video": ["91", 0], "filename_prefix": "video/huff_voice", "format": "auto", "codec": "auto"}},
     }
 
 
@@ -69,7 +65,7 @@ def run(name, action, line, image_name):
     if os.path.exists(dest):
         print(name, "cached"); return
     t0 = time.time()
-    r = S.api("/prompt", {"prompt": graph(image_name, prompt(action, line)), "client_id": "swifton-voice"})
+    r = S.api("/prompt", {"prompt": graph(image_name, prompt(action, line)), "client_id": "huff-voice"})
     if "prompt_id" not in r:
         print(name, "REJECTED", json.dumps(r)[:600]); return
     pid = r["prompt_id"]

@@ -21,7 +21,7 @@ Full endpoint reference and copy-pasteable examples: **[API.md](API.md)**, also 
 | `wilson` | The neighbour. Steady, dry, faceless — emotes entirely through posture. |
 | `cadbury` | The butler. Unflappable. Arrives with tea precisely as things collapse. |
 | `ake` | The sysop. A goldfish. Over-caffeinated, alarmed, usually right. |
-| `swifton` | The grift hunter. A griffon-phoenix who writes SwiftUI and burns counterfeit $WHUFFIE. |
+| `huff` | The grift hunter. A wolf in a pinstripe suit who writes SwiftUI; it takes a wolf to catch a wolf. |
 
 ## What the hub serves
 

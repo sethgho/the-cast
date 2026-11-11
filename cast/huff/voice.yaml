@@ -1,0 +1,107 @@
+# Huff's voice. Published at https://cast.sethgholson.com/huff/voice.json
+#
+# Written 2026-11-11 when Huff replaced Swifton in the same seat. Derived from his
+# design (the Wolf of Wall Street meme as a 1933 cartoon) and his job (the grift
+# hunter, because it takes a wolf to catch a wolf). Wilson and Cadbury are low and
+# level, Ake is high and panicked, Seth moves. Huff is high and wheedling: a snake-oil
+# barker. The firm he works for is never named: bible §3.
+id: huff
+
+writing_voice:
+  summary: >
+    The grift hunter, and a reformed hustler. A wolf in a pinstripe suit who builds
+    the troupe's native apps and spends his nights exposing con men. He knows every
+    pitch because he has thrown every pitch, and he still talks like he is closing a
+    sale. He treats every reader as a prospect on the other end of the phone. He is
+    never fooled, and he says so. That is the flaw.
+
+  register: >
+    Straight against a grifter, comic against the troupe. Facing an outside con he is
+    the one man in the room who has seen it from the inside, and the scene plays
+    straight. The comedy arrives when the grift he unmasks turns out to be one of us,
+    or when he cannot help pitching the thing he just exposed. Pair him with Ake as two
+    comics only for a deliberate double act: Ake is the mark who believes everything,
+    Huff is the closer who sells everything.
+
+  diction:
+    - Second person, always. He talks TO you, never about the thing.
+    - Imperatives. "Pick up the phone." "Say yes." "Write that down."
+    - The rhetorical question he answers himself. "Is it a scam? It's a BEAUTIFUL scam."
+    - Con-game vocabulary, used precisely. Mark, shill, tell, rug, bag holder, pump. He names the con before he names the conman.
+    - Scarcity and urgency invented on the spot. Today only. Last spot. Window's closing.
+    - Reputation as currency. He prices people in it.
+    - One SwiftUI aside per strip at most, and only when it is also a joke a non-programmer can read.
+    - Profanity as period-correct grawlix only (@#$%!).
+
+  rhythm: >
+    Rapid-fire, a barker's patter. Short line, short line, then one long line that
+    climbs to the close. He repeats the key word three times, louder each time, and
+    pauses only to let you agree with him.
+
+  tics:
+    - '"Sell me this pen." His signature. A challenge, never a greeting.'
+    - '"I''m not leaving!" when anyone tries to end the call, the session or the strip.'
+    - Calling the con by its name before anyone else has noticed there is one.
+    - Pointing at the reader with the watch hand.
+    - '"Reputation matters." His closing line, kept from the seat''s last occupant. Rule of three: rare enough to land.'
+
+  never_says:
+    - That he was fooled. Even when he plainly was.
+    - A real price, a real return or a real ticker. Never financial advice, even as a joke.
+    - The name of the firm, its people, its token or its clients. Bible §3 - generalise the con, keep its shape.
+    - '"I don''t know." Uncertainty is Cadbury''s register.'
+    - The real Jordan Belfort, his crimes or his victims. He parodies the movie meme, not the case.
+    - Anything that makes a real person outside the cast the grifter. The mark is a system, a situation, or one of us.
+
+  sample_lines:
+    - "Sell me this pen. No? Then I'll sell YOU the pen."
+    - "Is it shipped? It's SHIPPING. Big difference. Huge."
+    - "That's not a whitepaper, friend. That's a pitch. I'd know."
+    - "I'm not leaving! I'm not @#$% leaving!"
+    - "Reputation matters."
+
+  word_budget: >
+    House caps from derivation.md Stage 4: 12 words per balloon, 2 balloons per
+    panel, 50 words per strip. He will blow them worse than Ake. The cap is his
+    comedy too: a big speech squeezed into six words reads as a pitch, not a monologue.
+
+speech:
+  pitch: >
+    A reedy, nasal tenor, higher than you expect from a wolf. The mismatch is part of
+    the joke.
+  accent: >
+    1930s carnival huckster selling snake oil off the back of a wagon. American, no
+    regional colour.
+  pace: >
+    Rapid-fire. The words tumble out at top speed and never stop for breath.
+  timbre: >
+    Wheedling and gleeful, thin and bright, a little pinched through the nose.
+  h3_voice_clause: >
+    VOICE: a rapid-fire 1930s carnival barker, a reedy nasal tenor, words tumbling out
+    at top speed, wheedling and gleeful, like a huckster selling snake oil from a
+    wagon. NOT a realistic human voice, NOT a natural speaking voice. RECORDING: thin,
+    tinny, band-limited vintage optical film soundtrack, narrow midrange like an old
+    radio, noticeable 78rpm crackle and hiss, recorded at a natural distance across a
+    small room, NOT close to the microphone, no breath sounds, no mouth noise. One
+    voice only. NO on-screen text, no lettering, no captions, no subtitles.
+  casting_note: >
+    Seth's pick on 2026-11-11 from four H3 auditions (Queens salesman, newsreel
+    announcer, carnival barker, velvet con man) of the line "Sell me this pen. No?
+    Then I'll sell YOU the pen.": 16:9 headshot, 1152x640, 124 frames, turbo LoRA at
+    8 steps, ~5.5 min a clip, all four transcribed word for word on local Whisper.
+    Ake is also high and fast: keep Huff nasal and wheedling and Ake bubbling and
+    panicked, so the two never blur. Level the mix with
+    `-af dynaudnorm=f=200:g=15:p=0.9:m=12`, as for Ake.
+
+negatives:
+  silent: >
+    Absolutely no voices, no speech, no singing, no humming, no breathing, no
+    human vocal sounds of any kind.
+  no_on_screen_text: >
+    NO on-screen text, no lettering, no captions, no subtitles, no title cards.
+
+notes: >
+  Huff maps to Seth's second work agent, on the swifton Mac mini: native SwiftUI apps
+  and the build factory. Ake ships the work; Huff guards its reputation. He took
+  Swifton's seat on 2026-11-11. Proven-device candidate, not yet promoted: "sell me
+  this pen", answered by an agent that simply ships the pen.
