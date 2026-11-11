@@ -4,6 +4,7 @@
     python3 huff_canon.py views      # turnaround, expressions, props and headshot from the base plate
     python3 huff_canon.py title      # Swifton's blanked sheet layout, retitled HUFF
     python3 huff_canon.py cut        # BiRefNet mattes for every view, expression and prop
+    python3 huff_canon.py headshot   # the avatar: HEAD matted onto a drawn curtain, toned to the others
 
 Huff replaced Swifton on 2026-11-11 (Seth: "Swifton never caught on"). He is the Wolf of Wall
 Street meme played as a 1933 cartoon: a wolf in a pinstripe suit, and the troupe's grift hunter
@@ -88,7 +89,7 @@ def fetch(o, dest):
         open(dest, "wb").write(rr.read())
 
 
-def run(name, prompt, image1=None, seed=7, w=1024, h=1024, angles=0.0):
+def run(name, prompt, image1=None, seed=7, w=1024, h=1024, angles=0.0, image2=None):
     dest = f"{OUT}/{name}.png"
     if os.path.exists(dest):
         print(name, "cached"); return
@@ -112,6 +113,9 @@ def run(name, prompt, image1=None, seed=7, w=1024, h=1024, angles=0.0):
     if image1:
         g["6"] = {"class_type": "LoadImage", "inputs": {"image": upload(image1)}}
         g["20"]["inputs"]["image1"] = ["6", 0]
+    if image2:
+        g["7"] = {"class_type": "LoadImage", "inputs": {"image": upload(image2)}}
+        g["20"]["inputs"]["image2"] = ["7", 0]
     t = time.time()
     o = submit(g, name)
     if o:
@@ -169,6 +173,38 @@ def cut():
         print("cut", name, flush=True)
 
 
+def headshot():
+    """The avatar. HEAD sits on grey paper, which read blue beside the others' sepia curtains (Seth,
+    2026-11-11), and every edit that swapped the background kept the paper's speckle, even with a
+    curtain reference as image 2. So: draw an empty curtain, mat HEAD out with BiRefNet, paste him
+    at 94% so the ears clear the top edge, and scale the curtain to the other headshots' mean tone."""
+    import numpy as np
+    from PIL import Image, ImageFilter
+    run("curtain", "f0llie5, an empty vaudeville stage seen straight on: a smooth warm sepia stage curtain "
+        "in soft vertical folds fills the whole picture, with one soft round spotlight glow in the upper "
+        "middle. Clean even tone, no spots, no splatters, no people, no objects.", seed=42)
+    g = {
+     "1": {"class_type": "LoadImage", "inputs": {"image": upload(HEAD)}},
+     "2": {"class_type": "LoadBackgroundRemovalModel", "inputs": {"bg_removal_name": BGREMOVAL}},
+     "3": {"class_type": "RemoveBackground", "inputs": {"bg_removal_model": ["2", 0], "image": ["1", 0]}},
+     "4": {"class_type": "MaskToImage", "inputs": {"mask": ["3", 0]}},
+     "99": {"class_type": "SaveImage", "inputs": {"filename_prefix": "huff/mask-head", "images": ["4", 0]}},
+    }
+    fetch(submit(g, "mask-head"), f"{OUT}/mask-head.png")
+    cast = os.path.join(HERE, "..", "cast")
+    strip = lambda im: np.array(im.convert("RGB").crop((0, 0, 200, 1024))).reshape(-1, 3).mean(0)
+    target = np.mean([strip(Image.open(f"{cast}/{c}/headshot.png")) for c in ("wilson", "ake", "cadbury", "seth")], axis=0)
+    bg = Image.open(f"{OUT}/curtain.png").convert("RGB").filter(ImageFilter.GaussianBlur(3))
+    bg = Image.fromarray((np.array(bg).astype(float) * (target / strip(bg))).clip(0, 255).astype("uint8"))
+    fig = Image.open(HEAD).convert("RGB")
+    m = Image.open(f"{OUT}/mask-head.png").convert("L").resize(fig.size).filter(ImageFilter.GaussianBlur(0.8))
+    size = (int(fig.width * 0.94), int(fig.height * 0.94))
+    fig, m = fig.resize(size, Image.LANCZOS), m.resize(size, Image.LANCZOS)
+    bg.paste(fig, ((bg.width - size[0]) // 2, bg.height - size[1]), m)
+    bg.save(f"{cast}/huff/headshot.png")
+    print("headshot ->", f"{cast}/huff/headshot.png")
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    {"views": views, "title": title, "cut": cut}[sys.argv[1]]()
+    {"views": views, "title": title, "cut": cut, "headshot": headshot}[sys.argv[1]]()
