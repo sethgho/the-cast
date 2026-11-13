@@ -693,12 +693,20 @@ def full(name):
 
 def deliver(name):
     """To the Mac folder, and onto the gallery page -- the page is the source of truth, so a
-    meme that is not on it does not exist. The page is rebuilt from the artifact folder's files
-    by emoji_gallery.py whenever <PREFIX>s.json (notes, retired list) sits next to this file."""
+    meme that is not on it does not exist. Sethmojis go into the sethmojis repo; the other sets'
+    pages are rebuilt from the artifact folder by emoji_gallery.py when <PREFIX>s.json sits here."""
     dd = d(name)
     files = [f"{dd}/{name}-{WHO}{suf}" for suf in (".gif", "-comparison.gif", "-full.gif", "-hires.mp4")]
     files = [f for f in files if os.path.exists(f)]
     sh("scp", "-q", *files, f"{MAC}:{MAC_DIR}/")
+    if PREFIX == "sethmoji":
+        # Sethmojis are their own repo now (heidihowilson/sethmojis): copy in, rebuild, then commit and push there.
+        repo = "/home/wilson/dev/sethmojis"
+        for f in files:
+            shutil.copy(f, f"{repo}/docs")
+        sh(sys.executable, f"{repo}/build.py")
+        print(f"{name} delivered; commit and push {repo} to publish")
+        return
     art = f"/home/wilson/artifacts/{PREFIX}s"
     if os.path.exists(f"{HERE}/{PREFIX}s.json"):
         os.makedirs(art, exist_ok=True)

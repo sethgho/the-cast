@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build an emoji gallery page from whatever is in its artifact folder.
 
-    python3 emoji_gallery.py [sethmojis]
+    python3 emoji_gallery.py <set>   (jenmojis, boldmojis; sethmojis now live in heidihowilson/sethmojis)
 
 The folder (/home/wilson/artifacts/<set>/, served at http://wilson/<set>/) is the source of
 truth: every file named <name>-<who><suffix> belongs to meme <name>, and the page is rebuilt from
@@ -25,7 +25,7 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SET = sys.argv[1] if len(sys.argv) > 1 else "sethmojis"
+SET = sys.argv[1]
 ART = f"/home/wilson/artifacts/{SET}"
 CFG = json.load(open(f"{HERE}/{SET}.json"))
 WHO = CFG["who"]
